@@ -1,0 +1,12 @@
+[2022-07-20 11:51:56,922] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:51:56,922] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:51:56,934] ERROR::http.py/jequest(69) Error Connecting:DNSLookupError, http://INVALID_URL
+[2022-07-20 11:52:51,037] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:52:51,038] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:52:51,050] ERROR::http.py/jequest(69) Error Connecting:DNSLookupError, http://INVALID_URL
+[2022-07-20 11:52:51,930] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:52:51,930] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:52:51,940] ERROR::http.py/jequest(69) Error Connecting:DNSLookupError, http://INVALID_URL
+[2022-07-20 11:52:53,850] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:52:53,850] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:52:53,859] ERROR::http.py/jequest(69) Error Connecting:DNSLookupError, http://INVALID_URL

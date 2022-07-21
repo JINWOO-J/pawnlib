@@ -1,0 +1,8 @@
+
+--build-arg BUILD_DATE=2022-07-21T01:17:47UTC  
+--build-arg ECHO_OPTION=  
+--build-arg LOCAL_SERVER=20.20.5.172  
+--build-arg NAME=pawnlib  
+--build-arg SED_OPTION=''  
+--build-arg UNAME_S=Darwin  
+--build-arg VERSION=0.0.1  

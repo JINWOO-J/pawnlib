@@ -1,0 +1,251 @@
+#!/usr/bin/env python3
+import os
+import logging
+from logging import handlers
+import traceback
+import datetime
+from pawnlib.output import *
+from pawnlib.config.globalconfig import pawnlib_config
+
+
+class CustomLog:
+    def __init__(self, name):
+        self.log = logging.getLogger(name)
+        self.log.propagate = True
+        # self.formatter = logging.Formatter("%(levelname).1s|%(asctime)s.%(msecs)06d|-|%(name)s|%(message)s", "%Y%m%d-%H:%M:%S")
+        # self.formatter = logging.Formatter(f"%(levelname).1s|%(asctime)s.%(msecs)06d|-|%(name)s|%(filename)s:%(lineno)d %(funcName)-15s| %(message)s", "%Y%m%d-%H:%M:%S")
+        self.formatter = logging.Formatter(
+            f"%(levelname).1s|%(asctime)s.%(msecs)06d|-|%(name)s|%(filename)s:%(lineno)d| %(message)s",
+            "%Y%m%d-%H:%M:%S"
+        )
+        self.levels = {
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING,
+            "ERROR": logging.ERROR,
+            "CRITICAL": logging.CRITICAL}
+
+    def set_level(self, level):
+        self.log.setLevel(self.levels[level])
+
+    def log_formatter(self, msg):
+        """
+        :return:
+        """
+        log_str = f"{msg}"
+        return log_str
+
+    def stream_handler(self, level):
+        """
+        :param level:
+        > "DEBUG" : logging.DEBUG ,
+        > "INFO" : logging.INFO ,
+        > "WARNING" : logging.WARNING ,
+        > "ERROR" : logging.ERROR ,
+        > "CRITICAL" : logging.CRITICAL ,
+        :return:
+        """
+        streamHandler = logging.StreamHandler()
+        streamHandler.setLevel(self.levels[level])
+        streamHandler.setFormatter(self.formatter)
+        self.log.addHandler(streamHandler)
+        return self.log
+
+    def file_handler(self, file_name, mode):
+        """
+        :param file_name: ~.txt / ~.log
+        :param mode: "w" / "a"
+        > "DEBUG" : logging.DEBUG ,
+        > "INFO" : logging.INFO ,
+        > "WARNING" : logging.WARNING ,
+        > "ERROR" : logging.ERROR ,
+        > "CRITICAL" : logging.CRITICAL ,
+        :return:
+        """
+        fileHandler = logging.FileHandler(file_name, mode=mode)
+        fileHandler.setLevel(logging.DEBUG)
+        fileHandler.setFormatter(self.formatter)
+        self.log.addHandler(fileHandler)
+        return self.log
+
+    def file_rotating_handler(self, file_name, mode, level, backup_count, log_max_size):
+        """
+        :param file_name: ~.txt / ~.log
+        :param mode: "w" / "a"
+        :param backup_count: backup할 파일 개수
+        :param log_max_size: 한 파일당 용량 최대
+        :param level:
+        > "DEBUG" : logging.DEBUG ,
+        > "INFO" : logging.INFO ,
+        > "WARNING" : logging.WARNING ,
+        > "ERROR" : logging.ERROR ,
+        > "CRITICAL" : logging.CRITICAL ,
+        :return:
+        """
+
+        fileHandler = logging.handlers.RotatingFileHandler(
+            filename=file_name,
+            maxBytes=log_max_size,
+            backupCount=backup_count,
+            mode=mode)
+        fileHandler.setLevel(self.levels[level])
+        fileHandler.setFormatter(self.formatter)
+        self.log.addHandler(fileHandler)
+        return self.log
+
+    def time_rotate_handler(self,
+                            filename='./log.txt',
+                            when="M",
+                            level="DEBUG",
+                            backup_count=4,
+                            atTime=datetime.time(0, 0, 0),
+                            interval=1):
+        """
+        :param level:
+        :param filename:
+        :param when: 저장 주기
+        :param interval: 저장 주기에서 어떤 간격으로 저장할지
+        :param backup_count: 5
+        :param atTime: datetime.time(0, 0, 0)
+        :return:
+        """
+        fileHandler = logging.handlers.TimedRotatingFileHandler(
+            filename=filename,
+            when=when,  # W0
+            backupCount=backup_count,
+            interval=interval,
+            atTime=atTime)
+        fileHandler.setLevel(self.levels[level])
+        fileHandler.setFormatter(self.formatter)
+        self.log.addHandler(fileHandler)
+        return self.log
+
+
+class AppLogger:
+    _logger = None
+
+    def __init__(self,
+                 app_name="default",
+                 log_level="INFO",
+                 log_path="./logs",
+                 stdout=False,
+                 log_format=None,
+                 debug=False
+                 ):
+        self.app_name = app_name
+        self.log_path = log_path
+        self.debug = debug
+        self.stdout = stdout
+        self.log_level = log_level
+
+        if log_format:
+            self.log_format = log_format
+        else:
+            self.log_format = "[%(asctime)s] %(name)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s"
+
+        self.log_formatter = logging.Formatter(self.log_format)
+
+        self._logger = self.set_logger(self.log_level)
+        self._error_logger = self.set_logger("ERROR")
+
+    def get_realpath(self):
+        path = os.path.dirname(os.path.abspath(__file__))
+        parent_path = os.path.abspath(os.path.join(path, ".."))
+        return parent_path
+
+    def set_logger(self, log_type="INFO"):
+        # log_path = f"{self.get_realpath()}/logs"
+        # print(f"log_path={self.log_path}")
+        if not os.path.isdir(self.log_path):
+            os.mkdir(self.log_path)
+
+        logger = logging.getLogger(log_type)
+        stack = traceback.extract_stack()
+        logger.setLevel(getattr(logging, log_type))
+
+        if log_type == "ERROR":
+            filename = f"{self.app_name}.{str(log_type).lower()}.log"
+        else:
+            filename = f"{self.app_name}.log"
+
+        logfile_filename = "%s/%s" % (self.log_path, filename)
+
+        file_handler = self.time_rotate_handler(
+            filename=logfile_filename,
+            when='midnight',
+            interval=1,
+            encoding='utf-8',
+            backup_count=10
+        )
+        file_handler.suffix = '%Y%m%d'
+        file_handler.setFormatter(self.log_formatter)
+        logger.addHandler(file_handler)
+
+        if self.stdout:
+            logger.addHandler(self.add_stream_handler(level=log_type))
+
+        return logger
+
+    def add_stream_handler(self, level):
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(level)
+        stream_handler.setFormatter(self.log_formatter)
+        return stream_handler
+
+    def time_rotate_handler(self,
+                            filename='./log.txt',
+                            when="M",
+                            backup_count=4,
+                            atTime=datetime.time(0, 0, 0),
+                            interval=1,
+                            encoding="utf-8"
+                            ):
+        file_handler = logging.handlers.TimedRotatingFileHandler(
+            filename=filename,
+            when=when,  # W0
+            backupCount=backup_count,
+            interval=interval,
+            atTime=atTime,
+            encoding=encoding
+        )
+        return file_handler
+
+    # def __call__(self):
+    #     print("AppLogger() __call__")
+    #     return self._logger, self._error_logger
+
+    def get_logger(self):
+        return self._logger, self._error_logger
+
+    def set_global(self):
+        pawnlib_config.set(
+            PAWN_APP_LOGGER=self._logger,
+            PAWN_ERROR_LOGGER=self._error_logger
+        )
+
+
+if __name__ == '__main__':
+    from time import sleep
+
+    file_name = './time_log.txt'
+    logger = CustomLog("custom_log")
+    logger.set_level('DEBUG')
+    logger.stream_handler("INFO")
+    logger.time_rotate_handler(filename=file_name,
+                               when="M",
+                               interval=2,
+                               backup_count=3,
+                               level="INFO"
+                               )
+    ## run
+    idx = 0
+    while True:
+        logger.log.debug(logger.log_formatter(f'debug {idx}'))
+        logger.log.info(logger.log_formatter(f'info {idx}'))
+        logger.log.warning(logger.log_formatter(f'warning {idx}'))
+        logger.log.error(logger.log_formatter(f'error {idx}'))
+        logger.log.critical(logger.log_formatter(f'critical {idx}'))
+        idx += 1
+        sleep(0.5)
+        if idx == 1000:
+            break

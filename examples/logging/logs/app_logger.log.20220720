@@ -1,0 +1,720 @@
+[2022-07-20 11:13:36,694] INFO::app_logging_test.py/main(33) start
+[2022-07-20 11:13:42,188] INFO::app_logging_test.py/main(33) start
+[2022-07-20 11:14:04,229] INFO::app_logging_test.py/main(33) start
+[2022-07-20 11:16:15,390] INFO::app_logging_test.py/main(33) start
+[2022-07-20 11:16:15,390] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:17:39,602] INFO::app_logging_test.py/main(29) start
+[2022-07-20 11:17:39,602] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:17:40,985] INFO::app_logging_test.py/main(29) start
+[2022-07-20 11:17:40,985] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:17:41,487] INFO::app_logging_test.py/main(29) start
+[2022-07-20 11:17:41,487] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:18:21,801] INFO::app_logging_test.py/main(28) Start Main()
+[2022-07-20 11:18:21,802] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:20:44,638] INFO::app_logging_test.py/main(28) Start Main()
+[2022-07-20 11:20:44,638] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:20:46,149] INFO::app_logging_test.py/main(28) Start Main()
+[2022-07-20 11:20:46,149] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:21:25,017] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:21:25,018] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:21:34,585] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:21:34,585] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:22:09,739] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:22:09,740] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:22:42,001] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:22:42,001] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:23:09,944] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:23:09,944] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:25:14,777] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:25:14,777] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:25:15,710] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:25:15,710] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:25:16,475] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:25:16,475] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:25:17,042] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:25:17,042] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:25:27,603] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:25:27,603] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:25:28,479] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:25:28,479] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:25:29,047] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:25:29,047] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:25:41,072] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:25:41,072] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:27:36,075] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:27:36,075] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:28:22,123] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:28:22,124] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:28:23,143] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:28:23,143] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:28:23,949] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:28:23,949] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:28:24,957] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:28:24,957] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:28:55,157] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:28:55,157] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:30:42,650] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:30:42,650] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:32:12,113] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:32:12,113] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:32:26,163] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:32:26,163] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:32:47,630] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:32:47,631] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:47:52,715] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:47:52,715] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:47:53,788] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:47:53,788] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:47:58,766] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:47:58,767] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:53:11,091] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:53:11,091] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:53:12,467] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:53:12,468] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:53:59,376] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:53:59,376] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:00,897] INFO::app_logging_test.py/main(30) Start Main()
+[2022-07-20 11:54:00,897] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:20,589] DEBUG::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:20,589] DEBUG::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:21,410] DEBUG::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:21,410] DEBUG::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:22,068] DEBUG::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:22,068] DEBUG::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:22,506] DEBUG::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:22,506] DEBUG::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:42,305] DEBUG::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:42,305] DEBUG::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:42,313] DEBUG::app_logging_test.py/main(39) this is DEBUG message
+[2022-07-20 11:54:43,718] DEBUG::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:43,719] DEBUG::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:43,728] DEBUG::app_logging_test.py/main(39) this is DEBUG message
+[2022-07-20 11:54:45,564] DEBUG::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:45,564] DEBUG::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:45,572] DEBUG::app_logging_test.py/main(39) this is DEBUG message
+[2022-07-20 11:54:46,024] DEBUG::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:46,024] DEBUG::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:46,032] DEBUG::app_logging_test.py/main(39) this is DEBUG message
+[2022-07-20 11:54:46,349] DEBUG::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:46,349] DEBUG::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:46,360] DEBUG::app_logging_test.py/main(39) this is DEBUG message
+[2022-07-20 11:54:50,482] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:50,482] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:54:51,624] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:54:51,624] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:56:31,908] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:56:31,908] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:56:32,597] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:56:32,597] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 11:56:33,102] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 11:56:33,103] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:03:00,928] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 12:03:00,928] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:03:01,905] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 12:03:01,905] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:03:02,655] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 12:03:02,655] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:03:06,276] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 12:03:06,276] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:03:10,328] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 12:03:10,328] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:03:22,837] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:03:22,837] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:03:39,518] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:03:39,519] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:03:41,491] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:03:41,491] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:04:26,096] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:04:26,096] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:05:30,340] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:05:30,340] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:05:40,437] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:05:40,437] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:06:09,936] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:06:09,936] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:06:10,930] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:06:10,930] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:06:11,717] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:06:11,717] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:07:06,834] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:07:06,834] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:07:17,679] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:07:17,679] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:07:34,507] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:07:34,507] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:09:44,882] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:09:44,882] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:09:45,573] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:09:45,573] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:09:46,019] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:09:46,019] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:09:46,378] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:09:46,378] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:09:46,687] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:09:46,688] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:10:14,716] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:10:14,716] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:10:15,262] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:10:15,262] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:10:15,803] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:10:15,804] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:10:16,862] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:10:16,863] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:10:17,512] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:10:17,512] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:11:53,279] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 12:11:53,279] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:21:35,092] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:21:35,093] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:21:38,604] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:21:38,605] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:21:42,191] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:21:42,191] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:21:43,559] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:21:43,559] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:21:44,781] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:21:44,782] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:21:45,642] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:21:45,642] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:21:53,968] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:21:53,968] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:21:54,968] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:21:54,968] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:22:06,519] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:22:06,519] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:23:37,836] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:23:37,836] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:24:54,193] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:24:54,193] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:24:54,773] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:24:54,773] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:24:55,189] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:24:55,189] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:25:33,993] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:25:33,993] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:26:38,464] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:26:38,465] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:26:45,982] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:26:45,982] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:26:54,990] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:26:54,991] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:27:23,060] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:27:23,061] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:28:14,243] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:28:14,243] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:28:15,140] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:28:15,140] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:28:16,052] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:28:16,052] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:28:56,488] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:28:56,488] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:29:53,212] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:29:53,213] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:29:53,732] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:29:53,733] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:29:54,207] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:29:54,207] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:29:54,589] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:29:54,589] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:29:54,962] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:29:54,962] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:29:55,378] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:29:55,378] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:29:56,319] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:29:56,319] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:29:57,079] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:29:57,079] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:29:57,880] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:29:57,880] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:29:58,331] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:29:58,331] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:30:02,526] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:30:02,526] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:30:03,246] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:30:03,246] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:31:31,591] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:31:31,591] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:32:44,552] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 12:32:44,552] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 12:32:44,552] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:32:44,552] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:33:15,884] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:33:15,884] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:33:37,638] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:33:37,639] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 12:34:45,078] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 12:34:45,078] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:46:08,248] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 13:46:08,249] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:47:40,903] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 13:47:40,903] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:48:12,391] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 13:48:12,391] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:48:23,074] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 13:48:23,075] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:48:29,862] INFO::app_logging_test.py/main(50) Start Main()
+[2022-07-20 13:48:29,862] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:49:09,819] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 13:49:09,819] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:49:24,006] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 13:49:24,006] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:52:33,984] INFO::app_logging_test.py/main(52) Start Main()
+[2022-07-20 13:52:33,985] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:53:22,398] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 13:53:22,398] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:53:55,760] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 13:53:55,760] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:55:57,372] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 13:55:57,372] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 13:58:49,797] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 13:58:49,798] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:09:53,590] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:09:53,590] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:10:28,245] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:10:28,246] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:11:16,419] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:11:16,419] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:12:52,761] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:12:52,762] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:13:00,150] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:13:00,150] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:13:11,409] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:13:11,409] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:14:40,989] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:14:40,990] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:14:56,822] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:14:56,822] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:15:05,853] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:15:05,853] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:15:30,524] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:15:30,524] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:15:42,718] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:15:42,718] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:15:50,838] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:15:50,838] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:17:06,111] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:17:06,111] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:17:14,513] INFO::app_logging_test.py/main(51) Start Main()
+[2022-07-20 15:17:14,514] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:17:28,335] INFO::app_logging_test.py/main(52) Start Main()
+[2022-07-20 15:17:28,336] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:17:52,891] INFO::app_logging_test.py/main(52) Start Main()
+[2022-07-20 15:17:52,891] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:19:08,536] INFO::app_logging_test.py/main(52) Start Main()
+[2022-07-20 15:19:08,536] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:19:35,588] INFO::app_logging_test.py/main(53) Start Main()
+[2022-07-20 15:19:35,588] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:19:37,372] INFO::app_logging_test.py/main(53) Start Main()
+[2022-07-20 15:19:37,372] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:20:23,460] INFO::app_logging_test.py/main(53) Start Main()
+[2022-07-20 15:20:23,460] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:21:15,511] INFO::app_logging_test.py/main(53) Start Main()
+[2022-07-20 15:21:15,511] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:21:57,909] INFO::app_logging_test.py/main(53) Start Main()
+[2022-07-20 15:21:57,909] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:22:11,805] INFO::app_logging_test.py/main(53) Start Main()
+[2022-07-20 15:22:11,806] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:22:29,997] INFO::app_logging_test.py/main(53) Start Main()
+[2022-07-20 15:22:29,997] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:23:10,214] INFO::app_logging_test.py/main(53) Start Main()
+[2022-07-20 15:23:10,214] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:24:02,451] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:24:02,451] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:24:22,913] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:24:22,914] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:25:06,359] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:25:06,360] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:26:01,720] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:26:01,720] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:26:28,123] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:26:28,124] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:26:42,968] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:26:42,968] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:26:55,719] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:26:55,719] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:27:37,911] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:27:37,911] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:28:00,869] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:28:00,870] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:28:03,342] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:28:03,343] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:28:04,068] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:28:04,068] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:28:04,818] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:28:04,818] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:28:07,034] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:28:07,035] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:29:08,201] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:29:08,202] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:29:17,191] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:29:17,191] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:29:28,451] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:29:28,451] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:29:36,546] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:29:36,546] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:29:46,156] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:29:46,156] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:29:55,292] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:29:55,292] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:30:21,809] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:30:21,809] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:33:02,612] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:33:02,613] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:33:47,636] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:33:47,636] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:34:04,655] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:34:04,655] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:34:08,241] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:34:08,241] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:34:12,819] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:34:12,819] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:34:21,800] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:34:21,800] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:34:44,455] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:34:44,455] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:34:45,371] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:34:45,371] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:34:45,901] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:34:45,901] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:34:46,780] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:34:46,780] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:35:50,303] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:35:50,303] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:35:52,266] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:35:52,266] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:36:04,158] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:36:04,158] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:36:50,367] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:36:50,367] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:36:51,647] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:36:51,647] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:36:54,957] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:36:54,957] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:37:02,776] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:37:02,776] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:37:16,549] INFO::app_logging_test.py/main(56) Start Main()
+[2022-07-20 15:37:16,549] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:37:59,407] INFO::app_logging_test.py/main(55) Start Main()
+[2022-07-20 15:37:59,407] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:38:08,121] INFO::app_logging_test.py/main(55) Start Main()
+[2022-07-20 15:38:08,121] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:38:19,819] INFO::app_logging_test.py/main(55) Start Main()
+[2022-07-20 15:38:19,819] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:40:04,000] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:40:04,000] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:40:41,632] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:40:41,632] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:40:42,471] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:40:42,472] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:40:43,071] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:40:43,072] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:40:43,564] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:40:43,564] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:40:44,037] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:40:44,038] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:40:44,676] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:40:44,677] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:40:56,651] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:40:56,651] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:41:21,792] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:41:21,792] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:45:07,604] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:45:07,604] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:46:02,076] INFO::app_logging_test.py/main(54) Start Main()
+[2022-07-20 15:46:02,076] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:46:26,341] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 15:46:26,341] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:46:41,942] INFO::app_logging_test.py/main(38) Start Main()
+[2022-07-20 15:46:41,942] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:49:41,745] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:49:41,745] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:50:38,948] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:50:38,948] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:50:51,108] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:50:51,108] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:50:55,786] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:50:55,786] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:51:02,670] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:51:02,670] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:52:30,056] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 15:52:30,056] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:52:54,291] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 15:52:54,292] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:53:44,366] INFO::app_logging_test.py/main(34) Start Main()
+[2022-07-20 15:53:44,366] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:54:03,568] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:54:03,568] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:54:12,408] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:54:12,408] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:54:24,318] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:54:24,319] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:54:35,960] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:54:35,960] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:55:06,260] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:55:06,260] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:55:15,188] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:55:15,188] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:55:34,596] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:55:34,597] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:56:27,974] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:56:27,974] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:56:42,314] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:56:42,314] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:57:22,449] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:57:22,449] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:58:04,987] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:58:04,987] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:58:39,266] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:58:39,267] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:58:48,953] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:58:48,954] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 15:59:55,274] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 15:59:55,274] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:01:27,917] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 16:01:27,917] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:29:37,992] INFO::app_logging_test.py/main(36) Start Main()
+[2022-07-20 16:29:37,993] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:29:52,002] INFO::app_logging_test.py/main(36) Start Main()
+[2022-07-20 16:29:52,002] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:30:15,399] INFO::app_logging_test.py/main(36) Start Main()
+[2022-07-20 16:30:15,400] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:30:54,076] INFO::app_logging_test.py/main(36) Start Main()
+[2022-07-20 16:30:54,076] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:31:07,500] INFO::app_logging_test.py/main(36) Start Main()
+[2022-07-20 16:31:07,501] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:31:25,477] INFO::app_logging_test.py/main(36) Start Main()
+[2022-07-20 16:31:25,477] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:31:55,941] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:31:55,942] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:34:11,487] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:34:11,487] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:36:15,335] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:36:15,335] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:36:43,021] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:36:43,021] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:37:19,027] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:37:19,027] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:37:42,397] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:37:42,397] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:39:29,107] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:39:29,108] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:41:00,281] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:41:00,281] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:41:28,130] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:41:28,130] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:43:51,252] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:43:51,261] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:44:26,535] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:44:26,535] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:46:41,119] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:46:41,120] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:46:46,622] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:46:46,622] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:47:04,537] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:47:04,537] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:47:29,916] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:47:29,916] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:47:49,943] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:47:49,944] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:49:47,376] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:49:47,377] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:50:05,769] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:50:05,769] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:50:25,822] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:50:25,823] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:51:03,184] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:51:03,184] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:52:20,521] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:52:20,530] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:52:29,226] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:52:29,227] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:54:59,807] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:54:59,808] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:55:21,495] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:55:21,495] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:56:46,884] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:56:46,884] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:57:18,749] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:57:18,750] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:58:18,367] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:58:18,368] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:58:53,924] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:58:53,925] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 16:59:28,885] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 16:59:28,885] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:00:06,109] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:00:06,109] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:01:12,739] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:01:12,739] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:01:39,921] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:01:39,922] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:01:47,928] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:01:47,929] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:02:04,731] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:02:04,731] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:02:44,319] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:02:44,319] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:03:16,683] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:03:16,683] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:03:31,924] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:03:31,925] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:05:22,301] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:05:22,302] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:05:37,017] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:05:37,017] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:05:45,960] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:05:45,961] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:11:04,877] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:11:04,877] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:11:05,695] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:11:05,695] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:11:06,918] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:11:06,918] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:12:14,880] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:12:14,880] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:12:27,340] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:12:27,341] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:13:22,544] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:13:22,545] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:13:42,490] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:13:42,491] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:13:46,225] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:13:46,225] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:14:34,971] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:14:34,971] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:15:01,814] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:15:01,815] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:15:35,310] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:15:35,311] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:15:41,285] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:15:41,286] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:16:37,267] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:16:37,268] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:17:25,831] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:17:25,831] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:17:52,356] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:17:52,356] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:18:05,524] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:18:05,525] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:18:12,828] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:18:12,828] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:18:20,615] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:18:20,615] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:18:46,644] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:18:46,644] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:19:07,242] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:19:07,243] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:23:19,971] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:23:19,971] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:23:41,225] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:23:41,225] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:23:45,890] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:23:45,890] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:23:51,962] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:23:51,963] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:23:59,022] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:23:59,022] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:24:06,608] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:24:06,609] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:24:41,319] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:24:41,319] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:24:49,607] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:24:49,607] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:24:55,000] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:24:55,000] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:25:00,228] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:25:00,229] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:25:21,076] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:25:21,076] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:25:53,237] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:25:53,238] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:26:31,686] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:26:31,686] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:26:38,225] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:26:38,225] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:26:39,339] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:26:39,339] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:26:46,211] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:26:46,211] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:27:00,391] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:27:00,391] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:29:26,704] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:29:26,705] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:29:55,234] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:29:55,234] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:30:02,582] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:30:02,582] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:30:53,927] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:30:53,928] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:30:59,166] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:30:59,166] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:31:14,298] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:31:14,298] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:31:30,222] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:31:30,223] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:32:00,387] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:32:00,387] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:32:15,842] INFO::app_logging_test.py/main(37) Start Main()
+[2022-07-20 17:32:15,843] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:32:56,361] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 17:32:56,362] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:32:59,542] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 17:32:59,543] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:33:07,436] INFO::app_logging_test.py/main(35) Start Main()
+[2022-07-20 17:33:07,437] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:34:06,773] INFO::app_logging_test.py/main(33) Start Main()
+[2022-07-20 17:34:06,773] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:34:59,312] INFO::app_logging_test.py/main(33) Start Main()
+[2022-07-20 17:34:59,312] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:37:40,782] INFO::app_logging_test.py/main(33) Start Main()
+[2022-07-20 17:37:40,782] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:39:27,390] INFO::app_logging_test.py/main(33) Start Main()
+[2022-07-20 17:39:27,390] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:39:28,921] INFO::app_logging_test.py/main(33) Start Main()
+[2022-07-20 17:39:28,921] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:40:00,123] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:40:00,124] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:40:13,390] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:40:13,391] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:40:18,181] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:40:18,181] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:40:20,100] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:40:20,101] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:40:20,963] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:40:20,964] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:40:22,184] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:40:22,184] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:40:23,291] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:40:23,291] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:40:31,404] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:40:31,405] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:40:42,298] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:40:42,299] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:41:05,918] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:41:05,919] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:41:35,481] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:41:35,481] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:41:51,707] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:41:51,707] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:42:09,967] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:42:09,967] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:42:46,121] INFO::app_logging_test.py/main(31) Start Main()
+[2022-07-20 17:42:46,121] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:43:06,192] INFO::app_logging_test.py/main(32) Start Main()
+[2022-07-20 17:43:06,193] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:43:25,530] INFO::app_logging_test.py/main(32) Start Main()
+[2022-07-20 17:43:25,530] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:43:40,110] INFO::app_logging_test.py/main(33) Start Main()
+[2022-07-20 17:43:40,111] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 17:43:51,863] INFO::app_logging_test.py/main(33) Start Main()
+[2022-07-20 17:43:51,863] INFO::config_child.py/child_app_logging_func(15) sssss
+[2022-07-20 18:26:09,647] INFO::app_logging_test.py/main(37) sdsdsd
+[2022-07-20 18:27:02,124] INFO::app_logging_test.py/main(37) sdsdsd
+[2022-07-20 18:27:24,940] INFO::app_logging_test.py/main(37) sdsdsd
+[2022-07-20 18:27:37,399] INFO::app_logging_test.py/main(37) sdsdsd
+[2022-07-20 18:27:59,624] INFO::app_logging_test.py/main(37) sdsdsd
+[2022-07-20 18:28:09,435] INFO::app_logging_test.py/main(37) sdsdsd
+[2022-07-20 18:28:24,375] INFO::app_logging_test.py/main(38) sdsdsd
+[2022-07-20 18:28:26,492] INFO::app_logging_test.py/main(38) sdsdsd
+[2022-07-20 18:28:28,264] INFO::app_logging_test.py/main(38) sdsdsd
+[2022-07-20 18:39:04,670] INFO::app_logging_test.py/main(28) sdsdsd

@@ -1,0 +1,342 @@
+# from collections import namedtuple
+import os
+from typing import Optional
+from collections import namedtuple
+from collections.abc import Mapping
+from pawnlib.__version__ import __title__, __version__
+import random
+import string
+from pawnlib.typing.converter import UpdateType
+
+# from ..collections.namedtuple import nestednamedtuple
+# from configparser import ConfigParser
+
+
+def nestednamedtuple(dictionary: dict) -> namedtuple:
+    """Converts dictionary to a nested namedtuple recursively.
+    Args:
+        dictionary: Dictionary to convert into a nested namedtuple.
+    Example:
+        .. code-block:: python
+            from pawnlib.config.globalconfig import nestednamedtuple
+            nt = nestednamedtuple({"hello": {"ola": "mundo"}})
+            print(nt) # >>> namedtupled(hello=namedtupled(ola='mundo'))
+    """
+
+    if isinstance(dictionary, Mapping) and not isinstance(dictionary, fdict):
+        for key, value in list(dictionary.items()):
+            dictionary[key] = nestednamedtuple(value)
+        return namedtuple("namedtupled", dictionary)(**dictionary)
+    elif isinstance(dictionary, list):
+        return [nestednamedtuple(item) for item in dictionary]
+
+    return dictionary
+
+
+class fdict(dict):
+    """Forced dictionary. Prevents dictionary from becoming a nested namedtuple.
+    Example:
+        .. code-block:: python
+            from toolbox.collections.namedtuple import nestednamedtuple, fdict
+            d = {"hello": "world"}
+            nt = nestednamedtuple({"forced": fdict(d), "notforced": d})
+            print(nt.notforced)    # >>> namedtupled(hello='world')
+            print(nt.forced)       # >>> {'hello': 'world'}
+    """
+
+
+# def make_config(dictionary: Optional[dict] = None, **kwargs) -> None:
+#     """Creates a global configuration that can be accessed anywhere during runtime.
+#     This function is a useful replacement to passing configuration classes between classes.
+#     Instead of creating a `Config` object, one may use :func:`make_config` to create a
+#     global runtime configuration that can be accessed by any module, function, or object.
+#     Args:
+#         dictionary: Dictionary to create global configuration with.
+#         kwargs: Arguments to make global configuration with.
+#     Example:
+#         .. code-block:: python
+#             from toolbox.config.globalconfig import make_config
+#             make_config(hello="world")
+#     """
+#     dictionary = dictionary or {}
+#     print(dictionary, kwargs)
+#     globals()["gconf"] = {**dictionary, **kwargs}
+#
+#
+# def conf() -> namedtuple:
+#     """Access global configuration as a :class:`toolbox.collections.namedtuple.nestednamedtuple`.
+#     Example:
+#         .. code-block:: python
+#             from toolbox.config.globalconfig import conf
+#             print(conf().hello) # >>> 'world'
+#     """
+#     g = globals()
+#     if "gconf" in g:
+#         return nestednamedtuple(g["gconf"])
+#     else:
+#         return nestednamedtuple({})
+#
+#
+# def config() -> dict:
+#     """Access global configuration as a dict.
+#     Example:
+#         .. code-block:: python
+#             from toolbox.config.globalconfig import config
+#             print(config()['hello']) # >>> 'world'
+#     """
+#     g = globals()
+#     if "gconf" in g:
+#         return g["gconf"]
+#     else:
+#         return {}
+#
+#
+# def put_config(**kwargs):
+#     if globals().get("gconf"):
+#         for p_key, p_value in kwargs.items():
+#             globals()["gconf"][p_key] = p_value
+
+
+def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
+    """
+    this function will be generated random id
+
+    00ZP5YRLRT1Y
+
+    :param size:
+    :param chars:
+    :return:
+    """
+    return ''.join(random.choice(chars) for _ in range(size))
+
+
+def uuid_generator(size: int = 8, count: int = 4, separator: str = "-"):
+    """
+    this function will be generated random uuid
+
+    KFXSYSVJHPE6-83KZTPKY9NL3-ZHRFUV7QRWWJ-GRWVPB6C5SM8
+
+    :param size:
+    :param count:
+    :param separator:
+    :return:
+    """
+    return separator.join([id_generator(size) for i in range(count)])
+
+
+def singleton(class_):
+    instances = {}
+
+    def getinstance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
+        return instances[class_]
+
+    return getinstance
+
+
+# @singleton
+class PawnlibConfig:
+    def __init__(self, global_name="pawnlib_global_config", app_logger=None, error_logger=None, timeout=6000):
+        self.global_name = f"{global_name}_{uuid_generator()}"
+        self.app_logger = app_logger
+        self.error_logger = error_logger
+        self.timeout = timeout
+        self.verbose = 0
+
+        self.version = f"{__title__}/{__version__}"
+        self.env_prefix = "PAWN"
+
+        self.data = {}
+
+        globals()[self.global_name] = {}
+        # globals()[self.global_name] = {}
+        # self.getting_config_from_environment()
+        # self.configure = None
+        # self.configure_path = os.path.dirname(os.path.abspath(__file__))
+
+    def init_with_env(self, **kwargs):
+
+        self.fill_config_from_environment()
+        self.set(**kwargs)
+        return self
+
+    # def set_config_ini(self):
+    #     from configparser import ConfigParser
+    #     self.configure = ConfigParser()
+    #     self.configure.optionxform = str  # change to uppercase
+    #     self.configure.read(self.full_path)
+
+    @staticmethod
+    def str2bool(v):
+        true_list = ("yes", "true", "t", "1", "True", "TRUE")
+        if type(v) == bool:
+            return v
+        if type(v) == str:
+            return v.lower() in true_list
+        return eval(f"{v}") in true_list
+
+    def fill_config_from_environment(self):
+        default_structure = {
+            "INI": {
+                "type": self.str2bool,
+                "default": False,
+            },
+            "VERBOSE": {
+                "type": int,
+                "default": 0,
+            },
+            "TIMEOUT": {
+                "type": int,
+                "default": 7000,
+            },
+            "APP_LOGGER": {
+                "type": str,
+                "default": ""
+            },
+            "ERROR_LOGGER": {
+                "type": str,
+                "default": ""
+            },
+            "VERSION": {
+                "type": str,
+                "default": self.version.title()
+            },
+            "GLOBAL_NAME": {
+                "type": str,
+                "default": self.global_name
+            }
+        }
+
+        mandatory_environments = list(default_structure.keys())
+        for environment in mandatory_environments:
+            environment_name = f"{self.env_prefix}_{environment}"
+            environment_value = os.getenv(environment_name)
+
+            if default_structure.get(environment):
+                required_type = default_structure[environment].get("type", None)
+
+                if environment_value is None or environment_value == 0 or environment_value == "":
+                    environment_value = default_structure[environment].get("default")
+
+                elif required_type:
+                    environment_value = required_type(environment_value)
+                # print(f"required_type = {required_type} ,{environment_value}, {os.getenv(environment)} {isinstance(environment_value, required_type)}")
+                # # if required_type and isinstance(environment_value, required_type):
+                # if required_type and isinstance(environment_value, required_type):
+                #     print("---- OK type")
+
+            # environment_value = update_typed.assign_kv(environment, environment_value)
+            self.set(**{environment_name: environment_value})
+
+    def make_config(self, dictionary: Optional[dict] = None, **kwargs) -> None:
+        """Creates a global configuration that can be accessed anywhere during runtime.
+        This function is a useful replacement to passing configuration classes between classes.
+        Instead of creating a `Config` object, one may use :func:`make_config` to create a
+        global runtime configuration that can be accessed by any module, function, or object.
+        Args:
+            dictionary: Dictionary to create global configuration with.
+            kwargs: Arguments to make global configuration with.
+        Example:
+            .. code-block:: python
+                from from pawnlib.config.globalconfig import PawnlibConfig
+                PawnlibConfig.make_config(hello="world")
+        """
+        dictionary = dictionary or {}
+        globals()[self.global_name] = {**dictionary, **kwargs}
+
+    # def __getitem__(self, key):
+    #     print(f"__getitem__" * 10)
+    #     # return getattr(self, key)
+    #     return globals()[self.global_name].get(key)
+    #
+    # def __setitem__(self, key, value):
+    #     return setattr(self, key, value)
+
+    def get(self, key=None, default=None):
+        if self.global_name in globals():
+            return globals()[self.global_name].get(key, default)
+        return default
+
+    def set(self, **kwargs):
+        if self.global_name in globals():
+            for p_key, p_value in kwargs.items():
+                if kwargs.get(f"{self.env_prefix}_APP_LOGGER"):
+                    self.app_logger = kwargs[f"{self.env_prefix}_APP_LOGGER"]
+                if kwargs.get(f"{self.env_prefix}_ERROR_LOGGER"):
+                    self.error_logger = kwargs[f"{self.env_prefix}_ERROR_LOGGER"]
+                if kwargs.get(f"{self.env_prefix}_TIMEOUT"):
+                    self.timeout = kwargs[f"{self.env_prefix}_TIMEOUT"]
+                if kwargs.get(f"{self.env_prefix}_VERBOSE"):
+                    self.verbose = kwargs[f"{self.env_prefix}_VERBOSE"]
+                globals()[self.global_name][p_key] = p_value
+
+    def __str__(self):
+        return f"<{self.version.title()}>[{self.global_name}]\n{self.to_dict()}"
+
+    def conf(self) -> namedtuple:
+        """Access global configuration as a :class:`pawnlib.config.globalconfig.PawnlibConfig`.
+        Example:
+            .. code-block:: python
+                from pawnlib.config.globalconfig import PawnlibConfig
+                print(conf().hello) # >>> 'world'
+        """
+        g = globals()
+        if self.global_name in g:
+            return nestednamedtuple(g[self.global_name])
+        else:
+            return nestednamedtuple({})
+
+    def to_dict(self) -> dict:
+        """Access global configuration as a dict.
+        Example:
+            .. code-block:: python
+                from toolbox.config.globalconfig import config
+                print(config()['hello']) # >>> 'world'
+        """
+        g = globals()
+        if self.global_name in g:
+            return g[self.global_name]
+        else:
+            return {}
+
+    # def put_config(self, **kwargs):
+    #     if self.global_name in globals():
+    #         for p_key, p_value in kwargs.items():
+    #             globals()[self.global_name][p_key] = p_value
+    # def __getitem__(self, key):
+    #     if self.global_name in globals():
+    #         return globals()[self.global_name].get(key)
+    #     raise KeyError(key)
+    #
+    # def __setitem__(self, **kwargs):
+    #     if self.global_name in globals():
+    #         for p_key, p_value in kwargs.items():
+    #             globals()[self.global_name][p_key] = p_value
+
+    # @get.setter
+    # def set(self, **kwargs):
+    #     if self.global_name in globals():
+    #         for p_key, p_value in kwargs.items():
+    #             globals()[self.global_name][p_key] = p_value
+
+    # def __getattr__(self, attr):
+    #     print(f"__getattr__{attr}")
+    #     # return dict.__getitem__
+    #     print(self)
+    #     # return self[attr]
+    #     return globals()[self.global_name].get(key)
+
+# pawnlib_config = PawnlibConfig(global_name="pawnlib_global_config").init()
+
+pawnlib_config = PawnlibConfig(global_name="pawnlib_global_config").init_with_env()
+global_verbose = pawnlib_config.get('PAWN_VERBOSE', 0)
+
+# app_logger = pawnlib_config.get('PAWN_APP_LOGGER', None)
+# error_logger = pawnlib_config.get('PAWN_ERROR_LOGGER', None)
+#
+# from functools import partial
+# p_app_logger = partial(pawnlib_config.get, 'PAWN_APP_LOGGER')
+
+
+
