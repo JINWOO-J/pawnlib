@@ -6,7 +6,7 @@ import json
 import getpass
 import traceback
 import inspect
-from pawnlib.typing import converter, date, list_to_oneline_string, todaydate
+from pawnlib.typing import converter, date_utils, list_to_oneline_string
 from pawnlib.config import pawnlib_config as pawn
 
 
@@ -287,7 +287,7 @@ def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, 
         pass
 
     if view_time:
-        time_text = "[" + get_bcolors(f"{todaydate('log')}", "WHITE") + "]"
+        time_text = "[" + get_bcolors(f"{date_utils.todaydate('log')}", "WHITE") + "]"
     main_text = (colored(str(text), color, on_color, attrs))
     print(f"{time_text}{module_text} {main_text}", **kwargs)
 
@@ -317,7 +317,7 @@ def debug_logging(message, dump_message=None, color="green"):
     stack = traceback.extract_stack()
     filename, codeline, funcName, text = stack[-2]
 
-    def_msg = f"[{date.todaydate('log')}][DBG][{filename} {funcName}({codeline})]"
+    def_msg = f"[{date_utils.todaydate('log')}][DBG][{filename} {funcName}({codeline})]"
     kvPrint(def_msg, message)
     if dump_message:
         dump(dump_message)

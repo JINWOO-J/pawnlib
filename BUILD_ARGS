@@ -1,5 +1,5 @@
 
---build-arg BUILD_DATE=2022-07-22T12:21:26UTC  
+--build-arg BUILD_DATE=2022-07-22T13:34:34UTC  
 --build-arg ECHO_OPTION=  
 --build-arg GIT_USER=JINWOO-J  
 --build-arg LOCAL_SERVER=20.20.5.172  
