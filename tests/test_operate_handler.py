@@ -9,25 +9,27 @@ from parameterized import parameterized
 from devtools import debug
 from pawnlib.typing import converter
 import os
+from pawnlib.config.globalconfig import pawnlib_config
+from pawnlib.utils.log import AppLogger
 from pawnlib.output import *
+from pawnlib.utils import operate_handler
+from pawnlib.output import file
+
 import random
 from parameterized import parameterized
 
-from pawnlib.output import *
-from pawnlib.utils.http import *
-from pawnlib.typing.generator import *
+log_dir = f"{get_parent_path(__file__)}/tests/logs"
+log_filename = f"{log_dir}/sample"
+cprint(f"Path : {log_filename}", "white")
 
 
 class TestMethodRequest(unittest.TestCase):
 
-    def test_01_jequest(self, name=None, function=None, params={}):
-        res = jequest(
-            url="http://httpbin.or"
-        )
-        dump(res)
+    AppLogger(app_name="test_logging", log_path=log_dir, stdout=True).set_global()
+    dump(pawnlib_config)
+    res = operate_handler.run_execute(cmd="ls -al")
 
-
-
+    # print(res)
 
 
 if __name__ == "__main__":

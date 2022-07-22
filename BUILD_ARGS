@@ -1,8 +1,10 @@
 
---build-arg BUILD_DATE=2022-07-21T01:17:47UTC  
+--build-arg BUILD_DATE=2022-07-22T12:21:26UTC  
 --build-arg ECHO_OPTION=  
+--build-arg GIT_USER=JINWOO-J  
 --build-arg LOCAL_SERVER=20.20.5.172  
 --build-arg NAME=pawnlib  
+--build-arg PRIMARY_BRANCH=master  
 --build-arg SED_OPTION=''  
 --build-arg UNAME_S=Darwin  
 --build-arg VERSION=0.0.1  

@@ -1,5 +1,5 @@
-from functools import wraps
 import os
+import sys
 import time
 import inspect
 import errno
@@ -8,8 +8,9 @@ import atexit
 import subprocess
 from pawnlib.output import *
 from pawnlib import typing
+from functools import wraps
 
-from pawnlib.config.globalconfig import pawnlib_config
+from pawnlib.config.globalconfig import pawnlib_config as pawn
 from typing import Union
 
 
@@ -310,6 +311,7 @@ def run_execute(text=None, cmd=None, cwd=None, check_output=True, capture_output
     :param debug:
     :return:
     """
+
     if cmd is None:
         cmd = text
 
@@ -362,10 +364,10 @@ def run_execute(text=None, cmd=None, cwd=None, check_output=True, capture_output
     if check_output:
         if result.get("stderr"):
             # cprint(f"[FAIL] {text}, Error = '{result.get('stderr')}'", "red")
-            cfg.logger.error(f"[FAIL] {text}, Error = '{result.get('stderr')}'")
+            pawn.error_logger.info(f"[FAIL] {text}, Error = '{result.get('stderr')}'") if pawn.error_logger else False
         else:
             # cprint(f"[ OK ] {text}, timed={end}", "green")
-            cfg.logger.info(f"[ OK ] {text}, timed={end}")
+            pawn.app_logger.info(f"[ OK ] {text}, timed={end}") if pawn.app_logger else False
     return result
 
 
@@ -382,3 +384,5 @@ def hook_print(*args, **kwargs):
     if kwargs.get("line_no") % 100 == 0:
         print(f"[output hook - matching line_no] {args} {kwargs}")
     # print(kwargs.get('line'))
+
+

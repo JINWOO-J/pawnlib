@@ -3,8 +3,8 @@ import string
 import os
 import binascii
 from termcolor import cprint
-from typing import Union
-
+from typing import Union, Type
+import math
 from .check import *
 
 # from lib import defines
@@ -287,33 +287,6 @@ def flatten_dict(init: dict, separator: str = '｡', lkey: str = '') -> dict:
         else:
             ret[key] = val
     return ret
-
-
-def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
-    """
-    this function will be generated random id
-
-    00ZP5YRLRT1Y
-
-    :param size:
-    :param chars:
-    :return:
-    """
-    return ''.join(random.choice(chars) for _ in range(size))
-
-
-def uuid_generator(size: int = 8, count: int = 4, separator: str = "-"):
-    """
-    this function will be generated random uuid
-
-    KFXSYSVJHPE6-83KZTPKY9NL3-ZHRFUV7QRWWJ-GRWVPB6C5SM8
-
-    :param size:
-    :param count:
-    :param separator:
-    :return:
-    """
-    return separator.join([id_generator(size) for i in range(count)])
 
 
 def dict_to_line(dict_param: dict, quotes: bool = False) -> str:
@@ -652,64 +625,6 @@ def split_every_n(data, n):
     return [data[i:i + n] for i in range(0, len(data), n)]
 
 
-class GenMultiMetrics:
-
-    def __init__(self, tags, measurement, is_flatten=True, is_debug=False, structure_types=None, ignore_fields=None, uid=None):
-        self.tags = tags
-        self.measurement = measurement
-        if uid is None:
-            self.uid = id_generator()
-        else:
-            self.uid = uid
-        self.is_flatten = is_flatten
-        self.is_debug = is_debug
-        self.structure_types = structure_types
-        # if self.structure_types is None:
-        #     self.structure_types = defines.default_structure
-        self.update_type = UpdateType(structure_types=self.structure_types)
-        self.ignore_fields = ignore_fields
-        self.return_value = {}
-        return
-
-    def _set_default_metric(self):
-        default_metric = {
-            "measurement": self.measurement,
-            # "tags": self.tags,
-            "tags": {},
-            "fields": {},
-        }
-        default_metric['tags'].update(self.tags)
-        return default_metric
-
-    def push(self, metric_key, key, value, tags=None):
-        uid_key = f'{metric_key}_{self.uid}'
-        key = replace_ignore_char(key)
-        value = replace_ignore_char(value, replace_str="")
-
-        if not value:
-            value = 0
-
-        if self.return_value.get(uid_key) is None:
-            self.return_value[uid_key] = self._set_default_metric()
-            if tags:
-                self.return_value[uid_key]["tags"].update(tags)
-
-        if self.ignore_fields is not None and key in self.ignore_fields:
-            pass
-        elif value or value == 0:
-            if self.is_flatten and isinstance(value, dict):
-                value = flatten_dict({key: value}, "_")
-                self.return_value[uid_key]["fields"].update(value)
-            else:
-                value = self.update_type.assign_kv(key, value)
-                if self.is_debug:
-                    value = f"{value} ({type(value)})"
-                self.return_value[uid_key]["fields"][key] = value
-
-    def get(self):
-        return list(self.return_value.values())
-
-
 def class_extract_attr_list(obj, attr_name="name"):
     if isinstance(obj, list):
         return_list = []
@@ -718,4 +633,79 @@ def class_extract_attr_list(obj, attr_name="name"):
         return return_list
     else:
         return getattr(obj, attr_name)
+
+
+def append_zero(value):
+    if value < 10:
+        value = f"0{value}"
+    return value
+
+
+def camel_case_to_space_case(s):
+    """
+    Convert a string from camelcase to spacecase.
+    :param s:
+    :return:
+    :example:
+         camelcase_to_underscore('HelloWorld') == 'Hello world'
+    """
+    if s == '': return s
+    process_character = lambda c: (' ' + c.lower()) if c.isupper() else c
+    return s[0] + ''.join(process_character(c) for c in s[1:])
+
+
+def camel_case_to_lower_case(s):
+    """
+    Convert a string from camel-case to lower-case.
+    :param s:
+    :return:
+    :example:
+        camel_case_to_lower_case('HelloWorld') == 'hello_world'
+
+
+    """
+    return re.sub('(((?<=[a-z])[A-Z])|([A-Z](?![A-Z]|$)))', '_\\1', s). \
+        lower().strip('_')
+
+
+def lower_case_to_camel_case(s):
+    """
+    Convert a string from lower-case to camel-case.
+
+    :param s:
+    :return:
+    :example:
+
+        camel_case_to_lower_case('hello_world') == 'HelloWorld'
+    """
+    s = s.capitalize()
+    while '_' in s:
+        head, tail = s.split('_', 1)
+        s = head + tail.capitalize()
+    return s
+
+
+def camel_case_to_upper_case(s):
+    """
+    Convert a string from camel-case to upper-case.
+
+    :param s:
+    :return:
+    :example:
+
+        camel_case_to_lower_case('HelloWorld') == 'HELLO_WORLD'
+    """
+    return camel_case_to_lower_case(s).upper()
+
+
+def upper_case_to_camel_case(s):
+    """
+    Convert a string from upper-case to camel-case.
+
+    :param s:
+    :return:
+    :example:
+        camel_case_to_lower_case('HELLO_WORLD') == 'HelloWorld'
+    """
+    return lower_case_to_camel_case(s.lower())
 

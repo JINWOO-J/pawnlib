@@ -9,6 +9,7 @@ from .http import (
     disable_ssl_warnings,
     append_http,
     remove_http,
+    append_ws,
     jequest,
 )
 from .log import (

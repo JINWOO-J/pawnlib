@@ -8,11 +8,7 @@ from termcolor import cprint
 import yaml
 from pawnlib.output import *
 from pawnlib.typing import converter
-from pawnlib.config.globalconfig import pawnlib_config
-
-global_verbose = pawnlib_config.get('PAWN_VERBOSE', 0)
-app_logger = pawnlib_config.get('PAWN_APP_LOGGER', None)
-error_logger = pawnlib_config.get('PAWN_ERROR_LOGGER', None)
+from pawnlib.config.globalconfig import pawnlib_config as pawn
 
 
 def check_file_overwrite(filename, answer=None):
@@ -90,7 +86,7 @@ def open_json(filename):
         with open(filename, "r") as json_file:
             return json.loads(json_file.read())
     except Exception as e:
-        error_logger.error(f"[ERROR] can't open the json -> {filename} - {e}")
+        pawn.error_logger.error(f"[ERROR] Can't open the json -> '{filename}' / {e}") if pawn.error_logger else False
         raise
 
 
@@ -99,7 +95,7 @@ def open_file(filename):
         with open(filename, "r") as file:
             return file.read()
     except Exception as e:
-        error_logger.error(f"[ERROR] can't open the file -> {filename} - {e}")
+        pawn.error_logger.error(f"[ERROR] Can't open the file -> '{filename}' / {e}") if pawn.error_logger else False
         raise
 
 

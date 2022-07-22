@@ -1,6 +1,68 @@
 # from datetime import datetime, timedelta, date
 import datetime
 import time
+from pawnlib.typing.converter import append_zero
+
+
+class TimeCalculator:
+    def __init__(self, seconds=0):
+        """
+        It will be calculated seconds to string format
+        :param seconds:
+        :example:
+            code
+            time_calculator = TimeCalculator(1224411)
+            return to "14 days, 04:06:51"
+
+        """
+        self.seconds = seconds
+        self._days = 0
+        self._hours = 0
+        self._minutes = 0
+        self._seconds = 0
+        self.hhmmss = ""
+
+        self.calculate()
+
+    def calculate(self):
+        seconds = self.seconds
+        self._days = int(seconds // (24 * 3600))
+        seconds = int(seconds % (24 * 3600))
+        self._hours = seconds // 3600
+        seconds %= 3600
+        self._minutes = seconds // 60
+        seconds %= 60
+        self._seconds = seconds
+        self.hhmmss = "%02i:%02i:%02i" % (self._hours, self._minutes, self._seconds)
+        if self._days:
+            day_unit = "days"
+            if self._days == 1:
+                day_unit = "day"
+            self.hhmmss = f"{self._days} {day_unit}, {self.hhmmss}"
+        return self.hhmmss
+
+    def __str__(self):
+        return str(self.hhmmss)
+
+    def __repr__(self):
+        # https://stackoverflow.com/questions/33229036/why-doesnt-this-repr-function-return-a-string
+        # __repr__ returns not string
+        # It doesn't work well.
+        # An error occurs in the asertEqual() of unittest.
+        # return self.hhmmss
+        return repr(self.hhmmss)
+
+    def to_strings(self):
+        return str(self.hhmmss)
+
+    def to_minutes(self):
+        return self.seconds // 60
+
+    def to_hours(self):
+        return self.seconds // 3600
+
+    def to_days(self):
+        return self.seconds // (24 * 3600)
 
 
 def convert_unix_timestamp(date_param) -> int:
@@ -66,6 +128,32 @@ def format_seconds_to_hhmmss(seconds):
         seconds %= (60*60)
         minutes = seconds // 60
         seconds %= 60
-        return "%02i:%02i:%02i" % (hours, minutes, seconds)
+        hhmmss = "%02i:%02i:%02i" % (hours, minutes, seconds)
+        return hhmmss
     except Exception as e:
         return seconds
+
+
+def timestamp_to_string(unix_timestamp, str_format='%Y-%m-%d %H:%M:%S'):
+
+    ts_length = len(str(unix_timestamp))
+    # seconds
+    if ts_length == 10:
+        pass
+    # milli seconds
+    elif ts_length == 16:
+        unix_timestamp = unix_timestamp/1_000_000
+    if unix_timestamp:
+        return datetime.datetime.fromtimestamp(unix_timestamp).strftime(str_format)
+
+
+def second_to_dayhhmm(input_time):
+    day = int(input_time // (24 * 3600))
+    input_time = int(input_time % (24 * 3600))
+    hour = input_time // 3600
+    input_time %= 3600
+    minutes = input_time // 60
+    input_time %= 60
+    seconds = input_time
+
+    return f"{day} days {append_zero(hour)}:{append_zero(minutes)}:{append_zero(seconds)}"

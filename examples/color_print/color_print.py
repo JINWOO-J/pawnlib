@@ -1,6 +1,8 @@
-#!/usr/bin/env python3
+    #!/usr/bin/env python3
 import common
 from pawnlib.output.color_print import *
+import time
+
 
 sample_dict = dict(
     aa="sdssdsdsd"
@@ -71,3 +73,7 @@ dump(nested_data)
 
 cprint("\n\n classdump()", "white")
 classdump(bcolors)
+
+for i in range(1, 100):
+    time.sleep(0.05)
+    print_progress_bar(i, total=100, prefix="start", suffix="suffix")

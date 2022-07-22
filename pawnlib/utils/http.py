@@ -1,8 +1,16 @@
 import re
 import requests
 import json
-from pawnlib.config.globalconfig import pawnlib_config, global_verbose
+from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose
 from pawnlib import output
+
+
+class JsonRequest:
+    def __init__(self):
+        """
+        TODO: It will be generated the JSON or JSON-RPC request
+        """
+        pass
 
 
 def disable_ssl_warnings():
@@ -16,13 +24,23 @@ def append_http(url):
     return url
 
 
+def append_ws(url):
+    if "https://" in url:
+        url = url.replace("https://", "wss://")
+    elif "http://" in url:
+        url = url.replace("http://", "ws://")
+    elif "ws://" not in url and "wss://" not in url:
+        url = f"ws://{url}"
+    return url
+
+
 def remove_http(url):
     return re.sub(r"https?://", '', url)
 
 
 def jequest(url, method="get", payload={}, elapsed=False, print_error=False, timeout=5000):
     """
-    This functions will be getting the http requests.
+    This functions will be called the http requests.
 
     :param url:
     :param method:
@@ -32,8 +50,8 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     :param timeout:
     :return:
     """
-    error_logger = pawnlib_config.get('PAWN_ERROR_LOGGER', None)
-    timeout = pawnlib_config.to_dict().get('PAWN_TIMEOUT', 0) or timeout
+    error_logger = pawn.get('PAWN_ERROR_LOGGER', None)
+    timeout = pawn.to_dict().get('PAWN_TIMEOUT', 0) or timeout
 
     url = append_http(url)
     (json_response, data, http_version, r_headers, error) = ({}, {}, None, None, None)
@@ -41,7 +59,7 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     response = None
     if method not in ("get", "post", "patch", "delete"):
         # cprint(f"[ERROR] unsupported method={method}, url={url} ", color="red")
-        error_logger.error(f"unsupported method={method}, url={url} ") if error_logger else False
+        pawn.error_logger.error(f"unsupported method={method}, url={url} ") if pawn.error_logger else False
         return {"error": "unsupported method"}
     try:
         func = getattr(requests, method)
@@ -56,7 +74,7 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
         error = errh
         if global_verbose > 0:
             output.kvPrint("Http Error:", errh)
-        error_logger.error(f"Http Error:{errh}")
+        pawn.error_logger.error(f"Http Error:{errh}") if pawn.error_logger else False
 
     except requests.exceptions.ConnectionError as errc:
         error = errc
@@ -66,19 +84,19 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
             errc = "DNSLookupError"
         if global_verbose > 0:
             output.kvPrint("Error Connecting:", errc, "FAIL")
-        error_logger.error(f"Error Connecting:{errc}, {url}") if error_logger else False
+        pawn.error_logger.error(f"Error Connecting:{errc}, {url}") if pawn.error_logger else False
 
     except requests.exceptions.Timeout as errt:
         error = errt
         if global_verbose > 0:
             output.kvPrint("Timeout Error:", errt, "FAIL")
-        error_logger.error(f"Timeout Connecting:{errt}, {url}")
+        pawn.error_logger.error(f"Timeout Connecting:{errt}, {url}") if pawn.error_logger else False
 
     except requests.exceptions.RequestException as err:
         error = err
         if global_verbose > 0:
             output.kvPrint("OOps: Something Else", err, "FAIL")
-        error_logger.error(f"OOps: Something Else:{err}, {url}") if error_logger else False
+        pawn.error_logger.error(f"OOps: Something Else:{err}, {url}") if pawn.error_logger else False
 
     # cprint(f"----> {url}, {method}, {payload} , {response.status_code}", "green")
 

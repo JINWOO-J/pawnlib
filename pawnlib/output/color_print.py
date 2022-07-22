@@ -7,9 +7,7 @@ import getpass
 import traceback
 import inspect
 from pawnlib.typing import converter, date, list_to_oneline_string, todaydate
-from pawnlib.config import pawnlib_config
-
-global_verbose = pawnlib_config.get('PAWN_VERBOSE', 0)
+from pawnlib.config import pawnlib_config as pawn
 
 
 ATTRIBUTES = dict(
@@ -282,9 +280,9 @@ def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, 
     module_text = ""
     time_text = ""
     try:
-        if global_verbose > 2:
-            # text = f"[{full_module_name}] {text}"
-            module_text = get_bcolors(f"[{full_module_name:<25}]", "WARNING")
+        # if global_verbose > 2:
+        #     # text = f"[{full_module_name}] {text}"
+        module_text = get_bcolors(f"[{full_module_name:<25}]", "WARNING")
     except:
         pass
 
@@ -316,7 +314,6 @@ def print_json(obj, **kwargs):
 
 
 def debug_logging(message, dump_message=None, color="green"):
-
     stack = traceback.extract_stack()
     filename, codeline, funcName, text = stack[-2]
 
@@ -324,4 +321,46 @@ def debug_logging(message, dump_message=None, color="green"):
     kvPrint(def_msg, message)
     if dump_message:
         dump(dump_message)
+
+
+def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, bar_length=100, overlay=True):
+    """
+    Print progress bar
+    :param iteration:
+    :param total:
+    :param prefix:
+    :param suffix:
+    :param decimals:
+    :param bar_length:
+    :param overlay:
+    :return:
+    :example:
+
+        for i in range(1, 100):
+            time.sleep(0.05)
+            print_progress_bar(i, total=100, prefix="start", suffix="suffix")
+
+
+        start |###################################| 100.0% suffix
+
+    """
+    iteration = iteration + 1
+    format_str = "{0:." + str(decimals) + "f}"
+    percent = format_str.format(100 * (iteration / float(total)))
+    filled_length = int(round(bar_length * iteration / float(total)))
+    bar = '#' * filled_length + '-' * (bar_length - filled_length)
+
+    if overlay:
+        sys.stdout.write("\033[F")  # back to previous line
+        sys.stdout.write("\033[K")  # clear line
+    sys.stdout.write('%s |%s| %s%s %s \n' %
+                     (prefix, bar, percent, '%', suffix)),
+
+    if iteration == total:
+        sys.stdout.write('\n')
+    # sys.stdout.flush()
+
+
+# def run_progress():
+#     animation = ["\\", "|", " /", "—"]
 

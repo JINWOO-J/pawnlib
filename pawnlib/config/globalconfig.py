@@ -7,6 +7,7 @@ from pawnlib.__version__ import __title__, __version__
 import random
 import string
 from pawnlib.typing.converter import UpdateType
+from pawnlib.typing.generator import uuid_generator
 
 # from ..collections.namedtuple import nestednamedtuple
 # from configparser import ConfigParser
@@ -97,31 +98,6 @@ class fdict(dict):
 #             globals()["gconf"][p_key] = p_value
 
 
-def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
-    """
-    this function will be generated random id
-
-    00ZP5YRLRT1Y
-
-    :param size:
-    :param chars:
-    :return:
-    """
-    return ''.join(random.choice(chars) for _ in range(size))
-
-
-def uuid_generator(size: int = 8, count: int = 4, separator: str = "-"):
-    """
-    this function will be generated random uuid
-
-    KFXSYSVJHPE6-83KZTPKY9NL3-ZHRFUV7QRWWJ-GRWVPB6C5SM8
-
-    :param size:
-    :param count:
-    :param separator:
-    :return:
-    """
-    return separator.join([id_generator(size) for i in range(count)])
 
 
 def singleton(class_):
@@ -156,7 +132,6 @@ class PawnlibConfig:
         # self.configure_path = os.path.dirname(os.path.abspath(__file__))
 
     def init_with_env(self, **kwargs):
-
         self.fill_config_from_environment()
         self.set(**kwargs)
         return self
@@ -221,12 +196,6 @@ class PawnlibConfig:
 
                 elif required_type:
                     environment_value = required_type(environment_value)
-                # print(f"required_type = {required_type} ,{environment_value}, {os.getenv(environment)} {isinstance(environment_value, required_type)}")
-                # # if required_type and isinstance(environment_value, required_type):
-                # if required_type and isinstance(environment_value, required_type):
-                #     print("---- OK type")
-
-            # environment_value = update_typed.assign_kv(environment, environment_value)
             self.set(**{environment_name: environment_value})
 
     def make_config(self, dictionary: Optional[dict] = None, **kwargs) -> None:
@@ -270,6 +239,97 @@ class PawnlibConfig:
                 if kwargs.get(f"{self.env_prefix}_VERBOSE"):
                     self.verbose = kwargs[f"{self.env_prefix}_VERBOSE"]
                 globals()[self.global_name][p_key] = p_value
+
+    # def add_list(self, **kwargs):
+    #     for key, value in kwargs.items():
+    #         tmp_result = self.get(key, None)
+    #         if tmp_result is None:
+    #             tmp_result = []
+    #         if isinstance(tmp_result, list):
+    #             tmp_result.append(value)
+    #             globals()[self.global_name][key] = tmp_result
+    #             return tmp_result
+    #     return []
+
+    def increase(self, **kwargs):
+        """
+        Find the key and increment the number.
+        :param kwargs:
+        :return:
+        """
+        return self._modify_value(_command="increase", **kwargs) or 0
+
+    def decrease(self, **kwargs):
+        """
+        Find the key and decrement the number.
+        :param kwargs:
+        :return:
+        """
+        return self._modify_value(_command="decrease", **kwargs) or 0
+
+    def append_list(self, **kwargs):
+        """
+        Find the key and append the value to list.
+        :param kwargs:
+        :return:
+        """
+
+        return self._modify_value(_command="append_list", **kwargs) or []
+
+    def remove_list(self, **kwargs):
+        """
+        Find the key and remove the value to list.
+        :param kwargs:
+        :return:
+        """
+        return self._modify_value(_command="remove_list", **kwargs) or []
+
+    @staticmethod
+    def _modify_value_initialize(_command=None):
+        init_values = {
+            "increase": 0,
+            "decrease": 0,
+            "append_list": [],
+            "remove_list": [],
+        }
+        return init_values.get(_command)
+
+    def _modify_value(self, _command=None, **kwargs):
+        """
+        Find the key and modify the value.
+        :param _command:
+        :param kwargs:
+        :return:
+        """
+        is_modify = False
+        init_value = self._modify_value_initialize(_command=_command)
+
+        for key, value in kwargs.items():
+            tmp_result = self.get(key=key, default="___NONE_VALUE___")
+
+            if tmp_result == "___NONE_VALUE___":
+                tmp_result = init_value
+
+            if _command == "increase":
+                if isinstance(tmp_result, int) or isinstance(tmp_result, float):
+                    tmp_result += value
+                    is_modify = True
+            elif _command == "decrease":
+                if isinstance(tmp_result, int) or isinstance(tmp_result, float):
+                    tmp_result -= value
+                    is_modify = True
+            elif _command == "append_list":
+                if isinstance(tmp_result, list):
+                    tmp_result.append(value)
+                    is_modify = True
+            elif _command == "remove_list":
+                if isinstance(tmp_result, list):
+                    tmp_result.remove(value)
+                    is_modify = True
+            if is_modify:
+                globals()[self.global_name][key] = tmp_result
+                return tmp_result
+        return init_value
 
     def __str__(self):
         return f"<{self.version.title()}>[{self.global_name}]\n{self.to_dict()}"
