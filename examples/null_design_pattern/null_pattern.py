@@ -21,11 +21,11 @@ def main():
     pawnlib_config.app_logger.info("asdsdsd")
 
     print("\n\n")
-
-    pawnlib_config.app_logger = None
     cprint(f"2. Use None :: \n\n pawnlib_config.app_logger type = {type(pawnlib_config.app_logger)}", "green")
+    pawnlib_config.app_logger = None
+
     try:
-        cprint(" It will be occurred error", "red")
+        cprint("The following error will occur while calling the method.", "red")
         pawnlib_config.app_logger.info("asdsdsd")
     except Exception as e:
         cprint(f" Exception :: Error Occurred - {e}", "red")

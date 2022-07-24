@@ -112,16 +112,11 @@ def singleton(class_):
 
 # @singleton
 class PawnlibConfig:
-    def __init__(self, global_name="pawnlib_global_config", app_logger=None, error_logger=None, timeout=6000):
+    def __init__(self, global_name="pawnlib_global_config", app_logger=Null(), error_logger=Null(), timeout=6000):
         self.global_name = f"{global_name}_{uuid_generator()}"
-        if app_logger is None:
-            self.app_logger = Null()
-        else:
-            self.app_logger = app_logger
-        if error_logger is None:
-            self.error_logger = Null()
-        else:
-            self.error_logger = error_logger
+        self.app_logger = app_logger
+        self.error_logger = error_logger
+
         self.timeout = timeout
         self.verbose = 0
 
