@@ -7,8 +7,7 @@ from pawnlib.__version__ import __title__, __version__
 import random
 import string
 from pawnlib.typing.converter import UpdateType
-from pawnlib.typing.generator import uuid_generator
-from pawnlib.typing.check import Null
+from pawnlib.typing.generator import uuid_generator, Null
 
 # from ..collections.namedtuple import nestednamedtuple
 # from configparser import ConfigParser

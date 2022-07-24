@@ -8,7 +8,7 @@ from devtools import debug
 from pawnlib.output import *
 from pawnlib.config.globalconfig import pawnlib_config
 from pawnlib.utils.operate_handler import *
-from pawnlib.typing.check import Null
+from pawnlib.typing.generator import Null
 
 
 def main():
