@@ -8,6 +8,7 @@ import random
 import string
 from pawnlib.typing.converter import UpdateType
 from pawnlib.typing.generator import uuid_generator
+from pawnlib.typing.check import Null
 
 # from ..collections.namedtuple import nestednamedtuple
 # from configparser import ConfigParser
@@ -98,8 +99,6 @@ class fdict(dict):
 #             globals()["gconf"][p_key] = p_value
 
 
-
-
 def singleton(class_):
     instances = {}
 
@@ -115,8 +114,14 @@ def singleton(class_):
 class PawnlibConfig:
     def __init__(self, global_name="pawnlib_global_config", app_logger=None, error_logger=None, timeout=6000):
         self.global_name = f"{global_name}_{uuid_generator()}"
-        self.app_logger = app_logger
-        self.error_logger = error_logger
+        if app_logger is None:
+            self.app_logger = Null()
+        else:
+            self.app_logger = app_logger
+        if error_logger is None:
+            self.error_logger = Null()
+        else:
+            self.error_logger = error_logger
         self.timeout = timeout
         self.verbose = 0
 

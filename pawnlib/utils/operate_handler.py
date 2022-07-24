@@ -274,17 +274,17 @@ def get_inspect_module(full_module_name=None):
 
 def job_start(full_module_name=None):
     full_module_name = get_inspect_module(full_module_name)
-    if pawnlib_config.get('PAWN_VERBOSE', 0) > 0:
-        cprint(f"[START] {full_module_name}", "green")
+    if pawn.get('PAWN_VERBOSE', 0) > 0:
+        debug_print(f"[START] {full_module_name}", "green")
 
 
 def job_done(error: str = '', full_module_name: str = '', elapsed: Union[float, int] = 0):
     title = get_inspect_module(full_module_name)
-    if pawnlib_config.get('PAWN_VERBOSE', 0) > 0:
+    if pawn.get('PAWN_VERBOSE', 0) > 0:
         if error == '':
-            cprint(f"[DONE ] {title} {elapsed:.3f}sec", "green")
+            debug_print(f"[DONE ] {title} {elapsed:.3f}sec", "green")
         else:
-            cprint(" NOT DONE %s (%.3fsec)- %s" % (title, elapsed, error), "red")
+            debug_print(" NOT DONE %s (%.3fsec)- %s" % (title, elapsed, error), "red")
     return title
 
 
@@ -384,5 +384,3 @@ def hook_print(*args, **kwargs):
     if kwargs.get("line_no") % 100 == 0:
         print(f"[output hook - matching line_no] {args} {kwargs}")
     # print(kwargs.get('line'))
-
-
