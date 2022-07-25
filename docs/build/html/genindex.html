@@ -1,0 +1,1036 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+
+    <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/><title>Index - pawnlib 0.0.2 documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">pawnlib 0.0.2 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">pawnlib 0.0.2 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#W"><strong>W</strong></a></div>
+</section>
+<section id="_" class="genindex-section">
+  <h2>_</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.asyncio.html#pawnlib.asyncio.run.AsyncTasks.__init__">__init__() (AsyncTasks method)</a>
+
+        <ul>
+          <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.Counter.__init__">(Counter method)</a>
+</li>
+          <li><a href="module/pawnlib.utils.html#pawnlib.utils.http.JsonRequest.__init__">(JsonRequest method)</a>
+</li>
+          <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.Null.__init__">(Null method)</a>
+</li>
+          <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.__init__">(PawnlibConfig method)</a>
+</li>
+          <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.TablePrinter.__init__">(TablePrinter method)</a>
+</li>
+          <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.__init__">(TimeCalculator method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.add_stream_handler">add_stream_handler() (AppLogger method)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.http.append_http">append_http() (in module pawnlib.utils.http)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.append_list">append_list() (PawnlibConfig method)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.http.append_ws">append_ws() (in module pawnlib.utils.http)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.append_zero">append_zero() (in module pawnlib.typing.converter)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.AppLogger">AppLogger (class in pawnlib.utils.log)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.UpdateType.assign_dict">assign_dict() (UpdateType method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.UpdateType.assign_kv">assign_kv() (UpdateType method)</a>
+</li>
+        <li><a href="module/pawnlib.asyncio.html#pawnlib.asyncio.run.async_partial">async_partial() (in module pawnlib.asyncio.run)</a>
+</li>
+        <li><a href="module/pawnlib.asyncio.html#pawnlib.asyncio.run.AsyncTasks">AsyncTasks (class in pawnlib.asyncio.run)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="B" class="genindex-section">
+  <h2>B</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors">bcolors (class in pawnlib.output.color_print)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.BOLD">BOLD (bcolors attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.calculate">calculate() (TimeCalculator method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.camel_case_to_lower_case">camel_case_to_lower_case() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.camel_case_to_space_case">camel_case_to_space_case() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.camel_case_to_upper_case">camel_case_to_upper_case() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.check_file_overwrite">check_file_overwrite() (in module pawnlib.output.file)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.class_extract_attr_list">class_extract_attr_list() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.classdump">classdump() (in module pawnlib.output.color_print)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.colored">colored() (in module pawnlib.output.color_print)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.colored_input">colored_input() (in module pawnlib.output.color_print)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.compose">compose() (in module pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.conf">conf() (PawnlibConfig method)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.configure.Configure">Configure() (in module pawnlib.config.configure)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.convert_bytes">convert_bytes() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.convert_dict_hex_to_int">convert_dict_hex_to_int() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.convert_hex_to_int">convert_hex_to_int() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.convert_unix_timestamp">convert_unix_timestamp() (in module pawnlib.typing.date_utils)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.Counter">Counter (class in pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.cprint">cprint() (in module pawnlib.output.color_print)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.CustomLog">CustomLog (class in pawnlib.utils.log)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Daemon">Daemon (class in pawnlib.utils.operate_handler)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Daemon.daemonize">daemonize() (Daemon method)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.DARK_GREY">DARK_GREY (bcolors attribute)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.debug_logging">debug_logging() (in module pawnlib.output.color_print)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.debug_print">debug_print() (in module pawnlib.output.color_print)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.decimal">decimal() (in module pawnlib.typing.generator)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.decrease">decrease() (PawnlibConfig method)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Daemon.delpid">delpid() (Daemon method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.dict2influxdb_line">dict2influxdb_line() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.dict_none_to_zero">dict_none_to_zero() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.dict_to_line">dict_to_line() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.http.disable_ssl_warnings">disable_ssl_warnings() (in module pawnlib.utils.http)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.dump">dump() (in module pawnlib.output.color_print)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="E" class="genindex-section">
+  <h2>E</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.ENDC">ENDC (bcolors attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.execute_function">execute_function() (in module pawnlib.typing.converter)</a>
+
+        <ul>
+          <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.execute_function">(in module pawnlib.utils.operate_handler)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.FAIL">FAIL (bcolors attribute)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.fdict">fdict (class in pawnlib.config.globalconfig)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.file_handler">file_handler() (CustomLog method)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.file_rotating_handler">file_rotating_handler() (CustomLog method)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.fill_config_from_environment">fill_config_from_environment() (PawnlibConfig method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.UpdateType.fill_default">fill_default() (UpdateType method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.UpdateType.find_parent_type">find_parent_type() (UpdateType method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.flatten_dict">flatten_dict() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.flatten_list">flatten_list() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.format_seconds_to_hhmmss">format_seconds_to_hhmmss() (in module pawnlib.typing.date_utils)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.generate_json_rpc">generate_json_rpc() (in module pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.generate_number_list">generate_number_list() (in module pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.asyncio.html#pawnlib.asyncio.run.AsyncTasks.generate_tasks">generate_tasks() (AsyncTasks method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.GenMultiMetrics">GenMultiMetrics (class in pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.GenMultiMetrics.get">get() (GenMultiMetrics method)</a>
+
+        <ul>
+          <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.get">(PawnlibConfig method)</a>
+</li>
+        </ul></li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.get_abs_path">get_abs_path() (in module pawnlib.output.file)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.get_bcolors">get_bcolors() (in module pawnlib.output.color_print)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.get_file_path">get_file_path() (in module pawnlib.output.file)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.get_inspect_module">get_inspect_module() (in module pawnlib.utils.operate_handler)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.notify.get_level_color">get_level_color() (in module pawnlib.utils.notify)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.get_logger">get_logger() (AppLogger method)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.get_parent_path">get_parent_path() (in module pawnlib.output.file)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Daemon.get_pid">get_pid() (Daemon method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.get_range_day_of_month">get_range_day_of_month() (in module pawnlib.typing.date_utils)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.get_real_path">get_real_path() (in module pawnlib.output.file)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.get_realpath">get_realpath() (AppLogger method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.get_size">get_size() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.TablePrinter.get_unique_columns">get_unique_columns() (TablePrinter method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="H" class="genindex-section">
+  <h2>H</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.HEADER">HEADER (bcolors attribute)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.hex_to_number">hex_to_number() (in module pawnlib.typing.converter)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.hexadecimal">hexadecimal() (in module pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.hook_print">hook_print() (in module pawnlib.utils.operate_handler)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.id_generator">id_generator() (in module pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.increase">increase() (PawnlibConfig method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.influx_key_value">influx_key_value() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.influxdb_metrics_dict">influxdb_metrics_dict() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.init_with_env">init_with_env() (PawnlibConfig method)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.is_binary_file">is_binary_file() (in module pawnlib.output.file)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.is_file">is_file() (in module pawnlib.output.file)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.check.is_hex">is_hex() (in module pawnlib.typing.check)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.check.is_int">is_int() (in module pawnlib.typing.check)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.is_json">is_json() (in module pawnlib.output.file)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.check.is_regex_keywords">is_regex_keywords() (in module pawnlib.typing.check)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Daemon.is_running">is_running() (Daemon method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="J" class="genindex-section">
+  <h2>J</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.http.jequest">jequest() (in module pawnlib.utils.http)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.job_done">job_done() (in module pawnlib.utils.operate_handler)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.job_start">job_start() (in module pawnlib.utils.operate_handler)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.http.JsonRequest">JsonRequest (class in pawnlib.utils.http)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="K" class="genindex-section">
+  <h2>K</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.kvPrint">kvPrint() (in module pawnlib.output.color_print)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.LIGHT_GREY">LIGHT_GREY (bcolors attribute)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.list_to_oneline_string">list_to_oneline_string() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Daemon.log">log() (Daemon method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.log_formatter">log_formatter() (CustomLog method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.long_to_bytes">long_to_bytes() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.lower_case_to_camel_case">lower_case_to_camel_case() (in module pawnlib.typing.converter)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.make_config">make_config() (PawnlibConfig method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.metrics_key_push">metrics_key_push() (in module pawnlib.typing.converter)</a>
+</li>
+        <li>
+    module
+
+        <ul>
+          <li><a href="module/pawnlib.html#module-pawnlib">pawnlib</a>
+</li>
+          <li><a href="module/pawnlib.asyncio.html#module-pawnlib.asyncio">pawnlib.asyncio</a>
+</li>
+          <li><a href="module/pawnlib.asyncio.html#module-pawnlib.asyncio.run">pawnlib.asyncio.run</a>
+</li>
+          <li><a href="module/pawnlib.config.html#module-pawnlib.config">pawnlib.config</a>
+</li>
+          <li><a href="module/pawnlib.config.html#module-pawnlib.config.configure">pawnlib.config.configure</a>
+</li>
+          <li><a href="module/pawnlib.config.html#module-pawnlib.config.globalconfig">pawnlib.config.globalconfig</a>
+</li>
+          <li><a href="module/pawnlib.output.html#module-pawnlib.output">pawnlib.output</a>
+</li>
+          <li><a href="module/pawnlib.output.html#module-pawnlib.output.color_print">pawnlib.output.color_print</a>
+</li>
+          <li><a href="module/pawnlib.output.html#module-pawnlib.output.file">pawnlib.output.file</a>
+</li>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing">pawnlib.typing</a>
+</li>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing.check">pawnlib.typing.check</a>
+</li>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing.converter">pawnlib.typing.converter</a>
+</li>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing.date_utils">pawnlib.typing.date_utils</a>
+</li>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing.defines">pawnlib.typing.defines</a>
+</li>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing.generator">pawnlib.typing.generator</a>
+</li>
+          <li><a href="module/pawnlib.utils.html#module-pawnlib.utils">pawnlib.utils</a>
+</li>
+          <li><a href="module/pawnlib.utils.html#module-pawnlib.utils.http">pawnlib.utils.http</a>
+</li>
+          <li><a href="module/pawnlib.utils.html#module-pawnlib.utils.log">pawnlib.utils.log</a>
+</li>
+          <li><a href="module/pawnlib.utils.html#module-pawnlib.utils.notify">pawnlib.utils.notify</a>
+</li>
+          <li><a href="module/pawnlib.utils.html#module-pawnlib.utils.operate_handler">pawnlib.utils.operate_handler</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.defines.Namespace">Namespace (class in pawnlib.typing.defines)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.nestednamedtuple">nestednamedtuple() (in module pawnlib.config.globalconfig)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.Null">Null (class in pawnlib.typing.generator)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.OKBLUE">OKBLUE (bcolors attribute)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.OKGREEN">OKGREEN (bcolors attribute)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.open_file">open_file() (in module pawnlib.output.file)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.open_json">open_json() (in module pawnlib.output.file)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.open_yaml_file">open_yaml_file() (in module pawnlib.output.file)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.ordereddict_to_dict">ordereddict_to_dict() (in module pawnlib.typing.converter)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    pawnlib
+
+        <ul>
+          <li><a href="module/pawnlib.html#module-pawnlib">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.asyncio
+
+        <ul>
+          <li><a href="module/pawnlib.asyncio.html#module-pawnlib.asyncio">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.asyncio.run
+
+        <ul>
+          <li><a href="module/pawnlib.asyncio.html#module-pawnlib.asyncio.run">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.config
+
+        <ul>
+          <li><a href="module/pawnlib.config.html#module-pawnlib.config">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.config.configure
+
+        <ul>
+          <li><a href="module/pawnlib.config.html#module-pawnlib.config.configure">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.config.globalconfig
+
+        <ul>
+          <li><a href="module/pawnlib.config.html#module-pawnlib.config.globalconfig">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.output
+
+        <ul>
+          <li><a href="module/pawnlib.output.html#module-pawnlib.output">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.output.color_print
+
+        <ul>
+          <li><a href="module/pawnlib.output.html#module-pawnlib.output.color_print">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.output.file
+
+        <ul>
+          <li><a href="module/pawnlib.output.html#module-pawnlib.output.file">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.typing
+
+        <ul>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.typing.check
+
+        <ul>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing.check">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    pawnlib.typing.converter
+
+        <ul>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing.converter">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.typing.date_utils
+
+        <ul>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing.date_utils">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.typing.defines
+
+        <ul>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing.defines">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.typing.generator
+
+        <ul>
+          <li><a href="module/pawnlib.typing.html#module-pawnlib.typing.generator">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.utils
+
+        <ul>
+          <li><a href="module/pawnlib.utils.html#module-pawnlib.utils">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.utils.http
+
+        <ul>
+          <li><a href="module/pawnlib.utils.html#module-pawnlib.utils.http">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.utils.log
+
+        <ul>
+          <li><a href="module/pawnlib.utils.html#module-pawnlib.utils.log">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.utils.notify
+
+        <ul>
+          <li><a href="module/pawnlib.utils.html#module-pawnlib.utils.notify">module</a>
+</li>
+        </ul></li>
+        <li>
+    pawnlib.utils.operate_handler
+
+        <ul>
+          <li><a href="module/pawnlib.utils.html#module-pawnlib.utils.operate_handler">module</a>
+</li>
+        </ul></li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig">PawnlibConfig (class in pawnlib.config.globalconfig)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.print_json">print_json() (in module pawnlib.output.color_print)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.print_progress_bar">print_progress_bar() (in module pawnlib.output.color_print)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.GenMultiMetrics.push">push() (GenMultiMetrics method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.http.remove_http">remove_http() (in module pawnlib.utils.http)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.remove_list">remove_list() (PawnlibConfig method)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Spinner.remove_spinner">remove_spinner() (Spinner method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.replace_ignore_char">replace_ignore_char() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.replace_ignore_dict_kv">replace_ignore_dict_kv() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.request_impure">request_impure() (in module pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.request_natural">request_natural() (in module pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.request_pure">request_pure() (in module pawnlib.typing.generator)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Daemon.restart">restart() (Daemon method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.rm_space">rm_space() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.TablePrinter.row">row() (TablePrinter method)</a>
+</li>
+        <li><a href="module/pawnlib.asyncio.html#pawnlib.asyncio.run.AsyncTasks.run">run() (AsyncTasks method)</a>
+
+        <ul>
+          <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Daemon.run">(Daemon method)</a>
+</li>
+          <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.WaitStateLoop.run">(WaitStateLoop method)</a>
+</li>
+        </ul></li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.run_execute">run_execute() (in module pawnlib.utils.operate_handler)</a>
+</li>
+        <li><a href="module/pawnlib.asyncio.html#pawnlib.asyncio.run.run_in_async_loop">run_in_async_loop() (in module pawnlib.asyncio.run)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.second_to_dayhhmm">second_to_dayhhmm() (in module pawnlib.typing.date_utils)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.notify.send_slack">send_slack() (in module pawnlib.utils.notify)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.Sentinel">Sentinel (class in pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.set">set() (PawnlibConfig method)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.set_global">set_global() (AppLogger method)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.set_level">set_level() (CustomLog method)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.set_logger">set_logger() (AppLogger method)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.configure.singleton">singleton() (in module pawnlib.config.configure)</a>
+
+        <ul>
+          <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.singleton">(in module pawnlib.config.globalconfig)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Spinner">Spinner (class in pawnlib.utils.operate_handler)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Spinner.spinner_task">spinner_task() (Spinner method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.split_every_n">split_every_n() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Daemon.start">start() (Daemon method)</a>
+
+        <ul>
+          <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Spinner.start">(Spinner method)</a>
+</li>
+        </ul></li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Daemon.stop">stop() (Daemon method)</a>
+
+        <ul>
+          <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Spinner.stop">(Spinner method)</a>
+</li>
+        </ul></li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.str2bool">str2bool() (in module pawnlib.typing.converter)</a>
+
+        <ul>
+          <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.str2bool">(PawnlibConfig static method)</a>
+</li>
+        </ul></li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.stream_handler">stream_handler() (CustomLog method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.TablePrinter">TablePrinter (class in pawnlib.output.color_print)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.time_rotate_handler">time_rotate_handler() (AppLogger method)</a>
+
+        <ul>
+          <li><a href="module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.time_rotate_handler">(CustomLog method)</a>
+</li>
+        </ul></li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator">TimeCalculator (class in pawnlib.typing.date_utils)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.timestamp_to_string">timestamp_to_string() (in module pawnlib.typing.date_utils)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.timing">timing() (in module pawnlib.utils.operate_handler)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Spinner.title">title() (Spinner method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_days">to_days() (TimeCalculator method)</a>
+</li>
+        <li><a href="module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.to_dict">to_dict() (PawnlibConfig method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_hours">to_hours() (TimeCalculator method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_minutes">to_minutes() (TimeCalculator method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_strings">to_strings() (TimeCalculator method)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.date_utils.todaydate">todaydate() (in module pawnlib.typing.date_utils)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="U" class="genindex-section">
+  <h2>U</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.UNDERLINE">UNDERLINE (bcolors attribute)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.UpdateType">UpdateType (class in pawnlib.typing.converter)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.converter.upper_case_to_camel_case">upper_case_to_camel_case() (in module pawnlib.typing.converter)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.uuid">uuid() (in module pawnlib.typing.generator)</a>
+</li>
+        <li><a href="module/pawnlib.typing.html#pawnlib.typing.generator.uuid_generator">uuid_generator() (in module pawnlib.typing.generator)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="W" class="genindex-section">
+  <h2>W</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.wait_state_loop">wait_state_loop() (in module pawnlib.utils.operate_handler)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.WaitStateLoop">WaitStateLoop (class in pawnlib.utils.operate_handler)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.WARNING">WARNING (bcolors attribute)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.color_print.bcolors.WHITE">WHITE (bcolors attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.write_file">write_file() (in module pawnlib.output.file)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.write_json">write_json() (in module pawnlib.output.file)</a>
+</li>
+        <li><a href="module/pawnlib.utils.html#pawnlib.utils.operate_handler.Spinner.write_next">write_next() (Spinner method)</a>
+</li>
+        <li><a href="module/pawnlib.output.html#pawnlib.output.file.write_yaml">write_yaml() (in module pawnlib.output.file)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, jinwoo
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    </body>
+</html>

@@ -12,7 +12,7 @@ class CustomLog:
     """CustomLog
 
     :param name: logger name
-    
+
     Example:
 
         .. code-block:: python
