@@ -6,6 +6,10 @@ import errno
 import signal
 import atexit
 import subprocess
+import threading
+import itertools
+from typing import Callable, List, Dict
+
 from pawnlib.output import *
 from pawnlib import typing
 from functools import wraps
@@ -384,3 +388,231 @@ def hook_print(*args, **kwargs):
     if kwargs.get("line_no") % 100 == 0:
         print(f"[output hook - matching line_no] {args} {kwargs}")
     # print(kwargs.get('line'))
+
+
+class Spinner:
+
+    LINE_UP = '\033[1A'
+    LINE_CLEAR = '\x1b[2K'
+
+    def __init__(self, text="", delay=0.1):
+        """
+        Create a spinning cursor
+        :param text:
+        :param delay:
+        :example:
+                with Spinner(text="Wait message"):
+                    time.sleep(10)
+
+        """
+        self.spinner = itertools.cycle(['-', '/', '|', '\\'])
+        self.delay = delay
+        self.busy = False
+        self.spinner_visible = False
+        self.text = text
+        self._screen_lock = None
+        self.thread = None
+        self.spin_message = ""
+
+    def title(self, text=None):
+        print(end=self.LINE_CLEAR)
+        self.text = text
+
+    def write_next(self):
+        with self._screen_lock:
+            if not self.spinner_visible:
+                if self.text:
+                    self.spin_message = f"{self.text} ... {next(self.spinner)}"
+                else:
+                    self.spin_message = next(self.spinner)
+                # sys.stdout.write(next(self.spinner))
+                sys.stdout.write(self.spin_message)
+
+                self.spinner_visible = True
+                sys.stdout.flush()
+
+    def remove_spinner(self, cleanup=False):
+        with self._screen_lock:
+            if self.spinner_visible:
+                b = len(self.spin_message)
+                sys.stdout.write('\b' * b)
+                self.spinner_visible = False
+                if cleanup:
+                    sys.stdout.write(' ')       # overwrite spinner with blank
+                    sys.stdout.write('\r')      # move to next line
+                sys.stdout.flush()
+
+    def spinner_task(self):
+        while self.busy:
+            self.write_next()
+            time.sleep(self.delay)
+            self.remove_spinner()
+
+    def start(self):
+        self._screen_lock = threading.Lock()
+        self.busy = True
+        self.thread = threading.Thread(target=self.spinner_task)
+        self.thread.start()
+
+    def stop(self):
+        self.busy = False
+        self.remove_spinner(cleanup=True)
+
+    def __enter__(self):
+        if sys.stdout.isatty():
+            self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_traceback):
+        if sys.stdout.isatty():
+            self.stop()
+            print(f"[DONE] {self.text}")
+        else:
+            sys.stdout.write('\r')
+
+
+class WaitStateLoop:
+    def __init__(self,
+                 loop_function: Callable,
+                 exit_function: Callable,
+                 timeout=30, delay=0.5, text="WaitStateLoop",
+                 ):
+
+        self.loop_function = loop_function
+        self.exit_function = exit_function
+        self.timeout = timeout
+        self.delay = delay
+        self.text = text
+
+    def run(self):
+
+        spin_text = ""
+        error_text = ""
+        count = 0
+        start_time = time.time()
+
+        if getattr(self.loop_function, "func"):
+            func_name = self.loop_function.func.__name__
+            spin_text = f"[{self.text}] Wait for {func_name}()"
+
+        with Spinner(text=spin_text) as spinner:
+            while True:
+                result = self.loop_function()
+                is_success = self.exit_function(result)
+
+                spinner.title(f"{error_text}[{count}]{spin_text}: result={result}, is_success={is_success}, {time.time()} < {start_time + self.timeout}")
+
+                if is_success is True:
+                    return result
+                time.sleep(self.delay)
+
+                try:
+                    assert time.time() < start_time + self.timeout
+                except AssertionError:
+                    # text = f"[{count:.1f}s] [{timeout_limit}s Timeout] Waiting for {exec_function_name} / '{func_args}' :: '{wait_state}' -> {check_state} , {error_msg}"
+                    error_text = f"[TIMEOUT]"
+                count += 1
+
+
+def wait_state_loop(
+        exec_function=None,
+        func_args=[],
+        check_key="status",
+        wait_state="0x1",
+        timeout_limit=30,
+        increase_sec=0.5,
+        health_status=None,
+        description="",
+        force_dict=True,
+        logger=None
+):
+    start_time = time.time()
+    count = 0
+    # arguments 가 한개만 있을 때의 예외
+    # if type(func_args) is str:
+    if isinstance(func_args, str):
+        tmp_args = ()
+        tmp_args = tmp_args + (func_args,)
+        func_args = tmp_args
+
+    exec_function_name = exec_function.__name__
+    # classdump(exec_function.__qualname__)
+    # print(exec_function.__qualname__)
+    act_desc = f"desc={description}, function={exec_function_name}, args={func_args}"
+    spinner = Halo(text=f"[START] Wait for {description} , {exec_function_name}, {func_args}", spinner='dots')
+    if logger and hasattr(logger, "info"):
+        logger.info(f"[SR] [START] {act_desc}")
+
+    spinner.start()
+
+    while True:
+        if isinstance(func_args, dict):
+            response = exec_function(**func_args)
+        else:
+            response = exec_function(*func_args)
+
+        if not isinstance(response, dict):
+            response = response.__dict__
+
+        if force_dict:
+            if isinstance(response.get("json"), list):
+                response['json'] = response['json'][0]
+
+        check_state = ""
+        error_msg = ""
+
+        if response.get("json") or health_status:
+            response_result = response.get("json")
+            check_state = response_result.get(check_key, "")
+            response_status = response.get("status_code")
+            if check_state == wait_state or health_status == response_status:
+                status_header = bcolors.OKGREEN + "[DONE]" + bcolors.ENDC
+                text = f"\t[{description}] count={count}, func={exec_function_name}, args={str(func_args)[:30]}, wait_state='{wait_state}', check_state='{check_state}'"
+                if health_status:
+                    text += f", health_status={health_status}, status={response_status}"
+                spinner.succeed(f'{status_header} {text}')
+                spinner.stop()
+                spinner.clear()
+                # spinner.stop_and_persist(symbol='🦄'.encode('utf-8'), text="[DONE]")
+                break
+            else:
+                if type(response_result) == dict or type(check_state) == dict:
+                    if response_result.get("failure"):
+                        if response_result.get("failure").get("message"):
+                            print("\n\n\n")
+                            spinner.fail(f'[FAIL] {response_result.get("failure").get("message")}')
+                            spinner.stop()
+                            spinner.clear()
+                            break
+
+        text = f"[{count:.1f}s] Waiting for {exec_function_name} / {func_args} :: '{wait_state}' -> '{check_state}' , {error_msg}"
+        spinner.start(text=text)
+
+        if logger and hasattr(logger, "info"):
+            logger.info(f"[SR] {text}")
+
+        try:
+            assert time.time() < start_time + timeout_limit
+        except AssertionError:
+            text = f"[{count:.1f}s] [{timeout_limit}s Timeout] Waiting for {exec_function_name} / '{func_args}' :: '{wait_state}' -> {check_state} , {error_msg}"
+            spinner.start(text=text)
+
+            if logger and hasattr(logger, "error"):
+                logger.info(f"[SR] {text}")
+
+        count = count + increase_sec
+        time.sleep(increase_sec)
+
+        spinner.stop()
+
+    if logger and hasattr(logger, "info"):
+        logger.info(f"[SR] [DONE] {act_desc}")
+
+    if health_status:
+        return response
+
+    # return {
+    #     "elapsed": time.time() - start_time,
+    #     "json": response.get("json"),
+    #     "status_code": response.get("status_code", 0),
+    # }

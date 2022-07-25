@@ -16,6 +16,7 @@ from .file import (
 
 )
 from .color_print import (
+    bcolors,
     colored,
     cprint,
     TablePrinter,
