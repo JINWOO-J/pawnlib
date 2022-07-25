@@ -12,19 +12,21 @@ jobs:
     - name: Checks out repo
       uses: actions/checkout@v1
 
-    - name: Generates HTML documentation
-      uses: synchronizing/sphinx-action@master
-      with:
-        pre-build-command: "apt-get update -y && apt-get install -y git && pip3 install -r requirements.dev.txt"
-        docs-folder: "docs/"
-
-    - name: Saves the HTML build documentation
-      uses: actions/upload-artifact@v2
-      with:
-        path: docs/build/html/
+#    - name: Generates HTML documentation
+#      uses: synchronizing/sphinx-action@master
+#      with:
+#        pre-build-command: "apt-get update -y && apt-get install -y git && pip3 install -r requirements.dev.txt"
+#        docs-folder: "docs/"
+#
+#    - name: Saves the HTML build documentation
+#      uses: actions/upload-artifact@v2
+#      with:
+#        path: docs/build/html/
 
     - name: Commits docs changes to gh-pages branch
       run: |
+        apt-get update -y && apt-get install -y git && pip3 install -r requirements.dev.txt
+        cd docs; make html; cd ..
         # Copies documentation outside of git folder.  
         mkdir -p ../docs/html
         cp -r docs/build/html ../docs/
