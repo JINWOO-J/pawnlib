@@ -8,11 +8,17 @@ class TimeCalculator:
     def __init__(self, seconds=0):
         """
         It will be calculated seconds to string format
+
         :param seconds:
-        :example:
-            code
-            time_calculator = TimeCalculator(1224411)
-            return to "14 days, 04:06:51"
+
+        Example:
+
+            .. code-block:: python
+
+                from pawnlib.typing import date_utils
+                date_utils.time_calculator = TimeCalculator(1224411)
+
+                # >>  "14 days, 04:06:51"
 
         """
         self.seconds = seconds

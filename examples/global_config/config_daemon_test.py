@@ -21,21 +21,23 @@ class MainProc(Daemon):
 
 
 def main():
-    # pawnlib_default_config()
     while True:
         print(f"main = {pawnlib_config.conf()}")
         print("start daemon")
-        time.sleep(1)
+        time.sleep(5)
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        sys.exit()
+    command = sys.argv[1]
     daemon = Daemon(
         pidfile="/tmp/jmon_agent.pid",
         func=main
     )
-
-    pawnlib_config.put_config(b="bb")
-    daemon.start()
-    # daemon.stop()
-    # daemon = MainProc("/tmp/jmon_agent.pid").start()
-
+    if command == "start":
+        daemon.start()
+    elif command == "stop":
+        daemon.stop()
+    else:
+        print("command not found [start/stop]")

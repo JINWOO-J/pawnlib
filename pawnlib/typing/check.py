@@ -2,6 +2,12 @@ import re
 
 
 def is_int(s) -> bool:
+    """
+    Check if a value is integer
+
+    :param s:
+    :return:
+    """
     try:
         int(s)
     except TypeError:
@@ -12,6 +18,12 @@ def is_int(s) -> bool:
 
 
 def is_hex(s) -> bool:
+    """
+    Check if a value is hexadecimal
+
+    :param s:
+    :return:
+    """
     try:
         int(s, 16)
     except TypeError:
@@ -22,6 +34,27 @@ def is_hex(s) -> bool:
 
 
 def is_regex_keywords(keywords, value):
+    """
+    Check the value of the keyword regular expression.
+
+
+    :param keywords:
+    :param value:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import check
+
+            check.is_regex_keywords(keywords="/sdsd/", value="sdsd")
+            # >> True
+
+            check.is_regex_keywords(keywords="/ad/", value="sdsd")
+            # >> False
+
+    """
     if not isinstance(keywords, list):
         keywords = [keywords]
 

@@ -18,7 +18,6 @@ from .log import (
 )
 
 from .notify import (
-    slack_wh_send,
     send_slack
 )
 

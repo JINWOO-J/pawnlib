@@ -7,6 +7,8 @@ from typing import Union, Type
 import math
 from .check import *
 
+from deprecated import deprecated
+
 # from lib import defines
 # def check_value_type(key, value):
 #     if defines.default_structure.get(key) == "string":
@@ -26,14 +28,27 @@ from .check import *
 #         return_value = value
 #     return return_value
 
+from typing import Union, Any
 
 #https://pypi.org/project/Deprecated/
-def convert_hex_to_int(data, is_comma=False):
+@deprecated(version="1.0.0", reason="You should use another function=> convert_dict_hex_to_int")
+def convert_hex_to_int(data: Any, is_comma: bool = False):
     """
     It will be changed to convert_dict_hex_to_int
-    :param data:
-    :param is_comma:
+
+    :param data: data
+    :param is_comma: human-readable notation
     :return:
+
+    Example:
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+            data = {"aaa": "0x1323"}
+
+            converter.convert_hex_to_int(data)
+            # >> {"aaa": 4899}
+
     """
     # TINT_VALUE = 1000000000000000000
     TINT_VALUE = 10 ** 18
@@ -83,13 +98,24 @@ def convert_hex_to_int(data, is_comma=False):
     return return_data
 
 
-def convert_dict_hex_to_int(data, is_comma: bool = False, debug: bool = False):
+def convert_dict_hex_to_int(data: Any, is_comma: bool = False, debug: bool = False):
     """
     This function recursively converts hex to int.
+
     :param data:
     :param is_comma:
     :param debug:
     :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+            data = {"aaa": "0x1323"}
+            converter.convert_dict_hex_to_int(data)
+            # >> {"aaa": 4899}
+
     """
     return_data = {}
     if isinstance(data, list):
@@ -155,6 +181,7 @@ def hex_to_number(hex_value="", is_comma: bool = False, debug: bool = False):
 
 def get_size(file_path, attr=False):
     """
+    Returns the size of the file.
 
     :param file_path:
     :param attr:
@@ -184,7 +211,9 @@ def get_size(file_path, attr=False):
 
 def convert_bytes(num: Union[int, float]) -> str:
     """
+
     this function will convert bytes to MB.... GB... etc
+
     :param num:
     :return:
     """
@@ -212,6 +241,7 @@ def convert_bytes(num: Union[int, float]) -> str:
 def str2bool(v) -> bool:
     """
     this function get the boolean type
+
     :param v:
     :return:
     """
@@ -233,10 +263,17 @@ def str2bool(v) -> bool:
 def flatten_list(list_items: list, uniq=False) -> list:
     """
     this function will convert complex list to  flatten list
-    [ 1, 2,[ 3, [4, 5, 6], 7]] => [1, 2, 3, 4, 5, 6, 7]
+
+
     :param list_items:
     :param uniq:
     :return:
+
+    Example:
+
+        .. code-block:: python
+
+            # >>> [ 1, 2,[ 3, [4, 5, 6], 7]] => [1, 2, 3, 4, 5, 6, 7]
     """
     return_result = []
     for item in list_items:
@@ -252,19 +289,25 @@ def flatten_list(list_items: list, uniq=False) -> list:
 def flatten_dict(init: dict, separator: str = '｡', lkey: str = '') -> dict:
     """
     this function will convert complex dict to flatten dict
-    {
-        "aa": {
-            "bb": {
-                "cc": "here"
-            }
-        }
-    }
-    => {'aa｡bb｡cc': 'here'}
-
     :param init:
     :param separator:
     :param lkey:
     :return:
+
+
+    Example:
+
+        .. code-block:: python
+
+            # >>
+                {
+                    "aa": {
+                        "bb": {
+                            "cc": "here"
+                        }
+                    }
+                }
+                => {'aa｡bb｡cc': 'here'}
     """
     ret = {}
     for rkey, val in init.items():
@@ -292,11 +335,16 @@ def flatten_dict(init: dict, separator: str = '｡', lkey: str = '') -> dict:
 def dict_to_line(dict_param: dict, quotes: bool = False) -> str:
     """
     This function converts a dict to a line.
-    {"a": "1234", "b": "1235"} => "a=1234,b=1235"
+
 
     :param dict_param:
     :param quotes:
     :return:
+
+    Example:
+        .. code-block:: python
+
+            # >> {"a": "1234", "b": "1235"} => "a=1234,b=1235"
     """
     return_value = ""
     for k, v in sorted(dict_param.items()):
@@ -309,9 +357,19 @@ def dict_to_line(dict_param: dict, quotes: bool = False) -> str:
 
 def dict_none_to_zero(data: dict) -> dict:
     """
-    {"sdsdsds": None} => {"sdsdsds": 0}
+    Convert the None type of the dictionary to zero.
+
+
     :param data:
     :return:
+
+    Example:
+
+        .. code-block:: python
+
+            # >> {"sdsdsds": None} => {"sdsdsds": 0}
+
+
     """
 
     return_dict = {}
@@ -324,10 +382,19 @@ def dict_none_to_zero(data: dict) -> dict:
 
 def list_to_oneline_string(list_param: list, split_str: str = "."):
     """
-    ["111", "222", "333"] => "111.222.333"
-    :param list_param:
-    :param split_str:
+    Convert the list to a string of one line.
+
+    :param list_param: List
+    :param split_str: String to separate
     :return:
+
+    Example:
+
+        .. code-block:: python
+
+            # >> ["111", "222", "333"] => "111.222.333"
+
+
     """
     return_value = ''
     for idx, value in enumerate(list_param):
@@ -339,13 +406,15 @@ def list_to_oneline_string(list_param: list, split_str: str = "."):
 
 def long_to_bytes(val, endianness='big'):
     """
+
     Use :ref:`string formatting` and :func:`~binascii.unhexlify` to
     convert ``val``, a :func:`long`, to a byte :func:`str`.
+
     :param long val: The value to pack
     :param str endianness: The endianness of the result. ``'big'`` for
-      big-endian, ``'little'`` for little-endian.
+    big-endian, ``'little'`` for little-endian.
     If you want byte- and word-ordering to differ, you're on your own.
-    Using :ref:`string formatting` lets us use Python's C innards.
+     Using :ref:`string formatting` lets us use Python's C innards.
     """
     # one (1) hex digit per four (4) bits
     width = val.bit_length()
@@ -368,6 +437,13 @@ def long_to_bytes(val, endianness='big'):
 
 
 def ordereddict_to_dict(value):
+    """
+    Change the order of the keys in the dictionary.
+
+
+    :param value:
+    :return:
+    """
     for k, v in value.items():
         if isinstance(v, dict):
             value[k] = ordereddict_to_dict(v)
@@ -520,6 +596,12 @@ class UpdateType:
 
 
 def execute_function(module_func):
+    """
+    Run under the name of the module name of the module.
+
+    :param module_func:
+    :return:
+    """
     if "." in module_func:
         [module_name, function_name] = module_func.split(".")
         # module = __import__(f"lib.{module_name}", fromlist=["lib", "..", "."])
@@ -530,6 +612,13 @@ def execute_function(module_func):
 
 
 def influxdb_metrics_dict(tags, measurement):
+    """
+    Default data set used by influxdb
+
+    :param tags:
+    :param measurement:
+    :return:
+    """
     return {
         "fields": {},
         "tags": tags,
@@ -556,6 +645,7 @@ def rm_space(value, replace_str="_"):
     """
     remove the all space from value
     influxdb data not allowed space
+
     :param value:
     :param replace_str:
     :return:
@@ -571,6 +661,7 @@ def rm_space(value, replace_str="_"):
 def replace_ignore_char(value, patterns=None, replace_str="_"):
     """
     Remove the ignoring character for add to InfluxDB
+
     :param value:
     :param patterns:
     :param replace_str:
@@ -593,6 +684,32 @@ def replace_ignore_char(value, patterns=None, replace_str="_"):
 
 # def replace_ignore_dict_kv(dict_data, pattern=None, replace_str="_"):
 def replace_ignore_dict_kv(dict_data, *args, **kwargs):
+    """
+
+    Replaces a string of patterns in a dictionary.
+
+    :param dict_data:
+    :param args:
+    :param kwargs:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+            tags = {
+                "aaaa___": "aaa",
+                "vvvv ": "vvvv",
+                " s sss": "12222"
+            }
+
+            print(converter.replace_ignore_dict_kv(dict_data=tags, patterns=["___"], replace_str=">"))
+
+            #> {'aaaa>': 'aaa', 'vvvv': 'vvvv', 's sss': '12222'}
+
+
+    """
     new_dict_data = {}
     for key, value in dict_data.items():
         if isinstance(key, str):
@@ -608,7 +725,33 @@ def replace_ignore_dict_kv(dict_data, *args, **kwargs):
     return new_dict_data
 
 
-def influx_key_value(key_values, sep=",", operator="="):
+def influx_key_value(key_values: dict, sep: str = ",", operator: str = "="):
+    """
+
+    Convert the dictionary to influxdb's key=value format.
+
+    :param key_values:
+    :param sep:
+    :param operator:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+            tags = {
+                "a": "value1",
+                "b ": "value3",
+                "c": "value4"
+            }
+
+            print(converter.influx_key_value(tags))
+
+            # >> a=value1,b_=value3,c=value4
+
+    """
+
     result = ""
     count = 0
     for key, value in key_values.items():
@@ -644,11 +787,20 @@ def append_zero(value):
 def camel_case_to_space_case(s):
     """
     Convert a string from camelcase to spacecase.
+
     :param s:
     :return:
-    :example:
-         camelcase_to_underscore('HelloWorld') == 'Hello world'
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+            converter.camelcase_to_underscore('HelloWorld')
+            # >> 'Hello world'
+
     """
+
     if s == '': return s
     process_character = lambda c: (' ' + c.lower()) if c.isupper() else c
     return s[0] + ''.join(process_character(c) for c in s[1:])
@@ -656,28 +808,42 @@ def camel_case_to_space_case(s):
 
 def camel_case_to_lower_case(s):
     """
-    Convert a string from camel-case to lower-case.
+    Convert a string from camelcase to spacecase.
+
     :param s:
     :return:
-    :example:
-        camel_case_to_lower_case('HelloWorld') == 'hello_world'
 
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+            converter.camel_case_to_lower_case('HelloWorld')
+            # >> 'hello_world'
 
     """
+
     return re.sub('(((?<=[a-z])[A-Z])|([A-Z](?![A-Z]|$)))', '_\\1', s). \
         lower().strip('_')
 
 
 def lower_case_to_camel_case(s):
     """
-    Convert a string from lower-case to camel-case.
+    Convert a string from camelcase to spacecase.
 
     :param s:
     :return:
-    :example:
 
-        camel_case_to_lower_case('hello_world') == 'HelloWorld'
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+            converter.lower_case_to_camel_case('HelloWorld')
+            # >> 'HelloWorld'
+
     """
+
     s = s.capitalize()
     while '_' in s:
         head, tail = s.split('_', 1)
@@ -687,25 +853,40 @@ def lower_case_to_camel_case(s):
 
 def camel_case_to_upper_case(s):
     """
-    Convert a string from camel-case to upper-case.
+    Convert a string from camelcase to spacecase.
 
     :param s:
     :return:
-    :example:
 
-        camel_case_to_lower_case('HelloWorld') == 'HELLO_WORLD'
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+            converter.camel_case_to_upper_case('HelloWorld')
+            # >> 'HELLO_WORLD'
+
     """
+
     return camel_case_to_lower_case(s).upper()
 
 
 def upper_case_to_camel_case(s):
     """
-    Convert a string from upper-case to camel-case.
+    Convert a string from camelcase to spacecase.
 
     :param s:
     :return:
-    :example:
-        camel_case_to_lower_case('HELLO_WORLD') == 'HelloWorld'
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+            converter.upper_case_to_camel_case('HelloWorld')
+            # >> 'HelloWorld'
+
     """
+
     return lower_case_to_camel_case(s.lower())
 

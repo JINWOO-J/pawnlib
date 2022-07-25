@@ -21,13 +21,55 @@ from typing import Union
 class Daemon(object):
     """
     A generic daemon class.
-    Usage: subclass the Daemon class and override the run() method
+    Usage 1: subclass the Daemon class and override the run() method
+    Usage 2: subclass the Daemon class and use func parameter
+
+    :param pidfile: pid file location
+    :param func:
+    :param stdin:
+    :param stdout:
+    :param stderr:
+    :param home_dir:
+    :param umask:
+    :param verbose:
+    :param use_gevent:
+    :param use_eventlet:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.utils.operate_handler import Daemon
+
+            def main():
+                while True:
+                    print(f"main loop")
+                    print("start daemon")
+                    time.sleep(5)
+
+
+            if __name__ == "__main__":
+                if len(sys.argv) != 2:
+                    sys.exit()
+                command = sys.argv[1]
+                daemon = Daemon(
+                    pidfile="/tmp/jmon_agent.pid",
+                    func=main
+                )
+                if command == "start":
+                    daemon.start()
+                elif command == "stop":
+                    daemon.stop()
+                else:
+                    print("command not found [start/stop]")
+
+
     """
 
     def __init__(self, pidfile, func=None, stdin=os.devnull,
                  stdout=os.devnull, stderr=os.devnull,
                  home_dir='.', umask=0o22, verbose=1,
-                 use_gevent=False, use_eventlet=False):
+                 use_gevent: bool = False, use_eventlet: bool = False):
         self.stdin = stdin
         self.stdout = stdout
         self.stderr = stderr
@@ -243,6 +285,7 @@ class Daemon(object):
 def timing(f):
     """
     Get the time taken to complete the task.
+
     :param f:
     :return:
     """
@@ -306,6 +349,7 @@ def execute_function(module_func):
 def run_execute(text=None, cmd=None, cwd=None, check_output=True, capture_output=True, hook_function=None, debug=False, **kwargs):
     """
     Helps run commands
+
     :param text: just a title name
     :param cmd: command to be executed
     :param cwd: the function changes the working directory to cwd
@@ -378,6 +422,7 @@ def run_execute(text=None, cmd=None, cwd=None, check_output=True, capture_output
 def hook_print(*args, **kwargs):
     """
     Print to output every 10th line
+
     :param args:
     :param kwargs:
     :return:
@@ -391,20 +436,23 @@ def hook_print(*args, **kwargs):
 
 
 class Spinner:
+    """
+    Create a spinning cursor
 
-    LINE_UP = '\033[1A'
-    LINE_CLEAR = '\x1b[2K'
+    :param text: text
+    :param delay: sleep time
 
+    :Example
+
+        .. code-block:: python
+
+            from pawnlib.utils.operate_handler import Spinner
+            with operate_handler.Spinner(text="Wait message"):
+                time.sleep(10)
+
+    """
     def __init__(self, text="", delay=0.1):
-        """
-        Create a spinning cursor
-        :param text:
-        :param delay:
-        :example:
-                with Spinner(text="Wait message"):
-                    time.sleep(10)
 
-        """
         self.spinner = itertools.cycle(['-', '/', '|', '\\'])
         self.delay = delay
         self.busy = False
@@ -413,9 +461,11 @@ class Spinner:
         self._screen_lock = None
         self.thread = None
         self.spin_message = ""
+        self.line_up = '\033[1A'
+        self.line_clear = '\x1b[2K'
 
     def title(self, text=None):
-        print(end=self.LINE_CLEAR)
+        print(end=self.line_up)
         self.text = text
 
     def write_next(self):
@@ -472,12 +522,44 @@ class Spinner:
 
 
 class WaitStateLoop:
+    """
+    loop_function is continuously executed and values ​​are compared with exit_function.
+
+    :param loop_function:  function to run continuously
+    :param exit_function: function to exit the loop
+    :param timeout:
+    :param delay: sleep time
+    :param text: text message
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.utils.operate_handler import WaitStateLoop
+            from functools import partial
+
+            def check_func(param=None):
+                time.sleep(0.2)
+                random_int = random.randint(1, 1000)
+                # print(f"param= {param}, random_int = {random_int}")
+                return random_int
+
+            def loop_exit_func(result):
+                if result % 10 == 1.5:
+                    return True
+                return False
+
+            WaitStateLoop(
+                loop_function=partial(check_func, "param_one"),
+                exit_function=loop_exit_func,
+                timeout=10
+            ).run()
+    """
     def __init__(self,
                  loop_function: Callable,
                  exit_function: Callable,
                  timeout=30, delay=0.5, text="WaitStateLoop",
                  ):
-
         self.loop_function = loop_function
         self.exit_function = exit_function
         self.timeout = timeout
@@ -485,7 +567,11 @@ class WaitStateLoop:
         self.text = text
 
     def run(self):
+        """
+        run()
 
+        :return:
+        """
         spin_text = ""
         error_text = ""
         count = 0

@@ -193,11 +193,15 @@ def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
     """
     this function will be generated random id
 
-    00ZP5YRLRT1Y
-
     :param size:
     :param chars:
     :return:
+
+    :Example
+
+        .. code-block:: python
+
+            # >> 00ZP5YRLRT1Y
     """
     return ''.join(random.choice(chars) for _ in range(size))
 
@@ -206,12 +210,17 @@ def uuid_generator(size: int = 8, count: int = 4, separator: str = "-"):
     """
     this function will be generated random uuid
 
-    KFXSYSVJHPE6-83KZTPKY9NL3-ZHRFUV7QRWWJ-GRWVPB6C5SM8
-
     :param size:
     :param count:
     :param separator:
     :return:
+
+    :Example
+
+        .. code-block:: python
+
+            # >> KFXSYSVJHPE6-83KZTPKY9NL3-ZHRFUV7QRWWJ-GRWVPB6C5SM8
+
     """
     return separator.join([id_generator(size) for i in range(count)])
 
@@ -220,9 +229,11 @@ def decimal(start: int = 1) -> Iterator[int]:
     """
     Increments from `start`.
     e.g. 1, 2, 3, .. 9, 10, 11, etc.
-    Args:
-        start: The first value to start with.
+
+    :param start: start: The first value to start with.
+    :return:
     """
+
     return itertools.count(start)
 
 
@@ -230,9 +241,10 @@ def hexadecimal(start: int = 1) -> Iterator[str]:
     """
     Incremental hexadecimal numbers.
     e.g. 1, 2, 3, .. 9, a, b, etc.
-    Args:
-        start: The first value to start with.
+
+    :param start: The first value to start with.
     """
+
     while True:
         yield "%x" % start
         start += 1
@@ -256,7 +268,9 @@ def hexadecimal(start: int = 1) -> Iterator[str]:
 def uuid() -> Iterator[str]:
     """
     Unique uuid ids.
+
     Example:
+
         '9bfe2c93-717e-4a45-b91b-55422c5af4ff'
     """
     while True:

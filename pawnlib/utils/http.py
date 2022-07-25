@@ -19,12 +19,27 @@ def disable_ssl_warnings():
 
 
 def append_http(url):
+    """
+
+    Add http:// if it doesn't exist in the URL
+
+    :param url:
+    :return:
+    """
+
     if "http://" not in url and "https://" not in url:
         url = f"http://{url}"
     return url
 
 
 def append_ws(url):
+    """
+
+    Add ws:// if it doesn't exist in the URL
+
+    :param url:
+    :return:
+    """
     if "https://" in url:
         url = url.replace("https://", "wss://")
     elif "http://" in url:
@@ -35,6 +50,11 @@ def append_ws(url):
 
 
 def remove_http(url):
+    """
+    Remove the r'https?://' string
+    :param url:
+    :return:
+    """
     return re.sub(r"https?://", '', url)
 
 

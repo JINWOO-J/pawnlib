@@ -6,6 +6,7 @@ from pawnlib.output import *
 from pawnlib.asyncio import *
 import random
 from devtools import debug
+import sys
 
 
 # async def task_func(param=None):
@@ -29,6 +30,8 @@ async def task_func(target, **kwargs):
 
 
 def main():
+    dump(get_file_path(filename="sdsd"), debug=False)
+
     async_tasks = AsyncTasks(
         max_at_once=50,
         max_per_second=50,

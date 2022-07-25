@@ -5,7 +5,28 @@ from pawnlib.output import *
 
 
 class AsyncTasks:
-    def __init__(self, max_at_once=10, max_per_second=10, debug=False, **kwargs):
+    def __init__(self, max_at_once: int = 10, max_per_second: int = 10, debug: bool = False, **kwargs):
+        """
+        This Class is to run asyncio using aiometer.
+
+        :param max_at_once: Limit maximum number of concurrently running tasks.
+        :param max_per_second: Limit request rate to not overload the server.
+        :param debug: Whether to use debug
+        :param kwargs:
+
+        Example:
+
+            .. code-block:: python
+
+                async_tasks = AsyncTasks(max_at_once=10, max_per_second=10)
+                async_tasks.generate_tasks(
+                    target_list=range(1, 100) ,
+                    function=run_container,
+                    **{"args": args}
+                ).run()
+
+
+        """
         self.tasks = []
         self.max_at_once = max_at_once
         self.max_per_second = max_per_second
@@ -18,6 +39,14 @@ class AsyncTasks:
         self.async_partial_task_func = None
 
     def generate_tasks(self, target_list=None, function=None, **kwargs):
+        """
+        This function generates the async tasks list
+
+        :param target_list: List of targets for asynchronous execution
+        :param function: Name of the function to execute
+        :param kwargs:
+        :return:
+        """
 
         self._debug_print(f"{target_list}, {type(target_list)}")
         if kwargs.get('kwargs'):
@@ -31,6 +60,11 @@ class AsyncTasks:
             self.tasks.append(partial(function, target, **kwargs))
 
     def run(self):
+        """
+        This function executes an asynchronous operation.
+
+        :return:
+        """
         return asyncio.run(self._runner())
 
     async def _runner(self):

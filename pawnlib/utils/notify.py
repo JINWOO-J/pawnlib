@@ -1,4 +1,8 @@
 import requests
+from pawnlib.config.globalconfig import pawnlib_config as pawn
+from pawnlib.output import color_print
+from pawnlib.resource import net
+from pawnlib.typing import date_utils
 
 
 def get_level_color(c_level):
@@ -9,12 +13,6 @@ def get_level_color(c_level):
         warning="f2c744",
         error="f70202",
     ).get(c_level, default_color)
-
-
-def slack_wh_send(self, text):
-    payload = {"text": text}
-    if self.config.get('SLACK_WH_URL'):
-        requests.post(self.config['SLACK_WH_URL'], json=payload, verify=False)
 
 
 # def exception_handler(exception_type, exception, traceback):
@@ -28,6 +26,17 @@ def slack_wh_send(self, text):
 
 
 def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='info'):
+    """
+
+    Send to slack message
+
+    :param url: webhook url
+    :param msg_text:
+    :param title:
+    :param send_user_name:
+    :param msg_level:
+    :return:
+    """
     if title:
         msg_title = title
     else:
@@ -35,7 +44,7 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
     msg_level = msg_level.lower()
 
     if url is None:
-        cprint("[ERROR] slack webhook url is None", "red")
+        color_print.cprint("[ERROR] slack webhook url is None", "red")
         return False
     p_color = get_level_color(msg_level)
 
@@ -61,14 +70,14 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
                         "type": "section",
                         "text": {
                             "type": "plain_text",
-                            "text": f'{"+ [HOST]":^12s} : {socket.gethostname()}, {jmon_lib.get_public_ipaddr()}'
+                            "text": f'{"+ [HOST]":^12s} : {net.get_hostname()}, {net.get_public_ip()}'
                         }
                     },
                     {
                         "type": "section",
                         "text": {
                             "type": "plain_text",
-                            "text": f'{"+ [DATE]":^12s} : {(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3])}'
+                            "text": f'{"+ [DATE]":^12s} : {(date_utils.todaydate("time"))}'
                         }
                     },
                     {
@@ -85,12 +94,12 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
     try:
         post_result = requests.post(url, json=payload, verify=False, timeout=15)
         if post_result and post_result.status_code == 200 and post_result.text == "ok":
-            app_logger.info(f"[OK][Slack] Send slack")
+            pawn.app_logger.info(f"[OK][Slack] Send slack")
             return True
         else:
-            error_logger.error(f"[ERROR][Slack] Got errors, status_code={post_result.status_code}, text={post_result.text}")
+            pawn.error_logger.error(f"[ERROR][Slack] Got errors, status_code={post_result.status_code}, text={post_result.text}")
             return False
 
     except Exception as e:
-        error_logger.error(f"[ERROR][Slack] Got errors -> {e}")
+        pawn.error_logger.error(f"[ERROR][Slack] Got errors -> {e}")
         return False

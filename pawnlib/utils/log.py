@@ -9,6 +9,34 @@ from pawnlib.config.globalconfig import pawnlib_config
 
 
 class CustomLog:
+    """CustomLog
+
+    :param name: logger name
+    
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.utils.log import CustomLog
+
+            file_name = './time_log.txt'
+            logger = CustomLog("custom_log")
+            logger.set_level('DEBUG')
+            logger.stream_handler("INFO")
+            logger.time_rotate_handler(filename=file_name,
+                                       when="M",
+                                       interval=2,
+                                       backup_count=3,
+                                       level="INFO"
+                                       )
+            idx = 1
+            logger.log.debug(logger.log_formatter(f'debug {idx}'))
+            logger.log.info(logger.log_formatter(f'info {idx}'))
+            logger.log.warning(logger.log_formatter(f'warning {idx}'))
+            logger.log.error(logger.log_formatter(f'error {idx}'))
+            logger.log.critical(logger.log_formatter(f'critical {idx}'))
+
+    """
     def __init__(self, name):
         self.log = logging.getLogger(name)
         self.log.propagate = True
@@ -30,6 +58,8 @@ class CustomLog:
 
     def log_formatter(self, msg):
         """
+
+        :param msg:
         :return:
         """
         log_str = f"{msg}"
@@ -38,11 +68,15 @@ class CustomLog:
     def stream_handler(self, level):
         """
         :param level:
-        > "DEBUG" : logging.DEBUG ,
-        > "INFO" : logging.INFO ,
-        > "WARNING" : logging.WARNING ,
-        > "ERROR" : logging.ERROR ,
-        > "CRITICAL" : logging.CRITICAL ,
+
+        Note:
+            level
+
+            * "DEBUG" : logging.DEBUG ,
+            * "INFO" : logging.INFO ,
+            * "WARNING" : logging.WARNING ,
+            * "ERROR" : logging.ERROR ,
+            * "CRITICAL" : logging.CRITICAL ,
         :return:
         """
         streamHandler = logging.StreamHandler()
@@ -53,13 +87,9 @@ class CustomLog:
 
     def file_handler(self, file_name, mode):
         """
+
         :param file_name: ~.txt / ~.log
         :param mode: "w" / "a"
-        > "DEBUG" : logging.DEBUG ,
-        > "INFO" : logging.INFO ,
-        > "WARNING" : logging.WARNING ,
-        > "ERROR" : logging.ERROR ,
-        > "CRITICAL" : logging.CRITICAL ,
         :return:
         """
         fileHandler = logging.FileHandler(file_name, mode=mode)
@@ -70,11 +100,13 @@ class CustomLog:
 
     def file_rotating_handler(self, file_name, mode, level, backup_count, log_max_size):
         """
-        :param file_name: ~.txt / ~.log
+
+        :param file_name: file의 이름 , ~.txt / ~.log
         :param mode: "w" / "a"
         :param backup_count: backup할 파일 개수
         :param log_max_size: 한 파일당 용량 최대
         :param level:
+
         > "DEBUG" : logging.DEBUG ,
         > "INFO" : logging.INFO ,
         > "WARNING" : logging.WARNING ,
@@ -122,15 +154,57 @@ class CustomLog:
 
 
 class AppLogger:
+
+    """
+
+    AppLogger
+
+    :param app_name: application name(=file name)
+    :param log_level: log level
+    :param log_path: log file path
+    :param stdout: Enable stdout
+    :param log_format: log format / [%(asctime)s] %(name)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s
+    :param debug:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.utils import log
+
+            app_logger, error_logger = log.AppLogger().get_logger()
+            app_logger.info("This is a info message")
+            app_logger.error("This is a info message")
+
+
+    Example2:
+
+        .. code-block:: python
+
+            app_logger, error_logger = log.AppLogger(
+                app_name="app",
+                log_path="./logs",
+                stdout=True
+            ).set_global()
+
+            app_logger.info("This is a info message")
+            app_logger.error("This is a error message")
+
+            # >>>
+            [2022-07-25 18:52:44,415] INFO::app_logging_test.py/main(38) This is a info message
+            [2022-07-25 18:52:44,416] ERROR::app_logging_test.py/main(39) This is a info message
+
+
+    """
     _logger = None
 
     def __init__(self,
-                 app_name="default",
-                 log_level="INFO",
-                 log_path="./logs",
-                 stdout=False,
-                 log_format=None,
-                 debug=False
+                 app_name: str = "default",
+                 log_level: str = "INFO",
+                 log_path: str = "./logs",
+                 stdout: bool = False,
+                 log_format: str = None,
+                 debug: bool = False
                  ):
         self.app_name = app_name
         self.log_path = log_path
@@ -215,37 +289,22 @@ class AppLogger:
     #     return self._logger, self._error_logger
 
     def get_logger(self):
+        """
+        Get the logger
+
+        :return:
+        """
         return self._logger, self._error_logger
 
     def set_global(self):
+        """
+        Add global config in pawnlib
+
+        :return:
+        """
         pawnlib_config.set(
             PAWN_APP_LOGGER=self._logger,
             PAWN_ERROR_LOGGER=self._error_logger
         )
 
 
-if __name__ == '__main__':
-    from time import sleep
-
-    file_name = './time_log.txt'
-    logger = CustomLog("custom_log")
-    logger.set_level('DEBUG')
-    logger.stream_handler("INFO")
-    logger.time_rotate_handler(filename=file_name,
-                               when="M",
-                               interval=2,
-                               backup_count=3,
-                               level="INFO"
-                               )
-    ## run
-    idx = 0
-    while True:
-        logger.log.debug(logger.log_formatter(f'debug {idx}'))
-        logger.log.info(logger.log_formatter(f'info {idx}'))
-        logger.log.warning(logger.log_formatter(f'warning {idx}'))
-        logger.log.error(logger.log_formatter(f'error {idx}'))
-        logger.log.critical(logger.log_formatter(f'critical {idx}'))
-        idx += 1
-        sleep(0.5)
-        if idx == 1000:
-            break

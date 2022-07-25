@@ -26,7 +26,21 @@ def app_init():
 
 
 def main():
+    from pawnlib.config.globalconfig import pawnlib_config as pawn
+    from pawnlib.utils import log
+
+    log.AppLogger(
+        app_name="app",
+        log_path="./logs",
+        stdout=True
+    ).set_global()
+
+    pawn.app_logger.info("This is a info message")
+    pawn.error_logger.error("This is a info message")
+
+    sys.exit()
     app_init()
+
 
     pwn.app_logger.info("sdsdsd")
     pwn.error_logger.info("aaaaa")
@@ -48,6 +62,7 @@ def main():
 
 
     config_child_another_call_config.child_app()
+
 
 if __name__ == "__main__":
     main()

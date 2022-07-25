@@ -95,10 +95,22 @@ def colored(text, color=None, on_color=None, attrs=None):
     return text
 
 
-def cprint(text, color=None, on_color=None, attrs=None, **kwargs):
+def cprint(text, color=None, on_color=None, attrs=None, **kwargs):    
     """Print colorize text.
-
     It accepts arguments of print function.
+
+    :param text:
+    :param color:
+    :param on_color:
+    :param attrs:
+    :param kwargs:
+    :return:
+
+    Example:
+        .. code-block:: python
+
+            cprint("message", "red")  # >>  message
+
     """
 
     print((colored(text, color, on_color, attrs)), **kwargs)
@@ -123,12 +135,43 @@ class TablePrinter(object):
 
     def __init__(self, fmt=[], sep='  ', ul="-"):
         """
-        @param fmt: list of tuple(heading, key, width)
-                        heading: str, column label
-                        key: dictionary key to value to print
-                        width: int, column width in chars
-        @param sep: string, separation between columns
-        @param ul: string, character to underline column label, or None for no underlining
+
+        :param fmt: list of tuple(heading, key, width)
+
+                    heading: str, column label \n
+                    key: dictionary key to value to print \n
+                    width: int, column width in chars \n
+
+        :param sep: string, separation between columns
+        :param ul: string, character to underline column label, or None for no underlining
+
+        Example:
+            .. code-block:: python
+
+                from pawnlib import output
+
+                nested_data = {
+                        "a": {
+                            "b": "cccc",
+                            "sdsd": {
+                                "sdsds": {
+                                    "sdsdssd": 2323
+                                }
+                            },
+                            "d": {
+                                "dd": 1211,
+                                "cccc": "232323"
+                            }
+                        }
+                    }
+                fmt = [
+                    ('address',       'address',          10),
+                    ('value',       'value',          15)
+                ]
+                cprint("Print Table", "white")
+                print(output.TablePrinter(fmt=fmt)(data))
+                print(output.TablePrinter()(data))
+
         """
         super(TablePrinter, self).__init__()
         self._params = {"sep": sep, "ul": ul}
@@ -180,6 +223,17 @@ class TablePrinter(object):
 
 
 def get_bcolors(text, color, bold=False, underline=False, width=None):
+    """
+
+    Returns the color from the bcolors object.
+
+    :param text:
+    :param color:
+    :param bold:
+    :param underline:
+    :param width:
+    :return:
+    """
     if width and len(text) <= width:
         text = text.center(width, ' ')
     return_text = f"{getattr(bcolors, color)}{text}{bcolors.ENDC}"
@@ -227,6 +281,17 @@ def colored_input(message, password=False, color="WHITE"):
 
 
 def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True):
+    """
+    Print a variable for debugging.
+
+    :param obj:
+    :param nested_level:
+    :param output:
+    :param hex_to_int:
+    :param debug:
+
+    :return:
+    """
     spacing = '   '
     def_spacing = '   '
 
@@ -293,6 +358,11 @@ def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, 
 
 
 def classdump(obj):
+    """
+    For debugging, Print the properties of the class are shown.
+    :param obj:
+    :return:
+    """
     for attr in dir(obj):
         if hasattr(obj, attr):
             value = getattr(obj, attr)
@@ -300,6 +370,14 @@ def classdump(obj):
 
 
 def kvPrint(key, value, color="yellow"):
+    """
+    print the  {key: value} format.
+
+    :param key:
+    :param value:
+    :param color:
+    :return:
+    """
     key_width = 9
     key_value = 3
     print(bcolors.OKGREEN + "{:>{key_width}} : ".format(key, key_width=key_width) + bcolors.ENDC, end="")
@@ -307,6 +385,13 @@ def kvPrint(key, value, color="yellow"):
 
 
 def print_json(obj, **kwargs):
+    """
+    converted to JSON and print
+
+    :param obj:
+    :param kwargs:
+    :return:
+    """
     if isinstance(obj, dict) or isinstance(obj, list):
         print(json.dumps(obj, **kwargs))
     else:
@@ -314,6 +399,25 @@ def print_json(obj, **kwargs):
 
 
 def debug_logging(message, dump_message=None, color="green"):
+    """
+    print debug_logging
+
+    :param message:
+    :param dump_message:
+    :param color:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib import output
+
+            output.debug_logging("message")
+
+            [2022-07-25 16:35:15.105][DBG][/Users/jinwoo/work/python_prj/pawnlib/examples/asyncio/./run_async.py main(33)] : message
+
+    """
     stack = traceback.extract_stack()
     filename, codeline, funcName, text = stack[-2]
 
@@ -326,6 +430,7 @@ def debug_logging(message, dump_message=None, color="green"):
 def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, bar_length=100, overlay=True):
     """
     Print progress bar
+
     :param iteration:
     :param total:
     :param prefix:
@@ -334,14 +439,18 @@ def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, bar_l
     :param bar_length:
     :param overlay:
     :return:
-    :example:
 
-        for i in range(1, 100):
-            time.sleep(0.05)
-            print_progress_bar(i, total=100, prefix="start", suffix="suffix")
+    Example:
 
+        from pawnlib import output
 
-        start |###################################| 100.0% suffix
+        .. code-block:: python
+
+            for i in range(1, 100):
+                time.sleep(0.05)
+                output.print_progress_bar(i, total=100, prefix="start", suffix="suffix")
+
+            # >> start |\#\#\#\#\#\#\#\| 100.0% suffix
 
     """
     iteration = iteration + 1

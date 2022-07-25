@@ -6,29 +6,77 @@ import json
 import glob
 from termcolor import cprint
 import yaml
+from typing import Union, Any
 from pawnlib.output import *
+from pawnlib.output import color_print
 from pawnlib.typing import converter
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 
 
-def check_file_overwrite(filename, answer=None):
+def check_file_overwrite(filename, answer=None) -> None:
+    """
+    Checks the existence of a file.
+
+    :param filename:
+    :param answer:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            touch sdsd
+
+            from pawnlib.output import file
+            file.check_file_overwrite(filename="sdsd")
+            # >>   File already exists => sdsd
+            # >>  Overwrite already existing 'sdsd' file? (y/n)
+
+
+    """
     exist_file = False
     if filename and is_file(filename):
-        cprint(f"File already exists => {filename}", "green")
+        color_print.cprint(f"File already exists => {filename}", "green")
         exist_file = True
 
     if exist_file:
         if answer is None:
-            answer = colored_input(f"Overwrite already existing '{filename}' file? (y/n)")
+            answer = color_print.colored_input(f"Overwrite already existing '{filename}' file? (y/n)")
         if answer == "y":
-            cprint(f"Remove the existing keystore file => {filename}", "green")
+            color_print.cprint(f"Remove the existing keystore file => {filename}", "green")
             os.remove(filename)
         else:
-            cprint("Stopped", "red")
+            color_print.cprint("Stopped", "red")
             sys.exit(127)
 
 
-def get_file_path(filename):
+def get_file_path(filename) -> dict:
+    """
+
+     This function is intended to return the file information
+
+    :param filename:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.output import file
+            file.get_file_path("sample_file.txt")
+
+            # >>
+               {
+                  dirname:
+                  file: sample_file.txt
+                  extension: txt
+                  filename: sample_file.txt
+                  full_path: /examples/sample_file.txt
+               }
+
+
+
+    """
     dirname, file = os.path.split(filename)
     extension = os.path.splitext(filename)[1]
     fullpath = get_abs_path(filename)
@@ -41,7 +89,13 @@ def get_file_path(filename):
     }
 
 
-def get_parent_path(run_path=__file__):
+def get_parent_path(run_path=__file__) -> str:
+    """
+    Returns the parent path
+
+    :param run_path:
+    :return:
+    """
     path = os.path.dirname(os.path.abspath(run_path))
     parent_path = os.path.abspath(os.path.join(path, ".."))
     return parent_path
@@ -52,7 +106,13 @@ def get_real_path(run_path=__file__):
     return path
 
 
-def get_abs_path(filename):
+def get_abs_path(filename) -> str:
+    """
+    Returns the absolute path.
+
+    :param filename:
+    :return:
+    """
     return os.path.abspath(filename)
 
 
@@ -62,7 +122,15 @@ def is_binary_file(filename) -> bool:
     return bool(fh.translate(None, text_chars))
 
 
-def is_file(filename):
+def is_file(filename: str) -> bool:
+    """
+
+    check the file exists.
+
+    :param filename:
+    :return:
+    """
+
     if "*" in filename:
         if len(glob.glob(filename)) > 0:
             return True
@@ -72,7 +140,14 @@ def is_file(filename):
         return os.path.exists(os.path.expanduser(filename))
 
 
-def is_json(json_file):
+def is_json(json_file: str) -> bool:
+    """
+
+    Validate the JSON.
+
+    :param json_file:
+    :return:
+    """
     try:
         with open(json_file, 'r', encoding="utf-8-sig") as j:
             json.loads(j.read())
@@ -81,7 +156,13 @@ def is_json(json_file):
     return True
 
 
-def open_json(filename):
+def open_json(filename: str):
+    """
+    Read the JSON file.
+
+    :param filename:
+    :return:
+    """
     try:
         with open(filename, "r") as json_file:
             return json.loads(json_file.read())
@@ -90,21 +171,42 @@ def open_json(filename):
         raise
 
 
-def open_file(filename):
+def open_file(filename: str):
+    """
+    Read the file.
+
+    :param filename:
+    :return:
+    """
     try:
-        with open(filename, "r") as file:
-            return file.read()
+        with open(filename, "r") as file_handler:
+            return file_handler.read()
     except Exception as e:
         pawn.error_logger.error(f"[ERROR] Can't open the file -> '{filename}' / {e}") if pawn.error_logger else False
         raise
 
 
-def open_yaml_file(filename):
+def open_yaml_file(filename: str):
+    """
+    Read the YAML file.
+
+    :param filename:
+    :return:
+    """
     read_yaml = open_file(filename)
     return yaml.load(read_yaml, Loader=yaml.FullLoader)
 
 
-def write_file(filename, data, option='w', permit='664'):
+def write_file(filename: str, data: Any, option: str = 'w', permit: str = '664'):
+    """
+    Write the file
+
+    :param filename:
+    :param data:
+    :param option:
+    :param permit:
+    :return:
+    """
     with open(filename, option) as outfile:
         outfile.write(data)
     os.chmod(filename, int(permit, base=8))
@@ -114,7 +216,16 @@ def write_file(filename, data, option='w', permit='664'):
         return "write_file() can not write to file"
 
 
-def write_json(filename, data, option='w', permit='664'):
+def write_json(filename: str, data: Union[dict, list], option: str = 'w', permit: str = '664'):
+    """
+    Write the json file with dict
+
+    :param filename:
+    :param data:
+    :param option:
+    :param permit:
+    :return:
+    """
     with open(filename, option) as outfile:
         json.dump(data, outfile)
     os.chmod(filename, int(permit, base=8))
@@ -124,7 +235,16 @@ def write_json(filename, data, option='w', permit='664'):
         return "write_json() can not write to json"
 
 
-def write_yaml(filename, data, option='w', permit='664'):
+def write_yaml(filename: str, data: Union[dict, list], option: str = 'w', permit: str = '664'):
+    """
+    Write the yaml file with dict
+
+    :param filename:
+    :param data:
+    :param option:
+    :param permit:
+    :return:
+    """
     with open(filename, option) as outfile:
         yaml.dump(data, outfile)
     os.chmod(filename, int(permit, base=8))

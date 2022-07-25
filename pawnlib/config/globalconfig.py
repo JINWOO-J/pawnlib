@@ -14,15 +14,15 @@ from pawnlib.typing.generator import uuid_generator, Null
 
 
 def nestednamedtuple(dictionary: dict) -> namedtuple:
-    """Converts dictionary to a nested namedtuple recursively.
-    Args:
-        dictionary: Dictionary to convert into a nested namedtuple.
-    Example:
-        .. code-block:: python
-            from pawnlib.config.globalconfig import nestednamedtuple
-            nt = nestednamedtuple({"hello": {"ola": "mundo"}})
-            print(nt) # >>> namedtupled(hello=namedtupled(ola='mundo'))
-    """
+    # """Converts dictionary to a nested namedtuple recursively.
+    # Args:
+    #     dictionary: Dictionary to convert into a nested namedtuple.
+    # Example:
+    # .. code-block:: python
+    #     from pawnlib.config.globalconfig import nestednamedtuple
+    #     nt = nestednamedtuple({"hello": {"ola": "mundo"}})
+    #     print(nt) # >>> namedtupled(hello=namedtupled(ola='mundo'))
+    # """
 
     if isinstance(dictionary, Mapping) and not isinstance(dictionary, fdict):
         for key, value in list(dictionary.items()):
@@ -35,15 +35,16 @@ def nestednamedtuple(dictionary: dict) -> namedtuple:
 
 
 class fdict(dict):
-    """Forced dictionary. Prevents dictionary from becoming a nested namedtuple.
-    Example:
-        .. code-block:: python
-            from toolbox.collections.namedtuple import nestednamedtuple, fdict
-            d = {"hello": "world"}
-            nt = nestednamedtuple({"forced": fdict(d), "notforced": d})
-            print(nt.notforced)    # >>> namedtupled(hello='world')
-            print(nt.forced)       # >>> {'hello': 'world'}
-    """
+    # """Forced dictionary. Prevents dictionary from becoming a nested namedtuple.
+    # Example:
+    # .. code-block:: python
+    #     from toolbox.collections.namedtuple import nestednamedtuple, fdict
+    #     d = {"hello": "world"}
+    #     nt = nestednamedtuple({"forced": fdict(d), "notforced": d})
+    #     print(nt.notforced)    # >>> namedtupled(hello='world')
+    #     print(nt.forced)       # >>> {'hello': 'world'}
+    # """
+    pass
 
 
 # def make_config(dictionary: Optional[dict] = None, **kwargs) -> None:
@@ -112,6 +113,14 @@ def singleton(class_):
 # @singleton
 class PawnlibConfig:
     def __init__(self, global_name="pawnlib_global_config", app_logger=Null(), error_logger=Null(), timeout=6000):
+        """
+        This class can share variables using globals().
+
+        :param global_name: Global Variable Name
+        :param app_logger: global app logger
+        :param error_logger: global error logger
+        :param timeout: global timeout
+        """
         self.global_name = f"{global_name}_{uuid_generator()}"
         self.app_logger = app_logger
         self.error_logger = error_logger
@@ -131,6 +140,12 @@ class PawnlibConfig:
         # self.configure_path = os.path.dirname(os.path.abspath(__file__))
 
     def init_with_env(self, **kwargs):
+        """
+        Initialize with environmental variables.
+
+        :param kwargs: dict
+        :return:
+        """
         self.fill_config_from_environment()
         self.set(**kwargs)
         return self
@@ -143,6 +158,12 @@ class PawnlibConfig:
 
     @staticmethod
     def str2bool(v):
+        """
+        This function is intended to return a boolean value.
+
+        :param v:
+        :return:
+        """
         true_list = ("yes", "true", "t", "1", "True", "TRUE")
         if type(v) == bool:
             return v
@@ -151,6 +172,23 @@ class PawnlibConfig:
         return eval(f"{v}") in true_list
 
     def fill_config_from_environment(self):
+        """
+        Initialize with environmental variables.
+
+        .. code :: python
+
+            default environments
+
+            PAWN_INI = False
+            PAWN_VERBOSE = 0
+            PAWN_TIMEOUT = 7000
+            PAWN_APP_LOGGER = ""
+            PAWN_ERROR_LOGGER = ""
+            PAWN_VERSION =
+            PAWN_GLOBAL_NAME = pawnlib_global_config_UUID
+
+        :return:
+        """
         default_structure = {
             "INI": {
                 "type": self.str2bool,
@@ -202,13 +240,18 @@ class PawnlibConfig:
         This function is a useful replacement to passing configuration classes between classes.
         Instead of creating a `Config` object, one may use :func:`make_config` to create a
         global runtime configuration that can be accessed by any module, function, or object.
-        Args:
-            dictionary: Dictionary to create global configuration with.
-            kwargs: Arguments to make global configuration with.
+
+        :param dictionary: Dictionary to create global configuration with.
+        :param kwargs: Arguments to make global configuration with.
+
         Example:
+
             .. code-block:: python
-                from from pawnlib.config.globalconfig import PawnlibConfig
+
+                from pawnlib.config.globalconfig import PawnlibConfig
                 PawnlibConfig.make_config(hello="world")
+
+
         """
         dictionary = dictionary or {}
         globals()[self.global_name] = {**dictionary, **kwargs}
@@ -222,11 +265,42 @@ class PawnlibConfig:
     #     return setattr(self, key, value)
 
     def get(self, key=None, default=None):
+        """
+        This method is intended to return a key value
+
+        :param key:
+        :param default:
+        :return:
+
+        Example:
+
+            .. code-block:: python
+
+                from pawnlib.config.globalconfig import pawnlib_config
+                pawnlib_config.set(hello="world")
+                pawnlib_config.get("hello")
+
+        """
         if self.global_name in globals():
             return globals()[self.global_name].get(key, default)
         return default
 
     def set(self, **kwargs):
+        """
+        This method is intended to store key values.
+
+        :param kwargs:
+        :return:
+
+        Example:
+
+            .. code-block:: python
+
+                from pawnlib.config.globalconfig import pawnlib_config
+                pawnlib_config.set(hello="world")
+                pawnlib_config.get("hello")
+
+        """
         if self.global_name in globals():
             for p_key, p_value in kwargs.items():
                 if kwargs.get(f"{self.env_prefix}_APP_LOGGER"):
@@ -253,8 +327,31 @@ class PawnlibConfig:
     def increase(self, **kwargs):
         """
         Find the key and increment the number.
+
         :param kwargs:
         :return:
+
+        Example:
+
+            .. code-block:: python
+
+                from pawnlib.config.globalconfig import pawnlib_config
+
+                pawnlib_config.increase(count=1)
+                print(pawnlib_config.get("count"))
+                # >> 1
+
+                pawnlib_config.increase(count=1)
+                print(pawnlib_config.get("count"))
+
+                # >> 2
+
+                pawnlib_config.increase(count=10)
+                print(pawnlib_config.get("count"))
+
+                # >> 12
+
+
         """
         return self._modify_value(_command="increase", **kwargs) or 0
 
@@ -263,6 +360,27 @@ class PawnlibConfig:
         Find the key and decrement the number.
         :param kwargs:
         :return:
+
+        Example:
+
+            .. code-block:: python
+
+                from pawnlib.config.globalconfig import pawnlib_config
+
+                pawnlib_config.set(count=100)
+                print(pawnlib_config.get("count"))
+                # >> 100
+
+                pawnlib_config.decrease(count=1)
+                print(pawnlib_config.get("count"))
+
+                # >> 99
+
+                pawnlib_config.decrease(count=10)
+                print(pawnlib_config.get("count"))
+
+                # >> 89
+
         """
         return self._modify_value(_command="decrease", **kwargs) or 0
 
@@ -271,6 +389,21 @@ class PawnlibConfig:
         Find the key and append the value to list.
         :param kwargs:
         :return:
+
+        Example:
+
+            .. code-block:: python
+
+                from pawnlib.config.globalconfig import pawnlib_config
+
+                pawnlib_config.append_list(results="result1")
+                pawnlib_config.append_list(results="result2")
+
+                print(pawnlib_config.get("results"))
+
+                # >> ['result1', 'result2']
+
+
         """
 
         return self._modify_value(_command="append_list", **kwargs) or []
@@ -280,6 +413,20 @@ class PawnlibConfig:
         Find the key and remove the value to list.
         :param kwargs:
         :return:
+
+        Example:
+
+            .. code-block:: python
+
+                from pawnlib.config.globalconfig import pawnlib_config
+
+                pawnlib_config.set(results=['result1', 'result2'])
+                pawnlib_config.remove_list(results="result2")
+
+                print(pawnlib_config.get("results"))
+
+                # >> ['result1']
+
         """
         return self._modify_value(_command="remove_list", **kwargs) or []
 
@@ -335,10 +482,14 @@ class PawnlibConfig:
 
     def conf(self) -> namedtuple:
         """Access global configuration as a :class:`pawnlib.config.globalconfig.PawnlibConfig`.
+
         Example:
+
             .. code-block:: python
-                from pawnlib.config.globalconfig import PawnlibConfig
-                print(conf().hello) # >>> 'world'
+
+                from pawnlib.config.globalconfig import pawnlib_config
+                print(pawnlib_config.conf().hello) # >>> 'world'
+
         """
         g = globals()
         if self.global_name in g:
@@ -348,10 +499,14 @@ class PawnlibConfig:
 
     def to_dict(self) -> dict:
         """Access global configuration as a dict.
+
         Example:
+
             .. code-block:: python
-                from toolbox.config.globalconfig import config
-                print(config()['hello']) # >>> 'world'
+
+                from pawnlib.config.globalconfig import pawnlib_config
+                print(pawnlib_config.to_dict().get("hello")) # >>> 'world'
+
         """
         g = globals()
         if self.global_name in g:
