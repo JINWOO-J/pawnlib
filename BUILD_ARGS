@@ -1,10 +1,13 @@
 
---build-arg BUILD_DATE=2022-07-25T11:52:52UTC  
+--build-arg BASE_IMAGE=python:3.9.13-slim-buster  
+--build-arg BUILD_DATE=2022-07-26T04:07:24UTC  
 --build-arg ECHO_OPTION=  
 --build-arg GIT_USER=JINWOO-J  
 --build-arg LOCAL_SERVER=20.20.5.172  
 --build-arg NAME=pawnlib  
 --build-arg PRIMARY_BRANCH=master  
+--build-arg REPO_HUB=jinwoo  
 --build-arg SED_OPTION=''  
+--build-arg TAGNAME=latest  
 --build-arg UNAME_S=Darwin  
 --build-arg VERSION=0.0.2  

@@ -2,7 +2,9 @@ NAME = pawnlib
 GIT_USER = JINWOO-J
 PRIMARY_BRANCH = master
 BUILD_DATE = $(strip $(shell date -u +"%Y-%m-%dT%H:%M:%S%Z"))
-
+BASE_IMAGE = python:3.9.13-slim-buster
+REPO_HUB = jinwoo
+TAGNAME = latest
 
 define colorecho
       @tput setaf 6
@@ -83,7 +85,7 @@ clean:
 	rm -rf build dist *.egg-info
 
 
-build: make_build_args clean
+build: make_build_args clean test
 		python3 setup.py bdist_wheel
 		pip3 install dist/pawnlib-*.whl --force-reinstall
 
@@ -101,6 +103,25 @@ upload:
 
 gendocs:
 	@$(shell ./makeMakeDown.sh)
+
+
+docker: make_build_args
+		docker build $(DOCKER_BUILD_OPTION) -f Dockerfile \
+		$(shell cat BUILD_ARGS) -t $(REPO_HUB)/$(NAME):$(VERSION) .
+		$(call colorecho, "\n\nSuccessfully build '$(REPO_HUB)/$(NAME):$(TAGNAME)'")
+		@echo "==========================================================================="
+		@docker images | grep  $(REPO_HUB)/$(NAME) | grep $(TAGNAME)
+
+push_hub: print_version
+	docker tag $(REPO_HUB)/$(NAME):$(VERSION) $(REPO_HUB)/$(NAME):$(TAGNAME)
+	docker push $(REPO_HUB)/$(NAME):$(TAGNAME)
+	docker push $(REPO_HUB)/$(NAME):$(VERSION)
+
+bash: make_debug_mode print_version
+	docker run  $(shell cat DEBUG_ARGS) -it -v $(PWD):/pawnlib \
+		-e VERSION=$(VERSION) -v $(PWD)/src:/src --entrypoint /bin/bash \
+		--name $(NAME) --cap-add SYS_TIME --rm $(REPO_HUB)/$(NAME):$(TAGNAME)
+
 
 local_deploy: build
 	scp dist/pawnlib-$(VERSION)-py3-none-any.whl root@$(LOCAL_SERVER):/app/;
