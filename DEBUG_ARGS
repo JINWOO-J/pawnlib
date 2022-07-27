@@ -1,6 +1,7 @@
 
 -e BASE_IMAGE=python:3.9.13-slim-buster  
--e BUILD_DATE=2022-07-26T04:00:08UTC  
+-e BUILD_DATE=2022-07-26T08:30:35UTC  
+-e DOCKER_BUILD_OPTION=--no-cache --rm=true  
 -e ECHO_OPTION=""  
 -e GIT_USER=JINWOO-J  
 -e LOCAL_SERVER="20.20.5.172"  
@@ -8,6 +9,5 @@
 -e PRIMARY_BRANCH=master  
 -e REPO_HUB=jinwoo  
 -e SED_OPTION=  
--e TAGNAME=latest  
 -e UNAME_S=Darwin  
 -e VERSION=0.0.2  
