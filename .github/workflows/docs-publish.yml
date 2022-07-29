@@ -39,9 +39,18 @@ jobs:
         git config --local user.name "GitHub Action"
         git add .
         git commit -m "Documentation update." -a || true
+#     - name: Push changes to gh-pages branch
+#       uses: ad-m/github-push-action@master
+#       with:
+#         branch: gh-pages
+#         github_token: ${{ secrets.GITHUB_TOKEN }}
+#         force: True
+
     - name: Push changes to gh-pages branch
-      uses: ad-m/github-push-action@master
+      uses: peaceiris/actions-gh-pages@v3
       with:
-        branch: gh-pages
+        publish_branch: gh-pages
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        force: True
+        force_orphan: true
+        cname: docs.jinwoo.xyz
+        publish_dir: ./
