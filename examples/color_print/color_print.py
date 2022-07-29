@@ -77,3 +77,13 @@ classdump(bcolors)
 for i in range(1, 100):
     time.sleep(0.05)
     print_progress_bar(i, total=100, prefix="start", suffix="suffix")
+
+
+for style in range(8):
+    for fg in range(30,38):
+        s1 = ''
+        for bg in range(40,48):
+            format = ';'.join([str(style), str(fg), str(bg)])
+            s1 += '\x1b[%sm %s \x1b[0m' % (format, format)
+        print(s1)
+    print('\n')

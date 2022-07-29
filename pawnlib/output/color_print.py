@@ -10,7 +10,7 @@ from pawnlib.typing import converter, date_utils, list_to_oneline_string
 from pawnlib.config import pawnlib_config as pawn
 
 
-ATTRIBUTES = dict(
+_ATTRIBUTES = dict(
     list(zip([
         'bold',
         'dark',
@@ -24,10 +24,10 @@ ATTRIBUTES = dict(
         list(range(1, 9))
     ))
 )
-del ATTRIBUTES['']
+del _ATTRIBUTES['']
 
 
-HIGHLIGHTS = dict(
+_HIGHLIGHTS = dict(
     list(zip([
         'on_grey',
         'on_red',
@@ -43,7 +43,7 @@ HIGHLIGHTS = dict(
 )
 
 
-COLORS = dict(
+_COLORS = dict(
     list(zip([
         'grey',
         'red',
@@ -59,7 +59,7 @@ COLORS = dict(
 )
 
 
-RESET = '\033[0m'
+_RESET = '\033[0m'
 
 
 def colored(text, color=None, on_color=None, attrs=None):
@@ -71,7 +71,7 @@ def colored(text, color=None, on_color=None, attrs=None):
     Available text highlights:
         on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_white.
 
-    Available attributes:
+    Available _ATTRIBUTES:
         bold, dark, underline, blink, reverse, concealed.
 
     Example:
@@ -81,21 +81,21 @@ def colored(text, color=None, on_color=None, attrs=None):
     if os.getenv('ANSI_COLORS_DISABLED') is None:
         fmt_str = '\033[%dm%s'
         if color is not None:
-            text = fmt_str % (COLORS[color], text)
+            text = fmt_str % (_COLORS[color], text)
 
         if on_color is not None:
-            text = fmt_str % (HIGHLIGHTS[on_color], text)
+            text = fmt_str % (_HIGHLIGHTS[on_color], text)
 
         if attrs is not None:
             for attr in attrs:
                 if attr is not None:
-                    text = fmt_str % (ATTRIBUTES[attr], text)
+                    text = fmt_str % (_ATTRIBUTES[attr], text)
 
-        text += RESET
+        text += _RESET
     return text
 
 
-def cprint(text, color=None, on_color=None, attrs=None, **kwargs):    
+def cprint(text, color=None, on_color=None, attrs=None, **kwargs):
     """Print colorize text.
     It accepts arguments of print function.
 
@@ -120,10 +120,13 @@ class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
+    GREEN = '\033[32;40m'
+    CYAN = '\033[96m'
     WARNING = '\033[93m'
     FAIL = '\033[91m'
     ENDC = '\033[0m'
     BOLD = '\033[1m'
+    ITALIC = '\033[1;3m'
     UNDERLINE = '\033[4m'
     WHITE = '\033[97m'
     DARK_GREY = '\033[38;5;243m'
@@ -251,36 +254,26 @@ def colored_input(message, password=False, color="WHITE"):
     return input(input_message)
 
 
-# def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False):
-#     spacing = '   '
-#     def_spacing = '   '
-#     if type(obj) == dict:
-#         print('%s{' % (def_spacing + (nested_level) * spacing))
-#         for k, v in obj.items():
-#             if hasattr(v, '__iter__'):
-#                 print(bcolors.OKGREEN + '%s%s:' % (def_spacing + (nested_level + 1) * spacing, k) + bcolors.ENDC, end="")
-#                 dump(v, nested_level + 1, output, hex_to_int)
-#             else:
-#                 # print >>  bcolors.OKGREEN + '%s%s: %s' % ( (nested_level + 1) * spacing, k, v) + bcolors.ENDC
-#                 print(bcolors.OKGREEN + '%s%s:' % (def_spacing + (nested_level + 1) * spacing, k) + bcolors.WARNING + ' %s' % v + bcolors.ENDC,
-#                       file=output)
-#         print('%s}' % (def_spacing + nested_level * spacing), file=output)
-#     elif type(obj) == list:
-#         print('%s[' % (def_spacing + (nested_level) * spacing), file=output)
-#         for v in obj:
-#             if hasattr(v, '__iter__'):
-#                 dump(v, nested_level + 1, output, hex_to_int)
-#             else:
-#                 print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, v) + bcolors.ENDC, file=output)
-#         print('%s]' % (def_spacing + (nested_level) * spacing), file=output)
-#     else:
-#         if hex_to_int and converter.is_hex(obj):
-#             print(bcolors.WARNING + '%s%s' % (def_spacing + nested_level * spacing, str(round(int(obj, 16) / 10 ** 18, 8)) + bcolors.ENDC))
-#         else:
-#             print(bcolors.WARNING + '%s%s' % (def_spacing + nested_level * spacing, obj) + bcolors.ENDC)
+def get_colorful_object(v):
+    if type(v) == bool:
+        value = f"{bcolors.ITALIC}"
+        if v is True:
+            value += f"{bcolors.GREEN}"
+        else:
+            value += f"{bcolors.FAIL}"
+        value += f"{str(v)}{bcolors.ENDC}"
+    elif type(v) == int or type(v) == float:
+        value = f"{bcolors.CYAN}{str(v)}{bcolors.ENDC}"
+    elif type(v) == str:
+        value = f"{bcolors.WARNING}'{str(v)}'{bcolors.ENDC}"
+    elif v is None:
+        value = f"{bcolors.FAIL}{str(v)}{bcolors.ENDC}"
+    else:
+        value = f"{v}"
+    return value
 
 
-def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True):
+def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _is_list=False):
     """
     Print a variable for debugging.
 
@@ -289,14 +282,14 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True):
     :param output:
     :param hex_to_int:
     :param debug:
-
+    :param _is_list:
     :return:
     """
     spacing = '   '
     def_spacing = '   '
 
     if type(obj) == dict:
-        if nested_level == 0:
+        if nested_level == 0 or _is_list:
             print('%s{' % (def_spacing + (nested_level) * spacing))
         else:
             print("{")
@@ -306,7 +299,7 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True):
                 dump(v, nested_level + 1, output, hex_to_int, debug)
             else:
                 if debug:
-                    v = f"{v} {bcolors.HEADER} {str(type(v)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(v))}{bcolors.ENDC}"
+                    v = f"{get_colorful_object(v)} {bcolors.HEADER} {str(type(v)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(v))}{bcolors.ENDC}"
                 print(bcolors.OKGREEN + '%s%s:' % (def_spacing + (nested_level + 1) * spacing, k) + bcolors.WARNING + ' %s ' % v + bcolors.ENDC,
                       file=output)
         print('%s}' % (def_spacing + nested_level * spacing), file=output)
@@ -314,17 +307,18 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True):
         print('%s[' % (def_spacing + (nested_level) * spacing), file=output)
         for v in obj:
             if hasattr(v, '__iter__'):
-                dump(v, nested_level + 1, output, hex_to_int, debug)
+                dump(v, nested_level + 1, output, hex_to_int, debug, _is_list=True)
             else:
-                print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, v) + bcolors.ENDC, file=output)
+                print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, get_colorful_object(v)) + bcolors.ENDC, file=output)
         print('%s]' % (def_spacing + (nested_level) * spacing), file=output)
     else:
         if debug:
-            obj = f"{obj} {bcolors.HEADER} {str(type(obj)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(obj))}{bcolors.ENDC}"
+            obj = f"{get_colorful_object(obj)} {bcolors.HEADER} {str(type(obj)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(obj))}{bcolors.ENDC}"
         if hex_to_int and converter.is_hex(obj):
             print(bcolors.WARNING + '%s%s' % (def_spacing + nested_level * spacing, str(round(int(obj, 16) / 10 ** 18, 8)) + bcolors.ENDC))
         else:
-            print(bcolors.WARNING + '%s' % (obj) + bcolors.ENDC)
+            print(bcolors.WARNING + '%s%s' % (def_spacing + nested_level * spacing, obj) + bcolors.ENDC)
+            # print(bcolors.WARNING + '%s' % (obj) + bcolors.ENDC)
 
 
 def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, **kwargs):

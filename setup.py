@@ -7,6 +7,7 @@ from setuptools.command.install import install
 class PostInstallCommand(install):
     """Post-installation for installation mode."""
     def run(self):
+        print("PostInstallCommand"*10)
         install.run(self)
         # PUT YOUR POST-INSTALL SCRIPT HERE or CALL A FUNCTION
 
@@ -25,6 +26,7 @@ class InstallCommand(install):
         install.finalize_options(self)
 
     def run(self):
+        print("InstallCommand"*10)
         print(self.engine)
         install.run(self)
 
@@ -52,8 +54,9 @@ setuptools.setup(
     url=about['__url__'],
     # packages=setuptools.find_packages(),
     include_package_data=True,
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=["setup", "tests", "test_*", "venv"]),
     install_requires=open('requirements.txt').read(),
+    # cmdclass={'install': InstallCommand},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -61,9 +64,7 @@ setuptools.setup(
     ],
     entry_points=dict(
         console_scripts=[
-            'pawnlib_cli=pawnlib.pawnlib_cli:main'
+            'pawns=pawnlib.cli.pawns_cli:main'
         ],
     ),
-    cmdclass={'install': PostInstallCommand}
-
 )

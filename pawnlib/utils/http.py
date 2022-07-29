@@ -58,7 +58,7 @@ def remove_http(url):
     return re.sub(r"https?://", '', url)
 
 
-def jequest(url, method="get", payload={}, elapsed=False, print_error=False, timeout=5000):
+def jequest(url, method="get", payload={}, elapsed=False, print_error=False, timeout=5000, **kwargs):
     """
     This functions will be called the http requests.
 
@@ -84,9 +84,9 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     try:
         func = getattr(requests, method)
         if method == "get":
-            response = func(url, verify=False, timeout=timeout)
+            response = func(url, verify=False, timeout=timeout, **kwargs)
         else:
-            response = func(url, json=payload, verify=False, timeout=timeout)
+            response = func(url, json=payload, verify=False, timeout=timeout, **kwargs)
         http_version = response.raw.version
         r_headers = response.headers
 

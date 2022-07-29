@@ -4,3 +4,5 @@ sphinx-autobuild
 furo
 #git+https://github.com/synchronizing/sphinx-autodoc-typehints.git
 sphinx-autodoc-typehints
+wheel
+twine==4.0.1

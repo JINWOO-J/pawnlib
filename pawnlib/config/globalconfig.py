@@ -1,16 +1,9 @@
-# from collections import namedtuple
 import os
 from typing import Optional
 from collections import namedtuple
 from collections.abc import Mapping
 from pawnlib.__version__ import __title__, __version__
-import random
-import string
-from pawnlib.typing.converter import UpdateType
 from pawnlib.typing.generator import uuid_generator, Null
-
-# from ..collections.namedtuple import nestednamedtuple
-# from configparser import ConfigParser
 
 
 def nestednamedtuple(dictionary: dict) -> namedtuple:
@@ -47,58 +40,6 @@ class fdict(dict):
     pass
 
 
-# def make_config(dictionary: Optional[dict] = None, **kwargs) -> None:
-#     """Creates a global configuration that can be accessed anywhere during runtime.
-#     This function is a useful replacement to passing configuration classes between classes.
-#     Instead of creating a `Config` object, one may use :func:`make_config` to create a
-#     global runtime configuration that can be accessed by any module, function, or object.
-#     Args:
-#         dictionary: Dictionary to create global configuration with.
-#         kwargs: Arguments to make global configuration with.
-#     Example:
-#         .. code-block:: python
-#             from toolbox.config.globalconfig import make_config
-#             make_config(hello="world")
-#     """
-#     dictionary = dictionary or {}
-#     print(dictionary, kwargs)
-#     globals()["gconf"] = {**dictionary, **kwargs}
-#
-#
-# def conf() -> namedtuple:
-#     """Access global configuration as a :class:`toolbox.collections.namedtuple.nestednamedtuple`.
-#     Example:
-#         .. code-block:: python
-#             from toolbox.config.globalconfig import conf
-#             print(conf().hello) # >>> 'world'
-#     """
-#     g = globals()
-#     if "gconf" in g:
-#         return nestednamedtuple(g["gconf"])
-#     else:
-#         return nestednamedtuple({})
-#
-#
-# def config() -> dict:
-#     """Access global configuration as a dict.
-#     Example:
-#         .. code-block:: python
-#             from toolbox.config.globalconfig import config
-#             print(config()['hello']) # >>> 'world'
-#     """
-#     g = globals()
-#     if "gconf" in g:
-#         return g["gconf"]
-#     else:
-#         return {}
-#
-#
-# def put_config(**kwargs):
-#     if globals().get("gconf"):
-#         for p_key, p_value in kwargs.items():
-#             globals()["gconf"][p_key] = p_value
-
-
 def singleton(class_):
     instances = {}
 
@@ -110,9 +51,9 @@ def singleton(class_):
     return getinstance
 
 
-# @singleton
+@singleton
 class PawnlibConfig:
-    def __init__(self, global_name="pawnlib_global_config", app_logger=Null(), error_logger=Null(), timeout=6000):
+    def __init__(self, global_name="pawnlib_global_config", app_logger=Null(), error_logger=Null(), timeout=6000, debug=False):
         """
         This class can share variables using globals().
 
@@ -127,17 +68,13 @@ class PawnlibConfig:
 
         self.timeout = timeout
         self.verbose = 0
+        self.debug = debug
 
         self.version = f"{__title__}/{__version__}"
         self.env_prefix = "PAWN"
-
         self.data = {}
 
         globals()[self.global_name] = {}
-        # globals()[self.global_name] = {}
-        # self.getting_config_from_environment()
-        # self.configure = None
-        # self.configure_path = os.path.dirname(os.path.abspath(__file__))
 
     def init_with_env(self, **kwargs):
         """
@@ -191,6 +128,10 @@ class PawnlibConfig:
         """
         default_structure = {
             "INI": {
+                "type": self.str2bool,
+                "default": False,
+            },
+            "DEBUG": {
                 "type": self.str2bool,
                 "default": False,
             },
@@ -311,18 +252,13 @@ class PawnlibConfig:
                     self.timeout = kwargs[f"{self.env_prefix}_TIMEOUT"]
                 if kwargs.get(f"{self.env_prefix}_VERBOSE"):
                     self.verbose = kwargs[f"{self.env_prefix}_VERBOSE"]
+                if kwargs.get(f"{self.env_prefix}_DEBUG"):
+                    self.debug = kwargs[f"{self.env_prefix}_DEBUG"]
                 globals()[self.global_name][p_key] = p_value
 
-    # def add_list(self, **kwargs):
-    #     for key, value in kwargs.items():
-    #         tmp_result = self.get(key, None)
-    #         if tmp_result is None:
-    #             tmp_result = []
-    #         if isinstance(tmp_result, list):
-    #             tmp_result.append(value)
-    #             globals()[self.global_name][key] = tmp_result
-    #             return tmp_result
-    #     return []
+            if self.debug:
+                from rich.traceback import install
+                install(show_locals=True)
 
     def increase(self, **kwargs):
         """
@@ -514,43 +450,5 @@ class PawnlibConfig:
         else:
             return {}
 
-    # def put_config(self, **kwargs):
-    #     if self.global_name in globals():
-    #         for p_key, p_value in kwargs.items():
-    #             globals()[self.global_name][p_key] = p_value
-    # def __getitem__(self, key):
-    #     if self.global_name in globals():
-    #         return globals()[self.global_name].get(key)
-    #     raise KeyError(key)
-    #
-    # def __setitem__(self, **kwargs):
-    #     if self.global_name in globals():
-    #         for p_key, p_value in kwargs.items():
-    #             globals()[self.global_name][p_key] = p_value
-
-    # @get.setter
-    # def set(self, **kwargs):
-    #     if self.global_name in globals():
-    #         for p_key, p_value in kwargs.items():
-    #             globals()[self.global_name][p_key] = p_value
-
-    # def __getattr__(self, attr):
-    #     print(f"__getattr__{attr}")
-    #     # return dict.__getitem__
-    #     print(self)
-    #     # return self[attr]
-    #     return globals()[self.global_name].get(key)
-
-# pawnlib_config = PawnlibConfig(global_name="pawnlib_global_config").init()
-
 pawnlib_config = PawnlibConfig(global_name="pawnlib_global_config").init_with_env()
 global_verbose = pawnlib_config.get('PAWN_VERBOSE', 0)
-
-# app_logger = pawnlib_config.get('PAWN_APP_LOGGER', None)
-# error_logger = pawnlib_config.get('PAWN_ERROR_LOGGER', None)
-#
-# from functools import partial
-# p_app_logger = partial(pawnlib_config.get, 'PAWN_APP_LOGGER')
-
-
-

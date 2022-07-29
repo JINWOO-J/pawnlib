@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+from pawnlib.config.globalconfig import pawnlib_config as pwn
+from pawnlib.utils.log import AppLogger
+from pawnlib.output import *
+{% if use_daemon == true -%}
+import sys
+import time
+from pawnlib.utils.operate_handler import Daemon
+{% endif %}
+
+{% if banner -%}
+def print_banner():
+    {%- for banner_string in banner %}
+    print('{{banner_string}}')
+    {%- endfor %}
+{%- endif %}
+
+
+def main():
+    LOG_DIR = f"{get_real_path(__file__)}/logs"
+    APP_NAME = "{{ app_name }}"
+    STDOUT = True
+    debug_logging(pwn.to_dict())
+    app_logger, error_logger = AppLogger(
+        app_name=APP_NAME,
+        log_path=LOG_DIR,
+        stdout=STDOUT,
+    ).get_logger()
+    pwn.set(
+        PAWN_APP_LOGGER=app_logger,
+        PAWN_ERROR_LOGGER=error_logger,
+        PAWN_DEBUG=True,
+        app_name=APP_NAME,
+        app_data={}
+    )
+
+    pwn.app_logger.info("App logger initializing")
+    pwn.error_logger.info("Error logger initializing")
+    debug_logging(pwn.to_dict())
+    dump(pwn.to_dict())
+
+    {% if use_daemon == true -%}
+    while True:
+        # MainLoop
+        print("This is Daemon")
+        time.sleep(1)
+    {% endif %}
+
+if __name__ == "__main__":
+    {%- if banner %}
+    print_banner()
+    {%- endif %}
+    {%- if use_daemon == true %}
+    if len(sys.argv) != 2:
+        print("")
+        sys.exit()
+    command = sys.argv[1]
+    daemon = Daemon(
+        pidfile="/tmp/{{app_name}}.pid",
+        func=main
+    )
+    if command == "start":
+        daemon.start()
+    elif command == "stop":
+        daemon.stop()
+    else:
+        print("command not found [start/stop]")
+    {%- else %}
+    main()
+    {% endif %}

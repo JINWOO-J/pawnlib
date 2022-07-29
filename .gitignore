@@ -1,6 +1,7 @@
 # temp directory for testing
 tests/temp/*
 tests/logs/*
+examples/logging/logs/*
 
 .vscode/launch.json
 ### Python template
