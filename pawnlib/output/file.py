@@ -43,7 +43,7 @@ def check_file_overwrite(filename, answer=None) -> None:
         if answer is None:
             answer = color_print.colored_input(f"Overwrite already existing '{filename}' file? (y/n)")
         if answer == "y":
-            color_print.cprint(f"Remove the existing keystore file => {filename}", "green")
+            color_print.cprint(f"Remove the existing file => {filename}", "green")
             os.remove(filename)
         else:
             color_print.cprint("Stopped", "red")

@@ -6,6 +6,7 @@ import traceback
 import datetime
 from pawnlib.output import *
 from pawnlib.config.globalconfig import pawnlib_config
+from rich.logging import RichHandler
 
 
 class CustomLog:

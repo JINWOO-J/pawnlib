@@ -10,4 +10,4 @@ pawnlib is available on PyPI:
 pip3 install pawnlib
 
 ```
-Officially supports Python 3.7+.
+Officially supports Python 3.9+.

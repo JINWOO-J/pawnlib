@@ -102,7 +102,7 @@ clean:
 
 build: make_build_args clean test
 		python3 setup.py bdist_wheel
-		pip3 install dist/pawnlib-*.whl --force-reinstall
+
 
 init:
 		git init
