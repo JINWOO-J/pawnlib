@@ -2,7 +2,9 @@ from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output.file import open_file, write_file, check_file_overwrite
 from pawnlib.output.color_print import *
 from jinja2 import Template
-from PyInquirer import prompt, print_json
+
+from rich.prompt import Confirm, FloatPrompt, Prompt, PromptBase
+
 import os
 from pyfiglet import Figlet
 
@@ -59,7 +61,7 @@ class AppGenerator:
                 'type': 'input',
                 'name': 'app_name',
                 'message': 'What\'s your python3 app name?',
-                # 'default': 'default_app',
+                'default': self.app_name,
             },
             {
                 'type': 'input',
@@ -71,7 +73,7 @@ class AppGenerator:
                 'type': 'input',
                 'name': 'description',
                 'message': 'Please explain this script.',
-                'default': os.getlogin(),
+                'default': "This is script",
             },
             {
                 'type': 'confirm',
@@ -93,7 +95,14 @@ class AppGenerator:
             },
         ]
         print("\n")
-        self.answers = prompt(questions)
+
+        for q in questions:
+            params = dict(prompt=q.get('message'), default=q.get('default'))
+            if q.get("type") == "input":
+                self.answers[q.get("name")] = Prompt.ask(**params)
+            if q.get("type") == "confirm":
+                self.answers[q.get("name")] = Confirm.ask(**params)
+        dump(self.answers)
         # dump(self.answers)  # use the answers as input for your app
         #http://www.figlet.org/examples.html
 
@@ -109,7 +118,6 @@ class AppGenerator:
         if self.answers.get("app_name", None) is None or self.answers.get("app_name", None) == "":
             self.answers['app_name'] = self.app_name
 
-        print(f"pawn.verbose = {pawn.verbose}")
         if pawn.verbose > 2:
             cprint("answers")
             dump(self.answers)
