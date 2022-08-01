@@ -3,6 +3,7 @@ import requests
 import json
 from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose
 from pawnlib import output
+from pawnlib.resource import net
 
 
 class JsonRequest:
@@ -52,13 +53,15 @@ def append_ws(url):
 def remove_http(url):
     """
     Remove the r'https?://' string
+
     :param url:
     :return:
+
     """
     return re.sub(r"https?://", '', url)
 
 
-def jequest(url, method="get", payload={}, elapsed=False, print_error=False, timeout=5000, **kwargs):
+def jequest(url, method="get", payload={}, elapsed=False, print_error=False, timeout=None, ipaddr=None, **kwargs):
     """
     This functions will be called the http requests.
 
@@ -67,11 +70,27 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     :param payload:
     :param elapsed:
     :param print_error:
-    :param timeout:
+    :param timeout: Timeout seconds
+    :param ipaddr: Change the request IP address in http request
+    :param **kwargs: Optional arguments that ``request`` takes.
+
     :return:
     """
-    error_logger = pawn.get('PAWN_ERROR_LOGGER', None)
-    timeout = pawn.to_dict().get('PAWN_TIMEOUT', 0) or timeout
+
+    if ipaddr:
+        if url.startswith('http') or url.startswith('http://'):
+            domain = re.sub(r'https?://', '', url)
+            # net.override_dns(domain, ipaddr)
+            # net.override_dns(domain=domain, ipaddr=ipaddr)
+            net.OverrideDNS(domain=domain, ipaddr=ipaddr).set()
+    else:
+        net.OverrideDNS().unset()
+
+    pawnlib_timeout = pawn.to_dict().get('PAWN_TIMEOUT', 10)
+    if pawnlib_timeout > 0:
+        pawnlib_timeout = pawnlib_timeout / 1000
+
+    timeout = timeout or pawnlib_timeout
 
     url = append_http(url)
     (json_response, data, http_version, r_headers, error) = ({}, {}, None, None, None)
@@ -145,7 +164,7 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     if response_code > 200 and response_code != 999:
         # if response_code > 200 or response_code == 999:
         text = data.get("text")
-        error_logger.error(f"status_code: {response_code} , url: {url} , payload: {payload}, response: {text}")
+        pawn.error_logger.error(f"status_code: {response_code} , url: {url} , payload: {payload}, response: {text}") if pawn.error_logger else False
     data["status_code"] = response_code
     data["http_version"] = http_version
     data["r_headers"] = r_headers
@@ -153,6 +172,6 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     data["error"] = error
     if print_error:
         if error:
-            error_logger.error(f"{error}")
+            pawn.error_logger.error(f"{error}") if pawn.error_logger else False
 
     return data
