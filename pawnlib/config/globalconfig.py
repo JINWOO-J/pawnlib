@@ -1,21 +1,28 @@
 import os
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from collections import namedtuple
 from collections.abc import Mapping
 from pawnlib.__version__ import __title__, __version__
 from pawnlib.typing.generator import uuid_generator, Null
+from pawnlib.config.console import Console
 
 
 def nestednamedtuple(dictionary: dict) -> namedtuple:
-    # """Converts dictionary to a nested namedtuple recursively.
-    # Args:
-    #     dictionary: Dictionary to convert into a nested namedtuple.
-    # Example:
-    # .. code-block:: python
-    #     from pawnlib.config.globalconfig import nestednamedtuple
-    #     nt = nestednamedtuple({"hello": {"ola": "mundo"}})
-    #     print(nt) # >>> namedtupled(hello=namedtupled(ola='mundo'))
-    # """
+    """
+    Converts dictionary to a nested namedtuple recursively.
+
+
+    :param: dictionary: Dictionary to convert into a nested namedtuple.
+
+    :example:
+
+        .. code-block:: python
+
+            from pawnlib.config.globalconfig import nestednamedtuple
+            nt = nestednamedtuple({"hello": {"ola": "mundo"}})
+            print(nt) # >>> namedtupled(hello=namedtupled(ola='mundo'))
+
+    """
 
     if isinstance(dictionary, Mapping) and not isinstance(dictionary, fdict):
         for key, value in list(dictionary.items()):
@@ -28,15 +35,20 @@ def nestednamedtuple(dictionary: dict) -> namedtuple:
 
 
 class fdict(dict):
-    # """Forced dictionary. Prevents dictionary from becoming a nested namedtuple.
-    # Example:
-    # .. code-block:: python
-    #     from toolbox.collections.namedtuple import nestednamedtuple, fdict
-    #     d = {"hello": "world"}
-    #     nt = nestednamedtuple({"forced": fdict(d), "notforced": d})
-    #     print(nt.notforced)    # >>> namedtupled(hello='world')
-    #     print(nt.forced)       # >>> {'hello': 'world'}
-    # """
+    """
+
+    Forced dictionary. Prevents dictionary from becoming a nested namedtuple.
+
+    :example:
+
+        .. code-block:: python
+
+            from pawnlib.config.globalconfig import nestednamedtuple, fdict
+            d = {"hello": "world"}
+            nt = nestednamedtuple({"forced": fdict(d), "notforced": d})
+            print(nt.notforced)    # >>> namedtupled(hello='world')
+            print(nt.forced)       # >>> {'hello': 'world'}
+    """
     pass
 
 
@@ -61,11 +73,55 @@ class PawnlibConfig:
         :param app_logger: global app logger
         :param error_logger: global error logger
         :param timeout: global timeout
+
+        :example
+
+                .. code :: python
+
+                    # auto attach
+                    from pawnlib.config.globalconfig import pawnlib_config as pwn
+                    from pawnlib.output.file import get_real_path
+
+                    pwn.set(
+                        PAWN_LOGGER=dict(
+                            app_name="default_app",
+                            log_path=f"{get_real_path(__file__)}/logs",
+                            stdout=True,
+                            use_hook_exception=False,
+                        ),
+                        PAWN_DEBUG=True,
+                        app_name=APP_NAME,
+                        app_data={}
+                    )
+
+
+                .. code :: python
+
+                    # attach logger
+                    from pawnlib.config.globalconfig import pawnlib_config as pwn
+                    from pawnlib.output.file import get_real_path
+
+                    app_logger, error_logger = log.AppLogger(
+                        app_name="default_app",
+                        log_path=f"{get_real_path(__file__)}/logs",
+                        stdout=True,
+                        use_hook_exception=False,
+                    ).get_logger()
+
+                    pwn.set(
+                        PAWN_APP_LOGGER=app_logger,
+                        PAWN_ERROR_LOGGER=error_logger,
+                        PAWN_DEBUG=True,
+                        app_name=APP_NAME,
+                        app_data={}
+                    )
+
         """
         self.global_name = f"{global_name}_{uuid_generator()}"
         self.app_logger = app_logger
         self.error_logger = error_logger
 
+        self.app_name = ""
         self.timeout = timeout
         self.verbose = 0
         self.debug = debug
@@ -73,7 +129,12 @@ class PawnlibConfig:
         self.version = f"{__title__}/{__version__}"
         self.env_prefix = "PAWN"
         self.data = {}
-
+        self.console = Console(
+            redirect=True,  # <-- not supported by rich.console.Console
+            record=True,
+            soft_wrap=True,
+            force_terminal=True
+        )
         globals()[self.global_name] = {}
 
     def init_with_env(self, **kwargs):
@@ -150,6 +211,10 @@ class PawnlibConfig:
             "ERROR_LOGGER": {
                 "type": str,
                 "default": ""
+            },
+            "LOGGER": {
+                "type": dict,
+                "default": {}
             },
             "VERSION": {
                 "type": str,
@@ -244,15 +309,22 @@ class PawnlibConfig:
         """
         if self.global_name in globals():
             for p_key, p_value in kwargs.items():
-                if kwargs.get(f"{self.env_prefix}_APP_LOGGER"):
+                if p_key == "PAWN_LOGGER" and p_value:
+                    from pawnlib.utils.log import AppLogger
+                    if isinstance(p_value, dict) and p_value.get("app_name", "") == "":
+                        if p_value.get('app_name') is None and kwargs.get('app_name'):
+                            p_value['app_name'] = kwargs['app_name']
+                        self.app_logger, self.error_logger = AppLogger(**p_value).get_logger()
+
+                elif kwargs.get(f"{self.env_prefix}_APP_LOGGER"):
                     self.app_logger = kwargs[f"{self.env_prefix}_APP_LOGGER"]
-                if kwargs.get(f"{self.env_prefix}_ERROR_LOGGER"):
+                elif kwargs.get(f"{self.env_prefix}_ERROR_LOGGER"):
                     self.error_logger = kwargs[f"{self.env_prefix}_ERROR_LOGGER"]
-                if kwargs.get(f"{self.env_prefix}_TIMEOUT"):
+                elif kwargs.get(f"{self.env_prefix}_TIMEOUT"):
                     self.timeout = kwargs[f"{self.env_prefix}_TIMEOUT"]
-                if kwargs.get(f"{self.env_prefix}_VERBOSE"):
+                elif kwargs.get(f"{self.env_prefix}_VERBOSE"):
                     self.verbose = kwargs[f"{self.env_prefix}_VERBOSE"]
-                if kwargs.get(f"{self.env_prefix}_DEBUG"):
+                elif kwargs.get(f"{self.env_prefix}_DEBUG"):
                     self.debug = kwargs[f"{self.env_prefix}_DEBUG"]
                 globals()[self.global_name][p_key] = p_value
 

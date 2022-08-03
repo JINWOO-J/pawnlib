@@ -135,6 +135,19 @@ class TestMethodRequest(unittest.TestCase):
         res = flatten_dict(complex_dict)
         self.assertEqual(res, compare_target)
 
+    def test_flatten_dict2(self, name=None, function=None, param=None, expected_value=None):
+        complex_dict = {
+            "aa": {
+                "bb": {
+                    "cc": "here"
+                }
+            }
+        }
+        compare_target = 'here'
+        res = flatten_dict(complex_dict, separator=".").get("aa.bb.cc")
+        self.assertEqual(res, compare_target)
+
+
     def test_id_generator(self, name=None, function=None, param=None, expected_value=None):
         size = 8
         res = id_generator(size=size)

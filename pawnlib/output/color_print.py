@@ -7,7 +7,7 @@ import getpass
 import traceback
 import inspect
 from pawnlib.typing import converter, date_utils, list_to_oneline_string
-from pawnlib.config import pawnlib_config as pawn
+# from pawnlib.config import pawnlib_config as pawn
 
 
 _ATTRIBUTES = dict(
