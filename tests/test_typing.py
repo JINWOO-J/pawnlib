@@ -10,7 +10,7 @@ from devtools import debug
 from pawnlib.typing import *
 
 
-class TestMethodRequest(unittest.TestCase):
+class TestTyping(unittest.TestCase):
     @parameterized.expand([
         ("valid integer", is_int, 1, True),
         ("valid integer", is_int, 1000, True),
@@ -147,7 +147,6 @@ class TestMethodRequest(unittest.TestCase):
         res = flatten_dict(complex_dict, separator=".").get("aa.bb.cc")
         self.assertEqual(res, compare_target)
 
-
     def test_id_generator(self, name=None, function=None, param=None, expected_value=None):
         size = 8
         res = id_generator(size=size)
@@ -159,32 +158,25 @@ class TestMethodRequest(unittest.TestCase):
         expected_value = "a=1234,b=1235"
         self.assertEqual(res, expected_value)
 
+    def test_base64ify_encode(self, name=None, function=None, param=None, expected_value=None):
+        res = base64ify("jjjjjjj")
+        expected_value = "ampqampqag=="
+        self.assertEqual(res, expected_value)
 
-# import sys
-# debug(list_to_oneline_string(["111", "222", "333"]))
-# sys.exit()
+    def test_base64_decode(self, name=None, function=None, param=None, expected_value=None):
+        res = base64_decode("ampqampqag==")
+        expected_value = "jjjjjjj"
+        self.assertEqual(res, expected_value)
 
-    # complex_list = ["1_depth`", ["2_depth-1", "2_depth-2", "2_depth-3", "2_depth-dup", ["3_depth", "2_depth-dup"]]]
-    #
-    # @parameterized.expand([
-    #     (
-    #             "complex not uniq ok", flatten_list,
-    #             complex_list,
-    #             ['1_depth`', '2_depth-1', '2_depth-2', '2_depth-3', '2_depth-dup', '3_depth', '2_depth-dup']
-    #     ),
-    #     (
-    #             "complex uniq ok", flatten_list,
-    #             complex_list,
-    #             ['1_depth`', '2_depth-1', '2_depth-2', '2_depth-3', '2_depth-dup', '3_depth', '2_depth-dup']
-    #     ),
-    # ]
-    # )
-    # def test_flatten_list(self, name, function=None, param=None, expected_value=None):
-    #     result = function(param)
-    #     print(f"{function.__name__}({param}) <{type(param)}> result => {result}")
-    #     self.assertEqual(result, expected_value)
+    def test_base64_encode_decode(self, name=None, function=None, param=None, expected_value=None):
+        raw_text = "THIS_IS_RAW_TEXT"
+        base64_encoded_text = base64ify(raw_text)
+        base64_decoded_text = base64_decode(base64_encoded_text)
+        print(f"{base64_decoded_text}={base64_encoded_text}")
+        self.assertEqual(raw_text, base64_decoded_text)
+
 
 
 if __name__ == "__main__":
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestMethodRequest)
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestTyping)
     testResult = unittest.TextTestRunner(verbosity=3).run(suite)

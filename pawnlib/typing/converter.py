@@ -1,11 +1,10 @@
 import random
 import string
+import sys
 import os
 import binascii
 from termcolor import cprint
-from typing import Union, Type
-import math
-from .check import *
+from .check import is_int, is_hex
 
 from deprecated import deprecated
 
@@ -28,7 +27,60 @@ from deprecated import deprecated
 #         return_value = value
 #     return return_value
 
-from typing import Union, Any
+from typing import Union, Any, Type
+import base64
+
+
+def base64_decode(text):
+    """
+    Decode the text to base64.
+
+    :param text:
+    :return:
+
+    Example:
+        .. code-block:: python
+
+            from pawnfrom pawnlib.typing import converter
+
+            decoded_base64 = converter.base64_decode("ampqampqag==")
+
+            # >> jjjjjjj
+
+    """
+
+    return base64.b64decode(text).decode('utf-8')
+
+
+def base64ify(bytes_or_str):
+    """
+    Helper method to perform base64 encoding across Python 2.7 and Python 3.X
+
+    :param bytes_or_str:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnfrom pawnlib.typing import converter
+
+            encoded_base64 = converter.base64ify("jjjjjjj")
+
+            # >> ampqampqag==
+
+    """
+
+    if sys.version_info[0] >= 3 and isinstance(bytes_or_str, str):
+        input_bytes = bytes_or_str.encode('utf8')
+    else:
+        input_bytes = bytes_or_str
+
+    output_bytes = base64.urlsafe_b64encode(input_bytes)
+    if sys.version_info[0] >= 3:
+        return output_bytes.decode('ascii')
+    else:
+        return output_bytes
+
 
 #https://pypi.org/project/Deprecated/
 @deprecated(version="1.0.0", reason="You should use another function=> convert_dict_hex_to_int")
@@ -41,6 +93,7 @@ def convert_hex_to_int(data: Any, is_comma: bool = False):
     :return:
 
     Example:
+
         .. code-block:: python
 
             from pawnlib.typing import converter
