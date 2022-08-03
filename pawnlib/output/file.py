@@ -4,13 +4,13 @@ import os
 import sys
 import json
 import glob
-from termcolor import cprint
 import yaml
 from typing import Union, Any
-from pawnlib.output import *
+# from pawnlib.output import *
+from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output import color_print
 from pawnlib.typing import converter
-from pawnlib.config.globalconfig import pawnlib_config as pawn
+from rich.prompt import Confirm
 
 
 def check_file_overwrite(filename, answer=None) -> None:
@@ -41,8 +41,9 @@ def check_file_overwrite(filename, answer=None) -> None:
 
     if exist_file:
         if answer is None:
-            answer = color_print.colored_input(f"Overwrite already existing '{filename}' file? (y/n)")
-        if answer == "y":
+            answer = Confirm.ask(prompt=f"Overwrite already existing '{filename}' file?", default=False)
+
+        if answer:
             color_print.cprint(f"Remove the existing file => {filename}", "green")
             os.remove(filename)
         else:
@@ -252,4 +253,3 @@ def write_yaml(filename: str, data: Union[dict, list], option: str = 'w', permit
         return "Write json file -> %s, %s" % (filename, converter.get_size(filename))  # if __main__.args.verbose > 0 else False
     else:
         return "write_json() can not write to json"
-

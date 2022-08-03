@@ -1,0 +1,7 @@
+sys.stdout = <rich.file_proxy.FileProxy object at 0x104d322e0>
+[2;36m[17:33:09][0m[2;36m [0m[1;36m11111[0m                                                                                                                       ]8;id=679797;file:///Users/jinwoo/work/python_prj/pawnlib/examples/color_print/rich_print.py\[2mrich_print.py[0m]8;;\[2m:[0m]8;id=362855;file:///Users/jinwoo/work/python_prj/pawnlib/examples/color_print/rich_print.py#13\[2m13[0m]8;;\
+foosys.stdout = <rich.file_proxy.FileProxy object at 0x104d322e0>
+[17:33:09] 11111                                                                                                                       rich_print.py:13
+
+sdsd
+foo

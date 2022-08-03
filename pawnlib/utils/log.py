@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 import os
 import logging
+import sys
 from logging import handlers
 import traceback
 import datetime
 from pawnlib.output import *
 from pawnlib.config.globalconfig import pawnlib_config
 from rich.logging import RichHandler
+from typing import Callable
 
 
 class CustomLog:
@@ -165,6 +167,8 @@ class AppLogger:
     :param log_path: log file path
     :param stdout: Enable stdout
     :param log_format: log format / [%(asctime)s] %(name)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s
+    :param use_hook_exception: Select whether to log exception errors.
+    :param exception_handler: Exception handling function
     :param debug:
 
     Example:
@@ -175,12 +179,14 @@ class AppLogger:
 
             app_logger, error_logger = log.AppLogger().get_logger()
             app_logger.info("This is a info message")
-            app_logger.error("This is a info message")
+            error_logger.error("This is a info message")
 
 
     Example2:
 
         .. code-block:: python
+
+            from pawnlib.config.globalconfig import pawnlib_config as pawn
 
             app_logger, error_logger = log.AppLogger(
                 app_name="app",
@@ -188,8 +194,8 @@ class AppLogger:
                 stdout=True
             ).set_global()
 
-            app_logger.info("This is a info message")
-            app_logger.error("This is a error message")
+            pawn.app_logger.info("This is a info message")
+            pawn.error_logger.error("This is a error message")
 
             # >>>
             [2022-07-25 18:52:44,415] INFO::app_logging_test.py/main(38) This is a info message
@@ -205,13 +211,22 @@ class AppLogger:
                  log_path: str = "./logs",
                  stdout: bool = False,
                  log_format: str = None,
-                 debug: bool = False
+                 debug: bool = False,
+                 use_hook_exception: bool = True,
+                 exception_handler: Callable = "",
                  ):
         self.app_name = app_name
         self.log_path = log_path
         self.debug = debug
         self.stdout = stdout
         self.log_level = log_level
+        self.use_hook_exception = use_hook_exception
+
+        if self.use_hook_exception:
+            if exception_handler:
+                sys.excepthook = exception_handler
+            else:
+                sys.excepthook = self.handle_exception
 
         if log_format:
             self.log_format = log_format
@@ -257,7 +272,10 @@ class AppLogger:
         logger.addHandler(file_handler)
 
         if self.stdout:
-            logger.addHandler(self.add_stream_handler(level=log_type))
+            logging.basicConfig(
+                level="NOTSET", format="%(message)s", datefmt="[%Y-%m-%d %H:%M:%S.%f]", handlers=[RichHandler(rich_tracebacks=True)]
+            )
+            # logger.addHandler(self.add_stream_handler(level=log_type))
 
         return logger
 
@@ -305,7 +323,9 @@ class AppLogger:
         """
         pawnlib_config.set(
             PAWN_APP_LOGGER=self._logger,
-            PAWN_ERROR_LOGGER=self._error_logger
+            PAWN_ERROR_LOGGER=self._error_logger,
         )
 
-
+    def handle_exception(self, exc_type, exc_value, exc_traceback):
+        if self.use_hook_exception and self._error_logger:
+            self._error_logger.error("Unexpected exception", exc_info=(exc_type, exc_value, exc_traceback))
