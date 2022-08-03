@@ -7,6 +7,8 @@ from .defines import (
     Namespace
 )
 from .converter import (
+    base64ify,
+    base64_decode,
     UpdateType,
     convert_hex_to_int,
     convert_dict_hex_to_int,
