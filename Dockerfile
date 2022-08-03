@@ -16,7 +16,7 @@ LABEL maintainer="infra team" \
 
 ENV IS_DOCKER=true \
     NAME=${NAME} \
-    VERSION=${VERSION}
+    VERSION=${VERSION} \
     REMOVE_BUILD_PACKAGE=${REMOVE_BUILD_PACKAGE:-"true"}
 #    PYCURL_SSL_LIBRARY=openssl \
 #    LIB_PACKAGE="libcurl4-openssl-dev" \
