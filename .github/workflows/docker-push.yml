@@ -36,9 +36,9 @@ jobs:
 
       # buildx 명령어로 amd64, arm64, arm/v6, arm/v7 아키텍처 이미지 빌드 및
       - name: Build Image
-        run: make docker IS_MULTI_ARCH=true VERSION=latest
+        run: TERM=xterm make docker IS_MULTI_ARCH=true VERSION=latest
         #working-directory: python
 #        run: docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6 -t ${{secrets.DOCKER_USER}}/pawnlib:${{ steps.vars.outputs.tag }} --push .
 
       - name: Build Image
-        run: make docker IS_MULTI_ARCH=true
+        run: TERM=xterm make docker IS_MULTI_ARCH=true
