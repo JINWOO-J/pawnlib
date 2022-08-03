@@ -5,6 +5,7 @@ BUILD_DATE = $(strip $(shell date -u +"%Y-%m-%dT%H:%M:%S%Z"))
 BASE_IMAGE = python:3.9.13-slim-buster
 REPO_HUB = jinwoo
 IS_MULTI_ARCH = false
+TERM=xterm
 
 ifeq ($(IS_MULTI_ARCH), true)
 DOCKER_BUILD_CMD = buildx build --platform linux/arm64,linux/amd64 --push
@@ -65,7 +66,7 @@ make_debug_mode:
 				$(if  \
 					$(filter-out environment% default automatic, $(origin $V) ), \
 						$($V=$($V)) \
-					$(if $(filter-out "SHELL" "%_COLOR" "%_STRING" "MAKE%" "colorecho" ".DEFAULT_GOAL" "CURDIR" "TEST_FILES" "DOCKER_BUILD_CMD" , "$V" ),  \
+					$(if $(filter-out "SHELL" "%_COLOR" "%_STRING" "MAKE%" "colorecho" ".DEFAULT_GOAL" "CURDIR" "TEST_FILES" "DOCKER_BUILD_CMD" "TERM", "$V" ),  \
 						$(shell echo $(ECHO_OPTION) '$(OK_COLOR)  $V = $(WARN_COLOR) $($V) $(NO_COLOR) ' >&2;) \
 						$(shell echo '-e $V=$($V)  ' >> DEBUG_ARGS)\
 					)\
@@ -80,7 +81,7 @@ make_build_args:
 			 $(if  \
 				 $(filter-out environment% default automatic, $(origin $V) ), \
 				 	 $($V=$($V)) \
-				 $(if $(filter-out "SHELL" "%_COLOR" "%_STRING" "MAKE%" "colorecho" ".DEFAULT_GOAL" "CURDIR" "TEST_FILES" "DOCKER_BUILD_CMD", "$V" ),  \
+				 $(if $(filter-out "SHELL" "%_COLOR" "%_STRING" "MAKE%" "colorecho" ".DEFAULT_GOAL" "CURDIR" "TEST_FILES" "DOCKER_BUILD_CMD" "TERM", "$V" ),  \
 					$(shell echo $(ECHO_OPTION) '$(OK_COLOR)  $V = $(WARN_COLOR) $($V) $(NO_COLOR) ' >&2;) \
 				 	$(shell echo "--build-arg $V=$($V)  " >> BUILD_ARGS)\
 				  )\
