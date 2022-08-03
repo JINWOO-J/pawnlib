@@ -124,8 +124,8 @@ docker: make_build_args
 		docker $(DOCKER_BUILD_CMD) $(DOCKER_BUILD_OPTION) -f Dockerfile \
 		$(shell cat BUILD_ARGS) -t $(REPO_HUB)/$(NAME):$(VERSION) .
 		$(call colorecho, "\n\nSuccessfully build '$(REPO_HUB)/$(NAME):$(VERSION)'")
-		@echo "==========================================================================="
-		@docker images | grep  $(REPO_HUB)/$(NAME) | grep $(VERSION) || true
+#		@echo "==========================================================================="
+#		@docker images | grep  $(REPO_HUB)/$(NAME) | grep $(VERSION) || true
 
 push_hub: print_version
 	docker tag $(REPO_HUB)/$(NAME):$(VERSION) $(REPO_HUB)/$(NAME):latest

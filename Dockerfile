@@ -17,8 +17,8 @@ LABEL maintainer="infra team" \
 ENV IS_DOCKER=true \
     NAME=${NAME} \
     VERSION=${VERSION}
+    REMOVE_BUILD_PACKAGE=${REMOVE_BUILD_PACKAGE:-"true"}
 #    PYCURL_SSL_LIBRARY=openssl \
-#    REMOVE_BUILD_PACKAGE=${REMOVE_BUILD_PACKAGE:-"true"} \
 #    LIB_PACKAGE="libcurl4-openssl-dev" \
 #    BUILD_PACKAGE="libssl-dev gcc"
 
@@ -31,7 +31,7 @@ RUN apt update && apt install -y ${BUILD_PACKAGE} ${LIB_PACKAGE} && \
 #    pip install --no-cache-dir -r /pawnlib/requirements.txt && \
 #    pip install --no-cache-dir -r /pawnlib/requirements.dev.txt && \
     python3 setup.py bdist_wheel && \
-    pip install dist/pawnlib-*.whl --force-reinstall && \
+    pip3 install dist/pawnlib-*.whl --force-reinstall && \
     if [ "$REMOVE_BUILD_PACKAGE" = "true" ]; then \
         echo "REMOVE_BUILD_PACKAGE" ; \
         apt-get purge -y --auto-remove ${BUILD_PACKAGE} && \
