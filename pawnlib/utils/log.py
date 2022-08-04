@@ -8,7 +8,7 @@ import datetime
 from pawnlib.output import *
 from pawnlib.config.globalconfig import pawnlib_config
 from rich.logging import RichHandler
-from typing import Callable
+from typing import Callable, Literal
 
 
 class CustomLog:
@@ -210,6 +210,7 @@ class AppLogger:
                  log_level: str = "INFO",
                  log_path: str = "./logs",
                  stdout: bool = False,
+                 stdout_level: Literal["INFO", "WARN", "DEBUG", "NOTSET"] = "DEBUG",
                  log_format: str = None,
                  debug: bool = False,
                  use_hook_exception: bool = True,
@@ -219,6 +220,7 @@ class AppLogger:
         self.log_path = log_path
         self.debug = debug
         self.stdout = stdout
+        self.stdout_level = stdout_level
         self.log_level = log_level
         self.use_hook_exception = use_hook_exception
 
@@ -273,7 +275,7 @@ class AppLogger:
 
         if self.stdout:
             logging.basicConfig(
-                level="NOTSET", format="%(message)s", datefmt="[%Y-%m-%d %H:%M:%S.%f]", handlers=[RichHandler(rich_tracebacks=True)]
+                level=self.stdout_level, format="%(message)s", datefmt="[%Y-%m-%d %H:%M:%S.%f]", handlers=[RichHandler(rich_tracebacks=True)]
             )
             # logger.addHandler(self.add_stream_handler(level=log_type))
 

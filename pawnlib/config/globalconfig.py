@@ -1,3 +1,4 @@
+import datetime
 import os
 from typing import Optional, TYPE_CHECKING
 from collections import namedtuple
@@ -133,7 +134,8 @@ class PawnlibConfig:
             redirect=True,  # <-- not supported by rich.console.Console
             record=True,
             soft_wrap=True,
-            force_terminal=True
+            force_terminal=True,
+            log_time_format="[%Y-%m-%d %H:%M:%S.%f]"
         )
         globals()[self.global_name] = {}
 

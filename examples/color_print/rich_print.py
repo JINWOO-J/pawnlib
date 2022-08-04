@@ -64,7 +64,7 @@ sys.stdout.write('json =>  {"sds":"sdsd"}')
 data = {"sdsd": "sdsd"}
 
 pawn.app_logger.info("sdsd", data)
-
+pawn.console.log("console.log() test")
 
 i = 0
 num = 1/i
