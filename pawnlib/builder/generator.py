@@ -11,7 +11,7 @@ from pyfiglet import Figlet
 
 def generate_banner(
         app_name="default_app",
-        version="0.0.0",
+        version="{__version}",
         author="Unknown author",
         description="",
         font="big",
@@ -145,8 +145,6 @@ class AppGenerator:
                 dump(templated_dict)
 
             write_file(filename=app_filename, data=templated_dict, permit="750")
-        # with open(app_filename, "w") as app:
-        #     app.write(res)
 
     def run(self):
         self.generate_file_from_template()

@@ -1,6 +1,7 @@
 # from datetime import datetime, timedelta, date
 import datetime
 import time
+from typing import Literal
 from pawnlib.typing.converter import append_zero
 
 
@@ -107,10 +108,10 @@ def get_range_day_of_month(year: int, month: int, return_unix: bool = True):
     return first_day, last_day
 
 
-def todaydate(date_type=None):
+def todaydate(date_type: Literal["file", "time", "hour", "ms", "ms_text", "ms_unix"] = None) -> str:
     """
 
-    :param date_type:
+    :param date_type: file, time, hour, ms, ms_text, ms_unix
     :return:
     """
     if date_type is None:
@@ -125,6 +126,8 @@ def todaydate(date_type=None):
         return '%s' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     elif date_type == "ms_text":
         return '%s' % datetime.datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3]
+    elif date_type == "ms_unix":
+        return '%s' % hex(int(datetime.datetime.now().timestamp() * 1_000_000))
 
 
 def format_seconds_to_hhmmss(seconds):
