@@ -177,9 +177,10 @@ class PawnlibConfig:
 
         .. code :: python
 
-            default environments
+            # default environments
 
             PAWN_INI = False
+            PAWN_DEBUG = False
             PAWN_VERBOSE = 0
             PAWN_TIMEOUT = 7000
             PAWN_APP_LOGGER = ""

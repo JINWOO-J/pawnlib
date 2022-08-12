@@ -12,8 +12,6 @@ class OverrideDNS:
         self._dns_cache[domain] = ipaddr
         self.prv_getaddrinfo = prev_getaddrinfo
 
-        # socket.getaddrinfo = self.new_getaddrinfo
-
     def new_getaddrinfo(self, *args):
         if args[0] in self._dns_cache:
             if pawn.verbose:

@@ -8,10 +8,12 @@ import time
 from pawnlib.utils.operate_handler import Daemon
 {% endif %}
 
+__version = "0.0.1"
+
 {% if banner -%}
 def print_banner():
     {%- for banner_string in banner %}
-    print('{{banner_string}}')
+    print(f'{{banner_string}}')
     {%- endfor %}
 {%- endif %}
 
