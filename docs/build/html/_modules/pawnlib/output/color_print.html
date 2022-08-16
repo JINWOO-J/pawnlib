@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/>
-        <title>pawnlib.output.color_print - pawnlib 0.0.2 documentation</title>
+        <title>pawnlib.output.color_print - pawnlib 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">pawnlib 0.0.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">pawnlib 0.0.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">pawnlib 0.0.2 documentation</span>
+  <span class="sidebar-brand-text">pawnlib 0.0.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -160,8 +160,10 @@
 <p class="caption" role="heading"><span class="caption-text">Packages</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
 </ul>
@@ -207,10 +209,10 @@
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">converter</span><span class="p">,</span> <span class="n">date_utils</span><span class="p">,</span> <span class="n">list_to_oneline_string</span>
-<span class="kn">from</span> <span class="nn">pawnlib.config</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
+<span class="c1"># from pawnlib.config import pawnlib_config as pawn</span>
 
 
-<span class="n">ATTRIBUTES</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+<span class="n">_ATTRIBUTES</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
     <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span>
         <span class="s1">&#39;bold&#39;</span><span class="p">,</span>
         <span class="s1">&#39;dark&#39;</span><span class="p">,</span>
@@ -224,10 +226,10 @@
         <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
     <span class="p">))</span>
 <span class="p">)</span>
-<span class="k">del</span> <span class="n">ATTRIBUTES</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span>
+<span class="k">del</span> <span class="n">_ATTRIBUTES</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span>
 
 
-<span class="n">HIGHLIGHTS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+<span class="n">_HIGHLIGHTS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
     <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span>
         <span class="s1">&#39;on_grey&#39;</span><span class="p">,</span>
         <span class="s1">&#39;on_red&#39;</span><span class="p">,</span>
@@ -243,7 +245,7 @@
 <span class="p">)</span>
 
 
-<span class="n">COLORS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+<span class="n">_COLORS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
     <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span>
         <span class="s1">&#39;grey&#39;</span><span class="p">,</span>
         <span class="s1">&#39;red&#39;</span><span class="p">,</span>
@@ -259,7 +261,7 @@
 <span class="p">)</span>
 
 
-<span class="n">RESET</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span>
+<span class="n">_RESET</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span>
 
 
 <div class="viewcode-block" id="colored"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.colored">[docs]</a><span class="k">def</span> <span class="nf">colored</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">on_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -271,7 +273,7 @@
 <span class="sd">    Available text highlights:</span>
 <span class="sd">        on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_white.</span>
 
-<span class="sd">    Available attributes:</span>
+<span class="sd">    Available _ATTRIBUTES:</span>
 <span class="sd">        bold, dark, underline, blink, reverse, concealed.</span>
 
 <span class="sd">    Example:</span>
@@ -281,21 +283,21 @@
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;ANSI_COLORS_DISABLED&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fmt_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[</span><span class="si">%d</span><span class="s1">m</span><span class="si">%s</span><span class="s1">&#39;</span>
         <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="n">fmt_str</span> <span class="o">%</span> <span class="p">(</span><span class="n">COLORS</span><span class="p">[</span><span class="n">color</span><span class="p">],</span> <span class="n">text</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">fmt_str</span> <span class="o">%</span> <span class="p">(</span><span class="n">_COLORS</span><span class="p">[</span><span class="n">color</span><span class="p">],</span> <span class="n">text</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">on_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="n">fmt_str</span> <span class="o">%</span> <span class="p">(</span><span class="n">HIGHLIGHTS</span><span class="p">[</span><span class="n">on_color</span><span class="p">],</span> <span class="n">text</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">fmt_str</span> <span class="o">%</span> <span class="p">(</span><span class="n">_HIGHLIGHTS</span><span class="p">[</span><span class="n">on_color</span><span class="p">],</span> <span class="n">text</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">text</span> <span class="o">=</span> <span class="n">fmt_str</span> <span class="o">%</span> <span class="p">(</span><span class="n">ATTRIBUTES</span><span class="p">[</span><span class="n">attr</span><span class="p">],</span> <span class="n">text</span><span class="p">)</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="n">fmt_str</span> <span class="o">%</span> <span class="p">(</span><span class="n">_ATTRIBUTES</span><span class="p">[</span><span class="n">attr</span><span class="p">],</span> <span class="n">text</span><span class="p">)</span>
 
-        <span class="n">text</span> <span class="o">+=</span> <span class="n">RESET</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="n">_RESET</span>
     <span class="k">return</span> <span class="n">text</span></div>
 
 
-<div class="viewcode-block" id="cprint"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.cprint">[docs]</a><span class="k">def</span> <span class="nf">cprint</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">on_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>    
+<div class="viewcode-block" id="cprint"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.cprint">[docs]</a><span class="k">def</span> <span class="nf">cprint</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">on_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Print colorize text.</span>
 <span class="sd">    It accepts arguments of print function.</span>
 
@@ -320,10 +322,13 @@
     <span class="n">HEADER</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[95m&#39;</span>
     <span class="n">OKBLUE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span>
     <span class="n">OKGREEN</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92m&#39;</span>
+    <span class="n">GREEN</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[32;40m&#39;</span>
+    <span class="n">CYAN</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[96m&#39;</span>
     <span class="n">WARNING</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span>
     <span class="n">FAIL</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[91m&#39;</span>
     <span class="n">ENDC</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span>
     <span class="n">BOLD</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[1m&#39;</span>
+    <span class="n">ITALIC</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[1;3m&#39;</span>
     <span class="n">UNDERLINE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[4m&#39;</span>
     <span class="n">WHITE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[97m&#39;</span>
     <span class="n">DARK_GREY</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[38;5;243m&#39;</span>
@@ -451,36 +456,26 @@
     <span class="k">return</span> <span class="nb">input</span><span class="p">(</span><span class="n">input_message</span><span class="p">)</span></div>
 
 
-<span class="c1"># def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False):</span>
-<span class="c1">#     spacing = &#39;   &#39;</span>
-<span class="c1">#     def_spacing = &#39;   &#39;</span>
-<span class="c1">#     if type(obj) == dict:</span>
-<span class="c1">#         print(&#39;%s{&#39; % (def_spacing + (nested_level) * spacing))</span>
-<span class="c1">#         for k, v in obj.items():</span>
-<span class="c1">#             if hasattr(v, &#39;__iter__&#39;):</span>
-<span class="c1">#                 print(bcolors.OKGREEN + &#39;%s%s:&#39; % (def_spacing + (nested_level + 1) * spacing, k) + bcolors.ENDC, end=&quot;&quot;)</span>
-<span class="c1">#                 dump(v, nested_level + 1, output, hex_to_int)</span>
-<span class="c1">#             else:</span>
-<span class="c1">#                 # print &gt;&gt;  bcolors.OKGREEN + &#39;%s%s: %s&#39; % ( (nested_level + 1) * spacing, k, v) + bcolors.ENDC</span>
-<span class="c1">#                 print(bcolors.OKGREEN + &#39;%s%s:&#39; % (def_spacing + (nested_level + 1) * spacing, k) + bcolors.WARNING + &#39; %s&#39; % v + bcolors.ENDC,</span>
-<span class="c1">#                       file=output)</span>
-<span class="c1">#         print(&#39;%s}&#39; % (def_spacing + nested_level * spacing), file=output)</span>
-<span class="c1">#     elif type(obj) == list:</span>
-<span class="c1">#         print(&#39;%s[&#39; % (def_spacing + (nested_level) * spacing), file=output)</span>
-<span class="c1">#         for v in obj:</span>
-<span class="c1">#             if hasattr(v, &#39;__iter__&#39;):</span>
-<span class="c1">#                 dump(v, nested_level + 1, output, hex_to_int)</span>
-<span class="c1">#             else:</span>
-<span class="c1">#                 print(bcolors.WARNING + &#39;%s%s&#39; % (def_spacing + (nested_level + 1) * spacing, v) + bcolors.ENDC, file=output)</span>
-<span class="c1">#         print(&#39;%s]&#39; % (def_spacing + (nested_level) * spacing), file=output)</span>
-<span class="c1">#     else:</span>
-<span class="c1">#         if hex_to_int and converter.is_hex(obj):</span>
-<span class="c1">#             print(bcolors.WARNING + &#39;%s%s&#39; % (def_spacing + nested_level * spacing, str(round(int(obj, 16) / 10 ** 18, 8)) + bcolors.ENDC))</span>
-<span class="c1">#         else:</span>
-<span class="c1">#             print(bcolors.WARNING + &#39;%s%s&#39; % (def_spacing + nested_level * spacing, obj) + bcolors.ENDC)</span>
+<div class="viewcode-block" id="get_colorful_object"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.get_colorful_object">[docs]</a><span class="k">def</span> <span class="nf">get_colorful_object</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ITALIC</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">GREEN</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">FAIL</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">value</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">CYAN</span><span class="si">}{</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">WARNING</span><span class="si">}</span><span class="s2">&#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;</span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">elif</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">FAIL</span><span class="si">}{</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="dump"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.dump">[docs]</a><span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">nested_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">hex_to_int</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="dump"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.dump">[docs]</a><span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">nested_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">hex_to_int</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">_is_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Print a variable for debugging.</span>
 
@@ -489,14 +484,14 @@
 <span class="sd">    :param output:</span>
 <span class="sd">    :param hex_to_int:</span>
 <span class="sd">    :param debug:</span>
-
+<span class="sd">    :param _is_list:</span>
 <span class="sd">    :return:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">spacing</span> <span class="o">=</span> <span class="s1">&#39;   &#39;</span>
     <span class="n">def_spacing</span> <span class="o">=</span> <span class="s1">&#39;   &#39;</span>
 
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">nested_level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nested_level</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">_is_list</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">{&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="n">nested_level</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">)</span>
@@ -506,7 +501,7 @@
                 <span class="n">dump</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">nested_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">hex_to_int</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-                    <span class="n">v</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">HEADER</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="si">:</span><span class="s2">&gt;20</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">DARK_GREY</span><span class="si">}</span><span class="s2"> len=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">get_colorful_object</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">HEADER</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="si">:</span><span class="s2">&gt;20</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">DARK_GREY</span><span class="si">}</span><span class="s2"> len=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">bcolors</span><span class="o">.</span><span class="n">OKGREEN</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">:&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="n">nested_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">+</span> <span class="s1">&#39; </span><span class="si">%s</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="n">v</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="p">,</span>
                       <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="n">nested_level</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
@@ -514,17 +509,18 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">[&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="n">nested_level</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
-                <span class="n">dump</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">nested_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">hex_to_int</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>
+                <span class="n">dump</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">nested_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">hex_to_int</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">_is_list</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">bcolors</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="n">nested_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">bcolors</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="n">nested_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">get_colorful_object</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="n">nested_level</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">HEADER</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span><span class="si">:</span><span class="s2">&gt;20</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">DARK_GREY</span><span class="si">}</span><span class="s2"> len=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">get_colorful_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">HEADER</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span><span class="si">:</span><span class="s2">&gt;20</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">DARK_GREY</span><span class="si">}</span><span class="s2"> len=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span><span class="si">}{</span><span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="n">hex_to_int</span> <span class="ow">and</span> <span class="n">converter</span><span class="o">.</span><span class="n">is_hex</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">bcolors</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="n">nested_level</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">bcolors</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="p">)</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="n">bcolors</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="n">nested_level</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="p">)</span></div>
+            <span class="c1"># print(bcolors.WARNING + &#39;%s&#39; % (obj) + bcolors.ENDC)</span>
 
 
 <div class="viewcode-block" id="debug_print"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.debug_print">[docs]</a><span class="k">def</span> <span class="nf">debug_print</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">on_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">view_time</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

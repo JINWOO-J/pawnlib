@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pawnlib.typing package" href="pawnlib.typing.html" /><link rel="prev" title="pawnlib.config package" href="pawnlib.config.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pawnlib.resource package" href="pawnlib.resource.html" /><link rel="prev" title="pawnlib.config package" href="pawnlib.config.html" />
 
     <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/>
-        <title>pawnlib.output package - pawnlib 0.0.2 documentation</title>
+        <title>pawnlib.output package - pawnlib 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">pawnlib 0.0.2 documentation</div></a>
+      <a href="../index.html"><div class="brand">pawnlib 0.0.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">pawnlib 0.0.2 documentation</span>
+  <span class="sidebar-brand-text">pawnlib 0.0.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -161,8 +161,10 @@
 <p class="caption" role="heading"><span class="caption-text">Packages</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.builder.html">pawnlib.builder package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.config.html">pawnlib.config package</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.resource.html">pawnlib.resource package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.typing.html">pawnlib.typing package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.utils.html">pawnlib.utils package</a></li>
 </ul>
@@ -220,7 +222,7 @@
 </dd>
 <dt>Available text highlights:</dt><dd><p>on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_white.</p>
 </dd>
-<dt>Available attributes:</dt><dd><p>bold, dark, underline, blink, reverse, concealed.</p>
+<dt>Available _ATTRIBUTES:</dt><dd><p>bold, dark, underline, blink, reverse, concealed.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -237,9 +239,9 @@ It accepts arguments of print function.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> – </p></li>
-<li><p><strong>color</strong> – </p></li>
-<li><p><strong>on_color</strong> – </p></li>
-<li><p><strong>attrs</strong> – </p></li>
+<li><p><strong>color</strong> (<em>optional</em>) – <a href="#id1"><span class="problematic" id="id2">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>on_color</strong> (<em>optional</em>) – <a href="#id3"><span class="problematic" id="id4">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>attrs</strong> (<em>optional</em>) – <a href="#id5"><span class="problematic" id="id6">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>kwargs</strong> – </p></li>
 </ul>
 </dd>
@@ -273,6 +275,16 @@ It accepts arguments of print function.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.output.color_print.bcolors.GREEN">
+<span class="sig-name descname"><span class="pre">GREEN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\x1b[32;40m'</span></em><a class="headerlink" href="#pawnlib.output.color_print.bcolors.GREEN" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.output.color_print.bcolors.CYAN">
+<span class="sig-name descname"><span class="pre">CYAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\x1b[96m'</span></em><a class="headerlink" href="#pawnlib.output.color_print.bcolors.CYAN" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.bcolors.WARNING">
 <span class="sig-name descname"><span class="pre">WARNING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\x1b[93m'</span></em><a class="headerlink" href="#pawnlib.output.color_print.bcolors.WARNING" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
@@ -290,6 +302,11 @@ It accepts arguments of print function.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.bcolors.BOLD">
 <span class="sig-name descname"><span class="pre">BOLD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\x1b[1m'</span></em><a class="headerlink" href="#pawnlib.output.color_print.bcolors.BOLD" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.output.color_print.bcolors.ITALIC">
+<span class="sig-name descname"><span class="pre">ITALIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\x1b[1;3m'</span></em><a class="headerlink" href="#pawnlib.output.color_print.bcolors.ITALIC" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -322,13 +339,16 @@ It accepts arguments of print function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmt</strong> – <p>list of tuple(heading, key, width)</p>
+<li><p><strong>fmt</strong> (<em>optional</em>) – <p>list of tuple(heading, key, width)
+<a href="#id7"><span class="problematic" id="id8">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p>
 <p>heading: str, column label</p>
 <p>key: dictionary key to value to print</p>
 <p>width: int, column width in chars</p>
 </p></li>
-<li><p><strong>sep</strong> – string, separation between columns</p></li>
-<li><p><strong>ul</strong> – string, character to underline column label, or None for no underlining</p></li>
+<li><p><strong>sep</strong> (<em>optional</em>) – string, separation between columns
+<a href="#id9"><span class="problematic" id="id10">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'</span>&#160; <span class="pre">'</span></code></p></li>
+<li><p><strong>ul</strong> (<em>optional</em>) – string, character to underline column label, or None for no underlining
+<a href="#id11"><span class="problematic" id="id12">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'-'</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -364,13 +384,16 @@ It accepts arguments of print function.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmt</strong> – <p>list of tuple(heading, key, width)</p>
+<li><p><strong>fmt</strong> (<em>optional</em>) – <p>list of tuple(heading, key, width)
+<a href="#id13"><span class="problematic" id="id14">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p>
 <p>heading: str, column label</p>
 <p>key: dictionary key to value to print</p>
 <p>width: int, column width in chars</p>
 </p></li>
-<li><p><strong>sep</strong> – string, separation between columns</p></li>
-<li><p><strong>ul</strong> – string, character to underline column label, or None for no underlining</p></li>
+<li><p><strong>sep</strong> (<em>optional</em>) – string, separation between columns
+<a href="#id15"><span class="problematic" id="id16">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'</span>&#160; <span class="pre">'</span></code></p></li>
+<li><p><strong>ul</strong> (<em>optional</em>) – string, character to underline column label, or None for no underlining
+<a href="#id17"><span class="problematic" id="id18">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'-'</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -423,9 +446,9 @@ It accepts arguments of print function.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> – </p></li>
 <li><p><strong>color</strong> – </p></li>
-<li><p><strong>bold</strong> – </p></li>
-<li><p><strong>underline</strong> – </p></li>
-<li><p><strong>width</strong> – </p></li>
+<li><p><strong>bold</strong> (<em>optional</em>) – <a href="#id19"><span class="problematic" id="id20">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>underline</strong> (<em>optional</em>) – <a href="#id21"><span class="problematic" id="id22">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>width</strong> (<em>optional</em>) – <a href="#id23"><span class="problematic" id="id24">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -440,17 +463,23 @@ It accepts arguments of print function.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.output.color_print.get_colorful_object">
+<span class="sig-name descname"><span class="pre">get_colorful_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#get_colorful_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.get_colorful_object" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.dump">
-<span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nested_level=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output=&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hex_to_int=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#dump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.dump" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nested_level=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output=&lt;rich.file_proxy.FileProxy</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hex_to_int=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_is_list=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#dump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.dump" title="Permalink to this definition">#</a></dt>
 <dd><p>Print a variable for debugging.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – </p></li>
-<li><p><strong>nested_level</strong> – </p></li>
-<li><p><strong>output</strong> – </p></li>
-<li><p><strong>hex_to_int</strong> – </p></li>
-<li><p><strong>debug</strong> – </p></li>
+<li><p><strong>nested_level</strong> (<em>optional</em>) – <a href="#id25"><span class="problematic" id="id26">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p><strong>output</strong> (<em>optional</em>) – <a href="#id27"><span class="problematic" id="id28">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;rich.file_proxy.FileProxy</span> <span class="pre">object&gt;</span></code></p></li>
+<li><p><strong>hex_to_int</strong> (<em>optional</em>) – <a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>debug</strong> (<em>optional</em>) – <a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>_is_list</strong> (<em>optional</em>) – <a href="#id33"><span class="problematic" id="id34">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -483,7 +512,7 @@ It accepts arguments of print function.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> – </p></li>
 <li><p><strong>value</strong> – </p></li>
-<li><p><strong>color</strong> – </p></li>
+<li><p><strong>color</strong> (<em>optional</em>) – <a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'yellow'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -517,8 +546,8 @@ It accepts arguments of print function.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>message</strong> – </p></li>
-<li><p><strong>dump_message</strong> – </p></li>
-<li><p><strong>color</strong> – </p></li>
+<li><p><strong>dump_message</strong> (<em>optional</em>) – <a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>color</strong> (<em>optional</em>) – <a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'green'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -544,11 +573,11 @@ It accepts arguments of print function.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>iteration</strong> – </p></li>
 <li><p><strong>total</strong> – </p></li>
-<li><p><strong>prefix</strong> – </p></li>
-<li><p><strong>suffix</strong> – </p></li>
-<li><p><strong>decimals</strong> – </p></li>
-<li><p><strong>bar_length</strong> – </p></li>
-<li><p><strong>overlay</strong> – </p></li>
+<li><p><strong>prefix</strong> (<em>optional</em>) – <a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>suffix</strong> (<em>optional</em>) – <a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>decimals</strong> (<em>optional</em>) – <a href="#id45"><span class="problematic" id="id46">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>bar_length</strong> (<em>optional</em>) – <a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">100</span></code></p></li>
+<li><p><strong>overlay</strong> (<em>optional</em>) – <a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -580,7 +609,7 @@ It accepts arguments of print function.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> – </p></li>
-<li><p><strong>answer</strong> – </p></li>
+<li><p><strong>answer</strong> (<em>optional</em>) – <a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -640,7 +669,7 @@ It accepts arguments of print function.</p>
 <dd><p>Returns the parent path</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>run_path</strong> – </p>
+<dd class="field-odd"><p><strong>run_path</strong> (<em>optional</em>) – <a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'/Users/jinwoo/work/python_prj/pawnlib/pawnlib/output/file.py'</span></code></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -768,8 +797,8 @@ It accepts arguments of print function.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – </p></li>
-<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
-<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
+<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -787,8 +816,8 @@ It accepts arguments of print function.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – </p></li>
-<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
-<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
+<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -806,8 +835,8 @@ It accepts arguments of print function.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – </p></li>
-<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
-<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
+<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -827,12 +856,12 @@ It accepts arguments of print function.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pawnlib.typing.html">
+          <a class="next-page" href="pawnlib.resource.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pawnlib.typing package</div>
+                <div class="title">pawnlib.resource package</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>

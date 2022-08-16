@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pawnlib.utils package" href="pawnlib.utils.html" /><link rel="prev" title="pawnlib.output package" href="pawnlib.output.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pawnlib.utils package" href="pawnlib.utils.html" /><link rel="prev" title="pawnlib.resource package" href="pawnlib.resource.html" />
 
     <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/>
-        <title>pawnlib.typing package - pawnlib 0.0.2 documentation</title>
+        <title>pawnlib.typing package - pawnlib 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">pawnlib 0.0.2 documentation</div></a>
+      <a href="../index.html"><div class="brand">pawnlib 0.0.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">pawnlib 0.0.2 documentation</span>
+  <span class="sidebar-brand-text">pawnlib 0.0.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -161,8 +161,10 @@
 <p class="caption" role="heading"><span class="caption-text">Packages</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.builder.html">pawnlib.builder package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.config.html">pawnlib.config package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.resource.html">pawnlib.resource package</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">pawnlib.typing package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.utils.html">pawnlib.utils package</a></li>
 </ul>
@@ -276,6 +278,47 @@
 </pre></div>
 </div>
 <span class="target" id="module-pawnlib.typing.converter"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.typing.converter.base64_decode">
+<span class="sig-name descname"><span class="pre">base64_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/converter.html#base64_decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.converter.base64_decode" title="Permalink to this definition">#</a></dt>
+<dd><p>Decode the text to base64.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">converter</span>
+
+<span class="n">decoded_base64</span> <span class="o">=</span> <span class="n">converter</span><span class="o">.</span><span class="n">base64_decode</span><span class="p">(</span><span class="s2">&quot;ampqampqag==&quot;</span><span class="p">)</span>
+
+<span class="c1"># &gt;&gt; jjjjjjj</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.typing.converter.base64ify">
+<span class="sig-name descname"><span class="pre">base64ify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bytes_or_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/converter.html#base64ify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.converter.base64ify" title="Permalink to this definition">#</a></dt>
+<dd><p>Helper method to perform base64 encoding across Python 2.7 and Python 3.X</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bytes_or_str</strong> – </p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">converter</span>
+
+<span class="n">encoded_base64</span> <span class="o">=</span> <span class="n">converter</span><span class="o">.</span><span class="n">base64ify</span><span class="p">(</span><span class="s2">&quot;jjjjjjj&quot;</span><span class="p">)</span>
+
+<span class="c1"># &gt;&gt; ampqampqag==</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.typing.converter.convert_hex_to_int">
 <span class="sig-name descname"><span class="pre">convert_hex_to_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_comma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/converter.html#convert_hex_to_int"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.converter.convert_hex_to_int" title="Permalink to this definition">#</a></dt>
 <dd><p>It will be changed to convert_dict_hex_to_int</p>
@@ -283,7 +326,8 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – data</p></li>
-<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – human-readable notation</p></li>
+<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – human-readable notation
+<a href="#id1"><span class="problematic" id="id2">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -308,8 +352,8 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – </p></li>
-<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
-<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id3"><span class="problematic" id="id4">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id5"><span class="problematic" id="id6">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -328,30 +372,56 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.typing.converter.hex_to_number">
 <span class="sig-name descname"><span class="pre">hex_to_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hex_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_comma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/converter.html#hex_to_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.converter.hex_to_number" title="Permalink to this definition">#</a></dt>
-<dd><p>this function will change the hex to number(int)
-:param hex_value:
-:type is_comma: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
-:param is_comma:
-:type debug: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
-:param debug:
-:return:</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pawnlib.typing.converter.get_size">
-<span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/converter.html#get_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.converter.get_size" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns the size of the file.</p>
+<dd><p>this function will change the hex to number(int)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_path</strong> – </p></li>
-<li><p><strong>attr</strong> – </p></li>
+<li><p><strong>hex_value</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id7"><span class="problematic" id="id8">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id9"><span class="problematic" id="id10">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id11"><span class="problematic" id="id12">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">converter</span>
+
+<span class="n">converter</span><span class="o">.</span><span class="n">hex_to_number</span><span class="p">(</span><span class="s2">&quot;0x22223232d&quot;</span><span class="p">)</span>
+<span class="c1"># &gt;&gt; 9162662701</span>
+
+<span class="n">converter</span><span class="o">.</span><span class="n">hex_to_number</span><span class="p">(</span><span class="s2">&quot;0x22223232d&quot;</span><span class="p">,</span> <span class="n">is_comma</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># &gt;&gt; &#39;9,162,662,701&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.typing.converter.get_size">
+<span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/converter.html#get_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.converter.get_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the size of the file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id13"><span class="problematic" id="id14">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>attr</strong> (<em>optional</em>) – <a href="#id15"><span class="problematic" id="id16">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">converter</span>
+
+<span class="n">converter</span><span class="o">.</span><span class="n">get_size</span><span class="p">(</span><span class="s2">&quot;./requirements.txt&quot;</span><span class="p">)</span>
+<span class="c1"># &gt; &#39;373.0 bytes&#39;</span>
+
+<span class="n">converter</span><span class="o">.</span><span class="n">get_size</span><span class="p">(</span><span class="s2">&quot;./requirements.txt&quot;</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># &gt; [&#39;373.0 bytes&#39;, &#39;FILE&#39;]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -369,6 +439,16 @@
 <dd class="field-odd"><p></p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">converter</span>
+
+<span class="n">converter</span><span class="o">.</span><span class="n">convert_bytes</span><span class="p">(</span><span class="mi">2323223232323</span><span class="p">)</span>
+<span class="c1"># &gt; &#39;2.1 TB&#39;</span>
+
+<span class="n">converter</span><span class="o">.</span><span class="n">convert_bytes</span><span class="p">(</span><span class="mf">2323223232.232</span><span class="p">)</span>
+<span class="c1"># &gt; &#39;2.2 GB&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -396,7 +476,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>list_items</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – </p></li>
-<li><p><strong>uniq</strong> – </p></li>
+<li><p><strong>uniq</strong> (<em>optional</em>) – <a href="#id17"><span class="problematic" id="id18">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -415,15 +495,22 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.typing.converter.flatten_dict">
 <span class="sig-name descname"><span class="pre">flatten_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'｡'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lkey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/converter.html#flatten_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.converter.flatten_dict" title="Permalink to this definition">#</a></dt>
-<dd><p>this function will convert complex dict to flatten dict
-:type init: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>
-:param init:
-:type separator: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>
-:param separator:
-:type lkey: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>
-:param lkey:
-:rtype: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>
-:return:</p>
+<dd><p>this function will convert complex dict to flatten dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>init</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – </p></li>
+<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id19"><span class="problematic" id="id20">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'｡'</span></code></p></li>
+<li><p><strong>lkey</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id21"><span class="problematic" id="id22">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># &gt;&gt;</span>
     <span class="p">{</span>
@@ -446,7 +533,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dict_param</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – </p></li>
-<li><p><strong>quotes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>quotes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id23"><span class="problematic" id="id24">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -491,7 +578,8 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>list_param</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List</p></li>
-<li><p><strong>split_str</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – String to separate</p></li>
+<li><p><strong>split_str</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – String to separate
+<a href="#id25"><span class="problematic" id="id26">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -513,15 +601,12 @@ convert <code class="docutils literal notranslate"><span class="pre">val</span><
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>val</strong> (<em>long</em>) – The value to pack</p></li>
-<li><p><strong>endianness</strong> (<em>str</em>) – The endianness of the result. <code class="docutils literal notranslate"><span class="pre">'big'</span></code> for</p></li>
+<li><p><strong>endianness</strong> (<em>str</em>) – The endianness of the result. <code class="docutils literal notranslate"><span class="pre">'big'</span></code> for big-endian, <code class="docutils literal notranslate"><span class="pre">'little'</span></code> for little-endian.
+If you want byte- and word-ordering to differ, you’re on your own.
+Using <span class="xref std std-ref">string formatting</span> lets us use Python’s C innards.</p></li>
 </ul>
 </dd>
 </dl>
-<p>big-endian, <code class="docutils literal notranslate"><span class="pre">'little'</span></code> for little-endian.
-If you want byte- and word-ordering to differ, you’re on your own.</p>
-<blockquote>
-<div><p>Using <span class="xref std std-ref">string formatting</span> lets us use Python’s C innards.</p>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
@@ -614,7 +699,7 @@ influxdb data not allowed space</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – </p></li>
-<li><p><strong>replace_str</strong> – </p></li>
+<li><p><strong>replace_str</strong> (<em>optional</em>) – <a href="#id27"><span class="problematic" id="id28">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'_'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -631,8 +716,8 @@ influxdb data not allowed space</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – </p></li>
-<li><p><strong>patterns</strong> – </p></li>
-<li><p><strong>replace_str</strong> – </p></li>
+<li><p><strong>patterns</strong> (<em>optional</em>) – <a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>replace_str</strong> (<em>optional</em>) – <a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'_'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -680,8 +765,8 @@ influxdb data not allowed space</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key_values</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – </p></li>
-<li><p><strong>sep</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
-<li><p><strong>operator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>sep</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id33"><span class="problematic" id="id34">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">','</span></code></p></li>
+<li><p><strong>operator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'='</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -831,7 +916,7 @@ influxdb data not allowed space</p>
 <p>It will be calculated seconds to string format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>seconds</strong> – </p>
+<dd class="field-odd"><p><strong>seconds</strong> (<em>optional</em>) – <a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -847,7 +932,7 @@ influxdb data not allowed space</p>
 <dd><p>It will be calculated seconds to string format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>seconds</strong> – </p>
+<dd class="field-odd"><p><strong>seconds</strong> (<em>optional</em>) – <a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -912,9 +997,16 @@ influxdb data not allowed space</p>
 :param year:
 :type month: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param month:
-:type return_unix: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
-:param return_unix:
-:return: (1646060400, 1648738799)</p>
+:type return_unix: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>
+:param return_unix:</p>
+<blockquote>
+<div><p><a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(1646060400, 1648738799)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -922,10 +1014,14 @@ influxdb data not allowed space</p>
 <span class="sig-name descname"><span class="pre">todaydate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/date_utils.html#todaydate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.date_utils.todaydate" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>date_type</strong> – </p>
+<dd class="field-odd"><p><strong>date_type</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘file’, ‘time’, ‘hour’, ‘ms’, ‘ms_text’, ‘ms_unix’]], <em>optional</em>) – file, time, hour, ms, ms_text, ms_unix
+<a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -989,10 +1085,10 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – </p></li>
-<li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – </p></li>
-<li><p><strong>count</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – </p></li>
-<li><p><strong>convert_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – </p></li>
+<li><p><strong>start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – <a href="#id45"><span class="problematic" id="id46">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – <a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>count</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – <a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>convert_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]], <em>optional</em>) – <a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -1003,10 +1099,10 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – </p></li>
-<li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – </p></li>
-<li><p><strong>count</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – </p></li>
-<li><p><strong>convert_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – </p></li>
+<li><p><strong>start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – <a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – <a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>count</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – <a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>convert_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]], <em>optional</em>) – <a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -1042,8 +1138,8 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> – </p></li>
-<li><p><strong>chars</strong> – </p></li>
+<li><p><strong>size</strong> (<em>optional</em>) – <a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">8</span></code></p></li>
+<li><p><strong>chars</strong> (<em>optional</em>) – <a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1065,9 +1161,9 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
-<li><p><strong>count</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
-<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">8</span></code></p></li>
+<li><p><strong>count</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id67"><span class="problematic" id="id68">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">4</span></code></p></li>
+<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id69"><span class="problematic" id="id70">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'-'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1089,7 +1185,8 @@ string representation.</p>
 e.g. 1, 2, 3, .. 9, 10, 11, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – start: The first value to start with.</p>
+<dd class="field-odd"><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – start: The first value to start with.
+<a href="#id71"><span class="problematic" id="id72">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
@@ -1107,7 +1204,8 @@ e.g. 1, 2, 3, .. 9, 10, 11, etc.</p>
 e.g. 1, 2, 3, .. 9, a, b, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The first value to start with.</p>
+<dd class="field-odd"><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The first value to start with.
+<a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
@@ -1194,14 +1292,14 @@ e.g. 1, 2, 3, .. 9, a, b, etc.</p>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pawnlib.output.html">
+          <a class="prev-page" href="pawnlib.resource.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">pawnlib.output package</div>
+                <div class="title">pawnlib.resource package</div>
                 
               </div>
             </a>

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pawnlib.output package" href="pawnlib.output.html" /><link rel="prev" title="pawnlib.asyncio package" href="pawnlib.asyncio.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pawnlib.output package" href="pawnlib.output.html" /><link rel="prev" title="pawnlib.builder package" href="pawnlib.builder.html" />
 
     <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/>
-        <title>pawnlib.config package - pawnlib 0.0.2 documentation</title>
+        <title>pawnlib.config package - pawnlib 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">pawnlib 0.0.2 documentation</div></a>
+      <a href="../index.html"><div class="brand">pawnlib 0.0.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">pawnlib 0.0.2 documentation</span>
+  <span class="sidebar-brand-text">pawnlib 0.0.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -161,8 +161,10 @@
 <p class="caption" role="heading"><span class="caption-text">Packages</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.builder.html">pawnlib.builder package</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">pawnlib.config package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.resource.html">pawnlib.resource package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.typing.html">pawnlib.typing package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.utils.html">pawnlib.utils package</a></li>
 </ul>
@@ -227,7 +229,18 @@
 <span class="target" id="module-pawnlib.config.globalconfig"></span><dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.config.globalconfig.nestednamedtuple">
 <span class="sig-name descname"><span class="pre">nestednamedtuple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictionary</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#nestednamedtuple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.nestednamedtuple" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Converts dictionary to a nested namedtuple recursively.</p>
+<dl class="field-list">
+<dt class="field-odd">Param<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dictionary: Dictionary to convert into a nested namedtuple.</p>
+</dd>
+<dt class="field-even">Example<span class="colon">:</span></dt>
+<dd class="field-even"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">nestednamedtuple</span>
+<span class="n">nt</span> <span class="o">=</span> <span class="n">nestednamedtuple</span><span class="p">({</span><span class="s2">&quot;hello&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;ola&quot;</span><span class="p">:</span> <span class="s2">&quot;mundo&quot;</span><span class="p">}})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span> <span class="c1"># &gt;&gt;&gt; namedtupled(hello=namedtupled(ola=&#39;mundo&#39;))</span>
+</pre></div>
+</div>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">namedtuple</span></code></p>
 </dd>
@@ -238,6 +251,18 @@
 <dt class="sig sig-object py" id="pawnlib.config.globalconfig.fdict">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fdict</span></span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#fdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.fdict" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>Forced dictionary. Prevents dictionary from becoming a nested namedtuple.</p>
+<dl class="field-list">
+<dt class="field-odd">Example<span class="colon">:</span></dt>
+<dd class="field-odd"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">nestednamedtuple</span><span class="p">,</span> <span class="n">fdict</span>
+<span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;hello&quot;</span><span class="p">:</span> <span class="s2">&quot;world&quot;</span><span class="p">}</span>
+<span class="n">nt</span> <span class="o">=</span> <span class="n">nestednamedtuple</span><span class="p">({</span><span class="s2">&quot;forced&quot;</span><span class="p">:</span> <span class="n">fdict</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="s2">&quot;notforced&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nt</span><span class="o">.</span><span class="n">notforced</span><span class="p">)</span>    <span class="c1"># &gt;&gt;&gt; namedtupled(hello=&#39;world&#39;)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nt</span><span class="o">.</span><span class="n">forced</span><span class="p">)</span>       <span class="c1"># &gt;&gt;&gt; {&#39;hello&#39;: &#39;world&#39;}</span>
+</pre></div>
+</div>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -245,286 +270,10 @@
 <span class="sig-name descname"><span class="pre">singleton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#singleton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.singleton" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py class">
+<dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PawnlibConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_name='pawnlib_global_config'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_logger=</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_logger=</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout=6000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class can share variables using globals().</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_name</strong> – Global Variable Name</p></li>
-<li><p><strong>app_logger</strong> – global app logger</p></li>
-<li><p><strong>error_logger</strong> – global error logger</p></li>
-<li><p><strong>timeout</strong> – global timeout</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_name='pawnlib_global_config'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_logger=</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_logger=</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout=6000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.__init__" title="Permalink to this definition">#</a></dt>
-<dd><p>This class can share variables using globals().</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_name</strong> – Global Variable Name</p></li>
-<li><p><strong>app_logger</strong> – global app logger</p></li>
-<li><p><strong>error_logger</strong> – global error logger</p></li>
-<li><p><strong>timeout</strong> – global timeout</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.init_with_env">
-<span class="sig-name descname"><span class="pre">init_with_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.init_with_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.init_with_env" title="Permalink to this definition">#</a></dt>
-<dd><p>Initialize with environmental variables.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>kwargs</strong> – dict</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.str2bool">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">str2bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.str2bool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.str2bool" title="Permalink to this definition">#</a></dt>
-<dd><p>This function is intended to return a boolean value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>v</strong> – </p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.fill_config_from_environment">
-<span class="sig-name descname"><span class="pre">fill_config_from_environment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.fill_config_from_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.fill_config_from_environment" title="Permalink to this definition">#</a></dt>
-<dd><p>Initialize with environmental variables.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">default</span> <span class="n">environments</span>
-
-<span class="n">PAWN_INI</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">PAWN_VERBOSE</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">PAWN_TIMEOUT</span> <span class="o">=</span> <span class="mi">7000</span>
-<span class="n">PAWN_APP_LOGGER</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-<span class="n">PAWN_ERROR_LOGGER</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-<span class="n">PAWN_VERSION</span> <span class="o">=</span>
-<span class="n">PAWN_GLOBAL_NAME</span> <span class="o">=</span> <span class="n">pawnlib_global_config_UUID</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.make_config">
-<span class="sig-name descname"><span class="pre">make_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictionary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.make_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.make_config" title="Permalink to this definition">#</a></dt>
-<dd><p>Creates a global configuration that can be accessed anywhere during runtime.
-This function is a useful replacement to passing configuration classes between classes.
-Instead of creating a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code> object, one may use <a class="reference internal" href="#pawnlib.config.globalconfig.PawnlibConfig.make_config" title="pawnlib.config.globalconfig.PawnlibConfig.make_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_config()</span></code></a> to create a
-global runtime configuration that can be accessed by any module, function, or object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dictionary</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – Dictionary to create global configuration with.</p></li>
-<li><p><strong>kwargs</strong> – Arguments to make global configuration with.</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">PawnlibConfig</span>
-<span class="n">PawnlibConfig</span><span class="o">.</span><span class="n">make_config</span><span class="p">(</span><span class="n">hello</span><span class="o">=</span><span class="s2">&quot;world&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.get" title="Permalink to this definition">#</a></dt>
-<dd><p>This method is intended to return a key value</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> – </p></li>
-<li><p><strong>default</strong> – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span>
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">hello</span><span class="o">=</span><span class="s2">&quot;world&quot;</span><span class="p">)</span>
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.set" title="Permalink to this definition">#</a></dt>
-<dd><p>This method is intended to store key values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>kwargs</strong> – </p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span>
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">hello</span><span class="o">=</span><span class="s2">&quot;world&quot;</span><span class="p">)</span>
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.increase">
-<span class="sig-name descname"><span class="pre">increase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.increase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.increase" title="Permalink to this definition">#</a></dt>
-<dd><p>Find the key and increment the number.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>kwargs</strong> – </p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span>
-
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">))</span>
-<span class="c1"># &gt;&gt; 1</span>
-
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">))</span>
-
-<span class="c1"># &gt;&gt; 2</span>
-
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">))</span>
-
-<span class="c1"># &gt;&gt; 12</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.decrease">
-<span class="sig-name descname"><span class="pre">decrease</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.decrease"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.decrease" title="Permalink to this definition">#</a></dt>
-<dd><p>Find the key and decrement the number.
-:param kwargs:
-:return:</p>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span>
-
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">))</span>
-<span class="c1"># &gt;&gt; 100</span>
-
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">decrease</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">))</span>
-
-<span class="c1"># &gt;&gt; 99</span>
-
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">decrease</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">))</span>
-
-<span class="c1"># &gt;&gt; 89</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.append_list">
-<span class="sig-name descname"><span class="pre">append_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.append_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.append_list" title="Permalink to this definition">#</a></dt>
-<dd><p>Find the key and append the value to list.
-:param kwargs:
-:return:</p>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span>
-
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">append_list</span><span class="p">(</span><span class="n">results</span><span class="o">=</span><span class="s2">&quot;result1&quot;</span><span class="p">)</span>
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">append_list</span><span class="p">(</span><span class="n">results</span><span class="o">=</span><span class="s2">&quot;result2&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">))</span>
-
-<span class="c1"># &gt;&gt; [&#39;result1&#39;, &#39;result2&#39;]</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.remove_list">
-<span class="sig-name descname"><span class="pre">remove_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.remove_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.remove_list" title="Permalink to this definition">#</a></dt>
-<dd><p>Find the key and remove the value to list.
-:param kwargs:
-:return:</p>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span>
-
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">results</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;result1&#39;</span><span class="p">,</span> <span class="s1">&#39;result2&#39;</span><span class="p">])</span>
-<span class="n">pawnlib_config</span><span class="o">.</span><span class="n">remove_list</span><span class="p">(</span><span class="n">results</span><span class="o">=</span><span class="s2">&quot;result2&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">))</span>
-
-<span class="c1"># &gt;&gt; [&#39;result1&#39;]</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.conf">
-<span class="sig-name descname"><span class="pre">conf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.conf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.conf" title="Permalink to this definition">#</a></dt>
-<dd><p>Access global configuration as a <a class="reference internal" href="#pawnlib.config.globalconfig.PawnlibConfig" title="pawnlib.config.globalconfig.PawnlibConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">pawnlib.config.globalconfig.PawnlibConfig</span></code></a>.</p>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">pawnlib_config</span><span class="o">.</span><span class="n">conf</span><span class="p">()</span><span class="o">.</span><span class="n">hello</span><span class="p">)</span> <span class="c1"># &gt;&gt;&gt; &#39;world&#39;</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">namedtuple</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.config.globalconfig.PawnlibConfig.to_dict">
-<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig.to_dict" title="Permalink to this definition">#</a></dt>
-<dd><p>Access global configuration as a dict.</p>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">pawnlib_config</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">))</span> <span class="c1"># &gt;&gt;&gt; &#39;world&#39;</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
+<span class="sig-name descname"><span class="pre">PawnlibConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/globalconfig.html#PawnlibConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.globalconfig.PawnlibConfig" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 </section>
 <section id="pawnlib-config-globalconfig-pawnlib-config">
@@ -570,14 +319,14 @@ global runtime configuration that can be accessed by any module, function, or ob
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pawnlib.asyncio.html">
+          <a class="prev-page" href="pawnlib.builder.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">pawnlib.asyncio package</div>
+                <div class="title">pawnlib.builder package</div>
                 
               </div>
             </a>

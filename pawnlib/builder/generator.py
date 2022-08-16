@@ -10,14 +10,35 @@ from pyfiglet import Figlet
 
 
 def generate_banner(
-        app_name="default_app",
-        version="{__version}",
-        author="Unknown author",
-        description="",
-        font="big",
-        return_type="string",
+        app_name: str = "default_app",
+        version: str = "{__version}",
+        author: str = "Unknown author",
+        description: str = "",
+        font: str = "big",
+        return_type: str = "string",
+):
+    """
 
-    ):
+    Generate the banner
+
+    :param app_name:
+    :param version:
+    :param author:
+    :param description:
+    :param font: font name   / :refer: http://www.figlet.org/examples.html
+    :param return_type: string, list
+    :return:
+
+    Example:
+
+    .. code-block:: python
+
+        from pawnlib.builder import generator
+        banner = generator.generate_banner(app_name="pawn")
+        print(banner)
+
+    """
+
     result = []
     if return_type == "string":
         enter_string = "\n"
@@ -44,7 +65,12 @@ def generate_banner(
 
 
 class AppGenerator:
+    """
+
+    :param app_name:
+    """
     def __init__(self, app_name="new_app"):
+
 
         self.app_name = app_name
         self.cwd = os.getcwd()
@@ -104,7 +130,7 @@ class AppGenerator:
                 self.answers[q.get("name")] = Confirm.ask(**params)
         dump(self.answers)
         # dump(self.answers)  # use the answers as input for your app
-        #http://www.figlet.org/examples.html
+        # http://www.figlet.org/examples.html
 
     def load_template(self):
         self.template = open_file(f"{self.template_dir}/{self.template_name}")
@@ -149,4 +175,3 @@ class AppGenerator:
     def run(self):
         self.generate_file_from_template()
         return f"{self.cwd}/{self.answers['app_name']}.py"
-

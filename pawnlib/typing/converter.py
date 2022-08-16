@@ -39,9 +39,10 @@ def base64_decode(text):
     :return:
 
     Example:
+
         .. code-block:: python
 
-            from pawnfrom pawnlib.typing import converter
+            from pawnlib.typing import converter
 
             decoded_base64 = converter.base64_decode("ampqampqag==")
 
@@ -62,7 +63,7 @@ def base64ify(bytes_or_str):
 
         .. code-block:: python
 
-            from pawnfrom pawnlib.typing import converter
+            from pawnlib.typing import converter
 
             encoded_base64 = converter.base64ify("jjjjjjj")
 
@@ -194,13 +195,28 @@ def convert_dict_hex_to_int(data: Any, is_comma: bool = False, debug: bool = Fal
     return return_data
 
 
-def hex_to_number(hex_value="", is_comma: bool = False, debug: bool = False):
+def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = False):
     """
+
     this function will change the hex to number(int)
+
     :param hex_value:
     :param is_comma:
     :param debug:
     :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+
+            converter.hex_to_number("0x22223232d")
+            # >> 9162662701
+
+            converter.hex_to_number("0x22223232d", is_comma=True)
+            # >> '9,162,662,701'
+
     """
     TINT_VALUE = 10 ** 18
     changed = False
@@ -232,13 +248,28 @@ def hex_to_number(hex_value="", is_comma: bool = False, debug: bool = False):
         return converted_value
 
 
-def get_size(file_path, attr=False):
+def get_size(file_path: str = '', attr=False):
     """
+
     Returns the size of the file.
 
     :param file_path:
     :param attr:
     :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+
+            converter.get_size("./requirements.txt")
+            # > '373.0 bytes'
+
+            converter.get_size("./requirements.txt", attr=True)
+            # > ['373.0 bytes', 'FILE']
+
+
     """
     return_size, file_attr = ["", ""]
     if os.path.isdir(file_path):
@@ -269,26 +300,25 @@ def convert_bytes(num: Union[int, float]) -> str:
 
     :param num:
     :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+
+            converter.convert_bytes(2323223232323)
+            # > '2.1 TB'
+
+            converter.convert_bytes(2323223232.232)
+            # > '2.2 GB'
+
     """
 
     for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
         if num < 1024.0:
             return "%3.1f %s" % (num, x)
         num /= 1024.0
-
-
-# def str2bool(v) -> bool:
-#     """
-#     this function get the boolean type
-#     :param v:
-#     :return:
-#     """
-#     true_list = ("yes", "true", "t", "1", "True", "TRUE")
-#     if type(v) == bool:
-#         return v
-#     if type(v) == str:
-#         return v.lower() in true_list
-#     return eval(f"{v}") in true_list
 
 
 def str2bool(v) -> bool:
@@ -341,7 +371,9 @@ def flatten_list(list_items: list, uniq=False) -> list:
 
 def flatten_dict(init: dict, separator: str = '｡', lkey: str = '') -> dict:
     """
+
     this function will convert complex dict to flatten dict
+
     :param init:
     :param separator:
     :param lkey:
@@ -464,10 +496,10 @@ def long_to_bytes(val, endianness='big'):
     convert ``val``, a :func:`long`, to a byte :func:`str`.
 
     :param long val: The value to pack
-    :param str endianness: The endianness of the result. ``'big'`` for
-    big-endian, ``'little'`` for little-endian.
-    If you want byte- and word-ordering to differ, you're on your own.
-     Using :ref:`string formatting` lets us use Python's C innards.
+    :param str endianness: The endianness of the result. ``'big'`` for big-endian, ``'little'`` for little-endian.
+        If you want byte- and word-ordering to differ, you're on your own.
+        Using :ref:`string formatting` lets us use Python's C innards.
+
     """
     # one (1) hex digit per four (4) bits
     width = val.bit_length()

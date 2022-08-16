@@ -29,17 +29,35 @@ class OverrideDNS:
 
 def get_public_ip():
     """
-    Get public ipaddress
-    :return:
-    """
+    Get the public IP address
 
-    return http.jequest("http://checkip.amazonaws.com").get('text', None).strip()
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import net
+            net.get_public_ip()
+
+    """
+    return http.jequest("http://checkip.amazonaws.com").get('text', "").strip()
 
 
 def get_local_ip():
     """
-    Get local ipaddress
+
+    Get the local IP address
+
     :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import net
+            net.get_local_ip()
+
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -53,4 +71,17 @@ def get_local_ip():
 
 
 def get_hostname():
+    """
+
+    Get the local hostname
+
+    :return:
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import net
+            net.get_hostname()
+
+    """
     return socket.gethostname()

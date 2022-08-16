@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/>
-        <title>pawnlib.utils.log - pawnlib 0.0.2 documentation</title>
+        <title>pawnlib.utils.log - pawnlib 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">pawnlib 0.0.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">pawnlib 0.0.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">pawnlib 0.0.2 documentation</span>
+  <span class="sidebar-brand-text">pawnlib 0.0.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -160,8 +160,10 @@
 <p class="caption" role="heading"><span class="caption-text">Packages</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
 </ul>
@@ -201,11 +203,14 @@
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">handlers</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">from</span> <span class="nn">pawnlib.output</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span>
+<span class="kn">from</span> <span class="nn">rich.logging</span> <span class="kn">import</span> <span class="n">RichHandler</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span>
 
 
 <div class="viewcode-block" id="CustomLog"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.CustomLog">[docs]</a><span class="k">class</span> <span class="nc">CustomLog</span><span class="p">:</span>
@@ -364,6 +369,8 @@
 <span class="sd">    :param log_path: log file path</span>
 <span class="sd">    :param stdout: Enable stdout</span>
 <span class="sd">    :param log_format: log format / [%(asctime)s] %(name)s::&quot; &quot;%(filename)s/%(funcName)s(%(lineno)d) %(message)s</span>
+<span class="sd">    :param use_hook_exception: Select whether to log exception errors.</span>
+<span class="sd">    :param exception_handler: Exception handling function</span>
 <span class="sd">    :param debug:</span>
 
 <span class="sd">    Example:</span>
@@ -374,12 +381,14 @@
 
 <span class="sd">            app_logger, error_logger = log.AppLogger().get_logger()</span>
 <span class="sd">            app_logger.info(&quot;This is a info message&quot;)</span>
-<span class="sd">            app_logger.error(&quot;This is a info message&quot;)</span>
+<span class="sd">            error_logger.error(&quot;This is a info message&quot;)</span>
 
 
 <span class="sd">    Example2:</span>
 
 <span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.config.globalconfig import pawnlib_config as pawn</span>
 
 <span class="sd">            app_logger, error_logger = log.AppLogger(</span>
 <span class="sd">                app_name=&quot;app&quot;,</span>
@@ -387,8 +396,8 @@
 <span class="sd">                stdout=True</span>
 <span class="sd">            ).set_global()</span>
 
-<span class="sd">            app_logger.info(&quot;This is a info message&quot;)</span>
-<span class="sd">            app_logger.error(&quot;This is a error message&quot;)</span>
+<span class="sd">            pawn.app_logger.info(&quot;This is a info message&quot;)</span>
+<span class="sd">            pawn.error_logger.error(&quot;This is a error message&quot;)</span>
 
 <span class="sd">            # &gt;&gt;&gt;</span>
 <span class="sd">            [2022-07-25 18:52:44,415] INFO::app_logging_test.py/main(38) This is a info message</span>
@@ -403,14 +412,25 @@
                  <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
                  <span class="n">log_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./logs&quot;</span><span class="p">,</span>
                  <span class="n">stdout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">stdout_level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARN&quot;</span><span class="p">,</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;NOTSET&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
                  <span class="n">log_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+                 <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">use_hook_exception</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                 <span class="n">exception_handler</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
                  <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">app_name</span> <span class="o">=</span> <span class="n">app_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_path</span> <span class="o">=</span> <span class="n">log_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout_level</span> <span class="o">=</span> <span class="n">stdout_level</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="n">log_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_hook_exception</span> <span class="o">=</span> <span class="n">use_hook_exception</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hook_exception</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">exception_handler</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="n">exception_handler</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_exception</span>
 
         <span class="k">if</span> <span class="n">log_format</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">log_format</span> <span class="o">=</span> <span class="n">log_format</span>
@@ -456,7 +476,10 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_stream_handler</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_type</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+                <span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stdout_level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="s2">&quot;[%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">handlers</span><span class="o">=</span><span class="p">[</span><span class="n">RichHandler</span><span class="p">(</span><span class="n">rich_tracebacks</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+            <span class="p">)</span>
+            <span class="c1"># logger.addHandler(self.add_stream_handler(level=log_type))</span>
 
         <span class="k">return</span> <span class="n">logger</span></div>
 
@@ -504,10 +527,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pawnlib_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
             <span class="n">PAWN_APP_LOGGER</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span>
-            <span class="n">PAWN_ERROR_LOGGER</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span>
-        <span class="p">)</span></div></div>
+            <span class="n">PAWN_ERROR_LOGGER</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
-
+<div class="viewcode-block" id="AppLogger.handle_exception"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.handle_exception">[docs]</a>    <span class="k">def</span> <span class="nf">handle_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hook_exception</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unexpected exception&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">))</span></div></div>
 </pre></div>
         </article>
       </div>

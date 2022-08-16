@@ -1,5 +1,5 @@
-pawnlib.output package
-======================
+pawnlib.resource package
+=========================
 
 .. code-block:: python
 

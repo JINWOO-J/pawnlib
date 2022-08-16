@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/>
-        <title>pawnlib.output.file - pawnlib 0.0.2 documentation</title>
+        <title>pawnlib.output.file - pawnlib 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">pawnlib 0.0.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">pawnlib 0.0.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">pawnlib 0.0.2 documentation</span>
+  <span class="sidebar-brand-text">pawnlib 0.0.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -160,8 +160,10 @@
 <p class="caption" role="heading"><span class="caption-text">Packages</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
 </ul>
@@ -204,13 +206,13 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">from</span> <span class="nn">termcolor</span> <span class="kn">import</span> <span class="n">cprint</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
-<span class="kn">from</span> <span class="nn">pawnlib.output</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="c1"># from pawnlib.output import *</span>
+<span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
 <span class="kn">from</span> <span class="nn">pawnlib.output</span> <span class="kn">import</span> <span class="n">color_print</span>
 <span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">converter</span>
-<span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
+<span class="kn">from</span> <span class="nn">rich.prompt</span> <span class="kn">import</span> <span class="n">Confirm</span>
 
 
 <div class="viewcode-block" id="check_file_overwrite"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.file.check_file_overwrite">[docs]</a><span class="k">def</span> <span class="nf">check_file_overwrite</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">answer</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -241,9 +243,10 @@
 
     <span class="k">if</span> <span class="n">exist_file</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">answer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">answer</span> <span class="o">=</span> <span class="n">color_print</span><span class="o">.</span><span class="n">colored_input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overwrite already existing &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; file? (y/n)&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">answer</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
-            <span class="n">color_print</span><span class="o">.</span><span class="n">cprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Remove the existing keystore file =&gt; </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">)</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="n">Confirm</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Overwrite already existing &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; file?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">answer</span><span class="p">:</span>
+            <span class="n">color_print</span><span class="o">.</span><span class="n">cprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Remove the existing file =&gt; </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">color_print</span><span class="o">.</span><span class="n">cprint</span><span class="p">(</span><span class="s2">&quot;Stopped&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">)</span>
@@ -452,7 +455,6 @@
         <span class="k">return</span> <span class="s2">&quot;Write json file -&gt; </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">converter</span><span class="o">.</span><span class="n">get_size</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>  <span class="c1"># if __main__.args.verbose &gt; 0 else False</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;write_json() can not write to json&quot;</span></div>
-
 </pre></div>
         </article>
       </div>
