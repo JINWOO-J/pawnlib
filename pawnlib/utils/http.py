@@ -72,7 +72,7 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     :param print_error:
     :param timeout: Timeout seconds
     :param ipaddr: Change the request IP address in http request
-    :param **kwargs: Optional arguments that ``request`` takes.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
 
     :return:
     """

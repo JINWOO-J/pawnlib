@@ -32,7 +32,7 @@ pawnlib.config.globalconfig module
 
 
 pawnlib.config.globalconfig.pawnlib_config
-----------------------------------
+--------------------------------------------
 
 .. code-block:: python
     :emphasize-lines: 3, 6, 17

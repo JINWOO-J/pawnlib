@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="pawnlib.typing package" href="pawnlib.typing.html" />
 
     <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/>
-        <title>pawnlib.utils package - pawnlib 0.0.2 documentation</title>
+        <title>pawnlib.utils package - pawnlib 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">pawnlib 0.0.2 documentation</div></a>
+      <a href="../index.html"><div class="brand">pawnlib 0.0.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">pawnlib 0.0.2 documentation</span>
+  <span class="sidebar-brand-text">pawnlib 0.0.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -161,8 +161,10 @@
 <p class="caption" role="heading"><span class="caption-text">Packages</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.builder.html">pawnlib.builder package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.config.html">pawnlib.config package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.resource.html">pawnlib.resource package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.typing.html">pawnlib.typing package</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">pawnlib.utils package</a></li>
 </ul>
@@ -260,24 +262,34 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.utils.http.remove_http">
 <span class="sig-name descname"><span class="pre">remove_http</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#remove_http"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.remove_http" title="Permalink to this definition">#</a></dt>
-<dd><p>Remove the r’https?://’ string
-:param url:
-:return:</p>
+<dd><p>Remove the r’https?://’ string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>url</strong> – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.utils.http.jequest">
-<span class="sig-name descname"><span class="pre">jequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'get'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elapsed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#jequest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.jequest" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">jequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'get'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elapsed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipaddr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#jequest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.jequest" title="Permalink to this definition">#</a></dt>
 <dd><p>This functions will be called the http requests.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> – </p></li>
-<li><p><strong>method</strong> – </p></li>
-<li><p><strong>payload</strong> – </p></li>
-<li><p><strong>elapsed</strong> – </p></li>
-<li><p><strong>print_error</strong> – </p></li>
-<li><p><strong>timeout</strong> – </p></li>
+<li><p><strong>method</strong> (<em>optional</em>) – <a href="#id1"><span class="problematic" id="id2">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'get'</span></code></p></li>
+<li><p><strong>payload</strong> (<em>optional</em>) – <a href="#id3"><span class="problematic" id="id4">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">{}</span></code></p></li>
+<li><p><strong>elapsed</strong> (<em>optional</em>) – <a href="#id5"><span class="problematic" id="id6">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>print_error</strong> (<em>optional</em>) – <a href="#id7"><span class="problematic" id="id8">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>timeout</strong> (<em>optional</em>) – Timeout seconds
+<a href="#id9"><span class="problematic" id="id10">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>ipaddr</strong> (<em>optional</em>) – Change the request IP address in http request
+<a href="#id11"><span class="problematic" id="id12">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>**kwargs</strong> – Optional arguments that <code class="docutils literal notranslate"><span class="pre">request</span></code> takes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -410,12 +422,16 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>level</strong> – </p></li>
-<li><p><strong>filename</strong> – </p></li>
-<li><p><strong>when</strong> – 저장 주기</p></li>
-<li><p><strong>interval</strong> – 저장 주기에서 어떤 간격으로 저장할지</p></li>
-<li><p><strong>backup_count</strong> – 5</p></li>
-<li><p><strong>atTime</strong> – datetime.time(0, 0, 0)</p></li>
+<li><p><strong>level</strong> (<em>optional</em>) – <a href="#id13"><span class="problematic" id="id14">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'DEBUG'</span></code></p></li>
+<li><p><strong>filename</strong> (<em>optional</em>) – <a href="#id15"><span class="problematic" id="id16">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'./log.txt'</span></code></p></li>
+<li><p><strong>when</strong> (<em>optional</em>) – 저장 주기
+<a href="#id17"><span class="problematic" id="id18">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'M'</span></code></p></li>
+<li><p><strong>interval</strong> (<em>optional</em>) – 저장 주기에서 어떤 간격으로 저장할지
+<a href="#id19"><span class="problematic" id="id20">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>backup_count</strong> (<em>optional</em>) – 5
+<a href="#id21"><span class="problematic" id="id22">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">4</span></code></p></li>
+<li><p><strong>atTime</strong> (<em>optional</em>) – datetime.time(0, 0, 0)
+<a href="#id23"><span class="problematic" id="id24">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">datetime.time(0,</span> <span class="pre">0)</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -428,17 +444,26 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pawnlib.utils.log.AppLogger">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AppLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./logs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/log.html#AppLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.log.AppLogger" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AppLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./logs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdout_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DEBUG'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hook_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exception_handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/log.html#AppLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.log.AppLogger" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>app_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – application name(=file name)</p></li>
-<li><p><strong>log_level</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – log level</p></li>
-<li><p><strong>log_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – log file path</p></li>
-<li><p><strong>stdout</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Enable stdout</p></li>
-<li><p><strong>log_format</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – log format / [%(asctime)s] %(name)s::” “%(filename)s/%(funcName)s(%(lineno)d) %(message)s</p></li>
-<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>app_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – application name(=file name)
+<a href="#id25"><span class="problematic" id="id26">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'default'</span></code></p></li>
+<li><p><strong>log_level</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – log level
+<a href="#id27"><span class="problematic" id="id28">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'INFO'</span></code></p></li>
+<li><p><strong>log_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – log file path
+<a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'./logs'</span></code></p></li>
+<li><p><strong>stdout</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Enable stdout
+<a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>log_format</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <em>optional</em>) – log format / [%(asctime)s] %(name)s::” “%(filename)s/%(funcName)s(%(lineno)d) %(message)s
+<a href="#id33"><span class="problematic" id="id34">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>use_hook_exception</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Select whether to log exception errors.
+<a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>exception_handler</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>, <em>optional</em>) – Exception handling function
+<a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -447,19 +472,21 @@
 
 <span class="n">app_logger</span><span class="p">,</span> <span class="n">error_logger</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 <span class="n">app_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This is a info message&quot;</span><span class="p">)</span>
-<span class="n">app_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;This is a info message&quot;</span><span class="p">)</span>
+<span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;This is a info message&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Example2:</p>
 <blockquote>
-<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">app_logger</span><span class="p">,</span> <span class="n">error_logger</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">AppLogger</span><span class="p">(</span>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
+
+<span class="n">app_logger</span><span class="p">,</span> <span class="n">error_logger</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">AppLogger</span><span class="p">(</span>
     <span class="n">app_name</span><span class="o">=</span><span class="s2">&quot;app&quot;</span><span class="p">,</span>
     <span class="n">log_path</span><span class="o">=</span><span class="s2">&quot;./logs&quot;</span><span class="p">,</span>
     <span class="n">stdout</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span><span class="o">.</span><span class="n">set_global</span><span class="p">()</span>
 
-<span class="n">app_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This is a info message&quot;</span><span class="p">)</span>
-<span class="n">app_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;This is a error message&quot;</span><span class="p">)</span>
+<span class="n">pawn</span><span class="o">.</span><span class="n">app_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This is a info message&quot;</span><span class="p">)</span>
+<span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;This is a error message&quot;</span><span class="p">)</span>
 
 <span class="c1"># &gt;&gt;&gt;</span>
 <span class="p">[</span><span class="mi">2022</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">25</span> <span class="mi">18</span><span class="p">:</span><span class="mi">52</span><span class="p">:</span><span class="mi">44</span><span class="p">,</span><span class="mi">415</span><span class="p">]</span> <span class="n">INFO</span><span class="p">::</span><span class="n">app_logging_test</span><span class="o">.</span><span class="n">py</span><span class="o">/</span><span class="n">main</span><span class="p">(</span><span class="mi">38</span><span class="p">)</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">info</span> <span class="n">message</span>
@@ -509,6 +536,11 @@
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.log.AppLogger.handle_exception">
+<span class="sig-name descname"><span class="pre">handle_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_traceback</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/log.html#AppLogger.handle_exception"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.log.AppLogger.handle_exception" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -531,9 +563,9 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> – webhook url</p></li>
 <li><p><strong>msg_text</strong> – </p></li>
-<li><p><strong>title</strong> – </p></li>
-<li><p><strong>send_user_name</strong> – </p></li>
-<li><p><strong>msg_level</strong> – </p></li>
+<li><p><strong>title</strong> (<em>optional</em>) – <a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>send_user_name</strong> (<em>optional</em>) – <a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'CtxBot'</span></code></p></li>
+<li><p><strong>msg_level</strong> (<em>optional</em>) – <a href="#id45"><span class="problematic" id="id46">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'info'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -559,15 +591,15 @@ Usage 2: subclass the Daemon class and use func parameter</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pidfile</strong> – pid file location</p></li>
-<li><p><strong>func</strong> – </p></li>
-<li><p><strong>stdin</strong> – </p></li>
-<li><p><strong>stdout</strong> – </p></li>
-<li><p><strong>stderr</strong> – </p></li>
-<li><p><strong>home_dir</strong> – </p></li>
-<li><p><strong>umask</strong> – </p></li>
-<li><p><strong>verbose</strong> – </p></li>
-<li><p><strong>use_gevent</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
-<li><p><strong>use_eventlet</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>func</strong> (<em>optional</em>) – <a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>stdin</strong> (<em>optional</em>) – <a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'/dev/null'</span></code></p></li>
+<li><p><strong>stdout</strong> (<em>optional</em>) – <a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'/dev/null'</span></code></p></li>
+<li><p><strong>stderr</strong> (<em>optional</em>) – <a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'/dev/null'</span></code></p></li>
+<li><p><strong>home_dir</strong> (<em>optional</em>) – <a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
+<li><p><strong>umask</strong> (<em>optional</em>) – <a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">18</span></code></p></li>
+<li><p><strong>verbose</strong> (<em>optional</em>) – <a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>use_gevent</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>use_eventlet</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -694,13 +726,16 @@ daemonized by start() or restart().</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>text</strong> – just a title name</p></li>
-<li><p><strong>cmd</strong> – command to be executed</p></li>
-<li><p><strong>cwd</strong> – the function changes the working directory to cwd</p></li>
-<li><p><strong>check_output</strong> – </p></li>
-<li><p><strong>capture_output</strong> – </p></li>
-<li><p><strong>hook_function</strong> – </p></li>
-<li><p><strong>debug</strong> – </p></li>
+<li><p><strong>text</strong> (<em>optional</em>) – just a title name
+<a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>cmd</strong> (<em>optional</em>) – command to be executed
+<a href="#id67"><span class="problematic" id="id68">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>cwd</strong> (<em>optional</em>) – the function changes the working directory to cwd
+<a href="#id69"><span class="problematic" id="id70">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>check_output</strong> (<em>optional</em>) – <a href="#id71"><span class="problematic" id="id72">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>capture_output</strong> (<em>optional</em>) – <a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>hook_function</strong> (<em>optional</em>) – <a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>debug</strong> (<em>optional</em>) – <a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -734,8 +769,10 @@ daemonized by start() or restart().</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>text</strong> – text</p></li>
-<li><p><strong>delay</strong> – sleep time</p></li>
+<li><p><strong>text</strong> (<em>optional</em>) – text
+<a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>delay</strong> (<em>optional</em>) – sleep time
+<a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0.1</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -789,9 +826,11 @@ daemonized by start() or restart().</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>loop_function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – function to run continuously</p></li>
 <li><p><strong>exit_function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – function to exit the loop</p></li>
-<li><p><strong>timeout</strong> – </p></li>
-<li><p><strong>delay</strong> – sleep time</p></li>
-<li><p><strong>text</strong> – text message</p></li>
+<li><p><strong>timeout</strong> (<em>optional</em>) – <a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">30</span></code></p></li>
+<li><p><strong>delay</strong> (<em>optional</em>) – sleep time
+<a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0.5</span></code></p></li>
+<li><p><strong>text</strong> (<em>optional</em>) – text message
+<a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'WaitStateLoop'</span></code></p></li>
 </ul>
 </dd>
 </dl>

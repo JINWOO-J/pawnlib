@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/>
-        <title>pawnlib.typing.converter - pawnlib 0.0.2 documentation</title>
+        <title>pawnlib.typing.converter - pawnlib 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">pawnlib 0.0.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">pawnlib 0.0.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">pawnlib 0.0.2 documentation</span>
+  <span class="sidebar-brand-text">pawnlib 0.0.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -160,8 +160,10 @@
 <p class="caption" role="heading"><span class="caption-text">Packages</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
 </ul>
@@ -200,12 +202,11 @@
           <h1>Source code for pawnlib.typing.converter</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">binascii</span>
 <span class="kn">from</span> <span class="nn">termcolor</span> <span class="kn">import</span> <span class="n">cprint</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Type</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">.check</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.check</span> <span class="kn">import</span> <span class="n">is_int</span><span class="p">,</span> <span class="n">is_hex</span>
 
 <span class="kn">from</span> <span class="nn">deprecated</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
@@ -228,7 +229,61 @@
 <span class="c1">#         return_value = value</span>
 <span class="c1">#     return return_value</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+
+
+<div class="viewcode-block" id="base64_decode"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.base64_decode">[docs]</a><span class="k">def</span> <span class="nf">base64_decode</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decode the text to base64.</span>
+
+<span class="sd">    :param text:</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing import converter</span>
+
+<span class="sd">            decoded_base64 = converter.base64_decode(&quot;ampqampqag==&quot;)</span>
+
+<span class="sd">            # &gt;&gt; jjjjjjj</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="base64ify"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.base64ify">[docs]</a><span class="k">def</span> <span class="nf">base64ify</span><span class="p">(</span><span class="n">bytes_or_str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper method to perform base64 encoding across Python 2.7 and Python 3.X</span>
+
+<span class="sd">    :param bytes_or_str:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing import converter</span>
+
+<span class="sd">            encoded_base64 = converter.base64ify(&quot;jjjjjjj&quot;)</span>
+
+<span class="sd">            # &gt;&gt; ampqampqag==</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bytes_or_str</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">input_bytes</span> <span class="o">=</span> <span class="n">bytes_or_str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">input_bytes</span> <span class="o">=</span> <span class="n">bytes_or_str</span>
+
+    <span class="n">output_bytes</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">input_bytes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">output_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">output_bytes</span></div>
+
 
 <span class="c1">#https://pypi.org/project/Deprecated/</span>
 <div class="viewcode-block" id="convert_hex_to_int"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.convert_hex_to_int">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;You should use another function=&gt; convert_dict_hex_to_int&quot;</span><span class="p">)</span>
@@ -241,6 +296,7 @@
 <span class="sd">    :return:</span>
 
 <span class="sd">    Example:</span>
+
 <span class="sd">        .. code-block:: python</span>
 
 <span class="sd">            from pawnlib.typing import converter</span>
@@ -341,13 +397,28 @@
     <span class="k">return</span> <span class="n">return_data</span></div>
 
 
-<div class="viewcode-block" id="hex_to_number"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.hex_to_number">[docs]</a><span class="k">def</span> <span class="nf">hex_to_number</span><span class="p">(</span><span class="n">hex_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">is_comma</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="hex_to_number"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.hex_to_number">[docs]</a><span class="k">def</span> <span class="nf">hex_to_number</span><span class="p">(</span><span class="n">hex_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">is_comma</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="sd">    this function will change the hex to number(int)</span>
+
 <span class="sd">    :param hex_value:</span>
 <span class="sd">    :param is_comma:</span>
 <span class="sd">    :param debug:</span>
 <span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing import converter</span>
+
+<span class="sd">            converter.hex_to_number(&quot;0x22223232d&quot;)</span>
+<span class="sd">            # &gt;&gt; 9162662701</span>
+
+<span class="sd">            converter.hex_to_number(&quot;0x22223232d&quot;, is_comma=True)</span>
+<span class="sd">            # &gt;&gt; &#39;9,162,662,701&#39;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">TINT_VALUE</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">18</span>
     <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
@@ -379,13 +450,28 @@
         <span class="k">return</span> <span class="n">converted_value</span></div>
 
 
-<div class="viewcode-block" id="get_size"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.get_size">[docs]</a><span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="get_size"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.get_size">[docs]</a><span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="sd">    Returns the size of the file.</span>
 
 <span class="sd">    :param file_path:</span>
 <span class="sd">    :param attr:</span>
 <span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing import converter</span>
+
+<span class="sd">            converter.get_size(&quot;./requirements.txt&quot;)</span>
+<span class="sd">            # &gt; &#39;373.0 bytes&#39;</span>
+
+<span class="sd">            converter.get_size(&quot;./requirements.txt&quot;, attr=True)</span>
+<span class="sd">            # &gt; [&#39;373.0 bytes&#39;, &#39;FILE&#39;]</span>
+
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">return_size</span><span class="p">,</span> <span class="n">file_attr</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
@@ -416,26 +502,25 @@
 
 <span class="sd">    :param num:</span>
 <span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing import converter</span>
+
+<span class="sd">            converter.convert_bytes(2323223232323)</span>
+<span class="sd">            # &gt; &#39;2.1 TB&#39;</span>
+
+<span class="sd">            converter.convert_bytes(2323223232.232)</span>
+<span class="sd">            # &gt; &#39;2.2 GB&#39;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bytes&#39;</span><span class="p">,</span> <span class="s1">&#39;KB&#39;</span><span class="p">,</span> <span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="s1">&#39;GB&#39;</span><span class="p">,</span> <span class="s1">&#39;TB&#39;</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">num</span> <span class="o">&lt;</span> <span class="mf">1024.0</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%3.1f</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
         <span class="n">num</span> <span class="o">/=</span> <span class="mf">1024.0</span></div>
-
-
-<span class="c1"># def str2bool(v) -&gt; bool:</span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#     this function get the boolean type</span>
-<span class="c1">#     :param v:</span>
-<span class="c1">#     :return:</span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#     true_list = (&quot;yes&quot;, &quot;true&quot;, &quot;t&quot;, &quot;1&quot;, &quot;True&quot;, &quot;TRUE&quot;)</span>
-<span class="c1">#     if type(v) == bool:</span>
-<span class="c1">#         return v</span>
-<span class="c1">#     if type(v) == str:</span>
-<span class="c1">#         return v.lower() in true_list</span>
-<span class="c1">#     return eval(f&quot;{v}&quot;) in true_list</span>
 
 
 <div class="viewcode-block" id="str2bool"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.str2bool">[docs]</a><span class="k">def</span> <span class="nf">str2bool</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -488,7 +573,9 @@
 
 <div class="viewcode-block" id="flatten_dict"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.flatten_dict">[docs]</a><span class="k">def</span> <span class="nf">flatten_dict</span><span class="p">(</span><span class="n">init</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;｡&#39;</span><span class="p">,</span> <span class="n">lkey</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="sd">    this function will convert complex dict to flatten dict</span>
+
 <span class="sd">    :param init:</span>
 <span class="sd">    :param separator:</span>
 <span class="sd">    :param lkey:</span>
@@ -611,10 +698,10 @@
 <span class="sd">    convert ``val``, a :func:`long`, to a byte :func:`str`.</span>
 
 <span class="sd">    :param long val: The value to pack</span>
-<span class="sd">    :param str endianness: The endianness of the result. ``&#39;big&#39;`` for</span>
-<span class="sd">    big-endian, ``&#39;little&#39;`` for little-endian.</span>
-<span class="sd">    If you want byte- and word-ordering to differ, you&#39;re on your own.</span>
-<span class="sd">     Using :ref:`string formatting` lets us use Python&#39;s C innards.</span>
+<span class="sd">    :param str endianness: The endianness of the result. ``&#39;big&#39;`` for big-endian, ``&#39;little&#39;`` for little-endian.</span>
+<span class="sd">        If you want byte- and word-ordering to differ, you&#39;re on your own.</span>
+<span class="sd">        Using :ref:`string formatting` lets us use Python&#39;s C innards.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># one (1) hex digit per four (4) bits</span>
     <span class="n">width</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span>

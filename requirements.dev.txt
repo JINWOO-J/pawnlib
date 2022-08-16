@@ -6,3 +6,4 @@ furo
 sphinx-autodoc-typehints
 wheel
 twine==4.0.1
+sphinx_autodoc_defaultargs

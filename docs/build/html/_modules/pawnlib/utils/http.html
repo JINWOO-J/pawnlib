@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/>
-        <title>pawnlib.utils.http - pawnlib 0.0.2 documentation</title>
+        <title>pawnlib.utils.http - pawnlib 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">pawnlib 0.0.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">pawnlib 0.0.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">pawnlib 0.0.2 documentation</span>
+  <span class="sidebar-brand-text">pawnlib 0.0.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -160,8 +160,10 @@
 <p class="caption" role="heading"><span class="caption-text">Packages</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
 </ul>
@@ -203,6 +205,7 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span><span class="p">,</span> <span class="n">global_verbose</span>
 <span class="kn">from</span> <span class="nn">pawnlib</span> <span class="kn">import</span> <span class="n">output</span>
+<span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
 
 
 <div class="viewcode-block" id="JsonRequest"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.JsonRequest">[docs]</a><span class="k">class</span> <span class="nc">JsonRequest</span><span class="p">:</span>
@@ -252,13 +255,15 @@
 <div class="viewcode-block" id="remove_http"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.remove_http">[docs]</a><span class="k">def</span> <span class="nf">remove_http</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove the r&#39;https?://&#39; string</span>
+
 <span class="sd">    :param url:</span>
 <span class="sd">    :return:</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;https?://&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="jequest"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.jequest">[docs]</a><span class="k">def</span> <span class="nf">jequest</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="p">{},</span> <span class="n">elapsed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+<div class="viewcode-block" id="jequest"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.jequest">[docs]</a><span class="k">def</span> <span class="nf">jequest</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="p">{},</span> <span class="n">elapsed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ipaddr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This functions will be called the http requests.</span>
 
@@ -267,11 +272,27 @@
 <span class="sd">    :param payload:</span>
 <span class="sd">    :param elapsed:</span>
 <span class="sd">    :param print_error:</span>
-<span class="sd">    :param timeout:</span>
+<span class="sd">    :param timeout: Timeout seconds</span>
+<span class="sd">    :param ipaddr: Change the request IP address in http request</span>
+<span class="sd">    :param \*\*kwargs: Optional arguments that ``request`` takes.</span>
+
 <span class="sd">    :return:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">error_logger</span> <span class="o">=</span> <span class="n">pawn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PAWN_ERROR_LOGGER&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">timeout</span> <span class="o">=</span> <span class="n">pawn</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PAWN_TIMEOUT&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">timeout</span>
+
+    <span class="k">if</span> <span class="n">ipaddr</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http://&#39;</span><span class="p">):</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;https?://&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+            <span class="c1"># net.override_dns(domain, ipaddr)</span>
+            <span class="c1"># net.override_dns(domain=domain, ipaddr=ipaddr)</span>
+            <span class="n">net</span><span class="o">.</span><span class="n">OverrideDNS</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">ipaddr</span><span class="o">=</span><span class="n">ipaddr</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">OverrideDNS</span><span class="p">()</span><span class="o">.</span><span class="n">unset</span><span class="p">()</span>
+
+    <span class="n">pawnlib_timeout</span> <span class="o">=</span> <span class="n">pawn</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PAWN_TIMEOUT&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pawnlib_timeout</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">pawnlib_timeout</span> <span class="o">=</span> <span class="n">pawnlib_timeout</span> <span class="o">/</span> <span class="mi">1000</span>
+
+    <span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span> <span class="ow">or</span> <span class="n">pawnlib_timeout</span>
 
     <span class="n">url</span> <span class="o">=</span> <span class="n">append_http</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="p">(</span><span class="n">json_response</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">http_version</span><span class="p">,</span> <span class="n">r_headers</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="o">=</span> <span class="p">({},</span> <span class="p">{},</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -284,9 +305,9 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">requests</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;get&quot;</span><span class="p">:</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">http_version</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">version</span>
         <span class="n">r_headers</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
 
@@ -345,7 +366,7 @@
     <span class="k">if</span> <span class="n">response_code</span> <span class="o">&gt;</span> <span class="mi">200</span> <span class="ow">and</span> <span class="n">response_code</span> <span class="o">!=</span> <span class="mi">999</span><span class="p">:</span>
         <span class="c1"># if response_code &gt; 200 or response_code == 999:</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
-        <span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;status_code: </span><span class="si">{</span><span class="n">response_code</span><span class="si">}</span><span class="s2"> , url: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> , payload: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">, response: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;status_code: </span><span class="si">{</span><span class="n">response_code</span><span class="si">}</span><span class="s2"> , url: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> , payload: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">, response: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span> <span class="k">else</span> <span class="kc">False</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;status_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">response_code</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;http_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">http_version</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;r_headers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_headers</span>
@@ -353,7 +374,7 @@
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">error</span>
     <span class="k">if</span> <span class="n">print_error</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
-            <span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span> <span class="k">else</span> <span class="kc">False</span>
 
     <span class="k">return</span> <span class="n">data</span></div>
 </pre></div>
