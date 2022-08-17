@@ -17,7 +17,7 @@ class TimeCalculator:
             .. code-block:: python
 
                 from pawnlib.typing import date_utils
-                date_utils.time_calculator = TimeCalculator(1224411)
+                date_utils.TimeCalculator(1224411)
 
                 # >>  "14 days, 04:06:51"
 
@@ -90,12 +90,21 @@ def get_range_day_of_month(year: int, month: int, return_unix: bool = True):
     """
     This functions will be returned first_day and last_day in parameter.
 
-    get_range_day_of_month(year=2022, month=3, return_unix=False)
-    => ('2022-3-01 00:00:00', '2022-03-31 23:59:59')
     :param year:
     :param month:
     :param return_unix:
     :return: (1646060400, 1648738799)
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import date_utils
+
+            date_utils.get_range_day_of_month(year=2022, month=3, return_unix=False)
+
+            # >> ('2022-3-01 00:00:00', '2022-03-31 23:59:59')
+
     """
     dst_date = datetime.date(year, month, 1)
     next_month = dst_date.replace(day=28) + datetime.timedelta(days=4)
@@ -108,11 +117,26 @@ def get_range_day_of_month(year: int, month: int, return_unix: bool = True):
     return first_day, last_day
 
 
-def todaydate(date_type: Literal["file", "time", "hour", "ms", "ms_text", "ms_unix"] = None) -> str:
+def todaydate(date_type: Literal["file", "time", "hour", "ms", "log", "log_ms", "ms_text", "ms_unix"] = None) -> str:
     """
+
+    This functions will be returned today date string.
 
     :param date_type: file, time, hour, ms, ms_text, ms_unix
     :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import date_utils
+
+            date_utils.todaydate("ms_unix")
+            # >> '0x5e66be4a93496'
+
+            date_utils.todaydate("log")
+            # >> '2022-08-17 17:46:47.281'
+
     """
     if date_type is None:
         return '%s' % datetime.datetime.now().strftime("%Y%m%d")
@@ -130,7 +154,25 @@ def todaydate(date_type: Literal["file", "time", "hour", "ms", "ms_text", "ms_un
         return '%s' % hex(int(datetime.datetime.now().timestamp() * 1_000_000))
 
 
-def format_seconds_to_hhmmss(seconds):
+def format_seconds_to_hhmmss(seconds: int = 0):
+    """
+
+    This functions will be returned seconds to hh:mm:ss format
+
+    :param seconds:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import date_utils
+
+            date_utils.format_seconds_to_hhmmss(2323)
+            # >> '00:38:43'
+
+
+    """
     try:
         seconds = int(seconds)
         hours = seconds // (60*60)
@@ -143,7 +185,27 @@ def format_seconds_to_hhmmss(seconds):
         return seconds
 
 
-def timestamp_to_string(unix_timestamp, str_format='%Y-%m-%d %H:%M:%S'):
+def timestamp_to_string(unix_timestamp: int, str_format='%Y-%m-%d %H:%M:%S'):
+    """
+
+    This functions will be returned unix timestamp to hh:mm:ss format
+
+    :param unix_timestamp: unix_timestamp
+    :param str_format: string format
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import date_utils
+
+            date_utils.timestamp_to_string(12323232323)
+
+            # >> '2360-07-05 09:05:23'
+
+
+    """
 
     ts_length = len(str(unix_timestamp))
     # seconds
@@ -156,13 +218,32 @@ def timestamp_to_string(unix_timestamp, str_format='%Y-%m-%d %H:%M:%S'):
         return datetime.datetime.fromtimestamp(unix_timestamp).strftime(str_format)
 
 
-def second_to_dayhhmm(input_time):
-    day = int(input_time // (24 * 3600))
-    input_time = int(input_time % (24 * 3600))
+def second_to_dayhhmm(seconds: int = 0):
+    """
+
+    This functions will be returned unix timestamp to days hh:mm:ss format
+
+    :param seconds:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import date_utils
+
+            date_utils.second_to_dayhhmm(2132323)
+
+            # >> '24 days 16:18:43'
+
+
+    """
+    day = int(seconds // (24 * 3600))
+    input_time = int(seconds % (24 * 3600))
     hour = input_time // 3600
     input_time %= 3600
     minutes = input_time // 60
     input_time %= 60
-    seconds = input_time
+    sec = input_time
 
-    return f"{day} days {append_zero(hour)}:{append_zero(minutes)}:{append_zero(seconds)}"
+    return f"{day} days {append_zero(hour)}:{append_zero(minutes)}:{append_zero(sec)}"

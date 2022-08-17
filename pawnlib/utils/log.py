@@ -207,7 +207,7 @@ class AppLogger:
 
     def __init__(self,
                  app_name: str = "default",
-                 log_level: str = "INFO",
+                 log_level: Literal["INFO", "WARN", "DEBUG"] = "INFO",
                  log_path: str = "./logs",
                  stdout: bool = False,
                  stdout_level: Literal["INFO", "WARN", "DEBUG", "NOTSET"] = "DEBUG",

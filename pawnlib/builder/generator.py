@@ -71,7 +71,6 @@ class AppGenerator:
     """
     def __init__(self, app_name="new_app"):
 
-
         self.app_name = app_name
         self.cwd = os.getcwd()
         self.template_dir = f"{os.path.dirname(__file__)}/templates"
@@ -151,6 +150,7 @@ class AppGenerator:
         self.answers['banner'] = generate_banner(
             app_name=self.answers.get("app_name"),
             author=self.answers.get("author"),
+            description=self.answers.get("description"),
             # font="graffiti",
             font="rounded",
             return_type="list"

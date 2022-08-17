@@ -20,6 +20,7 @@ class Null(object):
     """
     A Null object class as part of the Null object design pattern.
     """
+
     def __init__(self, *args, **kwargs):
         """
         Do nothing.
@@ -86,7 +87,7 @@ class Null(object):
 class Counter:
     def __init__(self,
                  start: Union[float, int] = 1,
-                 stop:  Union[float, int] = 10,
+                 stop: Union[float, int] = 10,
                  count: Union[float, int] = 1,
                  convert_func: Union[Type[str], Type[int], Type[float]] = int):
         """
@@ -106,7 +107,7 @@ class Counter:
         return self
 
     def __str__(self):
-        element_count = math.ceil((self.stop-self.start) / self.count)
+        element_count = math.ceil((self.stop - self.start) / self.count)
         return f"<Counter> start={self.start}, stop={self.stop}, " \
                f"count={self.count}, " \
                f"element_count={element_count}, convert_func={self.convert_func}"
@@ -300,7 +301,7 @@ def request_pure(
         method: str,
         params: Union[Dict[str, Any], Tuple[Any, ...]],
         id: Any,
-    ) -> Dict[str, Any]:
+) -> Dict[str, Any]:
     return {
         "jsonrpc": "2.0",
         "method": method,
@@ -318,10 +319,37 @@ def request_impure(
         method: str,
         params: Union[Dict[str, Any], Tuple[Any, ...], None] = None,
         id: Any = "<NO_ID>",
-    ) -> Dict[str, Any]:
+) -> Dict[str, Any]:
     return request_pure(
         id_generator_func or decimal(), method, params or (), id
     )
+
+
+def json_rpc(
+        method: str = "",
+        params: Union[Dict[str, Any], Tuple[Any, ...], None] = None,
+        id: Any = "<NO_ID>",
+) -> Dict[str, Any]:
+
+    if id != "<NO_ID>":
+        pass
+    else:
+        id = increase_number(),
+
+    return {
+        "jsonrpc": "2.0",
+        "method": method,
+        **(
+            {"params": list(params) if isinstance(params, tuple) else params}
+            if params
+            else {}
+        ),
+        "id": id
+    }
+
+
+def increase_number(c=itertools.count()):
+    return next(c)
 
 
 request_natural = partial(request_impure, decimal())
