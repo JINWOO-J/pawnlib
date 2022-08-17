@@ -48,6 +48,7 @@ from .generator import (
     id_generator,
     uuid_generator,
     generate_number_list,
+    generate_json_rpc
 )
 
 from .date_utils import (

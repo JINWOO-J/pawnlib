@@ -7,7 +7,7 @@ import getpass
 import traceback
 import inspect
 from pawnlib.typing import converter, date_utils, list_to_oneline_string
-# from pawnlib.config import pawnlib_config as pawn
+from pawnlib.config import pawnlib_config as pawn, global_verbose
 
 
 _ATTRIBUTES = dict(
@@ -340,7 +340,7 @@ def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, 
     time_text = ""
     try:
         # if global_verbose > 2:
-        #     # text = f"[{full_module_name}] {text}"
+            # text = f"[{full_module_name}] {text}"
         module_text = get_bcolors(f"[{full_module_name:<25}]", "WARNING")
     except:
         pass

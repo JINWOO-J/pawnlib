@@ -2,6 +2,7 @@
 tests/temp/*
 tests/logs/*
 examples/logging/logs/*
+examples/color_print/logs/*
 
 .vscode/launch.json
 ### Python template

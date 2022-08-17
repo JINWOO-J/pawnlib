@@ -41,6 +41,18 @@ class Namespace(_AttributeHolder):
 
     Implements equality by attribute names and values, and provides a simple
     string representation.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import defines
+
+            namespace = defines.Namespace(s=2323, sdsd="Sdsd")
+            namespace.s
+            # >> 2323
+            namespace.sdsd
+            # >> 'Sdsd'
     """
 
     def __init__(self, **kwargs):
