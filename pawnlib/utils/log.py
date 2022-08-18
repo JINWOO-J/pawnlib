@@ -210,7 +210,7 @@ class AppLogger:
                  log_level: Literal["INFO", "WARN", "DEBUG"] = "INFO",
                  log_path: str = "./logs",
                  stdout: bool = False,
-                 stdout_level: Literal["INFO", "WARN", "DEBUG", "NOTSET"] = "DEBUG",
+                 stdout_level: Literal["INFO", "WARN", "DEBUG", "NOTSET"] = "INFO",
                  log_format: str = None,
                  debug: bool = False,
                  use_hook_exception: bool = True,

@@ -135,7 +135,8 @@ class PawnlibConfig:
             record=True,
             soft_wrap=True,
             force_terminal=True,
-            log_time_format="[%Y-%m-%d %H:%M:%S.%f]"
+            # log_time_format="[%Y-%m-%d %H:%M:%S.%f]"
+            log_time_format="[%H:%M:%S.%f]"
         )
         globals()[self.global_name] = {}
 
@@ -317,6 +318,7 @@ class PawnlibConfig:
                     if isinstance(p_value, dict) and p_value.get("app_name", "") == "":
                         if p_value.get('app_name') is None and kwargs.get('app_name'):
                             p_value['app_name'] = kwargs['app_name']
+                            self.app_name = kwargs['app_name']
                         self.app_logger, self.error_logger = AppLogger(**p_value).get_logger()
 
                 elif kwargs.get(f"{self.env_prefix}_APP_LOGGER"):
@@ -524,6 +526,7 @@ class PawnlibConfig:
             return g[self.global_name]
         else:
             return {}
+
 
 pawnlib_config = PawnlibConfig(global_name="pawnlib_global_config").init_with_env()
 global_verbose = pawnlib_config.get('PAWN_VERBOSE', 0)
