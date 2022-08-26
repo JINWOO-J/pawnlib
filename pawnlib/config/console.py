@@ -10,7 +10,7 @@ from rich.ansi import AnsiDecoder
 from rich.file_proxy import FileProxy
 
 from pawnlib.typing import list_to_oneline_string
-import devtools
+
 
 class Console(rich_console.Console):
     """Extends rich Console class."""
