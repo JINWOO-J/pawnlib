@@ -27,6 +27,13 @@ def nestednamedtuple(dictionary: dict) -> namedtuple:
     """
 
     if isinstance(dictionary, Mapping) and not isinstance(dictionary, fdict):
+        # for ignore_type in ["configparser.SectionProxy", "configparser.ConfigParser"]:
+        for ignore_type in ["configparser.ConfigParser"]:
+            if ignore_type in str(type(dictionary)):
+                for key, value in list(dictionary.items()):
+                    dictionary[key] = value
+                return dictionary
+
         for key, value in list(dictionary.items()):
             dictionary[key] = nestednamedtuple(value)
         return namedtuple("namedtupled", dictionary)(**dictionary)

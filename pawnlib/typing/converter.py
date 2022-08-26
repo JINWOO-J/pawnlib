@@ -3,6 +3,7 @@ import string
 import sys
 import os
 import binascii
+import re
 from termcolor import cprint
 from .check import is_int, is_hex
 
