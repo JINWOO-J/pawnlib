@@ -267,7 +267,6 @@ class PawnlibConfig(metaclass=Singleton):
             if isinstance(self.verbose, int) and self.verbose >= 3:
                 self.console.debug(f"{environment_name}={filled_environment_value}")
 
-
     def make_config(self, dictionary: Optional[dict] = None, **kwargs) -> None:
         """Creates a global configuration that can be accessed anywhere during runtime.
         This function is a useful replacement to passing configuration classes between classes.
@@ -336,7 +335,6 @@ class PawnlibConfig(metaclass=Singleton):
         """
         if self.global_name in globals():
             for p_key, p_value in kwargs.items():
-
                 if self._environments.get(p_key, self._none_string) != self._none_string \
                         and self._environments[p_key].get("input"):
                     if self._environments[p_key].get('input') and \
@@ -344,27 +342,25 @@ class PawnlibConfig(metaclass=Singleton):
                         self.console.log(f"[yellow][WARN] Environment variables and settings are different. "
                                          f"'{p_key}': {self._environments[p_key]['value']}(ENV) != {p_value}(Config)")
 
-                if p_key == "PAWN_LOGGER" and p_value:
+                if p_key == f"{self.env_prefix}_LOGGER" and p_value:
                     from pawnlib.utils.log import AppLogger
                     if isinstance(p_value, dict) and p_value.get("app_name", "") == "":
                         if p_value.get('app_name') is None and kwargs.get('app_name'):
                             p_value['app_name'] = kwargs['app_name']
                             self.app_name = kwargs['app_name']
                         self.app_logger, self.error_logger = AppLogger(**p_value).get_logger()
-
-                elif kwargs.get(f"{self.env_prefix}_APP_LOGGER"):
-                    self.app_logger = kwargs[f"{self.env_prefix}_APP_LOGGER"]
-                elif kwargs.get(f"{self.env_prefix}_ERROR_LOGGER"):
-                    self.error_logger = kwargs[f"{self.env_prefix}_ERROR_LOGGER"]
-                elif kwargs.get(f"{self.env_prefix}_TIMEOUT"):
-                    self.timeout = kwargs[f"{self.env_prefix}_TIMEOUT"]
-                elif kwargs.get(f"{self.env_prefix}_VERBOSE"):
-                    self.verbose = kwargs[f"{self.env_prefix}_VERBOSE"]
-                elif kwargs.get(f"{self.env_prefix}_DEBUG"):
-                    self.debug = kwargs[f"{self.env_prefix}_DEBUG"]
-                    self.console.pawn_debug = self.debug
+                elif p_key == f"{self.env_prefix}_DEBUG":
+                    self.debug = self.str2bool(p_value)
+                    self.console.pawn_debug = self.str2bool(p_value)
                     rich_traceback_install(show_locals=True)
-
+                elif p_key == f"{self.env_prefix}_APP_LOGGER":
+                    self.app_logger = p_value
+                elif p_key == f"{self.env_prefix}_ERROR_LOGGER":
+                    self.error_logger = p_value
+                elif p_key == f"{self.env_prefix}_TIMEOUT":
+                    self.timeout = p_value
+                elif p_key == f"{self.env_prefix}_VERBOSE":
+                    self.verbose = p_value
                 globals()[self.global_name][p_key] = p_value
 
     def increase(self, **kwargs):
