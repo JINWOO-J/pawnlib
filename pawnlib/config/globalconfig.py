@@ -139,6 +139,7 @@ class PawnlibConfig(metaclass=Singleton):
 
         self.version = f"{__title__}/{__version__}"
         self.env_prefix = "PAWN"
+        self._environments = {}
         self.data = {}
 
         self.console = Console(
@@ -151,7 +152,7 @@ class PawnlibConfig(metaclass=Singleton):
             log_time_format=lambda dt: f"[{dt.strftime('%H:%M:%S,%f')[:-3]}]"
         )
 
-        self.dbg_console = Null()
+        self._none_string = "____NONE____"
 
         globals()[self.global_name] = {}
 
@@ -207,6 +208,10 @@ class PawnlibConfig(metaclass=Singleton):
         :return:
         """
         default_structure = {
+            "VERBOSE": {
+                "type": int,
+                "default": 0,
+            },
             "INI": {
                 "type": self.str2bool,
                 "default": False,
@@ -214,10 +219,6 @@ class PawnlibConfig(metaclass=Singleton):
             "DEBUG": {
                 "type": self.str2bool,
                 "default": False,
-            },
-            "VERBOSE": {
-                "type": int,
-                "default": 0,
             },
             "TIMEOUT": {
                 "type": int,
@@ -244,21 +245,28 @@ class PawnlibConfig(metaclass=Singleton):
                 "default": self.global_name
             }
         }
-
         mandatory_environments = list(default_structure.keys())
+
         for environment in mandatory_environments:
             environment_name = f"{self.env_prefix}_{environment}"
             environment_value = os.getenv(environment_name)
+            filled_environment_value = ""
 
             if default_structure.get(environment):
                 required_type = default_structure[environment].get("type", None)
 
-                if environment_value is None or environment_value == 0 or environment_value == "":
-                    environment_value = default_structure[environment].get("default")
-
+                if environment_value in [None, 0, ""]:
+                    filled_environment_value = default_structure[environment].get("default")
                 elif required_type:
-                    environment_value = required_type(environment_value)
-            self.set(**{environment_name: environment_value})
+                    filled_environment_value = required_type(environment_value)
+            self._environments[environment_name] = {
+                "input": os.getenv(environment_name),
+                "value": filled_environment_value,
+            }
+            self.set(**{environment_name: filled_environment_value})
+            if isinstance(self.verbose, int) and self.verbose >= 3:
+                self.console.debug(f"{environment_name}={filled_environment_value}")
+
 
     def make_config(self, dictionary: Optional[dict] = None, **kwargs) -> None:
         """Creates a global configuration that can be accessed anywhere during runtime.
@@ -328,6 +336,14 @@ class PawnlibConfig(metaclass=Singleton):
         """
         if self.global_name in globals():
             for p_key, p_value in kwargs.items():
+
+                if self._environments.get(p_key, self._none_string) != self._none_string \
+                        and self._environments[p_key].get("input"):
+                    if self._environments[p_key].get('input') and \
+                            self._environments[p_key].get('value') != p_value:
+                        self.console.log(f"[yellow][WARN] Environment variables and settings are different. "
+                                         f"'{p_key}': {self._environments[p_key]['value']}(ENV) != {p_value}(Config)")
+
                 if p_key == "PAWN_LOGGER" and p_value:
                     from pawnlib.utils.log import AppLogger
                     if isinstance(p_value, dict) and p_value.get("app_name", "") == "":
