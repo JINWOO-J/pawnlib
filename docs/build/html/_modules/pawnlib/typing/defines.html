@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.1.0, furo 2022.06.21"/>
-        <title>pawnlib.typing.defines - pawnlib 0.0.10 documentation</title>
+        <title>pawnlib.typing.defines - pawnlib 0.0.12 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">pawnlib 0.0.10 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">pawnlib 0.0.12 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">pawnlib 0.0.10 documentation</span>
+  <span class="sidebar-brand-text">pawnlib 0.0.12 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -243,6 +243,18 @@
 
 <span class="sd">    Implements equality by attribute names and values, and provides a simple</span>
 <span class="sd">    string representation.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing import defines</span>
+
+<span class="sd">            namespace = defines.Namespace(s=2323, sdsd=&quot;Sdsd&quot;)</span>
+<span class="sd">            namespace.s</span>
+<span class="sd">            # &gt;&gt; 2323</span>
+<span class="sd">            namespace.sdsd</span>
+<span class="sd">            # &gt;&gt; &#39;Sdsd&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

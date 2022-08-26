@@ -40,6 +40,7 @@ class CustomLog:
             logger.log.critical(logger.log_formatter(f'critical {idx}'))
 
     """
+
     def __init__(self, name):
         self.log = logging.getLogger(name)
         self.log.propagate = True
@@ -157,7 +158,6 @@ class CustomLog:
 
 
 class AppLogger:
-
     """
 
     AppLogger
@@ -165,7 +165,9 @@ class AppLogger:
     :param app_name: application name(=file name)
     :param log_level: log level
     :param log_path: log file path
-    :param stdout: Enable stdout
+    :param stdout: Enable stdout, Adding Hook for another library logging.
+    :param stdout_level: stdout log level
+    :param stdout_log_formatter: stdout log formatter (function)
     :param log_format: log format / [%(asctime)s] %(name)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s
     :param use_hook_exception: Select whether to log exception errors.
     :param exception_handler: Exception handling function
@@ -211,6 +213,7 @@ class AppLogger:
                  log_path: str = "./logs",
                  stdout: bool = False,
                  stdout_level: Literal["INFO", "WARN", "DEBUG", "NOTSET"] = "INFO",
+                 stdout_log_formatter: Callable = None,
                  log_format: str = None,
                  debug: bool = False,
                  use_hook_exception: bool = True,
@@ -221,6 +224,7 @@ class AppLogger:
         self.debug = debug
         self.stdout = stdout
         self.stdout_level = stdout_level
+        self.stdout_log_formatter = stdout_log_formatter
         self.log_level = log_level
         self.use_hook_exception = use_hook_exception
 
@@ -274,8 +278,24 @@ class AppLogger:
         logger.addHandler(file_handler)
 
         if self.stdout:
+            from rich.text import Text
+            if self.stdout_log_formatter:
+                log_time_formatter = self.stdout_log_formatter
+            else:
+                log_time_formatter = lambda dt: Text.from_markup(f"[{dt.strftime('%H:%M:%S,%f')[:-3]}]")
+
             logging.basicConfig(
-                level=self.stdout_level, format="%(message)s", datefmt="[%Y-%m-%d %H:%M:%S.%f]", handlers=[RichHandler(rich_tracebacks=True)]
+                # level=self.stdout_level, format="%(message)s", datefmt="[%Y-%m-%d %H:%M:%S.%f]", handlers=[RichHandler(rich_tracebacks=True)]
+                level=self.stdout_level,
+                format="%(message)s",
+                handlers=[
+                    RichHandler(
+                        rich_tracebacks=True,
+                        log_time_format=log_time_formatter
+                        # log_time_format=lambda dt: f"[{dt.strftime('%Y-%m-%d %H:%M:%S,%f')[:-3]}]",
+                        # log_time_format=lambda dt:Text.from_markup(f"[red]{dt.ctime()}")
+                    )
+                ]
             )
             # logger.addHandler(self.add_stream_handler(level=log_type))
 

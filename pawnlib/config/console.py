@@ -12,12 +12,13 @@ from rich.file_proxy import FileProxy
 class Console(rich_console.Console):
     """Extends rich Console class."""
 
-    def __init__(self, *args: str, redirect: bool = True, **kwargs: Any) -> None:
+    def __init__(self, *args: str, redirect: bool = True, pawn_debug: bool = False, **kwargs: Any) -> None:
         """
         enrich console does soft-wrapping by default and this diverge from
         original rich console which does not, creating hard-wraps instead.
         """
         self.redirect = redirect
+        self.pawn_debug = pawn_debug
 
         if "soft_wrap" not in kwargs:
             kwargs["soft_wrap"] = True
@@ -49,6 +50,11 @@ class Console(rich_console.Console):
             decoder = AnsiDecoder()
             args = list(decoder.decode(text))  # type: ignore
         super().print(*args, **kwargs)
+
+    def debug(self, message, *args, **kwargs) -> None:  # type: ignore
+        message = f"[yellow] [DEBUG] {message}"
+        if self.pawn_debug:
+            super().log(message, *args, **kwargs)
 
 
 def should_do_markup(stream: TextIO = sys.stdout) -> bool:

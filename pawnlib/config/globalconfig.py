@@ -6,6 +6,7 @@ from collections.abc import Mapping
 from pawnlib.__version__ import __title__, __version__
 from pawnlib.typing.generator import uuid_generator, Null
 from pawnlib.config.console import Console
+from rich.traceback import install as rich_traceback_install
 
 
 def nestednamedtuple(dictionary: dict) -> namedtuple:
@@ -64,8 +65,17 @@ def singleton(class_):
     return getinstance
 
 
-@singleton
-class PawnlibConfig:
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+# @singleton
+class PawnlibConfig(metaclass=Singleton):
     def __init__(self, global_name="pawnlib_global_config", app_logger=Null(), error_logger=Null(), timeout=6000, debug=False):
         """
         This class can share variables using globals().
@@ -130,14 +140,19 @@ class PawnlibConfig:
         self.version = f"{__title__}/{__version__}"
         self.env_prefix = "PAWN"
         self.data = {}
+
         self.console = Console(
+            pawn_debug=self.debug,
             redirect=True,  # <-- not supported by rich.console.Console
             record=True,
             soft_wrap=True,
             force_terminal=True,
             # log_time_format="[%Y-%m-%d %H:%M:%S.%f]"
-            log_time_format="[%H:%M:%S.%f]"
+            log_time_format=lambda dt: f"[{dt.strftime('%H:%M:%S,%f')[:-3]}]"
         )
+
+        self.dbg_console = Null()
+
         globals()[self.global_name] = {}
 
     def init_with_env(self, **kwargs):
@@ -331,11 +346,10 @@ class PawnlibConfig:
                     self.verbose = kwargs[f"{self.env_prefix}_VERBOSE"]
                 elif kwargs.get(f"{self.env_prefix}_DEBUG"):
                     self.debug = kwargs[f"{self.env_prefix}_DEBUG"]
-                globals()[self.global_name][p_key] = p_value
+                    self.console.pawn_debug = self.debug
+                    rich_traceback_install(show_locals=True)
 
-            if self.debug:
-                from rich.traceback import install
-                install(show_locals=True)
+                globals()[self.global_name][p_key] = p_value
 
     def increase(self, **kwargs):
         """
