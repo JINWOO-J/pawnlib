@@ -1,6 +1,7 @@
 """Module that helps integrating with rich library."""
 import os
 import sys
+import inspect
 from pawnlib.typing.converter import str2bool
 from typing import Any, TextIO
 
@@ -8,6 +9,8 @@ import rich.console as rich_console
 from rich.ansi import AnsiDecoder
 from rich.file_proxy import FileProxy
 
+from pawnlib.typing import list_to_oneline_string
+import devtools
 
 class Console(rich_console.Console):
     """Extends rich Console class."""
@@ -52,8 +55,27 @@ class Console(rich_console.Console):
         super().print(*args, **kwargs)
 
     def debug(self, message, *args, **kwargs) -> None:  # type: ignore
-        message = f"[yellow] [DEBUG] {message}"
         if self.pawn_debug:
+            stack = inspect.stack()
+            parent_frame = stack[1][0]
+            module = inspect.getmodule(parent_frame)
+            function_name = stack[1][3]
+            module_name = ''
+            class_name = ''
+            if module:
+                module_pieces = module.__name__.split('.')
+                try:
+                    class_name = stack[1][0].f_locals["self"].__class__.__name__+"."
+                except:
+                    pass
+                module_name = list_to_oneline_string(module_pieces)
+            # full_module_name = f"{module_name}.{class_name}{function_name}({stack[1].lineno})"
+            # full_module_name = f"{module_name}.{class_name}{function_name}()"
+            full_module_name = f"{class_name}{function_name}()"
+            message = f"[yellow][DEBUG]:face_with_monocle: {full_module_name} {message}"
+
+            if not kwargs.get("_stack_offset", None):
+                kwargs['_stack_offset'] = 2
             super().log(message, *args, **kwargs)
 
 
