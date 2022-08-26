@@ -3,6 +3,7 @@ tests/temp/*
 tests/logs/*
 examples/logging/logs/*
 examples/color_print/logs/*
+default_app.py
 
 .vscode/launch.json
 ### Python template
