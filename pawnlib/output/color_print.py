@@ -8,7 +8,8 @@ import traceback
 import inspect
 from pawnlib.typing import converter, date_utils, list_to_oneline_string
 from pawnlib.config import pawnlib_config as pawn, global_verbose
-
+from rich.table import Table
+from typing import Union
 
 _ATTRIBUTES = dict(
     list(zip([
@@ -26,7 +27,6 @@ _ATTRIBUTES = dict(
 )
 del _ATTRIBUTES['']
 
-
 _HIGHLIGHTS = dict(
     list(zip([
         'on_grey',
@@ -42,7 +42,6 @@ _HIGHLIGHTS = dict(
     ))
 )
 
-
 _COLORS = dict(
     list(zip([
         'grey',
@@ -57,7 +56,6 @@ _COLORS = dict(
         list(range(30, 38))
     ))
 )
-
 
 _RESET = '\033[0m'
 
@@ -133,6 +131,120 @@ class bcolors:
     LIGHT_GREY = '\033[37m'
 
 
+class PrintRichTable:
+    """
+
+    Print a table using a rich.table module.
+
+    :param title: Title of table
+    :param data: Data of table
+    :param columns: Columns of table. Print only column parameter values.
+    :param with_idx: Print the row count.
+    :param call_hook_value: The row value must be a string. If you want to perform other tasks, please add the function name.
+
+    Example:
+
+        .. code-block:: python
+
+        from pawnlib.output.color_print import PrintRichTable
+
+        data = [
+            {
+                "address":         "1x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08",
+                "value":         399999999999999966445568,
+            },
+            {
+                "address":         "2x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08",
+                "value":         399999999999999966445568,
+            },
+            {
+                "address":         "3x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08",
+                "value":         399999999999999966445568,
+            }
+        ]
+
+        PrintRichTable(title="RichTable", data=data)
+
+
+                                           RichTable
+        ┏━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        ┃ idx ┃ address                                    ┃ value                    ┃
+        ┡━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+        │ 0   │ 1x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08 │ 399999999999999966445568 │
+        ├─────┼────────────────────────────────────────────┼──────────────────────────┤
+        │ 1   │ 2x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08 │ 399999999999999966445568 │
+        ├─────┼────────────────────────────────────────────┼──────────────────────────┤
+        │ 2   │ 3x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08 │ 399999999999999966445568 │
+        └─────┴────────────────────────────────────────────┴──────────────────────────┘
+
+        PrintRichTable(title="RichTable", data=data, columns=["address"])
+
+                                      RichTable
+        ┏━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        ┃ idx ┃ address                                    ┃
+        ┡━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+        │ 0   │ 1x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08 │
+        ├─────┼────────────────────────────────────────────┤
+        │ 1   │ 2x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08 │
+        ├─────┼────────────────────────────────────────────┤
+        │ 2   │ 3x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08 │
+        └─────┴────────────────────────────────────────────┘
+
+    """
+
+    def __init__(self, title: str = "", data: Union[dict, list] = {}, columns: list = [], with_idx: bool = True, call_hook_value=str,
+                 **kwargs) -> None:
+
+        self.title = f"[bold cyan] {title}"
+        self.table = Table(title=self.title, **kwargs)
+        self.data = data
+        self.table_data = []
+        self.columns = columns
+        self.rows = []
+        self.row_count = 0
+        self.with_idx = with_idx
+        self.call_hook_value = call_hook_value
+
+        self._set_table_data()
+        self._print_table()
+
+    def _set_table_data(self):
+        if isinstance(self.data, dict):
+            self.table_data = [self.data]
+        elif isinstance(self.data, list):
+            self.table_data = self.data
+
+        if len(self.columns) == 0:
+            self.columns = list(self.table_data[0].keys())
+
+        if self.with_idx:
+            self.columns.insert(0, "idx")
+
+        for item in self.table_data:
+            if isinstance(item, dict):
+                line_row = []
+                for column in self.columns:
+                    if self.with_idx and column == "idx":
+                        value = self.call_hook_value(self.row_count)
+                    else:
+                        value = self.call_hook_value(item.get(column))
+                    line_row.append(value)
+                self.rows.append(line_row)
+            self.row_count += 1
+
+    def _print_table(self):
+        for col in self.columns:
+            self.table.add_column(col)
+
+        for row in self.rows:
+            self.table.add_row(*row)
+
+        if self.table.columns:
+            pawn.console.print(self.table)
+        else:
+            pawn.console.print(f"{self.title} - [i]No data ... [/i]")
+
+
 class TablePrinter(object):
     "Print a list of dicts as a table"
 
@@ -153,20 +265,21 @@ class TablePrinter(object):
 
                 from pawnlib import output
 
-                nested_data = {
-                        "a": {
-                            "b": "cccc",
-                            "sdsd": {
-                                "sdsds": {
-                                    "sdsdssd": 2323
-                                }
-                            },
-                            "d": {
-                                "dd": 1211,
-                                "cccc": "232323"
-                            }
-                        }
-                    }
+                data = [
+                    {
+                        "address":         "1x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08",
+                        "value":         399999999999999966445568,
+                    },
+                    {
+                        "address":         "2x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08",
+                        "value":         399999999999999966445568,
+                    },
+                    {
+                        "address":         "3x038bd14d5ce28a4ac713c21e89f0e6ca5f107f08",
+                        "value":         399999999999999966445568,
+                    },
+
+                ]
                 fmt = [
                     ('address',       'address',          10),
                     ('value',       'value',          15)
@@ -174,6 +287,13 @@ class TablePrinter(object):
                 cprint("Print Table", "white")
                 print(output.TablePrinter(fmt=fmt)(data))
                 print(output.TablePrinter()(data))
+
+                 address         value
+                ----------  ---------------
+                1x038bd14d  399999999999999
+                2x038bd14d  399999999999999
+                3x038bd14d  399999999999999
+
 
         """
         super(TablePrinter, self).__init__()
@@ -340,7 +460,7 @@ def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, 
     time_text = ""
     try:
         # if global_verbose > 2:
-            # text = f"[{full_module_name}] {text}"
+        # text = f"[{full_module_name}] {text}"
         module_text = get_bcolors(f"[{full_module_name:<25}]", "WARNING")
     except:
         pass
@@ -463,7 +583,5 @@ def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, bar_l
         sys.stdout.write('\n')
     # sys.stdout.flush()
 
-
 # def run_progress():
 #     animation = ["\\", "|", " /", "—"]
-

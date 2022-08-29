@@ -19,6 +19,7 @@ from .color_print import (
     bcolors,
     colored,
     cprint,
+    PrintRichTable,
     TablePrinter,
     get_bcolors,
     colored_input,
