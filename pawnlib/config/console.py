@@ -2,14 +2,11 @@
 import os
 import sys
 import inspect
-from pawnlib.typing.converter import str2bool
 from typing import Any, TextIO
 
 import rich.console as rich_console
 from rich.ansi import AnsiDecoder
 from rich.file_proxy import FileProxy
-
-from pawnlib.typing import list_to_oneline_string
 
 
 class Console(rich_console.Console):
@@ -68,11 +65,12 @@ class Console(rich_console.Console):
                     class_name = stack[1][0].f_locals["self"].__class__.__name__+"."
                 except:
                     pass
-                module_name = list_to_oneline_string(module_pieces)
+                # module_name = list_to_oneline_string(module_pieces)
             # full_module_name = f"{module_name}.{class_name}{function_name}({stack[1].lineno})"
             # full_module_name = f"{module_name}.{class_name}{function_name}()"
             full_module_name = f"{class_name}{function_name}()"
-            message = f"[yellow][DEBUG]:face_with_monocle: {full_module_name} {message}"
+
+            message = f"[yellow][DEBUG][/yellow]:face_with_monocle: {full_module_name} {message}"
 
             if not kwargs.get("_stack_offset", None):
                 kwargs['_stack_offset'] = 2
@@ -87,7 +85,7 @@ def should_do_markup(stream: TextIO = sys.stdout) -> bool:
     for env_var in ["PY_COLORS", "CLICOLOR", "FORCE_COLOR", "ANSIBLE_FORCE_COLOR"]:
         value = os.environ.get(env_var, None)
         if value is not None:
-            py_colors = str2bool(value)
+            py_colors = _str2bool(value)
             break
 
     # If deliverately disabled colors
@@ -96,7 +94,7 @@ def should_do_markup(stream: TextIO = sys.stdout) -> bool:
 
     # User configuration requested colors
     if py_colors is not None:
-        return str2bool(py_colors)
+        return _str2bool(py_colors)
 
     term = os.environ.get("TERM", "")
     if "xterm" in term:
@@ -110,3 +108,17 @@ def should_do_markup(stream: TextIO = sys.stdout) -> bool:
     # - stdin.isatty() is the only one returning true, even on a real terminal
     # - stderr returting false if user user uses a error stream coloring solution
     return stream.isatty()
+
+def _str2bool(v):
+    """
+    This function is intended to return a boolean value.
+
+    :param v:
+    :return:
+    """
+    true_list = ("yes", "true", "t", "1", "True", "TRUE")
+    if type(v) == bool:
+        return v
+    if type(v) == str:
+        return v.lower() in true_list
+    return eval(f"{v}") in true_list
