@@ -1,10 +1,14 @@
-import datetime
+# import datetime
 import os
-from typing import Optional, TYPE_CHECKING
+import configparser
+from uuid import uuid4
+from pathlib import Path
+from typing import Optional
 from collections import namedtuple
 from collections.abc import Mapping
 from pawnlib.__version__ import __title__, __version__
-from pawnlib.typing.generator import uuid_generator, Null
+from pawnlib.config.__fix_import import Null
+# from pawnlib.typing.generator import Null
 from pawnlib.config.console import Console
 from rich.traceback import install as rich_traceback_install
 
@@ -72,6 +76,35 @@ def singleton(class_):
     return getinstance
 
 
+class ConfigSectionMap(configparser.ConfigParser):
+    """
+    override configparser.ConfigParser
+
+    Example:
+
+        .. code-block:: python
+
+            config = ConfigSectionMap()
+            config.read('config.ini')
+
+            config_file = config.as_dict()
+
+    """
+    def as_dict(self, section=None):
+        d = dict(self._sections)
+        if self._defaults:
+            d["DEFAULT"] = self._defaults
+        for k in d:
+            d[k] = dict(self._defaults, **d[k])
+            d[k].pop('__name__', None)
+        if section:
+            return d.get(section)
+        return d
+
+    def get_default(self):
+        return dict(self._defaults)
+
+
 class Singleton(type):
     _instances = {}
 
@@ -135,7 +168,7 @@ class PawnlibConfig(metaclass=Singleton):
                     )
 
         """
-        self.global_name = f"{global_name}_{uuid_generator()}"
+        self.global_name = f"{global_name}_{uuid4()}"
         self.app_logger = app_logger
         self.error_logger = error_logger
 
@@ -148,6 +181,8 @@ class PawnlibConfig(metaclass=Singleton):
         self.env_prefix = "PAWN"
         self._environments = {}
         self.data = {}
+        self._current_path: Optional[Path] = None
+        self._config_path = None
 
         self.console = Console(
             pawn_debug=self.debug,
@@ -163,6 +198,31 @@ class PawnlibConfig(metaclass=Singleton):
 
         globals()[self.global_name] = {}
 
+    def _load_config_file(self, config_path=None):
+        # self._config_path = config_path or self.get_path(self.to_dict().get(f'{self.env_prefix}_CONFIG_FILE'))
+        # from pawnlib.typing.converter import UpdateType
+        config = ConfigSectionMap()
+        if self._config_path.is_file():
+            config.read(self._config_path)
+            self.set(PAWN_CONFIG=config.as_dict())
+        else:
+            self.set(PAWN_CONFIG={})
+            self.console.debug(f"[red] cannot found config_file")
+        # if not check_exist and not config_path.is_file():
+        #     return
+        #
+        # with open(config_path, 'r') as config_file:
+        #     # self._config.update(json.load(config_file))
+        #     self._current_path = config_path.parent
+
+    def get_path(self, path: str) -> Path:
+        """Get Path from the directory where the configure.json file is.
+        :param path: file_name or path
+        :return:
+        """
+        root_path = self._current_path or Path(os.path.join(os.getcwd()))
+        return root_path.joinpath(path)
+
     def init_with_env(self, **kwargs):
         """
         Initialize with environmental variables.
@@ -172,6 +232,7 @@ class PawnlibConfig(metaclass=Singleton):
         """
         self.fill_config_from_environment()
         self.set(**kwargs)
+        # self._load_config_file()
         return self
 
     # def set_config_ini(self):
@@ -222,6 +283,10 @@ class PawnlibConfig(metaclass=Singleton):
             "INI": {
                 "type": self.str2bool,
                 "default": False,
+            },
+            "CONFIG_FILE": {
+                "type": str,
+                "default": "config.ini",
             },
             "DEBUG": {
                 "type": self.str2bool,
@@ -348,7 +413,6 @@ class PawnlibConfig(metaclass=Singleton):
                             self._environments[p_key].get('value') != p_value:
                         self.console.log(f"[yellow][WARN] Environment variables and settings are different. "
                                          f"'{p_key}': {self._environments[p_key]['value']}(ENV) != {p_value}(Config)")
-
                 if p_key == f"{self.env_prefix}_LOGGER" and p_value:
                     from pawnlib.utils.log import AppLogger
                     if isinstance(p_value, dict) and p_value.get("app_name", "") == "":
@@ -356,19 +420,29 @@ class PawnlibConfig(metaclass=Singleton):
                             p_value['app_name'] = kwargs['app_name']
                             self.app_name = kwargs['app_name']
                         self.app_logger, self.error_logger = AppLogger(**p_value).get_logger()
+                elif p_key == f"{self.env_prefix}_APP_LOGGER" and p_value:
+                    self.app_logger = self._check_logger_not_null(p_key, p_value)
+                elif p_key == f"{self.env_prefix}_ERROR_LOGGER" and p_value:
+                    self.error_logger = self._check_logger_not_null(p_key, p_value)
                 elif p_key == f"{self.env_prefix}_DEBUG":
                     self.debug = self.str2bool(p_value)
                     self.console.pawn_debug = self.str2bool(p_value)
                     rich_traceback_install(show_locals=True)
-                elif p_key == f"{self.env_prefix}_APP_LOGGER":
-                    self.app_logger = p_value
-                elif p_key == f"{self.env_prefix}_ERROR_LOGGER":
-                    self.error_logger = p_value
                 elif p_key == f"{self.env_prefix}_TIMEOUT":
                     self.timeout = p_value
                 elif p_key == f"{self.env_prefix}_VERBOSE":
                     self.verbose = p_value
+                elif p_key == f"{self.env_prefix}_CONFIG_FILE":
+                    self._config_path = self.get_path(p_value)
+                    self._load_config_file()
                 globals()[self.global_name][p_key] = p_value
+
+    def _check_logger_not_null(self, key, value):
+        if type(value).__name__ == "Logger":
+            return value
+        else:
+            self.console.debug(f"[red]Invalid Logger [/red] => {key}: {value} ({type(value)})")
+            return Null()
 
     def increase(self, **kwargs):
         """

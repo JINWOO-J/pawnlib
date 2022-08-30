@@ -1,5 +1,5 @@
-import random
-import string
+# import random
+# import string
 import sys
 import os
 import binascii
@@ -9,27 +9,9 @@ from .check import is_int, is_hex
 
 from deprecated import deprecated
 
-# from lib import defines
-# def check_value_type(key, value):
-#     if defines.default_structure.get(key) == "string":
-#         return_value = str(value)
-#     elif defines.default_structure.get(key) == "int":
-#         return_value = int(value)
-#     elif defines.default_structure.get(key) == "float":
-#         return_value = float(value)
-#         # return_value = round(value, 2)
-#     elif defines.default_structure.get(key) == "boolean":
-#         return_value = str2bool(value)
-#     elif defines.default_structure.get(key) == "array":
-#         return_value = str(value).split(",")
-#     elif defines.default_structure.get(key) == "list":
-#         return_value = str(value).split(",")
-#     else:
-#         return_value = value
-#     return return_value
-
 from typing import Union, Any, Type
 import base64
+from pawnlib.config.globalconfig import pawnlib_config as pawn
 
 
 def base64_decode(text):
@@ -84,7 +66,7 @@ def base64ify(bytes_or_str):
         return output_bytes
 
 
-#https://pypi.org/project/Deprecated/
+# https://pypi.org/project/Deprecated/
 @deprecated(version="1.0.0", reason="You should use another function=> convert_dict_hex_to_int")
 def convert_hex_to_int(data: Any, is_comma: bool = False):
     """
@@ -522,153 +504,283 @@ def long_to_bytes(val, endianness='big'):
     return s
 
 
-def ordereddict_to_dict(value):
+def ordereddict_to_dict(obj, reverse=False):
     """
     Change the order of the keys in the dictionary.
 
 
-    :param value:
+    :param obj:
+    :param reverse:
     :return:
     """
-    for k, v in value.items():
+    return_result = {}
+    for k, v in sorted(obj.items(), reverse=reverse):
         if isinstance(v, dict):
-            value[k] = ordereddict_to_dict(v)
-            print(v)
-    return dict(value)
+            return_result[k] = ordereddict_to_dict(v)
+        else:
+            return_result[k] = v
+    return return_result
+
+
+def recursive_operate_dict(obj, fn, target="key"):
+    """
+
+
+    :param obj:
+    :param fn:
+    :param target:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+
+            obj = {
+                "LLLLLL": "AAAAAAAA",
+                "AAAAAA": "AAAAAAAA",
+                "DDDDDD": 11111,
+                "DDDDSD": {
+                    "ASDFASDF": 111,
+                    "ZXCZXCZXC": "DDDDDDDD"
+                }
+            }
+
+            recursive_operate_dict(obj, fn=lower_case, target="key")
+
+            {
+              llllll:       'AAAAAAAA'         <class 'str'> len=8
+              aaaaaa:       'AAAAAAAA'         <class 'str'> len=8
+              dddddd: 11111         <class 'int'> len=5
+              ddddsd: {
+                 asdfasdf: 111         <class 'int'> len=3
+                 zxczxczxc:          'DDDDDDDD'         <class 'str'> len=8
+            }
+
+            recursive_operate_dict(obj, fn=lower_case, target="value")
+
+           {
+              LLLLLL:       'aaaaaaaa'         <class 'str'> len=8
+              AAAAAA:       'aaaaaaaa'         <class 'str'> len=8
+              DDDDDD:       '11111'         <class 'str'> len=5
+              DDDDSD: {
+                 ASDFASDF:          '111'         <class 'str'> len=3
+                 ZXCZXCZXC:          'dddddddd'         <class 'str'> len=8
+              }
+           }
+
+    """
+    return_result = {}
+    for key, value in obj.items():
+        input_key = key
+        input_value = value
+
+        if target == "key":
+            input_key = fn(key)
+        elif target == "value":
+            input_value = fn(value)
+
+        if isinstance(value, dict):
+            input_value = recursive_operate_dict(obj=value, fn=fn, target=target)
+
+        return_result[input_key] = input_value
+    return return_result
 
 
 class UpdateType:
-    def __init__(self, is_debug=False, use_env=False, structure_types={}):
+    def __init__(self, is_debug=False, use_env=False, default_schema={}, input_schema={}):
         # if structure_types is None:
         #     structure_types = default_structure
         self.return_value = ""
         self.return_dict = {}
-        self.structure_types = structure_types
+        # self.default_schema = {k.lower(): v for k, v in default_schema.items()}
+        self.default_schema = default_schema
+        self.input_schema = input_schema
         self.is_debug = is_debug
         self.use_env = use_env
-        return
+        self.section_separator = "__"
+
+        self._lower_dict_keys()
+        pawn.console.log(self.default_schema)
+
+    def _proc_section_separator(self):
+        tmp_default_schema = {}
+        if self.section_separator:
+            for key, value in self.default_schema.items():
+                if self.section_separator in key:
+                    section_name, conf_key = key.split(self.section_separator)
+                    if tmp_default_schema.get(section_name, None) is None:
+                        tmp_default_schema[section_name] = {}
+
+                    tmp_default_schema[section_name][conf_key] = value
+                else:
+                    if isinstance(value, dict):
+                        for conf_key, conf_value in value.items():
+                            if tmp_default_schema.get(key, None) is None:
+                                tmp_default_schema[key] = {}
+                            tmp_default_schema[key][conf_key] = conf_value
+            self.default_schema = tmp_default_schema
+
+    def _lower_dict_keys(self):
+        self._proc_section_separator()
+        self.default_schema = recursive_operate_dict(obj=self.default_schema, fn=lower_case, target="key")
+        self.input_schema = recursive_operate_dict(obj=self.input_schema, fn=lower_case, target="key")
 
     def find_parent_type(self, key):
         find_key = None
-        for struct_key, struct_value in self.structure_types.items():
+        for struct_key, struct_value in self.default_schema.items():
             if struct_key == key:
                 find_key = struct_value.get('default')
-        return self.structure_types[find_key]['type']
+        return self.default_schema[find_key]['type']
 
-    def assign_kv(self, key, value):
-        compare_struct = self.structure_types.get(key)
-        # compare_type = self.structure_types.get(key)
+    def fill_default(self):
+        for section_name, section_data in self.default_schema.items():
+            for default_key, default_value in section_data.items():
+                if self.section_separator is not None and self.section_separator != "" and self.section_separator in default_key:
+                    [section_name, section_key] = default_key.split(self.section_separator)
+                else:
+                    section_name = "default"
+                    section_key = default_key
+
+                if self.return_dict.get(section_name) is None:
+                    self.return_dict[section_name] = {}
+
+                value = None
+                fill_type = None
+                pawn.console.log(f"[blue]  {section_name}, {section_key}")
+                if section_name == "default" and os.getenv(section_key):
+                    value = os.getenv(section_key)
+                    fill_type = "set default section[env] "
+
+                elif os.getenv(section_key):
+                    value = os.getenv(f"{section_name}{self.section_separator}{section_key}")
+                    fill_type = f"set {section_name} section[env] "
+
+                elif self.return_dict[section_name].get(section_key, None) is None and default_value.get("default", "NULL") != "NULL":  # False 처리때문에
+                    if default_value.get('type') == "function":
+                        try:
+                            value = execute_function(default_value['default'])
+                        except Exception as e:
+                            value = None
+                            cprint(f"{default_value['default']} is not function , {e}", "red")
+
+                    elif default_value.get('type') == "same_value":
+                        [new_key, new_value] = default_value['default'].split(self.section_separator)
+                        value = self.return_dict[new_key].get(new_value)
+                    else:
+                        value = self._convert_to_strict_type(value=default_value['default'], compare_type=default_value['type'])
+
+                    fill_type = f"set {section_name} section[def] "
+
+                if self.is_debug and fill_type:
+                    cprint(f"{fill_type}::  {section_name}, {section_key}, {value}", "blue")
+
+                if value or value is False or value == '' or value == 0:
+                    self.return_dict[section_name][section_key] = self.assign_kv(f"{section_name}{self.section_separator}{section_key}", value)
+
+    def _convert_to_strict_type(self, key=None, value=None, compare_type=None):
+
+        if compare_type == "same_value" and key:
+            compare_type = self.find_parent_type(key)
+
+        if compare_type == "string":
+            return_value = str(value)
+        elif compare_type == "int":
+            return_value = int(value)
+        elif compare_type == "float":
+            return_value = float(value)
+            # return_value = round(value, 2)
+        elif compare_type == "boolean":
+            return_value = str2bool(value)
+        elif compare_type == "array":
+            return_value = [value.strip() for value in str(value).split(",")]
+        elif compare_type == "list":
+            return_value = [value.strip() for value in str(value).split(",")]
+        elif compare_type == "url":
+            if "http://" not in value and "https://" not in value:
+                return_value = f"http://{value}"
+            else:
+                return_value = value
+        elif compare_type == "function":
+            try:
+                return_value = execute_function(compare_type)
+            except Exception as e:
+                return_value = None
+                pawn.console.debug(f"{compare_type} is not function , {e}", "red")
+        else:
+            return_value = value
+        return return_value
+
+    def assign_kv(self, key, value, section_name="default"):
+        if self.default_schema.get(section_name):
+            compare_struct = self.default_schema[section_name.lower()].get(key.lower())
+        else:
+            compare_struct = self.default_schema.get(key.lower())
+        pawn.console.log(f"compare_struct={compare_struct}, key={key}, value={value}")
+
         compare_type = None
         is_none = False
-
-        orgin_value = value
-        try:
-            if isinstance(compare_struct, dict) and compare_struct.get("type"):
-                compare_type = compare_struct.get("type")
-            else:
-                compare_type = compare_struct
-
-            if value is None:
-                value = 0
-                is_none = True
-
-            if self.use_env and os.getenv(key):
-                value = os.getenv(key)
-                if self.is_debug:
-                    cprint(f"Environment variables have high priority => {key}={value} (None ? {is_none})", "green")
-
-            if compare_type == "same_value":
-                compare_type = self.find_parent_type(key)
-
-            if compare_type == "string":
-                self.return_value = str(value)
-            elif compare_type == "int":
-                self.return_value = int(value)
-            elif compare_type == "float":
-                self.return_value = float(value)
-            elif compare_type == "boolean":
-                self.return_value = str2bool(value)
-            elif compare_type == "list":
-                self.return_value = [value.strip() for value in str(value).split(",")]
-            elif compare_type == "url":
-                if "http://" not in value and "https://" not in value:
-                    self.return_value = f"http://{value}"
+        origin_value = value
+        if compare_struct:
+            try:
+                if isinstance(compare_struct, dict) and compare_struct.get("type"):
+                    compare_type = compare_struct.get("type")
                 else:
-                    self.return_value = value
-            else:
-                self.return_value = value
+                    compare_type = compare_struct
 
-            if is_none:
-                self.return_value = compare_struct.get("default", "")
+                if value is None:
+                    value = 0
+                    is_none = True
 
-        except Exception as e:
-            cprint(f"Invalid data type: key='{key}', value='{value}', required_type='{compare_type}', {e}", "red")
-            raise
+                if self.use_env and os.getenv(key):
+                    value = os.getenv(key)
+                    if self.is_debug:
+                        cprint(f"Environment variables have high priority => {key}={value} (None ? {is_none})", "green")
+
+                return_value = self._convert_to_strict_type(key, value, compare_type=compare_type)
+
+                if is_none:
+                    return_value = compare_struct.get("default", "")
+
+            except Exception as e:
+                pawn.console.debug(f"[red]Invalid data type: key='{key}', value='{value}', required_type='{compare_type}', {e}")
+                raise
+        else:
+            # cprint(f"cannot find default struct schema - {key}", "red")
+            return_value = value
 
         if self.is_debug:
-            cprint(f"key={key}, value={value} (origin:{orgin_value}), type={type(self.return_value)}", "yellow")
-        return self.return_value
+            if compare_struct:
+                pawn.console.debug(f"[OK] key={key}, value={value} (origin:{origin_value}), type={type(return_value)}")
+            else:
+                pawn.console.debug(f"[red][NOT FOUND] key={key}, value={value} (origin:{origin_value}), type={type(return_value)}")
+        return return_value
 
     # def return_type(self):
+    def assign_dict(self, input_schema=None, default_schema=None, is_flatten=True, use_section=False, separator="_", section_separator="__"):
 
-    def fill_default(self, section_separator="__"):
-        for default_key, default_value in self.structure_types.items():
-            if section_separator is not None and section_separator != "" and section_separator in default_key:
-                [section_name, section_key] = default_key.split(section_separator)
-            else:
-                section_name = "default"
-                section_key = default_key
+        if default_schema:
+            self.default_schema = default_schema
 
-            if self.return_dict.get(section_name) is None:
-                self.return_dict[section_name] = {}
+        if input_schema:
+            self.input_schema = input_schema
 
-            value = None
-            fill_type = None
+        self._lower_dict_keys()
 
-            if section_name == "default" and os.getenv(section_key):
-                value = os.getenv(section_key)
-                fill_type = "set default section[env] "
-
-            elif os.getenv(section_key):
-                value = os.getenv(f"{section_name}{section_separator}{section_key}")
-                fill_type = f"set {section_name} section[env] "
-
-            elif self.return_dict[section_name].get(section_key, None) is None and default_value.get("default", "NULL") != "NULL": # False 처리때문에
-                if default_value.get('type') == "function":
-                    try:
-                        value = execute_function(default_value['default'])
-                    except:
-                        value = None
-                        cprint(f"{default_value['default']} is not function", "red")
-
-                elif default_value.get('type') == "same_value":
-                    [new_key, new_value] = default_value['default'].split(section_separator)
-                    value = self.return_dict[new_key].get(new_value)
-                else:
-                    value = default_value['default']
-
-                fill_type = f"set {section_name} section[def] "
-
-            if self.is_debug and fill_type:
-                cprint(f"{fill_type}::  {section_name}, {section_key}, {value}", "blue")
-
-            if value or value is False or value == '' or value == 0:
-                self.return_dict[section_name][section_key] = self.assign_kv(f"{section_name}{section_separator}{section_key}", value)
-
-    def assign_dict(self, dict_obj, structure_types=None, is_flatten=True, use_section=False, separator="_", section_separator="__"):
-        if structure_types:
-            self.structure_types = structure_types
-        elif self.structure_types:
-            pass
-        else:
-            self.structure_types = defines.default_structure
-        if isinstance(dict_obj, dict):
-            for key, value in dict_obj.items():
+        if isinstance(self.input_schema, dict):
+            for key, value in self.input_schema.items():
                 if use_section:
-                    section_name = key
+                    section_name, section_key = self._parse_section_name(key)
+                    pawn.console.debug(f"section_name={section_name} ,key={section_key}, value={value}")
                     self.return_dict[section_name] = {}
-                    for section_key, section_value in value.items():
-                        self.return_dict[section_name][section_key] = self.assign_kv(f"{section_name}{section_separator}{section_key}", section_value)
+                    if isinstance(value, dict):
+                        for section_key, section_value in value.items():
+                            assign_value = self.assign_kv(section_key, section_value, section_name=section_name)
+                            pawn.console.debug(f"section_key={section_key}, section_value={section_value}, assign_value={type(assign_value)}")
+                            self.return_dict[section_name][section_key] = self.assign_kv(section_key, section_value, section_name=section_name)
+                    else:
+                        self.return_dict[section_name][section_key] = self.assign_kv(section_key, value, section_name=section_name)
                 else:
                     self.return_dict[key] = self.assign_kv(key, value)
 
@@ -680,6 +792,13 @@ class UpdateType:
 
         return self.return_dict
 
+    def _parse_section_name(self, name=None):
+        if self.section_separator in name:
+            section_name, section_key = name.split(self.section_separator)
+            return section_name, section_key
+
+        return "default", name
+
 
 def execute_function(module_func):
     """
@@ -688,13 +807,17 @@ def execute_function(module_func):
     :param module_func:
     :return:
     """
-    if "." in module_func:
-        [module_name, function_name] = module_func.split(".")
-        # module = __import__(f"lib.{module_name}", fromlist=["lib", "..", "."])
-        module = __import__(f"{module_name}")
-        func = getattr(module, function_name)
-        return func()
-    return globals()[module_func]()
+
+    if isinstance(module_func, str):
+        if "." in module_func:
+            [module_name, function_name] = module_func.split(".")
+            # module = __import__(f"lib.{module_name}", fromlist=["lib", "..", "."])
+            module = __import__(f"{module_name}")
+            func = getattr(module, function_name)
+            return func()
+        return globals()[module_func]()
+    else:
+        return module_func()
 
 
 def influxdb_metrics_dict(tags, measurement):
@@ -892,6 +1015,24 @@ def camel_case_to_space_case(s):
     return s[0] + ''.join(process_character(c) for c in s[1:])
 
 
+def lower_case(s):
+    """
+
+    :param s:
+    :return:
+
+    Example:
+
+         .. code-block:: python
+
+            from pawnlib.typing import lower_case
+            converter.lower_case('DDDDDDDDDDDDDDDD')
+            # >> 'dddddddddddddddd'
+
+    """
+    return str(s).lower()
+
+
 def camel_case_to_lower_case(s):
     """
     Convert a string from camelcase to spacecase.
@@ -975,4 +1116,3 @@ def upper_case_to_camel_case(s):
     """
 
     return lower_case_to_camel_case(s.lower())
-
