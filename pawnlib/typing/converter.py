@@ -400,26 +400,28 @@ def flatten_dict(init: dict, separator: str = '｡', lkey: str = '') -> dict:
     return ret
 
 
-def dict_to_line(dict_param: dict, quotes: bool = False) -> str:
+def dict_to_line(dict_param: dict, quotes: bool = False, separator: str = "=") -> str:
     """
     This function converts a dict to a line.
 
-
     :param dict_param:
     :param quotes:
+    :param separator:
     :return:
 
     Example:
+
         .. code-block:: python
 
             # >> {"a": "1234", "b": "1235"} => "a=1234,b=1235"
+
     """
     return_value = ""
     for k, v in sorted(dict_param.items()):
         if quotes:
-            return_value += f"{k}=\"{v}\","
+            return_value += f"{k}{separator}\"{v}\","
         else:
-            return_value += f"{k}={v},"
+            return_value += f"{k}{separator}{v},"
     return return_value.rstrip(",")
 
 

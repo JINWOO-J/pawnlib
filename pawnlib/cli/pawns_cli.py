@@ -1,3 +1,4 @@
+from pawnlib.config import pawnlib_config as pawn
 from pawnlib.builder.generator import AppGenerator, generate_banner
 from pawnlib.__version__ import __version__ as _version
 import argparse
@@ -9,11 +10,11 @@ from rich.syntax import Syntax
 def get_parser():
     parser = argparse.ArgumentParser(description='pawns client for goloop')
     parser.add_argument('command', help='command', choices=["init"])
-    # parser.add_argument('-c', '--command', type=str, help=f'command', default=None, choices=["start", "stop", "restart", None])
     return parser
 
 
 def main():
+    # pawn.console.log(pawn.to_dict())
     banner = generate_banner(
         app_name="pawns",
         author="jinwoo",
@@ -36,5 +37,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pawn.console.log("[red] KeyboardInterrupt")
 

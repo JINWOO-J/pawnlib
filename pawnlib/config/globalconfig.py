@@ -427,7 +427,8 @@ class PawnlibConfig(metaclass=Singleton):
                 elif p_key == f"{self.env_prefix}_DEBUG":
                     self.debug = self.str2bool(p_value)
                     self.console.pawn_debug = self.str2bool(p_value)
-                    rich_traceback_install(show_locals=True)
+                    if self.debug:
+                        rich_traceback_install(show_locals=True)
                 elif p_key == f"{self.env_prefix}_TIMEOUT":
                     self.timeout = p_value
                 elif p_key == f"{self.env_prefix}_VERBOSE":

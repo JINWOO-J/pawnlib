@@ -447,7 +447,7 @@ class Spinner:
         .. code-block:: python
 
             from pawnlib.utils.operate_handler import Spinner
-            with operate_handler.Spinner(text="Wait message"):
+            with Spinner(text="Wait message"):
                 time.sleep(10)
 
     """
@@ -461,8 +461,15 @@ class Spinner:
         self._screen_lock = None
         self.thread = None
         self.spin_message = ""
-        self.line_up = '\033[1A'
+        # self.line_up = '\033[1A'
+        self.line_up = '\x1b[1A'
         self.line_clear = '\x1b[2K'
+
+        if type(sys.stdout).__name__ == "FileProxy":
+            # self._sys_stdout = sys.stdout.rich_proxied_file
+            self._sys_stdout = getattr(sys.stdout, "rich_proxied_file", sys.stdout)
+        else:
+            self._sys_stdout = sys.stdout
 
     def title(self, text=None):
         print(end=self.line_up)
@@ -476,21 +483,21 @@ class Spinner:
                 else:
                     self.spin_message = next(self.spinner)
                 # sys.stdout.write(next(self.spinner))
-                sys.stdout.write(self.spin_message)
+                self._sys_stdout.write(self.spin_message)
 
                 self.spinner_visible = True
-                sys.stdout.flush()
+                self._sys_stdout.flush()
 
     def remove_spinner(self, cleanup=False):
         with self._screen_lock:
             if self.spinner_visible:
                 b = len(self.spin_message)
-                sys.stdout.write('\b' * b)
+                self._sys_stdout.write('\b' * b)
                 self.spinner_visible = False
                 if cleanup:
-                    sys.stdout.write(' ')       # overwrite spinner with blank
-                    sys.stdout.write('\r')      # move to next line
-                sys.stdout.flush()
+                    self._sys_stdout.write(' ')       # overwrite spinner with blank
+                    self._sys_stdout.write('\r')      # move to next line
+                self._sys_stdout.flush()
 
     def spinner_task(self):
         while self.busy:
@@ -509,16 +516,16 @@ class Spinner:
         self.remove_spinner(cleanup=True)
 
     def __enter__(self):
-        if sys.stdout.isatty():
+        if self._sys_stdout.isatty():
             self.start()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_traceback):
-        if sys.stdout.isatty():
+        if self._sys_stdout.isatty():
             self.stop()
             print(f"[DONE] {self.text}")
         else:
-            sys.stdout.write('\r')
+            self._sys_stdout.write('\r')
 
 
 class WaitStateLoop:
@@ -579,15 +586,15 @@ class WaitStateLoop:
 
         if getattr(self.loop_function, "func"):
             func_name = self.loop_function.func.__name__
-            spin_text = f"[{self.text}] Wait for {func_name}()"
+            spin_text = f"[{self.text}] Wait for {func_name}{self.loop_function.args}"
 
         with Spinner(text=spin_text) as spinner:
             while True:
                 result = self.loop_function()
                 is_success = self.exit_function(result)
-
-                spinner.title(f"{error_text}[{count}]{spin_text}: result={result}, is_success={is_success}, {time.time()} < {start_time + self.timeout}")
-
+                elapsed = int(time.time() - start_time)
+                # spinner.title(f"{error_text}[{count}]{spin_text}: result={result}, is_success={is_success}, {elapsed} {time.time()} < {start_time + self.timeout}")
+                spinner.title(f"{error_text}[{count}]{spin_text}: result={result}, is_success={is_success}, {elapsed} secs passed")
                 if is_success is True:
                     return result
                 time.sleep(self.delay)
