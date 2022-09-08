@@ -82,24 +82,20 @@ class ThreadingChecker(object):
                 os._exit(0)
 
 
-interface = "0.0.0.0"
-port = 9899
-
-SimpleHTTPRequestHandler = MyRequestHandler
-server = ThreadingSimpleServer((interface, port), SimpleHTTPRequestHandler)
-
-# checker = ThreadingChecker(ipaddr=interface, port=port)
-
-try:
-    while True:
-        sys.stdout.flush()
-        check_result = check_port(interface, 9822)
-
-        pawn.console.log(f"TRYING -->  {check_result}")
-
-        server.handle_request()
-
-except KeyboardInterrupt:
-    print(' Finished.')
-
-
+# interface = "0.0.0.0"
+# port = 9899
+# #
+# SimpleHTTPRequestHandler = MyRequestHandler
+# server = ThreadingSimpleServer((interface, port), SimpleHTTPRequestHandler)
+# #
+# # # checker = ThreadingChecker(ipaddr=interface, port=port)
+# #
+# try:
+#     while True:
+#         sys.stdout.flush()
+#         server.handle_request()
+#
+# except KeyboardInterrupt:
+#     print(' Finished.')
+# #
+#
