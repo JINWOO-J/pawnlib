@@ -27,9 +27,6 @@ class TestMethodRequest(unittest.TestCase):
         dump(res)
 
 
-
-
-
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestMethodRequest)
     testResult = unittest.TextTestRunner(verbosity=3).run(suite)

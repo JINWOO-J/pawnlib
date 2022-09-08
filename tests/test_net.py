@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import unittest
+
 try:
     import common
 except:
@@ -10,44 +11,47 @@ from pawnlib.resource.net import *
 from pawnlib.utils.operate_handler import *
 from pawnlib.config import pawnlib_config as pawn
 
-interface = "0.0.0.0"
-port = 9899
-sock = listen_socket(interface, port)
 
+class TestNetworkUtils(unittest.TestCase):
+    sock = None
+    interface = "0.0.0.0"
+    port = 9899
 
-# while True:
-#     time.sleep(1)
-#     check_result = check_port(interface, port)
-#     pawn.console.log(f"check_result={check_result}, sock={sock}")
-#     if check_result:
-#         break
+    def setUp(self) -> None:
+        """
+        Preparing works for each TestCase
+        :return:
+        """
+        self.sock = listen_socket(self.interface, self.port)
 
-# spin_text = "sdsd"
-# with Spinner(text=spin_text):
-#     time.sleep(10)
-pawn.console.rule("[bold red] wait for 1")
+    def test_wait_for(self):
 
-WaitStateLoop(
-    loop_function=partial(check_port, interface, port),
-    exit_function=lambda result: result,
-    timeout=10,
-    delay=1,
-    text="checking port"
-).run()
+        WaitStateLoop(
+            loop_function=partial(check_port, self.interface, self.port),
+            exit_function=lambda result: result,
+            timeout=10,
+            delay=1,
+            text="checking port"
+        ).run()
 
-pawn.console.rule("[bold red] wait for 2")
+        self.assertEqual(True, True)
 
-wait_for_port_open(interface, port)
+    def test_wait_for2(self):
+        res = wait_for_port_open(self.interface, self.port)
+        self.assertEqual(res, True)
 
-pawn.console.rule("[bold red] wait for 3")
+    def test_wait_for3(self):
+        with pawn.console.status("[bold green]Working on tasks...") as status:
+            _port = 9890
+            while True:
+                time.sleep(0.1)
+                status.update(f"checking {_port}")
+                if check_port(self.interface, _port):
+                    status.stop()
+                    pawn.console.log(f"Done, {_port}")
+                    break
+                _port += 1
 
-with pawn.console.status("[bold green]Working on tasks...") as status:
-    _port = 9850
-    while True:
-        time.sleep(0.1)
-        status.update(f"checking {_port}")
-        if check_port(interface, _port):
-            status.stop()
-            pawn.console.log(f"Done, {_port}")
-            break
-        _port += 1
+    def tearDown(self) -> None:
+        self.sock.close()
+
