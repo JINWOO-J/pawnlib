@@ -1,6 +1,8 @@
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 import socket
+import time
 from pawnlib.utils import http
+from typing import Literal
 
 prev_getaddrinfo = socket.getaddrinfo
 
@@ -85,3 +87,68 @@ def get_hostname():
 
     """
     return socket.gethostname()
+
+
+def check_port(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Literal["tcp", "udp"] = "tcp") -> bool:
+    if protocol == "tcp":
+        socket_protocol = socket.SOCK_STREAM
+    elif protocol == "udp":
+        socket_protocol = socket.SOCK_DGRAM
+    else:
+        raise Exception("Invalid socket type argument, tcp or udp")
+
+    if host == "" or port == 0:
+        raise Exception(f"Invalid host or port, inputs: host={host}, port={port}")
+
+    with socket.socket(socket.AF_INET, socket_protocol) as sock:
+        host = http.remove_http(host)
+        socket.setdefaulttimeout(timeout)  # seconds (float)
+        result = sock.connect_ex((host, port))
+
+    if result == 0:
+        pawn.app_logger.info(f"[OK] Opened port -> {host}:{port}")
+        return True
+    else:
+        pawn.error_logger.error(f"[FAIL] Closed port -> {host}:{port}")
+    return False
+
+
+def listen_socket(host, port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind((host, port))
+    sock.listen(5)
+    return sock
+
+
+def wait_for_port_open(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Literal["tcp", "udp"] = "tcp") -> bool:
+    """
+
+    :param host: hostname or ipaddress
+    :param port: port
+    :param timeout: timeout seconds (float)
+    :param protocol: tcp or udp
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import net
+            wait_for_port_open("127.0.0.1", port)
+
+            ## ⠏  Wait for port open 127.0.0.1:9900 ... 6
+
+
+    """
+    message = f"[bold green] Wait for port open {host}:{port} ..."
+    count = 0
+    with pawn.console.status(message) as status:
+        while True:
+            if check_port(host, port, timeout, protocol):
+                status.stop()
+                pawn.console.debug(f"[OK] Activate port -> {host}:{port}")
+                pawn.app_logger.info(f"[OK] Activate port -> {host}:{port}")
+                return True
+            status.update(f"{message} {count}")
+            count += 1
+            time.sleep(1)

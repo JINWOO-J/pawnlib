@@ -1,3 +1,4 @@
+
 NAME = pawnlib
 GIT_USER = JINWOO-J
 PRIMARY_BRANCH = master
@@ -140,6 +141,9 @@ bash: make_debug_mode print_version
 
 bb:
 	docker run -it --rm $(REPO_HUB)/$(NAME):$(VERSION) bash
+
+local: build
+	pip3 install dist/pawnlib-$(VERSION)-py3-none-any.whl --force-reinstall
 
 local_deploy: build
 	scp dist/pawnlib-$(VERSION)-py3-none-any.whl root@$(LOCAL_SERVER):/app/;
