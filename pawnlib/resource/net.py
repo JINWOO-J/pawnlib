@@ -8,6 +8,18 @@ prev_getaddrinfo = socket.getaddrinfo
 
 
 class OverrideDNS:
+    """
+
+    Change the Domain Name using socket
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import net
+            net.OverrideDNS(domain=domain, ipaddr=ipaddr).set()
+
+    """
     _dns_cache = {}
 
     def __init__(self, domain="", ipaddr="", port=80):
@@ -78,6 +90,7 @@ def get_hostname():
     Get the local hostname
 
     :return:
+
     Example:
 
         .. code-block:: python
@@ -90,6 +103,24 @@ def get_hostname():
 
 
 def check_port(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Literal["tcp", "udp"] = "tcp") -> bool:
+    """
+    Returns boolean with checks if the port is open
+
+    :param host: ipaddress os hostname
+    :param port: destination port number
+    :param timeout: timeout sec
+    :param protocol: type of protocol
+    :return: boolean
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import net
+            net.check_port()
+
+
+    """
     if protocol == "tcp":
         socket_protocol = socket.SOCK_STREAM
     elif protocol == "udp":
@@ -123,6 +154,8 @@ def listen_socket(host, port):
 def wait_for_port_open(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Literal["tcp", "udp"] = "tcp") -> bool:
     """
 
+    Wait for a port to open. Useful when writing scripts which need to wait for a server to be available.
+
     :param host: hostname or ipaddress
     :param port: port
     :param timeout: timeout seconds (float)
@@ -134,7 +167,7 @@ def wait_for_port_open(host: str = "", port: int = 0, timeout: float = 3.0, prot
         .. code-block:: python
 
             from pawnlib.resource import net
-            wait_for_port_open("127.0.0.1", port)
+            net.wait_for_port_open("127.0.0.1", port)
 
             ## ⠏  Wait for port open 127.0.0.1:9900 ... 6
 
