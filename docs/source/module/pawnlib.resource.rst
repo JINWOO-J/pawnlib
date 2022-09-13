@@ -20,6 +20,18 @@ pawnlib.resource.net module
    :undoc-members:
    :show-inheritance:
 
+pawnlib.resource.server module
+----------------------------------
+
+.. code-block:: python
+
+    from pawnlib.resource import server
+
+.. automodule:: pawnlib.resource.server
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
