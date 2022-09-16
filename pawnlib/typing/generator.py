@@ -2,7 +2,7 @@
 import itertools
 from random import choice
 from string import ascii_lowercase, digits
-from typing import Iterator
+from typing import Iterator, Union, Dict, Any, Tuple
 from uuid import uuid4
 import string
 from pawnlib.typing.converter import UpdateType, replace_ignore_char, flatten_dict
@@ -329,14 +329,41 @@ def json_rpc(
         method: str = "",
         params: Union[Dict[str, Any], Tuple[Any, ...], None] = None,
         id: Any = "<NO_ID>",
-) -> Dict[str, Any]:
+        dumps: bool = False,
+) -> Union[str, dict[str, Union[Union[str, tuple[int]], Any]]]:
+    """
+
+    :param method:
+    :param params:
+    :param id:
+    :param dumps: to json string
+    :return:
+
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import generator
+
+            generator.json_rpc(method="icx_sendTransaction", params={"data": "ddddd"})
+            # >  {'jsonrpc': '2.0', 'method': 'icx_sendTranscation', 'params': {'data': 'ddddd'}, 'id': 0}
+
+            generator.json_rpc(method="icx_sendTransaction", params={"data": "ddddd"})
+            # >  {'jsonrpc': '2.0', 'method': 'icx_sendTranscation', 'params': {'data': 'ddddd'}, 'id': 1}
+
+
+    """
 
     if id != "<NO_ID>":
         pass
     else:
         id = increase_number(),
 
-    return {
+    if isinstance(id, tuple):
+        id = id[0]
+
+    return_dict = {
         "jsonrpc": "2.0",
         "method": method,
         **(
@@ -346,6 +373,11 @@ def json_rpc(
         ),
         "id": id
     }
+
+    if dumps:
+        return json.dumps(return_dict)
+
+    return return_dict
 
 
 def increase_number(c=itertools.count()):
