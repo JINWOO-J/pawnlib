@@ -161,9 +161,8 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
             if len(json_response) > 0:
                 json_response["elapsed"] = data["elapsed"]
 
-    if response_code > 200 and response_code != 999:
-        # if response_code > 200 or response_code == 999:
-        text = data.get("text")
+    if response_code > 200 and response_code != 999 and print_error:
+        text = response.text
         pawn.error_logger.error(f"status_code: {response_code} , url: {url} , payload: {payload}, response: {text}") if pawn.error_logger else False
     data["status_code"] = response_code
     data["http_version"] = http_version
