@@ -1,7 +1,10 @@
 # from datetime import datetime, timedelta, date
 import datetime
 import time
-from typing import Literal
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 from pawnlib.typing.converter import append_zero
 
 

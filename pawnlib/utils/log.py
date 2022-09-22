@@ -8,7 +8,12 @@ import datetime
 from pawnlib.output import *
 from pawnlib.config.globalconfig import pawnlib_config
 from rich.logging import RichHandler
-from typing import Callable, Literal
+from typing import Callable
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 
 class CustomLog:

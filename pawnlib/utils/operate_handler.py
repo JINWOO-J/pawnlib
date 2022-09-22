@@ -594,9 +594,9 @@ class WaitStateLoop:
                 is_success = self.exit_function(result)
                 elapsed = int(time.time() - start_time)
                 # spinner.title(f"{error_text}[{count}]{spin_text}: result={result}, is_success={is_success}, {elapsed} {time.time()} < {start_time + self.timeout}")
-                spinner.title(f"{error_text}[{count}]{spin_text}: result={result}, is_success={is_success}, {elapsed} secs passed")
                 if is_success is True:
                     return result
+                spinner.title(f"{error_text}[{count}]{spin_text}: result={result}, is_success={is_success}, {elapsed} secs passed")
                 time.sleep(self.delay)
 
                 try:
@@ -709,3 +709,31 @@ def wait_state_loop(
     #     "json": response.get("json"),
     #     "status_code": response.get("status_code", 0),
     # }
+
+
+def run_with_keyboard_interrupt(command, *args, **kwargs):
+    """
+    run with KeyboardInterrupt
+    :param command:
+    :param args:
+    :param kwargs:
+    :return:
+
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.utils.operate_handler import run_with_keyboard_interrupt
+
+            run_with_keyboard_interrupt(run_func, args, kwargs)
+
+
+    """
+    try:
+        if callable(command):
+            command(*args, **kwargs)
+        else:
+            pawn.console.print(f"\n[red] {command} not callable ")
+    except KeyboardInterrupt:
+        pawn.console.print(f"\n\n[red] ^C KeyboardInterrupt - {command.__name__}{str(args)[:-1]}{kwargs}) \n")

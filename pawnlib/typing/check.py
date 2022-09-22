@@ -75,4 +75,53 @@ def is_regex_keywords(keywords, value):
     return False
 
 
+def is_valid_ipv4(ip):
+    """
+    Validates IPv4 addresses.
 
+    :param ip:
+    :return:
+
+    """
+    pattern = re.compile(
+        r"^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$",
+        re.VERBOSE | re.IGNORECASE
+    )
+    return pattern.match(ip) is not None
+
+
+def is_valid_ipv6(ip):
+    """
+    Validates IPv6 addresses.
+
+    :param ip:
+    :return:
+
+    """
+    pattern = re.compile(r"""
+        ^
+        \s*                         # Leading whitespace
+        (?!.*::.*::)                # Only a single whildcard allowed
+        (?:(?!:)|:(?=:))            # Colon iff it would be part of a wildcard
+        (?:                         # Repeat 6 times:
+            [0-9a-f]{0,4}           #   A group of at most four hexadecimal digits
+            (?:(?<=::)|(?<!::):)    #   Colon unless preceeded by wildcard
+        ){6}                        #
+        (?:                         # Either
+            [0-9a-f]{0,4}           #   Another group
+            (?:(?<=::)|(?<!::):)    #   Colon unless preceeded by wildcard
+            [0-9a-f]{0,4}           #   Last group
+            (?: (?<=::)             #   Colon iff preceeded by exacly one colon
+             |  (?<!:)              #
+             |  (?<=:) (?<!::) :    #
+             )                      # OR
+         |                          #   A v4 address with NO leading zeros 
+            (?:25[0-4]|2[0-4]\d|1\d\d|[1-9]?\d)
+            (?: \.
+                (?:25[0-4]|2[0-4]\d|1\d\d|[1-9]?\d)
+            ){3}
+        )
+        \s*                         # Trailing whitespace
+        $
+    """, re.VERBOSE | re.IGNORECASE | re.DOTALL)
+    return pattern.match(ip) is not None

@@ -64,7 +64,7 @@ setuptools.setup(
     ],
     entry_points=dict(
         console_scripts=[
-            'pawns=pawnlib.cli.pawns_cli:main'
+            'pawns=pawnlib.cli.main_cli:main'
         ],
     ),
 )
