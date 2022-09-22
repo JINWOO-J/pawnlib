@@ -3,6 +3,7 @@ import itertools
 from random import choice
 from string import ascii_lowercase, digits
 from typing import Iterator, Union, Dict, Any, Tuple
+
 from uuid import uuid4
 import string
 from pawnlib.typing.converter import UpdateType, replace_ignore_char, flatten_dict
@@ -330,7 +331,7 @@ def json_rpc(
         params: Union[Dict[str, Any], Tuple[Any, ...], None] = None,
         id: Any = "<NO_ID>",
         dumps: bool = False,
-) -> Union[str, dict[str, Union[Union[str, tuple[int]], Any]]]:
+):
     """
 
     :param method:

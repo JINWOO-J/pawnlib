@@ -2,7 +2,10 @@ from pawnlib.config.globalconfig import pawnlib_config as pawn
 import socket
 import time
 from pawnlib.utils import http
-from typing import Literal
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 prev_getaddrinfo = socket.getaddrinfo
 
