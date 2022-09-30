@@ -1,4 +1,6 @@
 """Generators which yield an id to include in a JSON-RPC request."""
+import sys
+import os
 import itertools
 from random import choice
 from string import ascii_lowercase, digits
@@ -13,8 +15,7 @@ import json
 
 from functools import reduce, partial
 from typing import Any, Dict, Iterator, Tuple, Union, Callable, Type
-
-import sys
+import binascii
 
 
 class Null(object):
@@ -383,6 +384,140 @@ def json_rpc(
 
 def increase_number(c=itertools.count()):
     return next(c)
+
+
+def increase_hex(c=itertools.count(), prefix="", zfill=0, remove_prefix=True):
+    """
+
+    Returns increase hex value
+    :param c: itertools.count()
+    :param prefix:
+    :param zfill: adds zeros (0) at the beginning of the string, until it reaches the specified length.
+    :param remove_prefix: remove prefix '0x' string
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import generator
+
+            generator.increase_hex()
+            >> '0'
+
+            generator.increase_hex()
+            >> '1'
+
+
+    """
+    if remove_prefix:
+        return f"{prefix}{hex(next(c)).removeprefix('0x').zfill(zfill)}"
+    else:
+        return f"{prefix}{hex(next(c)).zfill(zfill)}"
+
+
+def increase_token_address(c=itertools.count(), prefix="hx", zfill=40, remove_prefix=True):
+    """
+
+    Returns increase token address
+
+    :param c: itertools.count()
+    :param prefix: prefix address
+    :param zfill: adds zeros (0) at the beginning of the string, until it reaches the specified length.
+    :param remove_prefix: remove prefix '0x' string
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import generator
+
+            generator.increase_address()
+            >> 'hx0000000000000000000000000000000000000000'
+
+            generator.increase_address()
+            >> 'hx0000000000000000000000000000000000000001'
+
+
+    """
+    return increase_hex(c, prefix=prefix, zfill=zfill, remove_prefix=remove_prefix)
+
+
+def random_token_address(prefix="hx", nbytes=20):
+    """
+
+    Return a random hx address for icon network
+
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import generator
+
+            generator.random_token_address()
+            >>> 'hxa85cfbf976afba6fd5880c89372cf9f253c4a1c9'
+
+
+    """
+    return f"{prefix}{token_hex(nbytes)}"
+
+
+def random_private_key():
+    """
+    :return:
+    """
+    # key = b"-B\x99\x99...xedy" + os.urandom(18)
+    bytes_key = os.urandom(32)
+    return bytes_key.hex()
+
+
+def token_bytes(nbytes):
+    """
+    Return a random byte string containing *nbytes* bytes.
+    If *nbytes* is ``None`` or not supplied, a reasonable
+    default is used.
+
+    :param nbytes:
+    :return:
+
+
+     Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import generator
+
+            generator.token_bytes(16)
+            >>> b'\\xebr\\x17D*t\\xae\\xd4\\xe3S\\xb6\\xe2\\xebP1\\x8b'
+
+    """
+    return os.urandom(nbytes)
+
+
+def token_hex(nbytes):
+    """
+
+    Return a random text string, in hexadecimal.
+    The string has *nbytes* random bytes, each byte converted to two
+    hex digits.  If *nbytes* is ``None`` or not supplied, a reasonable
+    default is used.
+
+    :param nbytes:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import generator
+            generator.token_hex(16)
+            >>> 'f9bf78b9a18ce6d46a0cd2b0b86df9da'
+
+    """
+
+    return binascii.hexlify(token_bytes(nbytes)).decode('ascii')
 
 
 request_natural = partial(request_impure, decimal())
