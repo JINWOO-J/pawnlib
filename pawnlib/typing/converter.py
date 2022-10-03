@@ -14,6 +14,121 @@ import base64
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 
 
+class DotDictify(dict):
+    """
+    Decode the text to base64.
+
+    :param text:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import DotDictify
+
+            config = {
+                "1": "2",
+                "1-2": {
+                    "2-1": "3-1"
+                },
+            }
+
+            dot_dict = DotDictify(config)
+
+            dot_dict.get('1-2.2-1')
+
+            # >> '3-1'
+
+
+
+
+    """
+    def __init__(self, value=None):
+        super().__init__()
+        if value is None:
+            pass
+        elif isinstance(value, dict):
+            for key in value:
+                self.__setitem__(key, value[key])
+        else:
+            raise TypeError
+
+    def __setitem__(self, key, value):
+        doit = True
+        if key[0] == '"' and key[-1] == '"':
+            key = key.replace('"', "")
+            doit = True
+        elif key[0] == "'" and key[-1] == "'":
+            key = key.replace("'", "")
+            doit = True
+
+        elif key is not None and "." in key:
+            myKey, restOfKey = key.split(".", 1)
+            target = self.setdefault(myKey, DotDictify())
+            if not isinstance(target, DotDictify):
+                raise KeyError
+            target[restOfKey] = value
+            doit = False
+        if doit:
+            if isinstance(value, dict) and not isinstance(value, DotDictify):
+                value = DotDictify(value)
+            dict.__setitem__(self, key, value)
+
+    def __getitem__(self, key):
+        if key[0] == '"' and key[-1] == '"':
+            key = key.replace('"', "")
+        elif key[0] == "'" and key[-1] == "'":
+            key = key.replace("'", "")
+        elif key is None or "." not in key:
+            return dict.__getitem__(self, key)
+        myKey, restOfKey = key.split(".", 1)
+        target = dict.__getitem__(self, myKey)
+        if not isinstance(target, DotDictify):
+            raise KeyError
+        return target[restOfKey]
+
+    def __contains__(self, key):
+        if key is None or "." not in key:
+            return dict.__contains__(self, key)
+        myKey, restOfKey = key.split(".", 1)
+        if not dict.__contains__(self, myKey):
+            return False
+        target = dict.__getitem__(self, myKey)
+        if not isinstance(target, DotDictify):
+            return False
+        return restOfKey in target
+
+    def setdefault(self, key, default):
+        if key not in self:
+            self[key] = default
+        return self[key]
+
+    def get(self, k, d=None):
+        if DotDictify.__contains__(self, k):
+            return DotDictify.__getitem__(self, k)
+        return d
+
+    def to_dict(self, values=None):
+        result = {}
+
+        if values:
+            dict_values = values
+        else:
+            dict_values = self
+
+        for k, v in dict_values.items():
+            if isinstance(v, DotDictify):
+                result[k] = self.to_dict(v)
+            else:
+                result[k] = v
+
+        return result
+
+    __setattr__ = __setitem__
+    __getattr__ = __getitem__
+
+
 def base64_decode(text):
     """
     Decode the text to base64.
