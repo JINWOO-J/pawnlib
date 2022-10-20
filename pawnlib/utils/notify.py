@@ -3,6 +3,7 @@ from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output import color_print
 from pawnlib.resource import net
 from pawnlib.typing import date_utils
+from pawnlib.utils import http
 
 
 def get_level_color(c_level):
@@ -103,3 +104,96 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
     except Exception as e:
         pawn.error_logger.error(f"[ERROR][Slack] Got errors -> {e}")
         return False
+
+
+def send_slack_token(title=None, message=None, token=None, channel_name=None, send_user="python_app", msg_level="info"):
+    if title:
+        msg_title = title
+    else:
+        msg_title = message
+
+    p_color = get_level_color(msg_level)
+
+    attachments = [
+        {
+            # "pretext": f"[{send_user}] {title}",
+            "title": str(title).capitalize(),
+            # "text": f"{converter.todaydate('ms')}  {message}",
+            # "mrkdwn_in": ["pretext"]
+        },
+        {
+            "color": "#" + p_color,
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "plain_text",
+                        "text": f'Title : {msg_title}'
+                    }
+                },
+                {
+                    "type": "divider"
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "plain_text",
+                        "text": f'{"+ [HOST]":^12s} : {net.get_hostname()}, {net.get_public_ip()}'
+                    }
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "plain_text",
+                        "text": f'{"+ [DATE]":^12s} : {(date_utils.todaydate("log"))}'
+                    }
+                },
+            ],
+            # "mrkdwn_in": ["blocks"],
+        }
+    ]
+    if isinstance(message, dict):
+        if attachments[-1].get("blocks"):
+            for message_k, message_v in message.items():
+                attachments[-1]['blocks'].append(
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "plain_text",
+                            "text": f"+ [{message_k:<12s}]: {message_v}"
+                        }
+                    }
+                )
+    else:
+        attachments[-1]['blocks'].append(
+            {
+                "type": "section",
+                "text": {
+                    "type": "plain_text",
+                    "text": f"{'+ [DESC]':^12s} : {message}"
+                }
+            }
+        )
+
+    payload = {
+        "channel": channel_name,
+        "attachments": attachments
+    }
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    try:
+        res = http.jequest(url='https://slack.com/api/chat.postMessage', method="post", payload=payload, headers=headers)
+
+        if res and res.get('status_code') == 200 and res['json']['ok'] == True:
+            pawn.app_logger.info(f"[OK][Slack] Send slack with token")
+            return True
+        else:
+            pawn.error_logger.error(f"[ERROR][Slack] Got errors, status_code={res.get('status_code')}, text={res.get('text')}")
+            return False
+
+    except Exception as e:
+        pawn.error_logger.error(f"[ERROR][Slack] Got errors -> {e}")
+        return False
+
