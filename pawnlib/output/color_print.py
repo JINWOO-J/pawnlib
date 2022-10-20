@@ -214,7 +214,7 @@ class PrintRichTable:
         elif isinstance(self.data, list):
             self.table_data = self.data
 
-        if len(self.columns) == 0:
+        if len(self.columns) == 0 and isinstance(self.table_data[0], dict):
             self.columns = list(self.table_data[0].keys())
 
         if self.with_idx:
@@ -407,6 +407,7 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
     """
     spacing = '   '
     def_spacing = '   '
+    format_number = lambda n: n if n % 1 else int(n)
 
     if type(obj) == dict:
         if nested_level == 0 or _is_list:
@@ -433,12 +434,21 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
         print('%s]' % (def_spacing + (nested_level) * spacing), file=output)
     else:
         if debug:
-            obj = f"{get_colorful_object(obj)} {bcolors.HEADER} {str(type(obj)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(obj))}{bcolors.ENDC}"
-        if hex_to_int and converter.is_hex(obj):
-            print(bcolors.WARNING + '%s%s' % (def_spacing + nested_level * spacing, str(round(int(obj, 16) / 10 ** 18, 8)) + bcolors.ENDC))
-        else:
-            print(bcolors.WARNING + '%s%s' % (def_spacing + nested_level * spacing, obj) + bcolors.ENDC)
-            # print(bcolors.WARNING + '%s' % (obj) + bcolors.ENDC)
+            converted_hex = ""
+            if hex_to_int and converter.is_hex(obj):
+                if len(obj) < 14:
+                    TINT = 1
+                    TINT_STR = ""
+                else:
+                    TINT = 10 ** 18
+                    TINT_STR = "(from TINT)"
+                converted_float = format_number(round(int(obj, 16) / TINT, 4))
+                converted_hex = f"{converted_float:,} {TINT_STR}"
+            obj = f"{get_colorful_object(obj)} " \
+                  f"{bcolors.LIGHT_GREY}{converted_hex}{bcolors.ENDC}" \
+                  f"{bcolors.HEADER} {str(type(obj)):>20}{bcolors.ENDC}" \
+                  f"{bcolors.DARK_GREY} len={len(str(obj))}{bcolors.ENDC}"
+        print(bcolors.WARNING + '%s%s' % (def_spacing + nested_level * spacing, obj) + bcolors.ENDC)
 
 
 def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, **kwargs):
