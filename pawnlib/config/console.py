@@ -67,7 +67,6 @@ class Console(rich_console.Console):
                     pass
                 # module_name = list_to_oneline_string(module_pieces)
             # full_module_name = f"{module_name}.{class_name}{function_name}({stack[1].lineno})"
-            # full_module_name = f"{module_name}.{class_name}{function_name}()"
             full_module_name = f"{class_name}{function_name}()"
 
             message = f"[yellow][DEBUG][/yellow]:face_with_monocle: {full_module_name} {message}"
