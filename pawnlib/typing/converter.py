@@ -10,6 +10,7 @@ from typing import Union, Any, Type
 import base64
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from collections.abc import MutableMapping
+from pawnlib import logger
 
 NO_DEFAULT = object()
 
@@ -1038,7 +1039,7 @@ class UpdateType:
         self.section_separator = "__"
 
         self._lower_dict_keys()
-        pawn.console.log(self.default_schema)
+        pawn.console.debug(f"default_schema={self.default_schema}")
 
     def _proc_section_separator(self):
         tmp_default_schema = {}
@@ -1084,7 +1085,7 @@ class UpdateType:
 
                 value = None
                 fill_type = None
-                pawn.console.log(f"[blue]  {section_name}, {section_key}")
+                logger.info(f"[blue]  {section_name}, {section_key}")
                 if section_name == "default" and os.getenv(section_key):
                     value = os.getenv(section_key)
                     fill_type = "set default section[env] "
@@ -1153,7 +1154,7 @@ class UpdateType:
             compare_struct = self.default_schema[section_name.lower()].get(key.lower())
         else:
             compare_struct = self.default_schema.get(key.lower())
-        pawn.console.log(f"compare_struct={compare_struct}, key={key}, value={value}")
+        pawn.console.debug(f"compare_struct={compare_struct}, key={key}, value={value}")
 
         compare_type = None
         is_none = False

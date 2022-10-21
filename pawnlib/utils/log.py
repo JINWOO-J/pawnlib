@@ -171,6 +171,7 @@ class AppLogger:
     :param log_level: log level
     :param log_path: log file path
     :param stdout: Enable stdout, Adding Hook for another library logging.
+    :param markup: Enable markup for stdout logging.
     :param stdout_level: stdout log level
     :param stdout_log_formatter: stdout log formatter (function)
     :param log_format: log format / [%(asctime)s] %(name)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s
@@ -216,6 +217,7 @@ class AppLogger:
                  app_name: str = "default",
                  log_level: Literal["INFO", "WARN", "DEBUG"] = "INFO",
                  log_path: str = "./logs",
+                 markup: bool = True,
                  stdout: bool = False,
                  stdout_level: Literal["INFO", "WARN", "DEBUG", "NOTSET"] = "INFO",
                  stdout_log_formatter: Callable = None,
@@ -230,6 +232,7 @@ class AppLogger:
         self.stdout = stdout
         self.stdout_level = stdout_level
         self.stdout_log_formatter = stdout_log_formatter
+        self.markup = markup
         self.log_level = log_level
         self.use_hook_exception = use_hook_exception
 
@@ -260,9 +263,9 @@ class AppLogger:
         if not os.path.isdir(self.log_path):
             os.mkdir(self.log_path)
 
-        logger = logging.getLogger(log_type)
+        _logger = logging.getLogger(log_type)
         stack = traceback.extract_stack()
-        logger.setLevel(getattr(logging, log_type))
+        _logger.setLevel(getattr(logging, log_type))
 
         if log_type == "ERROR":
             filename = f"{self.app_name}.{str(log_type).lower()}.log"
@@ -280,7 +283,7 @@ class AppLogger:
         )
         file_handler.suffix = '%Y%m%d'
         file_handler.setFormatter(self.log_formatter)
-        logger.addHandler(file_handler)
+        _logger.addHandler(file_handler)
 
         if self.stdout:
             from rich.text import Text
@@ -296,15 +299,15 @@ class AppLogger:
                 handlers=[
                     RichHandler(
                         rich_tracebacks=True,
-                        log_time_format=log_time_formatter
+                        log_time_format=log_time_formatter,
+                        markup=self.markup
                         # log_time_format=lambda dt: f"[{dt.strftime('%Y-%m-%d %H:%M:%S,%f')[:-3]}]",
                         # log_time_format=lambda dt:Text.from_markup(f"[red]{dt.ctime()}")
                     )
                 ]
             )
-            # logger.addHandler(self.add_stream_handler(level=log_type))
-
-        return logger
+        # _logger.addHandler(self.add_stream_handler(level=log_type))
+        return _logger
 
     def add_stream_handler(self, level):
         stream_handler = logging.StreamHandler()

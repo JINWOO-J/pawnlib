@@ -1,4 +1,4 @@
-# import datetime
+import logging
 import os
 import configparser
 from uuid import uuid4
@@ -11,9 +11,10 @@ from pawnlib.config.__fix_import import Null
 # from pawnlib.typing.generator import Null
 from pawnlib.config.console import Console
 from rich.traceback import install as rich_traceback_install
+import copy
 
 
-def nestednamedtuple(dictionary: dict) -> namedtuple:
+def nestednamedtuple(dict_items: dict) -> namedtuple:
     """
     Converts dictionary to a nested namedtuple recursively.
 
@@ -29,6 +30,7 @@ def nestednamedtuple(dictionary: dict) -> namedtuple:
             print(nt) # >>> namedtupled(hello=namedtupled(ola='mundo'))
 
     """
+    dictionary = copy.deepcopy(dict_items)
 
     if isinstance(dictionary, Mapping) and not isinstance(dictionary, fdict):
         # for ignore_type in ["configparser.SectionProxy", "configparser.ConfigParser"]:
@@ -415,7 +417,7 @@ class PawnlibConfig(metaclass=Singleton):
                                          f"'{p_key}': {self._environments[p_key]['value']}(ENV) != {p_value}(Config)")
                 if p_key == f"{self.env_prefix}_LOGGER" and p_value:
                     from pawnlib.utils.log import AppLogger
-                    if isinstance(p_value, dict) and p_value.get("app_name", "") == "":
+                    if isinstance(p_value, dict) :
                         if p_value.get('app_name') is None and kwargs.get('app_name'):
                             p_value['app_name'] = kwargs['app_name']
                             self.app_name = kwargs['app_name']
@@ -429,6 +431,14 @@ class PawnlibConfig(metaclass=Singleton):
                     self.console.pawn_debug = self.str2bool(p_value)
                     if self.debug:
                         rich_traceback_install(show_locals=True)
+                        if self.app_logger:
+                            set_debug_logger(self.app_logger)
+                        # if self.error_logger:
+                        #     set_debug_logger(self.error_logger)
+                            # from pawnlib import logger
+                            # logger.propagate = 0
+                            # logger.addHandler(self.app_logger)
+
                 elif p_key == f"{self.env_prefix}_TIMEOUT":
                     self.timeout = p_value
                 elif p_key == f"{self.env_prefix}_VERBOSE":
@@ -634,6 +644,14 @@ class PawnlibConfig(metaclass=Singleton):
             return g[self.global_name]
         else:
             return {}
+
+
+def set_debug_logger(logger_name=None, propagate=0, get_logger_name='PAWNS', level='DEBUG'):
+    if logger_name:
+        __logger = logging.getLogger(get_logger_name)
+        __logger.propagate = propagate
+        __logger.setLevel(level)
+        __logger.addHandler(logger_name)
 
 
 pawnlib_config = PawnlibConfig(global_name="pawnlib_global_config").init_with_env()

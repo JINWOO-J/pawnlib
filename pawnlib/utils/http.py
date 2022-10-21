@@ -4,7 +4,7 @@ import json
 from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose
 from pawnlib import output
 from pawnlib.resource import net
-
+from pawnlib import logger
 
 class JsonRequest:
     def __init__(self):
@@ -76,7 +76,6 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
 
     :return:
     """
-
     if ipaddr:
         if url.startswith('http') or url.startswith('http://'):
             domain = re.sub(r'https?://', '', url)
