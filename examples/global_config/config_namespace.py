@@ -1,41 +1,58 @@
 #!/usr/bin/env python3
 import common
-from pawnlib.config import nestednamedtuple, pawnlib_config as pawn
+import sys
+from pawnlib.config import pawnlib_config as pawn
 from pawnlib.output import dump
 
-pawn.set(
-    stack="stack_value",
-    PAWN_LOGGER=dict(
-        log_level="INFO",
-        stdout_level="INFO",
-        use_hook_exception=True,
-    ),
-    PAWN_DEBUG=True,# Don't use production, because it's not stored exception log.
-    dict_stack={
-        "sdsd": 111,
-        "sssss": 222,
-    }
-)
 
-pawn.console.log(pawn.to_dict())
-ns = pawn.conf()
-# pawn.console.log(f"stack_value={ns.stack} ")
-pawn.console.log(pawn.get('stack'))
-
-dump(pawn.to_dict())
-dump(pawn.get('dict_stack'))
-
-pawn.console.log(f"pawn.get('stack') = {pawn.get('stack')}")
-pawn.console.log(f"ns.stack = {ns.stack}")
-
-ns.stack = 1
-# dump(ns.dict_stack.sdsd)
+def init():
+    pawn.set(
+        stack="stack_value",
+        PAWN_LOGGER=dict(
+            log_level="INFO",
+            stdout_level="INFO",
+            use_hook_exception=True,
+        ),
+        PAWN_DEBUG=True,# Don't use production, because it's not stored exception log.
+        # dict_stack={
+        #     "sdsd": 111,
+        #     "sssss": 222,
+        # },
+        # data=111
+        data={
+            "lkas": "OLD_VALUE",
+            "aaa": 1111,
+        }
+    )
 
 
-# ns2 = nestednamedtuple({"hello": 111})
-#
-# print(ns2)
-#
-# print(ns2.hello)
-# ns2.hello = 3
-# print(ns2.hello)
+def get_namespace():
+    pawn.console.log(f"pawn.namespace = {pawn.data}")
+    pawn.data.sss = 1111
+
+
+def main():
+    init()
+    pawn.console.log(f"1. to_dict() : {pawn.to_dict()}")
+    pawn.console.log(f"2. stack => {pawn.get('data')}")
+
+    pawn.console.log(f"Try to changing NS, type=> {type(pawn.data)}")
+    pawn.data.aaa = "NEW_VALUE"
+
+    dump(pawn.to_dict())
+
+    pawn.console.log(f">> pawn.data = {pawn.data}")
+    pawn.console.log(f">> pawn.data.aaa = {pawn.data.aaa}")
+
+    pawn.data.aaa = 111
+    pawn.data.aaa += 10
+
+    pawn.console.log(f"pawn.namespace = {pawn.data}")
+    pawn.console.log(f"pawn.namespace = {pawn.data.__dict__}")
+
+    pawn.console.log("Try to changing NS -> string")
+    pawn.data = "STRING"
+
+
+if __name__ == "__main__":
+    main()

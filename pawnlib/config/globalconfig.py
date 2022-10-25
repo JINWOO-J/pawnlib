@@ -12,6 +12,24 @@ from pawnlib.config.__fix_import import Null
 from pawnlib.config.console import Console
 from rich.traceback import install as rich_traceback_install
 import copy
+from types import SimpleNamespace
+
+
+class NestedNamespace(SimpleNamespace):
+    @staticmethod
+    def map_entry(entry):
+        if isinstance(entry, dict):
+            return NestedNamespace(**entry)
+
+        return entry
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        for key, val in kwargs.items():
+            if type(val) == dict:
+                setattr(self, key, NestedNamespace(**val))
+            elif type(val) == list:
+                setattr(self, key, list(map(self.map_entry, val)))
 
 
 def nestednamedtuple(dict_items: dict) -> namedtuple:
@@ -144,7 +162,7 @@ class PawnlibConfig(metaclass=Singleton):
                         ),
                         PAWN_DEBUG=True,
                         app_name=APP_NAME,
-                        app_data={}
+                        data={} # Global NameSpace
                     )
 
 
@@ -166,7 +184,7 @@ class PawnlibConfig(metaclass=Singleton):
                         PAWN_ERROR_LOGGER=error_logger,
                         PAWN_DEBUG=True,
                         app_name=APP_NAME,
-                        app_data={}
+                        data={} # Global NameSpace
                     )
 
         """
@@ -182,7 +200,9 @@ class PawnlibConfig(metaclass=Singleton):
         self.version = f"{__title__}/{__version__}"
         self.env_prefix = "PAWN"
         self._environments = {}
-        self.data = {}
+        self.data = NestedNamespace()
+        # self.data = None
+
         self._current_path: Optional[Path] = None
         self._config_path = None
 
@@ -197,7 +217,6 @@ class PawnlibConfig(metaclass=Singleton):
         )
 
         self._none_string = "____NONE____"
-
         globals()[self.global_name] = {}
 
     def _load_config_file(self, config_path=None):
@@ -234,7 +253,6 @@ class PawnlibConfig(metaclass=Singleton):
         """
         self.fill_config_from_environment()
         self.set(**kwargs)
-        # self._load_config_file()
         return self
 
     # def set_config_ini(self):
@@ -446,6 +464,17 @@ class PawnlibConfig(metaclass=Singleton):
                 elif p_key == f"{self.env_prefix}_CONFIG_FILE":
                     self._config_path = self.get_path(p_value)
                     self._load_config_file()
+                elif p_key == "data" and p_value != self._none_string:
+                    if isinstance(p_value, dict):
+                        self.data = NestedNamespace(**p_value)
+                    else:
+                        self.console.log("[bold red] The data namespace value must be a Dict")
+                    # else:
+                    #     self.data = NestedNamespace()
+                    #     setattr(self, p_key, p_value)
+                    #     self.console.log(f"fff => {self.data}")
+                    p_value = self.data
+
                 globals()[self.global_name][p_key] = p_value
 
     def _check_logger_not_null(self, key, value):
@@ -645,6 +674,16 @@ class PawnlibConfig(metaclass=Singleton):
         else:
             return {}
 
+    # def ns(self):
+    #     return self.data
+    #
+    # def data_to_namespace(self):
+    #
+    #     g = globals()
+    #     if self.global_name in g:
+    #         return self.data
+    #
+    #     return self.data
 
 def set_debug_logger(logger_name=None, propagate=0, get_logger_name='PAWNS', level='DEBUG'):
     if logger_name:
