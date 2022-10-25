@@ -66,6 +66,7 @@ def main():
 
     pawn.console.log(render(text))
 
+
     #
     # rendered_text = render(text)
     # pawn.console.log(rendered_text)
@@ -75,10 +76,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-def set_debug_logger(logger_name=None, get_logger_name='PAWNS', level='DEBUG'):
-    __logger = logging.getLogger(get_logger_name)
-    __logger.propagate = 0
-    __logger.setLevel(level)
-    __logger.addHandler(logger_name)
