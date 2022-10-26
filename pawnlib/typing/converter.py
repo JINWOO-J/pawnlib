@@ -2,6 +2,7 @@ import sys
 import os
 import binascii
 import re
+import heapq
 from termcolor import cprint
 from .check import is_int, is_hex
 from deprecated import deprecated
@@ -11,8 +12,109 @@ import base64
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from collections.abc import MutableMapping
 from pawnlib import logger
+import statistics
 
 NO_DEFAULT = object()
+
+
+class StackList:
+    """
+    Stack List
+
+    :param max_length: max length size for list
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import StackList
+
+            stack = StackList(max_length=10)
+            for i in range(1, 100)
+                stack.push(i)
+
+            stack.mean()
+            # > 94.5
+
+            stack.median()
+            # > 94.5
+
+    """
+
+    def __init__(self, max_length=1000):
+
+        self.max_length = max_length
+        self.data = []
+
+    def push(self, item):
+        if len(self.data) == self.max_length:
+            self.data.pop(0)
+        self.data.append(item)
+
+    def median(self):
+        return statistics.median(self.data)
+
+    def mean(self):
+        return statistics.mean(self.data)
+
+    def get_list(self):
+        return self.data
+
+    def reset(self):
+        self.data = []
+
+
+class MedianFinder:
+
+    def __init__(self):
+        # initialize data structure
+        self.max_heap = []
+        self.min_heap = []
+        self.num_list = []
+
+    def add_number(self, num):
+        self.num_list.append(num)
+        # type num: int, rtype: void
+        if not self.max_heap and not self.min_heap:
+            heapq.heappush(self.min_heap, num)
+            return
+        if not self.max_heap:
+            if num > self.min_heap[0]:
+                heapq.heappush(self.max_heap, -heapq.heappop(self.min_heap))
+                heapq.heappush(self.min_heap, num)
+            else:
+                heapq.heappush(self.max_heap, -num)
+            return
+        if len(self.max_heap) == len(self.min_heap):
+            if num < -self.max_heap[0]:
+                heapq.heappush(self.max_heap, -num)
+            else:
+                heapq.heappush(self.min_heap, num)
+        elif len(self.max_heap) > len(self.min_heap):
+            if num < -self.max_heap[0]:
+                heapq.heappush(self.min_heap, -heapq.heappop(self.max_heap))
+                heapq.heappush(self.max_heap, -num)
+            else:
+                heapq.heappush(self.min_heap, num)
+        else:
+            if num > self.min_heap[0]:
+                heapq.heappush(self.max_heap, -heapq.heappop(self.min_heap))
+                heapq.heappush(self.min_heap, num)
+            else:
+                heapq.heappush(self.max_heap, -num)
+
+    def median(self):
+        # rtype: float
+        if len(self.max_heap) == len(self.min_heap):
+            return (-self.max_heap[0] + self.min_heap[0]) / 2
+        elif len(self.max_heap) > len(self.min_heap):
+            return -self.max_heap[0]
+        else:
+            return self.min_heap[0]
+
+    def mean(self):
+        count = len(self.num_list)
+        return sum(self.num_list) / count
 
 
 class FlatDict(MutableMapping):
