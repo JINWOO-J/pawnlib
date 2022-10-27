@@ -213,12 +213,14 @@ class PrintRichTable:
             self.table_data = [self.data]
         elif isinstance(self.data, list):
             self.table_data = self.data
+        else:
+            self.table_data = []
 
-        if len(self.columns) == 0 and isinstance(self.table_data[0], dict):
+        if self.table_data and len(self.columns) == 0 and isinstance(self.table_data[0], dict):
             self.columns = list(self.table_data[0].keys())
 
-        if self.with_idx:
-            self.columns.insert(0, "idx")
+            if self.with_idx:
+                self.columns.insert(0, "idx")
 
         for item in self.table_data:
             if isinstance(item, dict):
@@ -242,7 +244,7 @@ class PrintRichTable:
         if self.table.columns:
             pawn.console.print(self.table)
         else:
-            pawn.console.print(f"{self.title} - [i]No data ... [/i]")
+            pawn.console.print(f"{self.title} \n  [i]No data ... [/i]")
 
 
 class TablePrinter(object):
