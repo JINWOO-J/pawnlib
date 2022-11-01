@@ -6,6 +6,7 @@ try:
 except ImportError:
     from typing_extensions import Literal
 from pawnlib.typing.converter import append_zero
+from pawnlib.typing.constants import const
 
 
 class TimeCalculator:
@@ -36,12 +37,12 @@ class TimeCalculator:
 
     def calculate(self):
         seconds = self.seconds
-        self._days = int(seconds // (24 * 3600))
-        seconds = int(seconds % (24 * 3600))
-        self._hours = seconds // 3600
-        seconds %= 3600
-        self._minutes = seconds // 60
-        seconds %= 60
+        self._days = int(seconds // const.DAY_IN_SECONDS)
+        seconds = int(seconds % const.DAY_IN_SECONDS)
+        self._hours = seconds // const.HOUR_IN_SECONDS
+        seconds %= const.HOUR_IN_SECONDS
+        self._minutes = seconds // const.MINUTE_IN_SECONDS
+        seconds %= const.MINUTE_IN_SECONDS
         self._seconds = seconds
         self.hhmmss = "%02i:%02i:%02i" % (self._hours, self._minutes, self._seconds)
         if self._days:
@@ -66,13 +67,13 @@ class TimeCalculator:
         return str(self.hhmmss)
 
     def to_minutes(self):
-        return self.seconds // 60
+        return self.seconds // const.MINUTE_IN_SECONDS
 
     def to_hours(self):
-        return self.seconds // 3600
+        return self.seconds // const.HOUR_IN_SECONDS
 
     def to_days(self):
-        return self.seconds // (24 * 3600)
+        return self.seconds // const.DAY_IN_SECONDS
 
 
 def convert_unix_timestamp(date_param) -> int:
@@ -180,10 +181,10 @@ def format_seconds_to_hhmmss(seconds: int = 0):
     """
     try:
         seconds = int(seconds)
-        hours = seconds // (60*60)
-        seconds %= (60*60)
-        minutes = seconds // 60
-        seconds %= 60
+        hours = seconds // const.HOUR_IN_SECONDS
+        seconds %= const.HOUR_IN_SECONDS
+        minutes = seconds // const.MINUTE_IN_SECONDS
+        seconds %= const.MINUTE_IN_SECONDS
         hhmmss = "%02i:%02i:%02i" % (hours, minutes, seconds)
         return hhmmss
     except Exception as e:
@@ -243,12 +244,12 @@ def second_to_dayhhmm(seconds: int = 0):
 
 
     """
-    day = int(seconds // (24 * 3600))
-    input_time = int(seconds % (24 * 3600))
-    hour = input_time // 3600
-    input_time %= 3600
-    minutes = input_time // 60
-    input_time %= 60
+    day = int(seconds // const.DAY_IN_SECONDS)
+    input_time = int(seconds % const.DAY_IN_SECONDS)
+    hour = input_time // const.HOUR_IN_SECONDS
+    input_time %= const.HOUR_IN_SECONDS
+    minutes = input_time // const.MINUTE_IN_SECONDS
+    input_time %= const.MINUTE_IN_SECONDS
     sec = input_time
 
     return f"{day} days {append_zero(hour)}:{append_zero(minutes)}:{append_zero(sec)}"
