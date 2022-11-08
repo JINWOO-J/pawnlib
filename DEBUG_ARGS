@@ -1,13 +1,14 @@
 
 -e BASE_IMAGE=python:3.9.13-slim-buster  
--e BUILD_DATE=2022-07-26T08:30:35UTC  
+-e BUILD_DATE=2022-11-08T03:27:39UTC  
 -e DOCKER_BUILD_OPTION=--no-cache --rm=true  
 -e ECHO_OPTION=""  
 -e GIT_USER=JINWOO-J  
+-e IS_MULTI_ARCH=false  
 -e LOCAL_SERVER="20.20.5.172"  
 -e NAME=pawnlib  
 -e PRIMARY_BRANCH=master  
 -e REPO_HUB=jinwoo  
 -e SED_OPTION=  
 -e UNAME_S=Darwin  
--e VERSION=0.0.2  
+-e VERSION=0.0.34  

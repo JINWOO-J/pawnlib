@@ -464,12 +464,12 @@ def random_token_address(prefix="hx", nbytes=20):
     return f"{prefix}{token_hex(nbytes)}"
 
 
-def random_private_key():
+def random_private_key(nbytes=32):
     """
     :return:
     """
     # key = b"-B\x99\x99...xedy" + os.urandom(18)
-    bytes_key = os.urandom(32)
+    bytes_key = os.urandom(nbytes)
     return bytes_key.hex()
 
 

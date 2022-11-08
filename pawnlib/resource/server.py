@@ -309,7 +309,7 @@ def get_cpu_time():
                 non_idle_time = user + nice + system + irq + softirq + steal
                 total = idle_time + non_idle_time
 
-                cpu_infos.update({cpu_id: {'total': total, 'idle': idle_time}})
+                cpu_infos.update({cpu_id: {'total': total, 'idle': idle_time, 'iowait': iowait}})
     return cpu_infos
 
 
@@ -317,12 +317,16 @@ def get_cpu_usage_percentage():
     start = get_cpu_time()
     time.sleep(1)
     end = get_cpu_time()
-
     cpu_usages = {}
+    iowait_usages = []
     for cpu in start:
         diff_total = end[cpu]['total'] - start[cpu]['total']
         diff_idle = end[cpu]['idle'] - start[cpu]['idle']
-        # diff_iowait = end[cpu]['iowait'] - start[cpu]['iowait']
+        diff_iowait = end[cpu].get('iowait', 0) - start[cpu].get('iowait', 0)
+        iowait_usages.append(diff_iowait)
         cpu_usage_percentage = (diff_total - diff_idle) / diff_total * 100
         cpu_usages.update({cpu: round(cpu_usage_percentage, 2)})
+    if cpu_usages:
+        cpu_usages['avg'] = round(sum(cpu_usages.values()) / len(cpu_usages.values()), 2)
+        cpu_usages['iowait'] = round(sum(iowait_usages) / len(iowait_usages), 2)
     return cpu_usages
