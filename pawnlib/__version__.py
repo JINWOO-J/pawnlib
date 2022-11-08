@@ -2,7 +2,7 @@
 __title__ = 'pawnlib'
 __description__ = 'pawnlib is a collection of libraries for IaC.'
 __url__ = 'https://github.com/jinwoo-j/pawnlib'
-__version__ = '0.0.34'
+__version__ = '0.0.35'
 __author__ = 'Jinwoo Jeong'
 __author_email__ = 'jinwoo@iconloop.com'
 __license__ = 'MIT'
