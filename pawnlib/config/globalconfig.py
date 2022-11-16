@@ -48,7 +48,7 @@ def nestednamedtuple(dict_items: dict) -> namedtuple:
             print(nt) # >>> namedtupled(hello=namedtupled(ola='mundo'))
 
     """
-    dictionary = copy.deepcopy(dict_items)
+    dictionary = copy.copy(dict_items)
 
     if isinstance(dictionary, Mapping) and not isinstance(dictionary, fdict):
         # for ignore_type in ["configparser.SectionProxy", "configparser.ConfigParser"]:
