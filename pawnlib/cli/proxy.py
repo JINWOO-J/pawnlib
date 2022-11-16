@@ -20,7 +20,7 @@ def get_parser():
 
 
 def get_arguments(parser):
-    parser.add_argument("--listen", "-l", type=str, help="Listen  IPaddr:port", default=None, required=True)
+    parser.add_argument("--listen", "-l", type=str, help="Listen  IPaddr:port", default="0.0.0.0:8080")
     parser.add_argument("--forward", "-f", type=str, help="Forward IPaddr:port", default=None, required=True)
     parser.add_argument("--buffer-size", type=int, help="buffer size for socket", default=4096)
     parser.add_argument("--delay", type=float, help="buffer delay for socket", default=0.0001)
@@ -38,7 +38,7 @@ class Forward:
             self.forward.settimeout(timeout)
             return self.forward
         except Exception as e:
-            pawn.console.log(f"[red][ERROR] Connect to {host}:{port} {e}")
+            pawn.console.log(f"[red][Forward ERROR] Connect to {host}:{port} {e}")
             return False
 
 
@@ -81,10 +81,13 @@ class EchoWebServer:
             input_ready, output_ready, except_ready = ss(self.input_list, [], [])
             for self.s in input_ready:
                 if self.s == self.server:
-                    pawn.console.log("on_accept")
                     self.on_accept()
                     break
-                self.data = self.s.recv(self.buffer_size)
+                try:
+                    self.data = self.s.recv(self.buffer_size)
+                except Exception as e:
+                    pawn.console.log(f"[red bold] {e}")
+
                 if len(self.data) == 0:
                     self.on_close()
                     break
@@ -92,7 +95,7 @@ class EchoWebServer:
                     self.on_recv()
 
     def on_accept(self):
-        # forward = Forward().start(forward_to[0], forward_to[1])
+        pawn.console.log("[bold red] on_accept")
         forward = Forward().start(self.f_host, self.f_port)
         clientsock, client_addr = self.server.accept()
         client_ip, client_port = client_addr
@@ -103,8 +106,8 @@ class EchoWebServer:
             self.channel[clientsock] = forward
             self.channel[forward] = clientsock
         else:
-            pawn.console.log("Can't establish connection with remote server.", end=' ')
-            pawn.console.log(f"Closing connection with client side: {client_ip}:{client_port}")
+            pawn.console.log(f"Can't establish connection with remote server. "
+                             f"Closing connection with client side: {client_ip}:{client_port}")
             clientsock.close()
 
     def on_close(self):
