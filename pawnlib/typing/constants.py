@@ -7,6 +7,9 @@ class DateNamespace:
     MONTH_IN_SECONDS = 30 * DAY_IN_SECONDS
     YEAR_IN_SECONDS = 365 * DAY_IN_SECONDS
 
+    HOUR_IN_MINUTES = 60
+    DAY_IN_MINUTES = HOUR_IN_MINUTES * 24
+
 
 class EtcNamespace(DateNamespace):
     __slots__ = ()

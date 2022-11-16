@@ -36,7 +36,7 @@ ERROR_COLOR=\033[31m
 WARN_COLOR=\033[93m
 
 TEST_FILES := $(shell find tests -name '*.yml')
-LOCAL_SERVER := "20.20.5.172"
+LOCAL_SERVER := 20.20.5.172
 VERSION := $(shell python3 -c "from pawnlib import __version__;print(__version__.__version__)")
 
 #TAGNAME = VERSION
