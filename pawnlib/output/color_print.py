@@ -10,6 +10,8 @@ from pawnlib.typing import converter, date_utils, list_to_oneline_string
 from pawnlib.config import pawnlib_config as pawn, global_verbose
 from rich.table import Table
 from typing import Union
+from datetime import datetime
+
 
 _ATTRIBUTES = dict(
     list(zip([
@@ -395,7 +397,7 @@ def get_colorful_object(v):
     return value
 
 
-def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _is_list=False):
+def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _is_list=False, _last_key=None):
     """
     Print a variable for debugging.
 
@@ -405,6 +407,7 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
     :param hex_to_int:
     :param debug:
     :param _is_list:
+    :param _last_key:
     :return:
     """
     spacing = '   '
@@ -416,10 +419,11 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
             print('%s{' % (def_spacing + (nested_level) * spacing))
         else:
             print("{")
+
         for k, v in obj.items():
             if hasattr(v, '__iter__'):
                 print(bcolors.OKGREEN + '%s%s: ' % (def_spacing + (nested_level + 1) * spacing, k) + bcolors.ENDC, end="")
-                dump(v, nested_level + 1, output, hex_to_int, debug)
+                dump(v, nested_level + 1, output, hex_to_int, debug, _last_key=k)
             else:
                 if debug:
                     v = f"{get_colorful_object(v)} {bcolors.HEADER} {str(type(v)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(v))}{bcolors.ENDC}"
@@ -438,14 +442,24 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
         if debug:
             converted_hex = ""
             if hex_to_int and converter.is_hex(obj):
-                if len(obj) < 14:
-                    TINT = 1
-                    TINT_STR = ""
+
+                if _last_key == "timestamp":
+                    t_value = round(int(obj, 16) / 1_000_000)
+                    converted_str = f"(from {_last_key})"
+                    converted_date = datetime.fromtimestamp(format_number(t_value)).strftime('%Y-%m-%d %H:%M:%S')
+                    converted_hex = f"{converted_date} {converted_str}"
+
                 else:
-                    TINT = 10 ** 18
-                    TINT_STR = "(from TINT)"
-                converted_float = format_number(round(int(obj, 16) / TINT, 4))
-                converted_hex = f"{converted_float:,} {TINT_STR}"
+                    if len(obj) < 14:
+                        TINT = 1
+                        TINT_STR = ""
+                    else:
+                        TINT = 10 ** 18
+                        TINT_STR = f"(from TINT) {_last_key}"
+
+                    converted_float = format_number(round(int(obj, 16) / TINT, 4))
+                    converted_hex = f"{converted_float:,} {TINT_STR}"
+
             obj = f"{get_colorful_object(obj)} " \
                   f"{bcolors.LIGHT_GREY}{converted_hex}{bcolors.ENDC}" \
                   f"{bcolors.HEADER} {str(type(obj)):>20}{bcolors.ENDC}" \
