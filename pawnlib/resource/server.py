@@ -4,6 +4,7 @@ import platform
 import os
 import subprocess
 import re
+from pawnlib.utils import http
 from typing import Callable
 
 
@@ -330,3 +331,37 @@ def get_cpu_usage_percentage():
         cpu_usages['avg'] = round(sum(cpu_usages.values()) / len(cpu_usages.values()), 2)
         cpu_usages['iowait'] = round(sum(iowait_usages) / len(iowait_usages), 2)
     return cpu_usages
+
+
+def get_aws_metadata(meta_ip="169.254.169.254", timeout=2):
+    meta_url = f'http://{meta_ip}/latest'
+    # those 3 top subdirectories are not exposed with a final '/'
+    metadict = {'dynamic': {}, 'meta-data': {}, 'user-data': {}}
+    for sub_sect in metadict.keys():
+        aws_data_crawl('{0}/{1}/'.format(meta_url, sub_sect), metadict[sub_sect], timeout=timeout)
+
+    return metadict
+
+
+def aws_data_crawl(url, d, timeout):
+    r = http.jequest(url, timeout=timeout)
+    if r.get('status_code') == 404 or r.get('status_code') == 999:
+        return
+
+    for l in r.get('text').split('\n'):
+        if not l: # "instance-identity/\n" case
+            continue
+        new_url = '{0}{1}'.format(url, l)
+        # a key is detected with a final '/'
+        if l.endswith('/'):
+            new_key = l.split('/')[-2]
+            d[new_key] = {}
+            aws_data_crawl(new_url, d[new_key], timeout=timeout)
+
+        else:
+            r = http.jequest(new_url, timeout=timeout)
+            # pawn.console.log(r)
+            if r.get('json'):
+                d[l] = r.get('json')
+            else:
+                d[l] = r.get('text')
