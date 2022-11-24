@@ -20,16 +20,22 @@ def print_banner():
 
 
 def main():
-    LOG_DIR = f"{get_real_path(__file__)}/logs"
+    LOG_DIR = f"{get_script_path(__file__)}/logs"
     APP_NAME = "{{ app_name }}"
     STDOUT = True
     pawn.set(
+        PAWN_PATH=get_script_path(__file__),
         PAWN_LOGGER=dict(
             log_level="INFO",
             stdout_level="INFO",
             log_path=LOG_DIR,
             stdout=STDOUT,
             use_hook_exception=True,
+        ),
+        PAWN_CONSOLE=dict(
+            redirect=True,
+            record=True,
+            log_time_format=f"%H:%M:%S.%f",
         ),
         PAWN_DEBUG=True, # Don't use production, because it's not stored exception log.
         app_name=APP_NAME,

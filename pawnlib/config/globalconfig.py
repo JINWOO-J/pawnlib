@@ -3,7 +3,7 @@ import os
 import configparser
 from uuid import uuid4
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Callable
 from collections import namedtuple
 from collections.abc import Mapping
 from pawnlib.__version__ import __title__, __version__
@@ -156,7 +156,7 @@ class PawnlibConfig(metaclass=Singleton):
                     pwn.set(
                         PAWN_LOGGER=dict(
                             app_name="default_app",
-                            log_path=f"{get_real_path(__file__)}/logs",
+                            log_path=f"{get_script_path(__file__)}/logs",
                             stdout=True,
                             use_hook_exception=False,
                         ),
@@ -201,47 +201,65 @@ class PawnlibConfig(metaclass=Singleton):
         self.env_prefix = "PAWN"
         self._environments = {}
         self.data = NestedNamespace()
-        # self.data = None
 
         self._current_path: Optional[Path] = None
-        self._config_path = None
 
-        self.console = Console(
+        self._config_file = None
+        self._pawn_configs = {}
+        self.console = Null()
+        self.console_options = None
+        self._none_string = "____NONE____"
+
+        self._loaded = {
+            "console": False,
+            "on_ready": False
+
+        }
+        globals()[self.global_name] = {}
+
+        self._init_console(force_init=True)
+
+    def _init_console(self, force_init=True):
+        _console_options = dict(
             pawn_debug=self.debug,
-            redirect=True,  # <-- not supported by rich.console.Console
+            redirect=self.debug,  # <-- not supported by rich.console.Console
             record=True,
             soft_wrap=True,
             force_terminal=True,
             # log_time_format="[%Y-%m-%d %H:%M:%S.%f]"
             log_time_format=lambda dt: f"[{dt.strftime('%H:%M:%S,%f')[:-3]}]"
         )
-
-        self._none_string = "____NONE____"
-        globals()[self.global_name] = {}
+        if self._loaded.get('console') or force_init:
+            if self.console_options:
+                if not isinstance(self.console_options.get('log_time_format'), Callable):
+                    _log_time_format = self.console_options['log_time_format']
+                    self.console_options['log_time_format'] = lambda dt: f"[{dt.strftime(_log_time_format)[:-3]}]"
+                _console_options.update(self.console_options)
+            self.console = Console(**_console_options)
 
     def _load_config_file(self, config_path=None):
-        # self._config_path = config_path or self.get_path(self.to_dict().get(f'{self.env_prefix}_CONFIG_FILE'))
-        # from pawnlib.typing.converter import UpdateType
-        config = ConfigSectionMap()
-        if self._config_path.is_file():
-            config.read(self._config_path)
-            self.set(PAWN_CONFIG=config.as_dict())
-        else:
-            self.set(PAWN_CONFIG={})
-            self.console.debug(f"[red] cannot found config_file")
-        # if not check_exist and not config_path.is_file():
-        #     return
-        #
-        # with open(config_path, 'r') as config_file:
-        #     # self._config.update(json.load(config_file))
-        #     self._current_path = config_path.parent
+
+        if self._loaded['on_ready']:
+            config = ConfigSectionMap()
+            _config_filename = self.get_path(self._config_file)
+
+            if _config_filename.is_file():
+                config.read(_config_filename)
+                self.set(PAWN_CONFIG=config.as_dict())
+            else:
+                self.set(PAWN_CONFIG={})
+                self.console.debug(f"[bold red] cannot found config_file - {_config_filename}")
+            # self._loaded['on_ready'] = False
 
     def get_path(self, path: str) -> Path:
         """Get Path from the directory where the configure.json file is.
         :param path: file_name or path
         :return:
         """
-        root_path = self._current_path or Path(os.path.join(os.getcwd()))
+        if self._current_path:
+            root_path = Path(self._current_path)
+        else:
+            root_path = Path(os.path.join(os.getcwd()))
         return root_path.joinpath(path)
 
     def init_with_env(self, **kwargs):
@@ -253,6 +271,9 @@ class PawnlibConfig(metaclass=Singleton):
         """
         self.fill_config_from_environment()
         self.set(**kwargs)
+        # self._load_config_file()
+        self._loaded['on_ready'] = True
+        self._load_config_file()
         return self
 
     # def set_config_ini(self):
@@ -335,6 +356,14 @@ class PawnlibConfig(metaclass=Singleton):
             "GLOBAL_NAME": {
                 "type": str,
                 "default": self.global_name
+            },
+            "CONSOLE": {
+                "type": dict,
+                "default": {}
+            },
+            "PATH": {
+                "type": str,
+                "default": Path(os.path.join(os.getcwd()))
             }
         }
         mandatory_environments = list(default_structure.keys())
@@ -456,14 +485,21 @@ class PawnlibConfig(metaclass=Singleton):
                             # from pawnlib import logger
                             # logger.propagate = 0
                             # logger.addHandler(self.app_logger)
-
+                elif p_key == f"{self.env_prefix}_CONSOLE":
+                    self.console_options = p_value
+                    self._init_console()
+                    self._loaded['console'] = True
                 elif p_key == f"{self.env_prefix}_TIMEOUT":
                     self.timeout = p_value
                 elif p_key == f"{self.env_prefix}_VERBOSE":
                     self.verbose = p_value
-                elif p_key == f"{self.env_prefix}_CONFIG_FILE":
-                    self._config_path = self.get_path(p_value)
+                elif p_key == f"{self.env_prefix}_PATH":
+                    self._current_path = p_value
                     self._load_config_file()
+                elif p_key == f"{self.env_prefix}_CONFIG_FILE":
+                    self._config_file = p_value
+                    self._load_config_file()
+
                 elif p_key == "data" and p_value != self._none_string:
                     if isinstance(p_value, dict):
                         self.data = NestedNamespace(**p_value)
