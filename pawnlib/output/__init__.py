@@ -12,7 +12,8 @@ from .file import (
     open_yaml_file,
     write_file,
     write_json,
-    write_yaml
+    write_yaml,
+    get_script_path
 
 )
 from .color_print import (

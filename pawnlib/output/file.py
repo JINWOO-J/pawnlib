@@ -102,8 +102,12 @@ def get_parent_path(run_path=__file__) -> str:
     return parent_path
 
 
+def get_script_path(run_path=__file__):
+    return os.path.dirname(run_path)
+
+
 def get_real_path(run_path=__file__):
-    path = os.path.dirname(os.path.abspath(run_path))
+    path = os.path.dirname(get_abs_path(run_path))
     return path
 
 
