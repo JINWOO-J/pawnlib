@@ -13,6 +13,45 @@ pip3 install pawnlib
 
 ```
 
+### Global Config
+
+You can use the global config. 
+
+```python
+from pawnlib.config.globalconfig import pawnlib_config as pawn
+from pawnlib.output import *
+
+
+def main():
+    LOG_DIR = f"{get_script_path(__file__)}/logs"
+    APP_NAME = "default_app"
+    STDOUT = True
+    pawn.set(
+        PAWN_PATH=get_script_path(__file__),
+        # PAWN_PATH="/Users/jinwoo/work/python_prj",
+        PAWN_LOGGER=dict(
+            log_level="INFO",
+            stdout_level="INFO",
+            log_path=LOG_DIR,
+            stdout=STDOUT,
+            use_hook_exception=True,
+        ),
+        PAWN_CONSOLE=dict(
+            redirect=True,
+            record=True,
+            log_time_format=f"%Y-%m-%d %H:%M:%S.%f",
+        ),
+        PAWN_DEBUG=True, # Don't use production, because it's not stored exception log.
+        PAWN_VERBOSE=3,
+        app_name=APP_NAME,
+        app_data={},
+    )
+    
+    pawn.console.log("START APP")
+    pawn.console.log(pawn.to_dict())
+
+```
+
 ### app builder 
 
 You can create a simple application based on pawnlib with the command below.
