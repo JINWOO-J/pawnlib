@@ -220,7 +220,7 @@ class AppLogger:
                  markup: bool = True,
                  stdout: bool = False,
                  stdout_level: Literal["INFO", "WARN", "DEBUG", "NOTSET"] = "INFO",
-                 stdout_log_formatter: Callable = None,
+                 stdout_log_formatter: Callable = "%H:%M:%S,%f",
                  log_format: str = None,
                  debug: bool = False,
                  use_hook_exception: bool = True,
@@ -288,9 +288,13 @@ class AppLogger:
         if self.stdout:
             from rich.text import Text
             if self.stdout_log_formatter:
-                log_time_formatter = self.stdout_log_formatter
+                log_time_formatter = lambda dt: Text.from_markup(f"[{dt.strftime(self.stdout_log_formatter)[:-3]}]")
             else:
-                log_time_formatter = lambda dt: Text.from_markup(f"[{dt.strftime('%H:%M:%S,%f')[:-3]}]")
+                log_time_formatter = None
+            # if self.stdout_log_formatter:
+            #
+            # else:
+            #     log_time_formatter = lambda dt: Text.from_markup(f"[{dt.strftime('%H:%M:%S,%f')[:-3]}]")
 
             logging.basicConfig(
                 # level=self.stdout_level, format="%(message)s", datefmt="[%Y-%m-%d %H:%M:%S.%f]", handlers=[RichHandler(rich_tracebacks=True)]

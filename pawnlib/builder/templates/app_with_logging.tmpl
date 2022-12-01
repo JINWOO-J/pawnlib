@@ -20,18 +20,20 @@ def print_banner():
 
 
 def main():
-    LOG_DIR = f"{get_script_path(__file__)}/logs"
     APP_NAME = "{{ app_name }}"
+    log_time_format = '%Y-%m-%d %H:%M:%S.%f'
+    current_path = get_script_path(__file__)
     STDOUT = True
     pawn.set(
-        PAWN_PATH=get_script_path(__file__),
+        PAWN_PATH=current_path,
         PAWN_LOGGER=dict(
             log_level="INFO",
             stdout_level="INFO",
-            log_path=LOG_DIR,
+            log_path=f"{current_path}/logs",
             stdout=STDOUT,
             use_hook_exception=True,
         ),
+        PAWN_TIME_FORMAT=log_time_format,
         PAWN_CONSOLE=dict(
             redirect=True,
             record=True,
