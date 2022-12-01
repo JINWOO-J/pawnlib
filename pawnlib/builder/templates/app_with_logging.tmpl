@@ -36,12 +36,11 @@ def main():
         PAWN_TIME_FORMAT=log_time_format,
         PAWN_CONSOLE=dict(
             redirect=True,
-            record=True,
-            log_time_format=f"%H:%M:%S.%f",
+            record=True
         ),
         PAWN_DEBUG=True, # Don't use production, because it's not stored exception log.
         app_name=APP_NAME,
-        app_data={}
+        data={}
     )
 
     pawn.app_logger.info("App logger initializing")
