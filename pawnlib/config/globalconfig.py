@@ -10,6 +10,7 @@ from pawnlib.__version__ import __title__, __version__
 from pawnlib.config.__fix_import import Null
 # from pawnlib.typing.generator import Null
 from pawnlib.config.console import Console
+from collections import OrderedDict
 from rich.traceback import install as rich_traceback_install
 import copy
 from types import SimpleNamespace
@@ -208,6 +209,7 @@ class PawnlibConfig(metaclass=Singleton):
         self._pawn_configs = {}
         self.console = Null()
         self.console_options = None
+        self.stdout_log_formatter = None
         self._none_string = "____NONE____"
 
         self._loaded = {
@@ -231,14 +233,14 @@ class PawnlibConfig(metaclass=Singleton):
         )
         if self._loaded.get('console') or force_init:
             if self.console_options:
-                if not isinstance(self.console_options.get('log_time_format'), Callable):
+                if self.console_options.get('log_time_format') and not isinstance(self.console_options.get('log_time_format'), Callable):
                     _log_time_format = self.console_options['log_time_format']
                     self.console_options['log_time_format'] = lambda dt: f"[{dt.strftime(_log_time_format)[:-3]}]"
+                    self.stdout_log_formatter = self.console_options['log_time_format']
                 _console_options.update(self.console_options)
             self.console = Console(**_console_options)
 
     def _load_config_file(self, config_path=None):
-
         if self._loaded['on_ready']:
             config = ConfigSectionMap()
             _config_filename = self.get_path(self._config_file)
@@ -364,7 +366,11 @@ class PawnlibConfig(metaclass=Singleton):
             "PATH": {
                 "type": str,
                 "default": Path(os.path.join(os.getcwd()))
-            }
+            },
+            "TIME_FORMAT": {
+                "type": str,
+                "default": "%H:%M:%S.%f"
+            },
         }
         mandatory_environments = list(default_structure.keys())
 
@@ -454,8 +460,22 @@ class PawnlibConfig(metaclass=Singleton):
                 pawnlib_config.get("hello")
 
         """
+        priority_keys = [f"{self.env_prefix}_PATH", f"{self.env_prefix}_TIME_FORMAT", f"{self.env_prefix}_DEBUG", f"{self.env_prefix}_VERBOSE"]
+        order_dict = OrderedDict(kwargs)
+
+        def _enforce_set_value(source_key=None, target_key=None, target_dict=None):
+            if kwargs.get(source_key):
+                if isinstance(target_dict, dict) and not target_dict.get(target_key):
+                    target_dict[target_key] = kwargs[source_key]
+                    if isinstance(self.verbose, int) and self.verbose >= 3:
+                        self.console.debug(f'set => {target_key}={kwargs[source_key]}')
+
+        for priority_key in priority_keys:
+            if order_dict.get(priority_key):
+                order_dict.move_to_end(key=priority_key, last=False)
+
         if self.global_name in globals():
-            for p_key, p_value in kwargs.items():
+            for p_key, p_value in order_dict.items():
                 if self._environments.get(p_key, self._none_string) != self._none_string \
                         and self._environments[p_key].get("input"):
                     if self._environments[p_key].get('input') and \
@@ -464,11 +484,13 @@ class PawnlibConfig(metaclass=Singleton):
                                          f"'{p_key}': {self._environments[p_key]['value']}(ENV) != {p_value}(Config)")
                 if p_key == f"{self.env_prefix}_LOGGER" and p_value:
                     from pawnlib.utils.log import AppLogger
-                    if isinstance(p_value, dict) :
+                    if isinstance(p_value, dict):
                         if p_value.get('app_name') is None and kwargs.get('app_name'):
                             p_value['app_name'] = kwargs['app_name']
                             self.app_name = kwargs['app_name']
+                        _enforce_set_value(source_key=f'{self.env_prefix}_TIME_FORMAT', target_key='stdout_log_formatter', target_dict=p_value)
                         self.app_logger, self.error_logger = AppLogger(**p_value).get_logger()
+
                 elif p_key == f"{self.env_prefix}_APP_LOGGER" and p_value:
                     self.app_logger = self._check_logger_not_null(p_key, p_value)
                 elif p_key == f"{self.env_prefix}_ERROR_LOGGER" and p_value:
@@ -486,6 +508,7 @@ class PawnlibConfig(metaclass=Singleton):
                             # logger.propagate = 0
                             # logger.addHandler(self.app_logger)
                 elif p_key == f"{self.env_prefix}_CONSOLE":
+                    _enforce_set_value(source_key=f'{self.env_prefix}_TIME_FORMAT', target_key='log_time_format', target_dict=p_value)
                     self.console_options = p_value
                     self._init_console()
                     self._loaded['console'] = True
@@ -720,6 +743,7 @@ class PawnlibConfig(metaclass=Singleton):
     #         return self.data
     #
     #     return self.data
+
 
 def set_debug_logger(logger_name=None, propagate=0, get_logger_name='PAWNS', level='DEBUG'):
     if logger_name:

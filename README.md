@@ -23,17 +23,18 @@ from pawnlib.output import *
 
 
 def main():
-    LOG_DIR = f"{get_script_path(__file__)}/logs"
-    APP_NAME = "default_app"
-    STDOUT = True
+    current_path = get_script_path(__file__)
+    log_time_format = '%Y-%m-%d %H:%M:%S.%f'
+    app_name = "default_app"
+    stdout = True
     pawn.set(
-        PAWN_PATH=get_script_path(__file__),
-        # PAWN_PATH="/Users/jinwoo/work/python_prj",
+        PAWN_PATH=current_path,        
+        PAWN_TIME_FORMAT=log_time_format,
         PAWN_LOGGER=dict(
             log_level="INFO",
             stdout_level="INFO",
-            log_path=LOG_DIR,
-            stdout=STDOUT,
+            log_path=f"{current_path}/logs",
+            stdout=stdout,
             use_hook_exception=True,
         ),
         PAWN_CONSOLE=dict(
@@ -43,7 +44,7 @@ def main():
         ),
         PAWN_DEBUG=True, # Don't use production, because it's not stored exception log.
         PAWN_VERBOSE=3,
-        app_name=APP_NAME,
+        app_name=app_name,
         app_data={},
     )
     

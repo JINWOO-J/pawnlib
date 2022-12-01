@@ -1,33 +1,44 @@
 #!/usr/bin/env python3
+import datetime
+
 import common
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.utils.http import jequest
 from pawnlib.output import *
 from pawnlib import logger
 import logging
-
 from pawnlib.typing import converter
 
 
 def app_init():
     log_dir = f"{get_real_path(__file__)}/logs"
+    log_format = '%Y-%m-%d %H:%M:%S.%f'
     pawn.set(
+        PAWN_TIME_FORMAT=log_format,
         PAWN_LOGGER=dict(
             log_path=log_dir,
             log_level="DEBUG",
             stdout_level="DEBUG",
             stdout=True,
+            # stdout_log_formatter=log_format,
             use_hook_exception=True,
+        ),
+        PAWN_CONSOLE=dict(
+            redirect=True,
+            record=True,
+            # log_time_format='%Y-%m-%d %H:%M:%S.%f',
         ),
         PAWN_DEBUG=True,
         app_name="app_logging",
         version="0.0.1",
-        app_data={"aaa": "cccc"}
+        app_data={"aaa": "cccc"},
+
     )
 
 
 def main():
     app_init()
+    pawn.console.log(pawn.to_dict())
     # pawn.app_logger.addHandler(logging.getLogger('PAWNLIB-LOGGER'))
     # logging.addHandler()
 
@@ -65,7 +76,7 @@ def main():
     logger.info("[bold]EXITING...[/bold]")
 
     pawn.console.log(render(text))
-
+    jequest("http")
 
     #
     # rendered_text = render(text)
