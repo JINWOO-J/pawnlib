@@ -18,7 +18,7 @@ from types import SimpleNamespace
 
 class NestedNamespace(SimpleNamespace):
     @staticmethod
-    def map_entry(entry):
+    def _______map_____entry(entry):
         if isinstance(entry, dict):
             return NestedNamespace(**entry)
 
@@ -30,7 +30,13 @@ class NestedNamespace(SimpleNamespace):
             if type(val) == dict:
                 setattr(self, key, NestedNamespace(**val))
             elif type(val) == list:
-                setattr(self, key, list(map(self.map_entry, val)))
+                setattr(self, key, list(map(self._______map_____entry, val)))
+
+    def _keys(self) -> list:
+        return list(self.__dict__.keys())
+
+    def _values(self) -> list:
+        return list(self.__dict__.values())
 
 
 def nestednamedtuple(dict_items: dict) -> namedtuple:

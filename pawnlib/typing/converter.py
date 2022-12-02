@@ -12,6 +12,8 @@ import base64
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from collections.abc import MutableMapping
 from pawnlib import logger
+from pawnlib.typing.constants import const
+from pawnlib.config.__fix_import import Null
 import statistics
 
 NO_DEFAULT = object()
@@ -624,8 +626,6 @@ def convert_hex_to_int(data: Any, is_comma: bool = False):
             # >> {"aaa": 4899}
 
     """
-    # TINT_VALUE = 1000000000000000000
-    TINT_VALUE = 10 ** 18
     return_data = {}
 
     if type(data) == list:
@@ -655,8 +655,8 @@ def convert_hex_to_int(data: Any, is_comma: bool = False):
                 # if args.verbose > 1 and args.write is None:
                 #     con_res = f"\t\t(convert from f{value})"
 
-                if int_value >= TINT_VALUE:
-                    int_value = int_value / TINT_VALUE
+                if int_value >= const.TINT:
+                    int_value = int_value / const.TINT
                     # if args.verbose > 1 and args.write is None:
                     #     con_res += f"(tint) from {int_value}"
                 if is_comma:
@@ -672,13 +672,14 @@ def convert_hex_to_int(data: Any, is_comma: bool = False):
     return return_data
 
 
-def convert_dict_hex_to_int(data: Any, is_comma: bool = False, debug: bool = False):
+def convert_dict_hex_to_int(data: Any, is_comma: bool = False, debug: bool = False, ignore_keys: list = [], ansi: bool = False):
     """
     This function recursively converts hex to int.
 
     :param data:
     :param is_comma:
     :param debug:
+    :param ignore_keys:
     :return:
 
     Example:
@@ -698,7 +699,7 @@ def convert_dict_hex_to_int(data: Any, is_comma: bool = False, debug: bool = Fal
             if isinstance(value, list) or isinstance(value, dict):
                 return_list.append(convert_dict_hex_to_int(value, is_comma, debug))
             else:
-                return_list.append(hex_to_number(value))
+                return_list.append(hex_to_number(value, is_comma, debug))
         return return_list
 
     elif isinstance(data, dict):
@@ -706,16 +707,37 @@ def convert_dict_hex_to_int(data: Any, is_comma: bool = False, debug: bool = Fal
             if isinstance(value, dict):
                 return_data[key] = convert_dict_hex_to_int(value, is_comma, debug)
             elif isinstance(value, list):
-                print(">>>> list")
                 return_data[key] = convert_dict_hex_to_int(value, is_comma, debug)
             else:
-                return_data[key] = hex_to_number(value)
+                change = True
+                if key in ignore_keys:
+                    # return_data[key] = value
+                    change = False
+                # else:
+                return_data[key] = hex_to_number(value, is_comma, debug, change, ansi=ansi)
     else:
-        return_data = hex_to_number(data)
+        return_data = hex_to_number(data, is_comma, debug, ansi=ansi)
     return return_data
 
 
-def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = False):
+class __bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    GREEN = '\033[32;40m'
+    CYAN = '\033[96m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    ITALIC = '\033[1;3m'
+    UNDERLINE = '\033[4m'
+    WHITE = '\033[97m'
+    DARK_GREY = '\033[38;5;243m'
+    LIGHT_GREY = '\033[37m'
+
+
+def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = False, change: bool = False, ansi: bool = False):
     """
 
     this function will change the hex to number(int)
@@ -723,6 +745,7 @@ def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = Fal
     :param hex_value:
     :param is_comma:
     :param debug:
+    :param change:
     :return:
 
     Example:
@@ -738,32 +761,42 @@ def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = Fal
             # >> '9,162,662,701'
 
     """
-    TINT_VALUE = 10 ** 18
-    changed = False
-    changed_text = "(org)"
+    _changed = False
+    _not_change = False
+
+    if not ansi:
+        _bcolors = Null()
+    else:
+        _bcolors = __bcolors()
+
+    changed_text = f"(org)"
     if is_int(hex_value):
         converted_value = int(hex_value)
-        changed = True
+        _changed = True
     elif is_hex(hex_value):
         converted_value = int(hex_value, 16)
-        changed = True
+        _changed = True
     else:
         converted_value = hex_value
-
-    if changed:
-        if converted_value >= TINT_VALUE:
-            converted_value = converted_value / TINT_VALUE
-            changed_text = "(tint)"
+    if (_changed and change) or is_int(converted_value):
+        if converted_value >= const.TINT:
+            converted_value = converted_value / const.TINT
+            changed_text = f"{_bcolors.WARNING}(tint){_bcolors.ENDC}"
 
         if is_comma:
             converted_value = f"{converted_value:,}"
+
+        if ansi:
+            converted_value = f"{_bcolors.CYAN}{converted_value}{_bcolors.ENDC}"
+
     else:
-        changed_text = "(not changed)"
+        changed_text = f"{_bcolors.FAIL}(not changed){_bcolors.ENDC}"
+        _not_change = True
 
     if debug:
-        if hex_value == converted_value:
+        if hex_value == converted_value or _not_change:
             hex_value = ""
-        return f"{converted_value} {changed_text} {hex_value}".strip()
+        return f"{converted_value} {_bcolors.ITALIC}{changed_text} {hex_value}{_bcolors.ENDC}".strip()
     else:
         return converted_value
 
@@ -1530,6 +1563,18 @@ def append_zero(value):
     if value < 10:
         value = f"0{value}"
     return value
+
+
+def append_suffix(text=None, suffix=None):
+    if suffix and not text.endswith(suffix):
+        return f"{text}{suffix}"
+    return text
+
+
+def append_prefix(text=None, prefix=None):
+    if prefix and not text.startswith(prefix):
+        return f"{prefix}{text}"
+    return text
 
 
 def camel_case_to_space_case(s):

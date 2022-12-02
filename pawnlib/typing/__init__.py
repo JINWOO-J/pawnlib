@@ -34,6 +34,8 @@ from .converter import (
     split_every_n,
     class_extract_attr_list,
     append_zero,
+    append_suffix,
+    append_prefix,
     camel_case_to_space_case,
     camel_case_to_lower_case,
     lower_case_to_camel_case,
@@ -54,6 +56,21 @@ from .generator import (
     generate_number_list,
     generate_json_rpc,
     json_rpc,
+    parse_regex_number_list,
+    token_hex,
+    token_bytes,
+    random_private_key,
+    random_token_address,
+    increase_token_address,
+    increase_hex,
+    increase_number,
+    hexadecimal,
+    decimal,
+    uuid_generator,
+    id_generator,
+    generate_number_list,
+
+
 )
 
 from .date_utils import (

@@ -2,12 +2,9 @@
 import sys
 import os
 import itertools
-from random import choice
-from string import ascii_lowercase, digits
-from typing import Iterator, Union, Dict, Any, Tuple
+from string import ascii_lowercase, digits, ascii_uppercase
 
 from uuid import uuid4
-import string
 from pawnlib.typing.converter import UpdateType, replace_ignore_char, flatten_dict
 import math
 import random
@@ -16,6 +13,8 @@ import json
 from functools import reduce, partial
 from typing import Any, Dict, Iterator, Tuple, Union, Callable, Type
 import binascii
+import re
+from argparse import ArgumentTypeError
 
 
 class Null(object):
@@ -192,7 +191,7 @@ def generate_number_list(start=10000, count=100, convert_func=int):
     return result
 
 
-def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
+def id_generator(size=8, chars=ascii_uppercase + digits):
     """
     this function will be generated random id
 
@@ -518,6 +517,33 @@ def token_hex(nbytes):
     """
 
     return binascii.hexlify(token_bytes(nbytes)).decode('ascii')
+
+
+def parse_regex_number_list(string):
+    """
+    Parse the list of numbers with regex.
+
+    :param string:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import generator
+            generator.parse_regex_number_list("1-6")
+
+            >>> [ 1, 2, 3, 4, 5, 6]
+
+
+
+    """
+    m = re.match(r'(\d+)(?:-(\d+))?$', string)
+    if not m:
+        raise ArgumentTypeError("'" + string + "' is not a range of number. Expected forms like '0-5' or '2'.")
+    start = m.group(1)
+    end = m.group(2) or start
+    return list(range(int(start, 10), int(end, 10)+1))
 
 
 request_natural = partial(request_impure, decimal())
