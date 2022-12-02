@@ -1,0 +1,613 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+
+    <meta name="generator" content="sphinx-5.1.0, furo 2022.09.29"/>
+        <title>pawnlib.resource.server - pawnlib 0.1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">pawnlib 0.1.3 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  
+  
+  <span class="sidebar-brand-text">pawnlib 0.1.3 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>Source code for pawnlib.resource.server</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">resource</span> <span class="k">as</span> <span class="nn">__resource</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">pawnlib.utils</span> <span class="kn">import</span> <span class="n">http</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+
+
+<span class="k">def</span> <span class="nf">_line_split</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_type</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">d</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data_type</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">data_type</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="get_rlimit_nofile"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_rlimit_nofile">[docs]</a><span class="k">def</span> <span class="nf">get_rlimit_nofile</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Returns a dict (soft, hard) with the current soft and hard limits of resource</span>
+
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import server</span>
+<span class="sd">            server.get_rlimit_nofile()</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">soft</span><span class="p">,</span> <span class="n">hard</span> <span class="o">=</span> <span class="n">__resource</span><span class="o">.</span><span class="n">getrlimit</span><span class="p">(</span><span class="n">__resource</span><span class="o">.</span><span class="n">RLIMIT_NOFILE</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;soft&quot;</span><span class="p">:</span> <span class="n">soft</span><span class="p">,</span> <span class="s2">&quot;hard&quot;</span><span class="p">:</span> <span class="n">hard</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="get_mac_platform_info"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_mac_platform_info">[docs]</a><span class="k">def</span> <span class="nf">get_mac_platform_info</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import server</span>
+<span class="sd">            server.get_mac_platform_info()</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+        <span class="p">[</span><span class="s1">&#39;system_profiler&#39;</span><span class="p">,</span> <span class="s1">&#39;SPHardwareDataType&#39;</span><span class="p">],</span>
+        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+        <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
+    <span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">output</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;Chip:&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_line_split</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="n">line</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;Total Number of Cores:&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">_line_split</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="n">line</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">_line_split</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="n">tmp</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cores&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
+        <span class="c1"># if &#39;Memory:&#39; in line:</span>
+        <span class="c1">#     data[&#39;memory&#39;] = _line_split(line=line, sep=&quot;:&quot;, d=1)</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="get_platform_info"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_platform_info">[docs]</a><span class="k">def</span> <span class="nf">get_platform_info</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Returns a dict with platform information</span>
+
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import server</span>
+<span class="sd">            server.get_platform_info()</span>
+
+<span class="sd">            ## &gt; {&#39;system&#39;: &#39;Darwin&#39;, &#39;version&#39;: &#39;Darwin Kernel Version 21.6.0: Wed Aug 10 14:28:23 PDT 2022; root:xnu-8020.141.5~2/RELEASE_ARM64_T6000&#39;, &#39;release&#39;: &#39;21.6.0&#39;, &#39;machine&#39;: &#39;arm64&#39;, &#39;processor&#39;: &#39;arm&#39;, &#39;python_version&#39;: &#39;3.9.13&#39;, &#39;model&#39;: &#39;Apple M1 Pro&#39;, &#39;cores&#39;: 10}</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">uname</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">uname</span><span class="p">()</span>
+        <span class="n">python_version</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">python_version</span><span class="p">()</span>
+        <span class="n">platform_info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;system&quot;</span><span class="p">:</span> <span class="n">uname</span><span class="o">.</span><span class="n">system</span><span class="p">,</span>
+            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">uname</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="s2">&quot;release&quot;</span><span class="p">:</span> <span class="n">uname</span><span class="o">.</span><span class="n">release</span><span class="p">,</span>
+            <span class="s2">&quot;machine&quot;</span><span class="p">:</span> <span class="n">uname</span><span class="o">.</span><span class="n">machine</span><span class="p">,</span>
+            <span class="s2">&quot;processor&quot;</span><span class="p">:</span> <span class="n">uname</span><span class="o">.</span><span class="n">processor</span><span class="p">,</span>
+            <span class="s2">&quot;python_version&quot;</span><span class="p">:</span> <span class="n">python_version</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">platform_info</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">platform_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;system&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span><span class="p">:</span>
+        <span class="n">platform_info</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">get_mac_platform_info</span><span class="p">())</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/proc/cpuinfo&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">cpu_count</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="c1"># Ignore the blank line separating the information between</span>
+                    <span class="c1"># details about two processing units</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;model name&#39;</span><span class="p">):</span>
+                            <span class="n">model_name</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="n">model</span> <span class="o">=</span> <span class="n">model_name</span>
+                            <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                            <span class="n">cpu_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">platform_info</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span>
+                <span class="n">platform_info</span><span class="p">[</span><span class="s1">&#39;cores&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cpu_count</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">platform_info</span></div>
+
+
+<div class="viewcode-block" id="get_cpu_load"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_cpu_load">[docs]</a><span class="k">def</span> <span class="nf">get_cpu_load</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns dict with current cpu load average</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import server</span>
+<span class="sd">            server.get_cpu_load()</span>
+<span class="sd">            ## &gt; {&#39;1min&#39;: 12.29, &#39;5min&#39;: 11.01, &#39;15min&#39;: 11.09}</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">uname</span><span class="p">()</span><span class="o">.</span><span class="n">system</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_uptime_cmd</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/proc/loadavg&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">cpu_load</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">cpu_load_result</span> <span class="o">=</span> <span class="n">cpu_load</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;1min&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_load_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="s2">&quot;5min&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_load_result</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="s2">&quot;15min&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_load_result</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="get_uptime_cmd"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_uptime_cmd">[docs]</a><span class="k">def</span> <span class="nf">get_uptime_cmd</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns dict with current cpu load average using uptime command</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import server</span>
+<span class="sd">            server.get_uptime_cmd()</span>
+<span class="sd">            ## &gt; {&#39;1min&#39;: 12.29, &#39;5min&#39;: 11.01, &#39;15min&#39;: 11.09}</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="s1">&#39;uptime&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">load_raw</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;load averages:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">load_list</span> <span class="o">=</span> <span class="n">load_raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;1min&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">load_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;5min&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">load_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;15min&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">load_list</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="get_total_memory_usage"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_total_memory_usage">[docs]</a><span class="k">def</span> <span class="nf">get_total_memory_usage</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Returns float with current memory usage using ps command</span>
+<span class="sd">    :return: kilo bytes</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import server</span>
+<span class="sd">            server.get_total_memory_usage()</span>
+
+<span class="sd">            ## &gt; 24246272.0</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;ps&#39;</span><span class="p">,</span> <span class="s1">&#39;-caxm&#39;</span><span class="p">,</span> <span class="s1">&#39;-orss,comm&#39;</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+    <span class="n">process_lines</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">sep</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;[\s]+&#39;</span><span class="p">)</span>
+    <span class="n">rss_total</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># kB</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">process_lines</span><span class="p">)):</span>
+        <span class="n">row_text</span> <span class="o">=</span> <span class="n">process_lines</span><span class="p">[</span><span class="n">row</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">row_elements</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row_text</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rss</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row_elements</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">1024</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">rss</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># ignore...</span>
+        <span class="n">rss_total</span> <span class="o">+=</span> <span class="n">rss</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">rss_total</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_mem_osx_info"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_mem_osx_info">[docs]</a><span class="k">def</span> <span class="nf">get_mem_osx_info</span><span class="p">():</span>
+    <span class="n">vm</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;vm_stat&#39;</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+    <span class="c1"># Process vm_stat</span>
+    <span class="n">vm_lines</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">sep</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;:[\s]+&#39;</span><span class="p">)</span>
+    <span class="n">vm_stats</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vm_lines</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">row_text</span> <span class="o">=</span> <span class="n">vm_lines</span><span class="p">[</span><span class="n">row</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">row_elements</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row_text</span><span class="p">)</span>
+        <span class="n">vm_stats</span><span class="p">[(</span><span class="n">row_elements</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row_elements</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;\.&#39;</span><span class="p">))</span> <span class="o">*</span> <span class="mi">4096</span>
+
+    <span class="c1"># print(&#39;Wired Memory:\t\t%d MB&#39; % (vm_stats[&quot;Pages wired down&quot;] / 1024 / 1024))</span>
+    <span class="c1"># print(&#39;Active Memory:\t\t%d MB&#39; % (vm_stats[&quot;Pages active&quot;] / 1024 / 1024))</span>
+    <span class="c1"># print(&#39;Inactive Memory:\t%d MB&#39; % (vm_stats[&quot;Pages inactive&quot;] / 1024 / 1024))</span>
+    <span class="c1"># print(&#39;Free Memory:\t\t%d MB&#39; % (vm_stats[&quot;Pages free&quot;] / 1024 / 1024))</span>
+    <span class="c1"># print(&#39;Real Mem Total (ps):\t%.3f MB&#39; % (rssTotal/1024/1024))</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;mem_total&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">sysconf</span><span class="p">(</span><span class="s1">&#39;SC_PAGE_SIZE&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">os</span><span class="o">.</span><span class="n">sysconf</span><span class="p">(</span><span class="s1">&#39;SC_PHYS_PAGES&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">,</span>
+        <span class="s1">&#39;mem_free&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">vm_stats</span><span class="p">[</span><span class="s2">&quot;Pages free&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">vm_stats</span><span class="p">[</span><span class="s2">&quot;Pages inactive&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">,</span>
+        <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">vm_stats</span><span class="p">[</span><span class="s2">&quot;Pages wired down&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">vm_stats</span><span class="p">[</span><span class="s2">&quot;Pages active&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">vm_stats</span><span class="p">[</span><span class="s2">&quot;Pages inactive&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">vm_stats</span><span class="p">[</span><span class="s2">&quot;Pages free&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">1024</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="get_mem_info"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_mem_info">[docs]</a><span class="k">def</span> <span class="nf">get_mem_info</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;GB&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read in the /proc/meminfo and return a dictionary of the memory and swap</span>
+<span class="sd">    usage for all processes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;MB&quot;</span><span class="p">:</span>
+        <span class="n">convert_unit</span> <span class="o">=</span> <span class="mi">1024</span>
+    <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;GB&quot;</span><span class="p">:</span>
+        <span class="n">convert_unit</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">convert_unit</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="s2">&quot;KB&quot;</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mem_total&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;mem_used&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;mem_free&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;swap_total&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;swap_used&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;swap_free&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;buffers&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;cached&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">uname</span><span class="p">()</span><span class="o">.</span><span class="n">system</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">get_mem_osx_info</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/proc/meminfo&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+                <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;MemTotal:&#39;</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mem_total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;MemFree:&#39;</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mem_free&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Buffers:&#39;</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;buffers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Cached:&#39;</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cached&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;SwapTotal:&#39;</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;swap_total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;SwapFree:&#39;</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;swap_free&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
+                    <span class="k">break</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mem_used&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mem_total&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mem_free&#39;</span><span class="p">]</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;swap_used&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;swap_total&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;swap_free&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">v</span> <span class="o">/</span> <span class="n">convert_unit</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="get_cpu_time"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_cpu_time">[docs]</a><span class="k">def</span> <span class="nf">get_cpu_time</span><span class="p">():</span>
+    <span class="n">cpu_infos</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;/proc/stat&#39;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/proc/stat&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_stat</span><span class="p">:</span>
+            <span class="n">cpu_lines</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">lines</span> <span class="ow">in</span> <span class="n">file_stat</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">):</span>
+                        <span class="n">cpu_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">cpu_line</span> <span class="ow">in</span> <span class="n">cpu_lines</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;&#39;</span> <span class="ow">in</span> <span class="n">cpu_line</span><span class="p">:</span>
+                    <span class="n">cpu_line</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># First row(cpu) exist &#39;&#39; and Remove &#39;&#39;</span>
+                <span class="n">cpu_id</span> <span class="o">=</span> <span class="n">cpu_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">cpu_line</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">cpu_line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+                <span class="n">user</span><span class="p">,</span> <span class="n">nice</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="n">iowait</span><span class="p">,</span> <span class="n">irq</span><span class="p">,</span> <span class="n">softirq</span><span class="p">,</span> <span class="n">steal</span><span class="p">,</span> <span class="n">guest</span><span class="p">,</span> <span class="n">guest_nice</span> <span class="o">=</span> <span class="n">cpu_line</span>
+
+                <span class="n">idle_time</span> <span class="o">=</span> <span class="n">idle</span> <span class="o">+</span> <span class="n">iowait</span>
+                <span class="n">non_idle_time</span> <span class="o">=</span> <span class="n">user</span> <span class="o">+</span> <span class="n">nice</span> <span class="o">+</span> <span class="n">system</span> <span class="o">+</span> <span class="n">irq</span> <span class="o">+</span> <span class="n">softirq</span> <span class="o">+</span> <span class="n">steal</span>
+                <span class="n">total</span> <span class="o">=</span> <span class="n">idle_time</span> <span class="o">+</span> <span class="n">non_idle_time</span>
+
+                <span class="n">cpu_infos</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">cpu_id</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="n">total</span><span class="p">,</span> <span class="s1">&#39;idle&#39;</span><span class="p">:</span> <span class="n">idle_time</span><span class="p">,</span> <span class="s1">&#39;iowait&#39;</span><span class="p">:</span> <span class="n">iowait</span><span class="p">}})</span>
+    <span class="k">return</span> <span class="n">cpu_infos</span></div>
+
+
+<div class="viewcode-block" id="get_cpu_usage_percentage"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_cpu_usage_percentage">[docs]</a><span class="k">def</span> <span class="nf">get_cpu_usage_percentage</span><span class="p">():</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">get_cpu_time</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">get_cpu_time</span><span class="p">()</span>
+    <span class="n">cpu_usages</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">iowait_usages</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cpu</span> <span class="ow">in</span> <span class="n">start</span><span class="p">:</span>
+        <span class="n">diff_total</span> <span class="o">=</span> <span class="n">end</span><span class="p">[</span><span class="n">cpu</span><span class="p">][</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">start</span><span class="p">[</span><span class="n">cpu</span><span class="p">][</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>
+        <span class="n">diff_idle</span> <span class="o">=</span> <span class="n">end</span><span class="p">[</span><span class="n">cpu</span><span class="p">][</span><span class="s1">&#39;idle&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">start</span><span class="p">[</span><span class="n">cpu</span><span class="p">][</span><span class="s1">&#39;idle&#39;</span><span class="p">]</span>
+        <span class="n">diff_iowait</span> <span class="o">=</span> <span class="n">end</span><span class="p">[</span><span class="n">cpu</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;iowait&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">start</span><span class="p">[</span><span class="n">cpu</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;iowait&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">iowait_usages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff_iowait</span><span class="p">)</span>
+        <span class="n">cpu_usage_percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">diff_total</span> <span class="o">-</span> <span class="n">diff_idle</span><span class="p">)</span> <span class="o">/</span> <span class="n">diff_total</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">cpu_usages</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">cpu</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">cpu_usage_percentage</span><span class="p">,</span> <span class="mi">2</span><span class="p">)})</span>
+    <span class="k">if</span> <span class="n">cpu_usages</span><span class="p">:</span>
+        <span class="n">cpu_usages</span><span class="p">[</span><span class="s1">&#39;avg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">cpu_usages</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">cpu_usages</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">cpu_usages</span><span class="p">[</span><span class="s1">&#39;iowait&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">iowait_usages</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">iowait_usages</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cpu_usages</span></div>
+
+
+<div class="viewcode-block" id="get_aws_metadata"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.get_aws_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_aws_metadata</span><span class="p">(</span><span class="n">meta_ip</span><span class="o">=</span><span class="s2">&quot;169.254.169.254&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">meta_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;http://</span><span class="si">{</span><span class="n">meta_ip</span><span class="si">}</span><span class="s1">/latest&#39;</span>
+    <span class="c1"># those 3 top subdirectories are not exposed with a final &#39;/&#39;</span>
+    <span class="n">metadict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dynamic&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;meta-data&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;user-data&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+    <span class="k">for</span> <span class="n">sub_sect</span> <span class="ow">in</span> <span class="n">metadict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">aws_data_crawl</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">/</span><span class="si">{1}</span><span class="s1">/&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta_url</span><span class="p">,</span> <span class="n">sub_sect</span><span class="p">),</span> <span class="n">metadict</span><span class="p">[</span><span class="n">sub_sect</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">metadict</span></div>
+
+
+<div class="viewcode-block" id="aws_data_crawl"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.server.aws_data_crawl">[docs]</a><span class="k">def</span> <span class="nf">aws_data_crawl</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">jequest</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">404</span> <span class="ow">or</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">999</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">l</span><span class="p">:</span> <span class="c1"># &quot;instance-identity/\n&quot; case</span>
+            <span class="k">continue</span>
+        <span class="n">new_url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+        <span class="c1"># a key is detected with a final &#39;/&#39;</span>
+        <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+            <span class="n">new_key</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">aws_data_crawl</span><span class="p">(</span><span class="n">new_url</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">new_key</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">jequest</span><span class="p">(</span><span class="n">new_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="c1"># pawn.console.log(r)</span>
+            <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">):</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span></div>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, jinwoo
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/scripts/furo.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    </body>
+</html>
