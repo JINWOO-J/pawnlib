@@ -4,7 +4,108 @@ import json
 from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose
 from pawnlib import output
 from pawnlib.resource import net
+from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number
+from pawnlib.typing.generator import json_rpc
+import time
+from pawnlib.utils.operate_handler import WaitStateLoop
 from pawnlib import logger
+from functools import  partial
+
+
+class IconRpcHelper:
+    def __init__(self, url=""):
+        self.url = append_suffix(url, "/api/v3")
+
+    def initialize(self):
+        pass
+
+    def _decorator_enforce_kwargs(func):
+        def from_kwargs(self, *args, **kwargs):
+            func_name = func.__name__
+            pawn.console.debug(f"Start '{func_name}' function")
+            ret = func(self, *args, **kwargs)
+            return ret
+
+        return from_kwargs
+
+    def rpc_call(self, url=None, method=None, params: dict = {}):
+        if url:
+            self.url = url
+        response = jequest(
+            url=append_api_v3(self.url),
+            payload=json_rpc(method=method, params=params),
+            method="post"
+        )
+        return response.get('json')
+
+    def get_balance(self, url=None, address=None, is_comma=False):
+        if address:
+            response = self.rpc_call(
+                url=url,
+                method="icx_getBalance",
+                params={"address": address}
+            )
+            return hex_to_number(response.get('result'), is_comma=is_comma)
+
+    def get_tx(self, url=None, tx_hash=None, return_key=None):
+        response = self.rpc_call(
+            url=url,
+            method="icx_getTransactionResult",
+            params={"txHash": tx_hash}
+        )
+        if isinstance(response, dict):
+            if return_key:
+                return response.get(return_key)
+            return response
+        return response.get('text')
+
+    def get_tx_wait(self, url=None, tx_hash=None):
+        resp = {}
+        pawn.console.log(f"Check a transaction by {tx_hash}")
+        with pawn.console.status(f"[magenta] Wait for transaction to be generated.") as status:
+            count = 0
+            while True:
+                resp = self.get_tx(url=url, tx_hash=tx_hash)
+                exit_loop = False
+                prefix_text = f"[bold cyan][Wait TX][{count}][/bold cyan] "
+                if resp.get('error'):
+                    exit_msg = ""
+                    if "InvalidParams" in resp['error'].get('message'):
+                        exit_loop = True
+                        exit_msg = f"[red][FAIL][/red]"
+                    text = f"{prefix_text}{exit_msg}[white] {resp['error']['message']}"
+
+                elif resp.get('result'):
+                    if resp['result'].get('logsBloom'):
+                        resp['result']['logsBloom'] = int(resp['result']['logsBloom'], 16)
+
+                    exit_loop = True
+                    text = f"{prefix_text}[OK] {resp['result']}"
+                else:
+                    text = resp
+                status.update(
+                    status=f"[bold red]{text}",
+                    spinner_style="yellow",
+                )
+                if exit_loop:
+                    pawn.console.log(f"[bold green][white] {text}")
+                    break
+                count += 1
+                time.sleep(1)
+        return resp
+
+    @staticmethod
+    def _check_tx_result(result):
+        if result:
+            # print(result)
+            response_json = result
+            if response_json.get("error"):
+                return False
+            else:
+                if response_json.get('result'):
+                    return True
+                return response_json
+
 
 class JsonRequest:
     def __init__(self):
@@ -48,6 +149,12 @@ def append_ws(url):
     elif "ws://" not in url and "wss://" not in url:
         url = f"ws://{url}"
     return url
+
+
+def append_api_v3(url):
+    if "/api/v3" not in url:
+        return f"{url}/api/v3"
+    return append_http(url)
 
 
 def remove_http(url):
@@ -173,3 +280,6 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
             pawn.error_logger.error(f"{error}") if pawn.error_logger else False
 
     return data
+
+
+icon_rpc_call = IconRpcHelper().rpc_call

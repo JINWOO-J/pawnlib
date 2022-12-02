@@ -15,6 +15,9 @@ class EtcNamespace(DateNamespace):
     __slots__ = ()
     TRUE = 1
     FALSE = 0
+    TINT = 10 ** 18
+    ICON_ADDRESS = 42
+    ICON_ADDRESS_WITHOUT_PREFIX = 40
 
 
 const = EtcNamespace()

@@ -6,12 +6,11 @@ import json
 import getpass
 import traceback
 import inspect
-from pawnlib.typing import converter, date_utils, list_to_oneline_string
+from pawnlib.typing import converter, date_utils, list_to_oneline_string, const
 from pawnlib.config import pawnlib_config as pawn, global_verbose
 from rich.table import Table
 from typing import Union
 from datetime import datetime
-
 
 _ATTRIBUTES = dict(
     list(zip([
@@ -454,7 +453,7 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
                         TINT = 1
                         TINT_STR = ""
                     else:
-                        TINT = 10 ** 18
+                        TINT = const.TINT
                         TINT_STR = f"(from TINT) {_last_key}"
 
                     converted_float = format_number(round(int(obj, 16) / TINT, 4))
