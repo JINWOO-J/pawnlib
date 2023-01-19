@@ -1020,6 +1020,53 @@ def dict_none_to_zero(data: dict) -> dict:
     return return_dict
 
 
+def recursive_update_dict(source_dict: dict = None, target_dict: dict = None) -> dict:
+    """
+
+    :param source_dict:
+    :param target_dict:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+
+            source_dict = {
+                "aaa": {
+                    "1111": 1111,
+                    "ssss": 1111,
+                    "i_need_one": 2222
+                }
+            }
+            target_dict = {
+                "aaa": {
+                    "i_need_one": "CHANGED_VALUE",
+                }
+            }
+            converter.recursive_update_dict(source_dict, target_dict)
+
+            # >>   {
+                    "aaa": {
+                            "1111": 1111,
+                            "ssss": 1111,
+                            "i_need_one": "CHANGED_VALUE"
+                        }
+                    }
+
+
+
+    """
+    if isinstance(target_dict, dict):
+        for k, v in target_dict.items():
+            if isinstance(v, dict):
+                recursive_update_dict(source_dict[k], v)
+            else:
+                source_dict[k] = target_dict[k]
+    return source_dict
+
+
 def list_to_oneline_string(list_param: list, split_str: str = "."):
     """
     Convert the list to a string of one line.

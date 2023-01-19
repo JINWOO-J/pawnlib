@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 import common
+import os
 from pawnlib.config.globalconfig import pawnlib_config as pawn, PawnlibConfig
 from pawnlib.output import *
 
 
 def main():
     config = PawnlibConfig(global_name="ssss")
-
     # pawn_local = PawnlibConfig(global_name="pawnlib_global_config", debug=True).init_with_env()
-
     LOG_DIR = f"{get_script_path(__file__)}/logs"
     APP_NAME = "default_app"
     STDOUT = True
@@ -43,11 +42,16 @@ def main():
     # print("<<< plugin result >>>")
     # print(json_sample)
 
-    pawn.console.log("aa")
-    import pathlib
+    pawn.console.log("Before changed log format")
+    pawn.set(
+        PAWN_CONSOLE=dict(
+            log_time_format=f"%Y-%m-%d %H:%M"
+        )
+    )
+    pawn.console.log("After log format")
+    pawn.console.print("[red]---")
+    pawn.console.out("Localssss", locals())
     print(get_real_path(__file__))
-
-    import os
 
     print('getcwd:      ', os.getcwd())
     print('__file__:    ', __file__)

@@ -1,4 +1,35 @@
 import re
+import json
+
+
+def is_json(s) -> bool:
+    """
+    Check if a string is valid JSON
+    :param s:
+    :return:
+
+    """
+    try:
+        json.loads(s)
+    except ValueError as e:
+        return False
+    return True
+
+
+def is_float(s) -> bool:
+    """
+    Check if a value is float
+
+    :param s:
+    :return:
+    """
+    try:
+        float(s)
+    except TypeError:
+        return False
+    except ValueError:
+        return False
+    return True
 
 
 def is_int(s) -> bool:
@@ -125,3 +156,10 @@ def is_valid_ipv6(ip):
         $
     """, re.VERBOSE | re.IGNORECASE | re.DOTALL)
     return pattern.match(ip) is not None
+
+
+def list_depth(l):
+    if isinstance(l, list):
+        return 1 + max(list_depth(item) for item in l)
+    else:
+        return 0

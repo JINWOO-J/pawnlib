@@ -55,3 +55,22 @@ class TestNetworkUtils(unittest.TestCase):
     def tearDown(self) -> None:
         self.sock.close()
 
+
+class TestConnectHttp(unittest.TestCase):
+    sock = None
+    interface = "0.0.0.0"
+    port = 9899
+
+    def test_wait_for(self):
+        url_dict = {
+            "https://httpbin.org": True,
+            "http://httpbin.org": True,
+            "https://httpbin.org:2222": False,
+            "httpbin.org:80": True,
+            "httpbin.org:443": True,
+        }
+
+        for url, expected_value in url_dict.items():
+            res = check_port(url, timeout=1)
+            pawn.console.log(f"url={url}, expected={expected_value}, res={res}")
+            self.assertEqual(check_port(url), expected_value)

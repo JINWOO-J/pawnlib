@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Optional, Callable
 from collections import namedtuple
 from collections.abc import Mapping
+
+import pawnlib.config.configure
 from pawnlib.__version__ import __title__, __version__
 from pawnlib.config.__fix_import import Null
 # from pawnlib.typing.generator import Null
@@ -117,6 +119,7 @@ class ConfigSectionMap(configparser.ConfigParser):
             config_file = config.as_dict()
 
     """
+
     def as_dict(self, section=None):
         d = dict(self._sections)
         if self._defaults:
@@ -223,9 +226,17 @@ class PawnlibConfig(metaclass=Singleton):
             "on_ready": False
 
         }
-        globals()[self.global_name] = {}
+        self.log_time_format = None
 
+        globals()[self.global_name] = {}
         self._init_console(force_init=True)
+
+    def _log_formatter(self, dt):
+
+        if self.log_time_format.endswith('.%f'):
+            return dt.strftime(self.log_time_format)[:-3]
+        else:
+            return dt.strftime(self.log_time_format)
 
     def _init_console(self, force_init=True):
         _console_options = dict(
@@ -237,11 +248,20 @@ class PawnlibConfig(metaclass=Singleton):
             # log_time_format="[%Y-%m-%d %H:%M:%S.%f]"
             log_time_format=lambda dt: f"[{dt.strftime('%H:%M:%S,%f')[:-3]}]"
         )
+        if not self._loaded.get('console'):
+            # There are visible problems with InquirerPy.
+            _console_options['redirect'] = False
+
         if self._loaded.get('console') or force_init:
             if self.console_options:
                 if self.console_options.get('log_time_format') and not isinstance(self.console_options.get('log_time_format'), Callable):
                     _log_time_format = self.console_options['log_time_format']
-                    self.console_options['log_time_format'] = lambda dt: f"[{dt.strftime(_log_time_format)[:-3]}]"
+                    self.log_time_format = self.console_options['log_time_format']
+
+                    if ".%f" in _log_time_format:
+                        self.console_options['log_time_format'] = lambda dt: f"[{dt.strftime(_log_time_format)[:-3]}]"
+                    else:
+                        self.console_options['log_time_format'] = lambda dt: f"[{dt.strftime(_log_time_format)}]"
                     self.stdout_log_formatter = self.console_options['log_time_format']
                 _console_options.update(self.console_options)
             self.console = Console(**_console_options)
@@ -486,8 +506,11 @@ class PawnlibConfig(metaclass=Singleton):
                         and self._environments[p_key].get("input"):
                     if self._environments[p_key].get('input') and \
                             self._environments[p_key].get('value') != p_value:
+
                         self.console.log(f"[yellow][WARN] Environment variables and settings are different. "
                                          f"'{p_key}': {self._environments[p_key]['value']}(ENV) != {p_value}(Config)")
+                        p_value = self._environments[p_key]['value']
+
                 if p_key == f"{self.env_prefix}_LOGGER" and p_value:
                     from pawnlib.utils.log import AppLogger
                     if isinstance(p_value, dict):
@@ -510,9 +533,9 @@ class PawnlibConfig(metaclass=Singleton):
                             set_debug_logger(self.app_logger)
                         # if self.error_logger:
                         #     set_debug_logger(self.error_logger)
-                            # from pawnlib import logger
-                            # logger.propagate = 0
-                            # logger.addHandler(self.app_logger)
+                        # from pawnlib import logger
+                        # logger.propagate = 0
+                        # logger.addHandler(self.app_logger)
                 elif p_key == f"{self.env_prefix}_CONSOLE":
                     _enforce_set_value(source_key=f'{self.env_prefix}_TIME_FORMAT', target_key='log_time_format', target_dict=p_value)
                     self.console_options = p_value

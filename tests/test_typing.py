@@ -18,6 +18,9 @@ class TestTyping(unittest.TestCase):
         ("valid integer", is_int, "01000", True),
         ("invalid integer", is_int, "a", False),
         ("invalid integer", is_int, "111a", False),
+        ("valid float", is_float, "01000", True),
+        ("valid float", is_float, 1000, True),
+        ("valid float", is_float, 10.00, True),
     ]
     )
     def test_int(self, name, function=None, param=None, expected_value=None):
@@ -175,6 +178,13 @@ class TestTyping(unittest.TestCase):
         print(f"{base64_decoded_text}={base64_encoded_text}")
         self.assertEqual(raw_text, base64_decoded_text)
 
+    def test_list_depth(self, name=None, function=None, param=None, expected_value=None):
+        depth_1_list = ["a", "aa", "aaa"]
+        depth_2_list = ["a", "aa", "aaa", ["sss"]]
+        depth_5_list = ["a", "aa", "aaa", [[[["sss"]]]]]
+        self.assertEqual(list_depth(depth_1_list), 1)
+        self.assertEqual(list_depth(depth_2_list), 2)
+        self.assertEqual(list_depth(depth_5_list), 5)
 
 
 if __name__ == "__main__":
