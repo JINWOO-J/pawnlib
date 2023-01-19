@@ -1,7 +1,10 @@
+import re
+
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 import socket
 import time
 from pawnlib.utils import http
+
 try:
     from typing import Literal
 except ImportError:
@@ -124,6 +127,29 @@ def check_port(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Li
 
 
     """
+    http_regex = '^((?P<proto>https?)(://))?(?P<host>[^:/ ]+).?(?P<port>[0-9]*).*'
+
+    if not port:
+        regex_res = re.search(http_regex, host)
+        if regex_res:
+            if regex_res.group('port'):
+                port = int(regex_res.group('port'))
+            else:
+                if regex_res.group('proto'):
+                    if regex_res.group('proto') == "http":
+                        port = 80
+                    elif regex_res.group('proto') == "https":
+                        port = 443
+                else:
+                    port = 80
+
+            host = regex_res.group('host')
+        else:
+            pawn.console.debug(f"[red][Not Matched] host={host}, port={port}")
+        pawn.console.debug(f"[Regex] host={host}, port={port}, {regex_res.groupdict()}")
+
+    pawn.console.debug(f"host={host}, port={port}, protocol={protocol}")
+
     if protocol == "tcp":
         socket_protocol = socket.SOCK_STREAM
     elif protocol == "udp":
@@ -134,13 +160,19 @@ def check_port(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Li
     if host == "" or port == 0:
         raise Exception(f"Invalid host or port, inputs: host={host}, port={port}")
 
+    if timeout:
+        socket.setdefaulttimeout(float(timeout))  # seconds (float)
+
     with socket.socket(socket.AF_INET, socket_protocol) as sock:
         host = http.remove_http(host)
-        socket.setdefaulttimeout(timeout)  # seconds (float)
-        result = sock.connect_ex((host, port))
+        try:
+            result = sock.connect_ex((host, port))
+        except Exception as e:
+            pawn.error_logger.error(f"[FAIL] {e}")
+            return False
 
     if result == 0:
-        pawn.app_logger.info(f"[OK] Opened port -> {host}:{port}")
+        pawn.console.debug(f"[OK] Opened port -> {host}:{port}")
         return True
     else:
         pawn.error_logger.error(f"[FAIL] Closed port -> {host}:{port}")
