@@ -11,7 +11,7 @@ def is_json(s) -> bool:
     """
     try:
         json.loads(s)
-    except ValueError as e:
+    except ValueError:
         return False
     return True
 
@@ -134,7 +134,7 @@ def is_valid_ipv4(ip):
 
     """
     pattern = re.compile(
-        r"^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$",
+        r"^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$",
         re.VERBOSE | re.IGNORECASE
     )
     return pattern.match(ip) is not None

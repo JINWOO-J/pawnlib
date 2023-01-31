@@ -1,4 +1,3 @@
-# from datetime import datetime, timedelta, date
 import datetime
 import time
 try:
@@ -187,7 +186,7 @@ def format_seconds_to_hhmmss(seconds: int = 0):
         seconds %= const.MINUTE_IN_SECONDS
         hhmmss = "%02i:%02i:%02i" % (hours, minutes, seconds)
         return hhmmss
-    except Exception as e:
+    except Exception:
         return seconds
 
 
@@ -212,17 +211,13 @@ def timestamp_to_string(unix_timestamp: int, str_format='%Y-%m-%d %H:%M:%S'):
 
 
     """
-
     ts_length = len(str(unix_timestamp))
-    # seconds
-    if ts_length == 10:
-        pass
-    # milli seconds
-    elif ts_length == 16:
-        unix_timestamp = unix_timestamp/1_000_000
-    if unix_timestamp:
-        return datetime.datetime.fromtimestamp(unix_timestamp).strftime(str_format)
-
+    if ts_length == const.SECONDS_DIGITS or ts_length == const.MICRO_SECONDS_DIGITS:
+        if ts_length == const.MICRO_SECONDS_DIGITS:
+            unix_timestamp = unix_timestamp / 1_000_000
+        if unix_timestamp:
+            return datetime.datetime.fromtimestamp(unix_timestamp).strftime(str_format)
+    raise ValueError('Invalid timestamp')
 
 def second_to_dayhhmm(seconds: int = 0):
     """

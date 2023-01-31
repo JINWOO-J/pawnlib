@@ -8,14 +8,13 @@ import atexit
 import subprocess
 import threading
 import itertools
-from typing import Callable, List, Dict
+from typing import Callable, List, Dict, Union
 
 from pawnlib.output import dump, debug_print, bcolors
 from pawnlib import typing
 from functools import wraps
 
 from pawnlib.config.globalconfig import pawnlib_config as pawn
-from typing import Union
 
 
 class Daemon(object):
@@ -312,8 +311,6 @@ def get_inspect_module(full_module_name=None):
         if module:
             module_pieces = module.__name__.split('.')
             module_name = typing.list_to_oneline_string(module_pieces)
-            # module_name = module_pieces[-1].capitalize()
-            # cprint(module_name, "red")
         function_name = stack[1][3]
         full_module_name = "%s.%s()" % (module_name, function_name)
     return full_module_name
@@ -339,7 +336,6 @@ def execute_function(module_func):
     if "." in module_func:
         [module_name, function_name] = module_func.split(".")
         dump(globals())
-        # module = __import__(f"lib.{module_name}", fromlist=["lib", "..", "."])
         module = __import__(f"{module_name}")
         func = getattr(module, function_name)
         return func()
@@ -377,11 +373,7 @@ def run_execute(text=None, cmd=None, cwd=None, check_output=True, capture_output
     else:
         text = f"cmd='{cmd}'"
 
-    # if check_output:
-    #     # cprint(f"[START] run_execute(), {text}", "green")
-    #     cfg.logger.info(f"[START] run_execute() , {text}")
     try:
-        # process = subprocess.run(cmd, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
         process = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, shell=True)
 
         for line in process.stdout:
@@ -453,7 +445,7 @@ class Spinner:
     """
     def __init__(self, text="", delay=0.1):
 
-        self.spinner = itertools.cycle(['-', '/', '|', '\\'])
+        self._spinner_items = itertools.cycle(['-', '/', '|', '\\'])
         self.delay = delay
         self.busy = False
         self.spinner_visible = False
@@ -461,27 +453,26 @@ class Spinner:
         self._screen_lock = None
         self.thread = None
         self.spin_message = ""
-        # self.line_up = '\033[1A'
+        self.line_up = '\033[1A'
         self.line_up = '\x1b[1A'
         self.line_clear = '\x1b[2K'
 
         if type(sys.stdout).__name__ == "FileProxy":
-            # self._sys_stdout = sys.stdout.rich_proxied_file
             self._sys_stdout = getattr(sys.stdout, "rich_proxied_file", sys.stdout)
         else:
             self._sys_stdout = sys.stdout
 
     def title(self, text=None):
-        print(end=self.line_up)
+        # print(end=self.line_up)
         self.text = text
 
     def write_next(self):
         with self._screen_lock:
             if not self.spinner_visible:
                 if self.text:
-                    self.spin_message = f"{self.text} ... {next(self.spinner)}"
+                    self.spin_message = f"{self.text} ... {next(self._spinner_items)}"
                 else:
-                    self.spin_message = next(self.spinner)
+                    self.spin_message = next(self._spinner_items)
                 # sys.stdout.write(next(self.spinner))
                 self._sys_stdout.write(self.spin_message)
 
@@ -622,15 +613,12 @@ def wait_state_loop(
     start_time = time.time()
     count = 0
     # arguments 가 한개만 있을 때의 예외
-    # if type(func_args) is str:
     if isinstance(func_args, str):
         tmp_args = ()
         tmp_args = tmp_args + (func_args,)
         func_args = tmp_args
 
     exec_function_name = exec_function.__name__
-    # classdump(exec_function.__qualname__)
-    # print(exec_function.__qualname__)
     act_desc = f"desc={description}, function={exec_function_name}, args={func_args}"
     spinner = Halo(text=f"[START] Wait for {description} , {exec_function_name}, {func_args}", spinner='dots')
     if logger and hasattr(logger, "info"):
@@ -702,12 +690,6 @@ def wait_state_loop(
 
     if health_status:
         return response
-
-    # return {
-    #     "elapsed": time.time() - start_time,
-    #     "json": response.get("json"),
-    #     "status_code": response.get("status_code", 0),
-    # }
 
 
 def run_with_keyboard_interrupt(command, *args, **kwargs):

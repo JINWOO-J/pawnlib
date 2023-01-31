@@ -5,9 +5,10 @@ try:
 except:
     pass
 from devtools import debug
-from pawnlib.output import *
+import time
+from pawnlib.output import debug_logging, dump
 from pawnlib.config.globalconfig import pawnlib_config
-from pawnlib.utils.operate_handler import *
+from pawnlib.utils.operate_handler import WaitStateLoop
 from pawnlib.typing.generator import Null
 
 import random
@@ -17,7 +18,7 @@ from functools import partial
 
 def check_func(param=None):
     time.sleep(0.2)
-    random_int = random.randint(1, 1000)
+    random_int = random.randint(1, 100)
     # print(f"param= {param}, random_int = {random_int}")
     return random_int
 
@@ -39,22 +40,6 @@ def main():
         timeout=10
     ).run()
 
-    # spinner = Spinner("sdsds")
-    # spinner.start()
-    #
-    # time.sleep(1)
-    #
-    # spinner.stop()
-
-    # with Spinner(text="Wait message") as spinner:
-    #     while True:
-    #         res = check_func()
-    #         spinner.title(f"new message {res}")
-    # wait_state_loop(
-    #     wait_state=check_func,
-    #     func_args=[],
-    #
-    # )
 
 if __name__ == "__main__":
     main()

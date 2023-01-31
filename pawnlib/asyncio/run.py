@@ -80,19 +80,6 @@ class AsyncTasks:
             debug_print(*args, **kwargs)
 
 
-# def async_partial(f, *args, **kwargs):
-#     print(f"1. {f}, {args}, {kwargs}")
-#     async def f2(*args2):
-#         print(f"2. {args}, {args2}")
-#
-#         if asyncio.iscoroutinefunction(f):
-#             result = await f(*args, *args2)
-#             print(f"2. {args}, {args2} result={result}")
-#         return result
-#
-#     return f2
-
-
 def async_partial(async_fn, *args, **kwargs):
     async def wrapped():
         result = None

@@ -1,6 +1,6 @@
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output.file import open_file, write_file, check_file_overwrite
-from pawnlib.output.color_print import *
+from pawnlib.output.color_print import bcolors, cprint, dump
 from jinja2 import Template
 
 from rich.prompt import Confirm, FloatPrompt, Prompt, PromptBase
@@ -151,7 +151,6 @@ class AppGenerator:
             app_name=self.answers.get("app_name"),
             author=self.answers.get("author"),
             description=self.answers.get("description"),
-            # font="graffiti",
             font="rounded",
             return_type="list"
         )

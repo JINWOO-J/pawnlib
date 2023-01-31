@@ -21,6 +21,7 @@ from pawnlib.typing import (
     id_generator,
     flatten_dict,
     flatten_list,
+    is_valid_ipv4,
 )
 
 
@@ -199,6 +200,16 @@ class TestTyping(unittest.TestCase):
         self.assertEqual(list_depth(depth_1_list), 1)
         self.assertEqual(list_depth(depth_2_list), 2)
         self.assertEqual(list_depth(depth_5_list), 5)
+
+    def test_check_valid_ipv4(self,):
+        self.assertEqual(is_valid_ipv4("127.0.0.1"), True)
+        self.assertEqual(is_valid_ipv4("255.255.255.255"), True)
+        self.assertEqual(is_valid_ipv4("192.255.255.255"), True)
+        self.assertEqual(is_valid_ipv4("255.255.255.256"), False)
+        self.assertEqual(is_valid_ipv4("400.255.255.256"), False)
+        self.assertEqual(is_valid_ipv4("255.400.255.256"), False)
+        self.assertEqual(is_valid_ipv4("255.255.400.256"), False)
+        self.assertEqual(is_valid_ipv4("255.255.255.400"), False)
 
 
 if __name__ == "__main__":

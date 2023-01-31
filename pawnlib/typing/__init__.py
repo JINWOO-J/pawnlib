@@ -4,7 +4,8 @@ from .check import (
     is_int,
     is_hex,
     is_regex_keywords,
-    list_depth
+    list_depth,
+    is_valid_ipv4
 )
 from .defines import (
     Namespace
