@@ -49,9 +49,10 @@ class OverrideDNS:
 
 def get_public_ip():
     """
-    Get the public IP address
+    The get_public_ip function returns the public IP address of the machine it is called on.
 
-    :return:
+
+    :return: The public ip address of the server
 
     Example:
 
@@ -60,7 +61,9 @@ def get_public_ip():
             from pawnlib.resource import net
             net.get_public_ip()
 
+
     """
+
     return http.jequest("http://checkip.amazonaws.com").get('text', "").strip()
 
 
@@ -108,6 +111,42 @@ def get_hostname():
     return socket.gethostname()
 
 
+def extract_host_port(host):
+    """
+    The extract_host_port function extracts the host and port from a string.
+
+    :param host: Extract the hostname from the url
+    :return: A tuple of the host and port number
+
+    Example:
+
+    .. code-block:: python
+
+        from pawnlib.resource import net
+        net.extract_host_port("http://127.0.0.1:8000")
+
+    """
+    http_regex = '^((?P<proto>https?)(://))?(?P<host>[^:/ ]+).?(?P<port>[0-9]*).*'
+
+    regex_res = re.search(http_regex, host)
+    port = 0
+    if regex_res:
+        if regex_res.group('port'):
+            port = int(regex_res.group('port'))
+        else:
+            if regex_res.group('proto'):
+                if regex_res.group('proto') == "http":
+                    port = 80
+                elif regex_res.group('proto') == "https":
+                    port = 443
+            else:
+                port = 80
+        host = regex_res.group('host')
+        pawn.console.debug(f"[Regex] host={host}, port={port}, {regex_res.groupdict()}")
+
+    return host, port
+
+
 def check_port(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Literal["tcp", "udp"] = "tcp") -> bool:
     """
     Returns boolean with checks if the port is open
@@ -125,28 +164,12 @@ def check_port(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Li
             from pawnlib.resource import net
             net.check_port()
 
-
     """
-    http_regex = '^((?P<proto>https?)(://))?(?P<host>[^:/ ]+).?(?P<port>[0-9]*).*'
 
     if not port:
-        regex_res = re.search(http_regex, host)
-        if regex_res:
-            if regex_res.group('port'):
-                port = int(regex_res.group('port'))
-            else:
-                if regex_res.group('proto'):
-                    if regex_res.group('proto') == "http":
-                        port = 80
-                    elif regex_res.group('proto') == "https":
-                        port = 443
-                else:
-                    port = 80
-
-            host = regex_res.group('host')
-        else:
-            pawn.console.debug(f"[red][Not Matched] host={host}, port={port}")
-        pawn.console.debug(f"[Regex] host={host}, port={port}, {regex_res.groupdict()}")
+        host, port = extract_host_port(host)
+    else:
+        pawn.console.debug(f"[red][Not Matched] host={host}, port={port}")
 
     pawn.console.debug(f"host={host}, port={port}, protocol={protocol}")
 
@@ -155,10 +178,10 @@ def check_port(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Li
     elif protocol == "udp":
         socket_protocol = socket.SOCK_DGRAM
     else:
-        raise Exception("Invalid socket type argument, tcp or udp")
+        raise ValueError("Invalid socket type argument, tcp or udp")
 
     if host == "" or port == 0:
-        raise Exception(f"Invalid host or port, inputs: host={host}, port={port}")
+        raise ValueError(f"Invalid host or port, inputs: host={host}, port={port}")
 
     if timeout:
         socket.setdefaulttimeout(float(timeout))  # seconds (float)
@@ -180,6 +203,15 @@ def check_port(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Li
 
 
 def listen_socket(host, port):
+    """
+    The listen_socket function creates a socket object and binds it to the host and port
+    provided. The function then listens for incoming connections on that socket, with a maximum of 5
+    connections in the queue.
+
+    :param host: Specify the hostname of the machine where the server is running
+    :param port: Specify the port number that the server will listen on
+    :return: A socket object
+    """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((host, port))
     sock.listen(5)

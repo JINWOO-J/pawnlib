@@ -6,9 +6,7 @@ import sys
 import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
-
 from pawnlib.config import pawnlib_config as pawn
-from pawnlib.output.color_print import *
 from pawnlib.utils.http import remove_http
 from pawnlib.typing.check import is_int, is_valid_ipv4
 
@@ -71,7 +69,7 @@ class EchoWebServer:
         for ipaddr in [self.l_host, self.f_host]:
             if not is_valid_ipv4(ipaddr):
                 # pawn.console.print(f"[bold red]Invalid IP address - {ipaddr}, {is_valid_ipv4(ipaddr)}")
-                raise Exception(f"Invalid IP address - '{ipaddr}'")
+                raise ValueError(f"Invalid IP address - '{ipaddr}'")
 
     def main_loop(self):
         self.input_list.append(self.server)
@@ -149,7 +147,7 @@ class EchoWebServer:
 def parse_ip_port(data):
     def _return_port(port=None):
         if port and not is_int(port):
-            raise Exception(f"Invalid port -> {port}")
+            raise ValueError(f"Invalid port -> {port}")
         return int(port)
 
     data = remove_http(data)

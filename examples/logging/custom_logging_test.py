@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import common
-from pawnlib.config.globalconfig import *
-from pawnlib.output import *
+from pawnlib.config import pawnlib_config
+
+from pawnlib.output import dump, get_real_path
 from pawnlib.utils.log import AppLogger, CustomLog
 
 from pawnlib.utils import http

@@ -338,19 +338,19 @@ def get_string_decimal(value, place):
         value(int)
         place : 10의 몇 제곱을 나눌지 입력받음
     """
-    strValue = str(value)
+    str_value = str(value)
     if value >= 10 ** place:
-        strInt = strValue[:len(strValue) - place]
-        strDecimal = strValue[len(strValue) - place:]
-        result = f'{strInt}.{strDecimal}'
+        str_int = str_value[:len(str_value) - place]
+        str_decimal = str_value[len(str_value) - place:]
+        result = f'{str_int}.{str_decimal}'
         return result
 
     else:
         zero = "0."
-        valPoint = len(strValue)  #valPoint : 몇자릿수인지 계산
-        pointDifference = place - valPoint
-        strZero = "0" * pointDifference
-        result = f'{zero}{strZero}{value}'
+        val_point = len(str_value)  #val_point : 몇자릿수인지 계산
+        point_difference = place - val_point
+        str_zero = "0" * point_difference
+        result = f'{zero}{str_zero}{value}'
         return result
 
 
@@ -369,11 +369,12 @@ def sha3_256(data):
 def get_tx_hash(method, params):
     """Create tx_hash from params object.
 
-    Args:
-        params(dict): the value of 'params' key in jsonrpc
+    :param method: the value of 'method' key in jsonrpc
+    :param params: the value of 'params' key in jsonrpc
 
     Returns:
         bytes: sha3_256 hash value
+
     """
     tx_phrase = get_tx_phrase(method, params)
     pawn.console.debug(f"serialize tx={tx_phrase}")
@@ -384,8 +385,9 @@ def get_tx_phrase(method, params):
     """Create tx phrase from method and params.
     tx_phrase means input text to create tx_hash.
 
-    Args:
-        params(dict): the value of 'params' key in jsonrpc
+    :param method: the value of 'method' key in jsonrpc
+    :param params: the value of 'params' key in jsonrpc
+
 
     Returns:
         str: sha3_256 hash format without '0x' prefix
@@ -407,11 +409,12 @@ def get_tx_phrase(method, params):
 
 def sign_recoverable(privkey_bytes, tx_hash_bytes):
     """
-    Args:
-        tx_hash(bytes): 32byte tx_hash data
+    :param privkey_bytes:
+    :param tx_hash_bytes: 32byte tx_hash data
 
     Returns:
         bytes: signature_bytes + recovery_id(1)
+
     """
     signer = IcxSigner.from_bytes(privkey_bytes)
     signature_bytes, recovery_id = signer.sign_recoverable(tx_hash_bytes)

@@ -6,11 +6,9 @@ from pathlib import Path
 from typing import Optional, Callable
 from collections import namedtuple
 from collections.abc import Mapping
-
 import pawnlib.config.configure
 from pawnlib.__version__ import __title__, __version__
 from pawnlib.config.__fix_import import Null
-# from pawnlib.typing.generator import Null
 from pawnlib.config.console import Console
 from collections import OrderedDict
 from rich.traceback import install as rich_traceback_install

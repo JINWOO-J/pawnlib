@@ -64,7 +64,35 @@ def is_hex(s) -> bool:
     return True
 
 
-def is_regex_keywords(keywords, value):
+def is_regex_keyword(keyword: str, value: str) -> bool:
+    """
+    The is_regex_keyword function takes two strings, a keyword and a value.
+    If the keyword starts with / and ends with /, then it is treated as a regex pattern.
+    The function checks if the regex pattern is contained within the value string.
+    If so, True is returned; otherwise False.
+
+    :param keyword:str: Check if the value:str parameter matches the keyword
+    :param value:str: Check if the keyword is in the value
+    :return: True if the keyword is a regex and matches
+    """
+
+    if len(keyword) <= 0 or len(value) <= 0:
+        return False
+
+    if keyword[0] == "/" and keyword[-1] == "/":
+        keyword = keyword.replace("/", "")
+        if keyword in value:
+            return True
+    elif keyword[0] == "(" and keyword[-1] == ")":
+        if re.findall(keyword, value):
+            return True
+    else:
+        if keyword == value:
+            return True
+
+
+
+def is_regex_keywords(keywords, value)-> bool:
     """
     Check the value of the keyword regular expression.
 
@@ -91,18 +119,9 @@ def is_regex_keywords(keywords, value):
 
     if isinstance(keywords, list):
         for keyword in keywords:
-            if len(keyword) > 0:
-                if keyword[0] == "/" and keyword[-1] == "/":
-                    keyword = keyword.replace("/", "")
-                    if keyword in value:
-                        return True
-                elif keyword[0] == "(" and keyword[-1] == ")":
-                    if re.findall(keyword, value):
-                        return True
-
-                else:
-                    if keyword == value:
-                        return True
+            result = is_regex_keyword(keyword, value)
+            if result:
+                return True
     return False
 
 

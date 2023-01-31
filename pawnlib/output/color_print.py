@@ -193,9 +193,13 @@ class PrintRichTable:
 
     """
 
-    def __init__(self, title: str = "", data: Union[dict, list] = {}, columns: list = [], with_idx: bool = True, call_hook_value=str,
+    def __init__(self, title: str = "", data: Union[dict, list] = None, columns: list = None, with_idx: bool = True, call_hook_value=str,
                  **kwargs) -> None:
 
+        if columns is None:
+            columns = list()
+        if data is None:
+            data = dict()
         self.title = f"[bold cyan] {title}"
         self.table = Table(title=self.title, **kwargs)
         self.data = data
@@ -330,7 +334,6 @@ class TablePrinter(object):
             self.data = data_list
             self.get_unique_columns()
 
-            # fmt = list(dataList[0].keys())
             fmt = self.data_column
 
             width = 12
@@ -338,7 +341,6 @@ class TablePrinter(object):
             self.width = {key: width for key in fmt}
             self.ul = {key: str(ul) * width for key in fmt} if ul else None
             self.head = {key: key for key in fmt}
-            # self.head  = {key:get_bcolors(key, "WHITE", bold=True) for key in fmt}
 
         _r = self.row
         res = [_r(data) for data in data_list]
