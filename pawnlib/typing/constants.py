@@ -20,4 +20,11 @@ class EtcNamespace(DateNamespace):
     ICON_ADDRESS_WITHOUT_PREFIX = 40
 
 
-const = EtcNamespace()
+class UnixtimeStampDigits(EtcNamespace):
+    __slots__ = ()
+    SECONDS_DIGITS = 10
+    MILLI_SECONDS_DIGITS = 13
+    MICRO_SECONDS_DIGITS = 16
+
+
+const = UnixtimeStampDigits()

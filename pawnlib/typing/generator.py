@@ -136,12 +136,10 @@ class GenMultiMetrics:
         self.is_flatten = is_flatten
         self.is_debug = is_debug
         self.structure_types = structure_types
-        # if self.structure_types is None:
-        #     self.structure_types = defines.default_structure
         self.update_type = UpdateType(structure_types=self.structure_types)
         self.ignore_fields = ignore_fields
         self.return_value = {}
-        return
+
 
     def _set_default_metric(self):
         default_metric = {
@@ -224,7 +222,7 @@ def uuid_generator(size: int = 8, count: int = 4, separator: str = "-"):
             # >> KFXSYSVJHPE6-83KZTPKY9NL3-ZHRFUV7QRWWJ-GRWVPB6C5SM8
 
     """
-    return separator.join([id_generator(size) for i in range(count)])
+    return separator.join([id_generator(size) for _ in range(count)])
 
 
 def decimal(start: int = 1) -> Iterator[int]:
@@ -252,21 +250,6 @@ def hexadecimal(start: int = 1) -> Iterator[str]:
         start += 1
 
 
-# def random(length: int = 8, chars: str = digits + ascii_lowercase) -> Iterator[str]:
-#     """
-#     A random string.
-#     Not unique, but has around 1 in a million chance of collision (with the default 8
-#     character length).
-#     Example:
-#         'fubui5e6'
-#     Args:
-#         length: Length of the random string.
-#         chars: The characters to randomly choose from.
-#     """
-#     while True:
-#         yield "".join([choice(chars) for _ in range(length)])
-
-
 def uuid() -> Iterator[str]:
     """
     Unique uuid ids.
@@ -286,9 +269,6 @@ class Sentinel:
     def __repr__(self) -> str:
         return f"<{sys.intern(str(self.name)).rsplit('.', 1)[-1]}>"
 
-
-# NOID = Sentinel("NoId")
-# NOID = "sdsd"
 
 
 def compose(*fs: Callable[..., Any]) -> Callable[..., Any]:
@@ -467,8 +447,7 @@ def random_private_key(nbytes=32):
     """
     :return:
     """
-    # key = b"-B\x99\x99...xedy" + os.urandom(18)
-    bytes_key = os.urandom(nbytes)
+    bytes_key = os.urandom(nbytes) # or b"-B\x99\x99...xedy" + os.urandom(18)
     return bytes_key.hex()
 
 

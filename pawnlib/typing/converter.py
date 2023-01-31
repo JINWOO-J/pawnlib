@@ -390,7 +390,7 @@ class FlatDict(MutableMapping):
         self.__delitem__(key)
         return value
 
-    def setdefault(self, key, default):
+    def setdefault(self, key=None, default=None):
         """If key is in the flat dictionary, return its value. If not,
         insert key with a value of default and return default.
         default defaults to ``None``.

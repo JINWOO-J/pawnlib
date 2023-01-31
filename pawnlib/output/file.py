@@ -155,7 +155,7 @@ def is_json(json_file: str) -> bool:
     try:
         with open(json_file, 'r', encoding="utf-8-sig") as j:
             json.loads(j.read())
-    except ValueError as e:
+    except ValueError:
         return False
     return True
 

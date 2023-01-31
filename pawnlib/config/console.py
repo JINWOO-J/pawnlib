@@ -57,16 +57,12 @@ class Console(rich_console.Console):
             parent_frame = stack[1][0]
             module = inspect.getmodule(parent_frame)
             function_name = stack[1][3]
-            module_name = ''
             class_name = ''
             if module:
-                module_pieces = module.__name__.split('.')
                 try:
                     class_name = stack[1][0].f_locals["self"].__class__.__name__+"."
                 except:
                     pass
-                # module_name = list_to_oneline_string(module_pieces)
-            # full_module_name = f"{module_name}.{class_name}{function_name}({stack[1].lineno})"
             full_module_name = f"{class_name}{function_name}()"
 
             message = f"[yellow][DEBUG][/yellow]:face_with_monocle: {full_module_name} {message}"

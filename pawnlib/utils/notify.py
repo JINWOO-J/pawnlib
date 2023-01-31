@@ -16,16 +16,6 @@ def get_level_color(c_level):
     ).get(c_level, default_color)
 
 
-# def exception_handler(exception_type, exception, traceback):
-#     # import inspect
-#     # import traceback as traceback_module
-#     # from devtools import debug
-#     # debug(traceback_module.extract_stack()[:-3])
-#     exception_string = f"[Exception] {exception_type.__name__}: {exception}, {traceback.tb_frame}"
-#     cprint(f"{exception_string}", "red")
-#     error_logger.error(f"{exception_string}")
-
-
 def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='info'):
     """
 

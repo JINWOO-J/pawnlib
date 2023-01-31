@@ -486,8 +486,6 @@ def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, 
     module_text = ""
     time_text = ""
     try:
-        # if global_verbose > 2:
-        # text = f"[{full_module_name}] {text}"
         module_text = get_bcolors(f"[{full_module_name:<25}]", "WARNING")
     except:
         pass
@@ -510,13 +508,12 @@ def classdump(obj):
             print(bcolors.OKGREEN + f"obj.{attr} = " + bcolors.WARNING + f"{value}" + bcolors.ENDC)
 
 
-def kvPrint(key, value, color="yellow"):
+def kvPrint(key, value):
     """
     print the  {key: value} format.
 
     :param key:
     :param value:
-    :param color:
     :return:
     """
     key_width = 9
@@ -539,13 +536,12 @@ def print_json(obj, **kwargs):
         print(obj)
 
 
-def debug_logging(message, dump_message=None, color="green"):
+def debug_logging(message, dump_message=None):
     """
     print debug_logging
 
     :param message:
     :param dump_message:
-    :param color:
     :return:
 
     Example:
@@ -560,9 +556,9 @@ def debug_logging(message, dump_message=None, color="green"):
 
     """
     stack = traceback.extract_stack()
-    filename, codeline, funcName, text = stack[-2]
+    filename, code_line, func_name, text = stack[-2]
 
-    def_msg = f"[{date_utils.todaydate('log')}][DBG][{filename} {funcName}({codeline})]"
+    def_msg = f"[{date_utils.todaydate('log')}][DBG][{filename} {func_name}({code_line})]"
     kvPrint(def_msg, message)
     if dump_message:
         dump(dump_message)
@@ -608,7 +604,3 @@ def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, bar_l
 
     if iteration == total:
         sys.stdout.write('\n')
-    # sys.stdout.flush()
-
-# def run_progress():
-#     animation = ["\\", "|", " /", "—"]

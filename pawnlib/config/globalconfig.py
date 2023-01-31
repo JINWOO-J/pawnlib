@@ -710,14 +710,12 @@ class PawnlibConfig(metaclass=Singleton):
                 if isinstance(tmp_result, int) or isinstance(tmp_result, float):
                     tmp_result -= value
                     is_modify = True
-            elif _command == "append_list":
-                if isinstance(tmp_result, list):
-                    tmp_result.append(value)
-                    is_modify = True
-            elif _command == "remove_list":
-                if isinstance(tmp_result, list):
-                    tmp_result.remove(value)
-                    is_modify = True
+            elif _command == "append_list" and isinstance(tmp_result, list):
+                tmp_result.append(value)
+                is_modify = True
+            elif _command == "remove_list" and isinstance(tmp_result, list):
+                tmp_result.remove(value)
+                is_modify = True
             if is_modify:
                 globals()[self.global_name][key] = tmp_result
                 return tmp_result

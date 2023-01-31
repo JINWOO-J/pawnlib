@@ -5,10 +5,9 @@ try:
 except:
     pass
 from parameterized import parameterized
-from devtools import debug
 import datetime
-from pawnlib.typing.date_utils import *
-from pawnlib.output import *
+from pawnlib.typing.date_utils import convert_unix_timestamp, get_range_day_of_month, timestamp_to_string, TimeCalculator
+from pawnlib.output import cprint
 
 
 class TestMethodRequest(unittest.TestCase):
@@ -44,12 +43,25 @@ class TestMethodRequest(unittest.TestCase):
                 dict(unix_timestamp=1646060401234000, str_format="%Y-%m-%d %H:%M:%S.%f"),
                 "2022-03-01 00:00:01.234000"
         ),
+
+        (
+                'invalid timestamp', timestamp_to_string,
+                dict(unix_timestamp=16460604012340, str_format="%Y-%m-%d %H:%M:%S.%f"),
+                ValueError("invalid timestamp")
+        ),
+
     ]
     )
     def test_timestamp_to_string(self, name=None, function=None, params={}, expected_value=None):
-        result = function(**params)
-        cprint(f"{function.__name__}({params}), result={result}")
-        self.assertEqual(result, expected_value)
+
+        if isinstance(expected_value, ValueError):
+            self.assertRaises(ValueError,function, **params )
+        else:
+            result = function(**params)
+            self.assertEqual(result, expected_value)
+
+            cprint(f"{function.__name__}({params}), result={result}")
+
         # ts_second = timestamp_to_string(1646060400)
         # ts_milli_second = timestamp_to_string(1646060400000000)
         # ts_second_modify_string = timestamp_to_string(1646060401234000, str_format="%Y-%m-%d %H:%M:%S.%f")
