@@ -742,6 +742,7 @@ def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = Fal
 
     this function will change the hex to number(int)
 
+    :param ansi:
     :param hex_value:
     :param is_comma:
     :param debug:

@@ -5,7 +5,6 @@ import sys
 from logging import handlers
 import traceback
 import datetime
-from pawnlib.output import *
 from pawnlib.config.globalconfig import pawnlib_config
 from rich.logging import RichHandler
 from typing import Callable
@@ -60,7 +59,8 @@ class CustomLog:
             "INFO": logging.INFO,
             "WARNING": logging.WARNING,
             "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL}
+            "CRITICAL": logging.CRITICAL
+        }
 
     def set_level(self, level):
         self.log.setLevel(self.levels[level])
@@ -88,10 +88,10 @@ class CustomLog:
             * "CRITICAL" : logging.CRITICAL ,
         :return:
         """
-        streamHandler = logging.StreamHandler()
-        streamHandler.setLevel(self.levels[level])
-        streamHandler.setFormatter(self.formatter)
-        self.log.addHandler(streamHandler)
+        _stream_handler = logging.StreamHandler()
+        _stream_handler.setLevel(self.levels[level])
+        _stream_handler.setFormatter(self.formatter)
+        self.log.addHandler(_stream_handler)
         return self.log
 
     def file_handler(self, file_name, mode):
@@ -101,10 +101,10 @@ class CustomLog:
         :param mode: "w" / "a"
         :return:
         """
-        fileHandler = logging.FileHandler(file_name, mode=mode)
-        fileHandler.setLevel(logging.DEBUG)
-        fileHandler.setFormatter(self.formatter)
-        self.log.addHandler(fileHandler)
+        _file_handler = logging.FileHandler(file_name, mode=mode)
+        _file_handler.setLevel(logging.DEBUG)
+        _file_handler.setFormatter(self.formatter)
+        self.log.addHandler(_file_handler)
         return self.log
 
     def file_rotating_handler(self, file_name, mode, level, backup_count, log_max_size):
@@ -124,14 +124,14 @@ class CustomLog:
         :return:
         """
 
-        fileHandler = logging.handlers.RotatingFileHandler(
+        _file_handler = logging.handlers.RotatingFileHandler(
             filename=file_name,
             maxBytes=log_max_size,
             backupCount=backup_count,
             mode=mode)
-        fileHandler.setLevel(self.levels[level])
-        fileHandler.setFormatter(self.formatter)
-        self.log.addHandler(fileHandler)
+        _file_handler.setLevel(self.levels[level])
+        _file_handler.setFormatter(self.formatter)
+        self.log.addHandler(_file_handler)
         return self.log
 
     def time_rotate_handler(self,
@@ -150,15 +150,15 @@ class CustomLog:
         :param atTime: datetime.time(0, 0, 0)
         :return:
         """
-        fileHandler = logging.handlers.TimedRotatingFileHandler(
+        _file_handler = logging.handlers.TimedRotatingFileHandler(
             filename=filename,
             when=when,  # W0
             backupCount=backup_count,
             interval=interval,
             atTime=atTime)
-        fileHandler.setLevel(self.levels[level])
-        fileHandler.setFormatter(self.formatter)
-        self.log.addHandler(fileHandler)
+        _file_handler.setLevel(self.levels[level])
+        _file_handler.setFormatter(self.formatter)
+        self.log.addHandler(_file_handler)
         return self.log
 
 
@@ -336,10 +336,6 @@ class AppLogger:
             encoding=encoding
         )
         return file_handler
-
-    # def __call__(self):
-    #     print("AppLogger() __call__")
-    #     return self._logger, self._error_logger
 
     def get_logger(self):
         """

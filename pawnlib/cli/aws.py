@@ -2,14 +2,13 @@
 import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
-from pawnlib.output.color_print import *
+from pawnlib.config import pawnlib_config as pawn
 from pawnlib.output import write_json
-
 from pawnlib.resource import server
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='Proxy Reflector')
+    parser = argparse.ArgumentParser(description='AWS')
     parser = get_arguments(parser)
     return parser
 

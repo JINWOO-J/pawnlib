@@ -1,5 +1,5 @@
 from pawnlib.config import pawnlib_config as pawn
-from pawnlib.output import *
+from pawnlib.output import get_real_path
 import argparse
 
 from glob import glob
@@ -79,8 +79,6 @@ def parse_args(parser, commands):
         command = sys.argv[1]
     else:
         command = None
-        # pawn.console.log("[red] Required command")
-        # sys.exit(1)
     for c in sys.argv[1:]:
         if c in commands.choices:
             split_argv.append([c])
@@ -98,7 +96,6 @@ def parse_args(parser, commands):
 
 
 def get_args():
-    # parser = argparse.ArgumentParser(description='PAWNS cli')
     parser = argparse.ArgumentParser(
         usage=generate_banner(app_name="PAWNS", version=_version, author="jinwoo", font="graffiti"),
         formatter_class=argparse.RawTextHelpFormatter)
@@ -126,8 +123,4 @@ def main():
 
 if __name__ == '__main__':
     run_with_keyboard_interrupt(main)
-    # try:
-    #     main()
-    # except KeyboardInterrupt:
-    #     pawn.console.log("[red] KeyboardInterrupt")
 

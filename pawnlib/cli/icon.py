@@ -2,22 +2,17 @@
 import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
-from pawnlib.output.color_print import *
-from pawnlib.output import write_json
-
-from pawnlib.resource import server
+from pawnlib.config import pawnlib_config as pawn
 
 icx = 0.001
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='ICON')
-    parser = get_arguments(parser)
+    parser = get_arguments()
     return parser
 
 
-def get_arguments(parser):
-    parser = argparse.ArgumentParser(
-        description='Command Line Interface for ICX')
+def get_arguments(parser=None):
+    parser = argparse.ArgumentParser(description='Command Line Interface for ICX')
     parser.add_argument(
         'command',
         help='account, icx_sendTransaction, icx_sendTransaction_v3, get_transactionResult, icx_getBalance, icx_getTotalSupply')
@@ -54,16 +49,8 @@ def main():
 
     parser = get_parser()
     args, unknown = parser.parse_known_args()
-
     print(banner)
-
     pawn.console.log(f"args = {args}")
-
-    # res = server.get_aws_metadata(meta_ip=args.meta_ip, timeout=args.timeout)
-    # pawn.console.log(res)
-    #
-    # if args.write_filename:
-    #     write_json(filename=args.write_filename, data=res)
 
 
 if __name__ == '__main__':

@@ -6,7 +6,6 @@ import json
 import glob
 import yaml
 from typing import Union, Any
-# from pawnlib.output import *
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output import color_print
 from pawnlib.typing import converter
@@ -78,15 +77,15 @@ def get_file_path(filename) -> dict:
 
 
     """
-    dirname, file = os.path.split(filename)
-    extension = os.path.splitext(filename)[1]
-    fullpath = get_abs_path(filename)
+    _dirname, _file = os.path.split(filename)
+    _extension = os.path.splitext(filename)[1]
+    _fullpath = get_abs_path(filename)
     return {
-        "dirname": dirname,
-        "file": file,
-        "extension": extension,
+        "dirname": _dirname,
+        "file": _file,
+        "extension": _extension,
         "filename": filename,
-        "full_path": fullpath
+        "full_path": _fullpath
     }
 
 

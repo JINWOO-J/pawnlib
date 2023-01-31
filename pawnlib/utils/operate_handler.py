@@ -10,7 +10,7 @@ import threading
 import itertools
 from typing import Callable, List, Dict
 
-from pawnlib.output import *
+from pawnlib.output import dump, debug_print, bcolors
 from pawnlib import typing
 from functools import wraps
 
@@ -647,9 +647,8 @@ def wait_state_loop(
         if not isinstance(response, dict):
             response = response.__dict__
 
-        if force_dict:
-            if isinstance(response.get("json"), list):
-                response['json'] = response['json'][0]
+        if force_dict and isinstance(response.get("json"), list):
+            response['json'] = response['json'][0]
 
         check_state = ""
         error_msg = ""

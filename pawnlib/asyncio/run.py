@@ -1,7 +1,7 @@
 from functools import wraps, partial
 import asyncio
 import aiometer
-from pawnlib.output import *
+from pawnlib.output import debug_print
 
 
 class AsyncTasks:

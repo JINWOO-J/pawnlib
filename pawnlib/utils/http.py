@@ -32,7 +32,7 @@ class IconRpcHelper:
 
         return from_kwargs
 
-    def rpc_call(self, url=None, method=None, params: dict = {}, payload: dict = {}, print_error=False):
+    def rpc_call(self, url=None, method=None, params: dict = {}, payload: dict = {}, print_error=False) -> dict:
         if url:
             _url = url
         else:
@@ -104,7 +104,7 @@ class IconRpcHelper:
         else:
             raise ValueError(f"TX is not dict. tx => {tx}")
 
-    def get_step_limit(self, url=None, tx=None, step_kind="apiCall"):
+    def get_step_limit(self, url=None, tx=None, step_kind="apiCall") :
         estimate_step = self.get_estimate_step(url, tx)
         step_cost = self.get_step_cost(step_kind)
         step_price = self.get_step_price(url)
