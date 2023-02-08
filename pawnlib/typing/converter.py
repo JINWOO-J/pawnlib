@@ -62,6 +62,12 @@ class StackList:
     def get_list(self):
         return self.data
 
+    def __repr__(self):
+        return str(f"<StackList> {self.data}")
+
+    def __str__(self):
+        return str(f"<StackList> {self.data}")
+
     def reset(self):
         self.data = []
 
