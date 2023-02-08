@@ -1599,6 +1599,48 @@ def influx_key_value(key_values: dict, sep: str = ",", operator: str = "="):
     return result
 
 
+def extract_values_in_list(key: Any, list_of_dicts: list = []):
+    """
+    Extract the values from a list of dictionaries.
+
+    :param key:
+    :param list_of_dicts:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import converter
+            sample_list = [
+                {
+                    "name": "John Doe",
+                    "age": 30,
+                    "height": 1.75,
+                    "weight": 70,
+                },{
+                    "name": "John",
+                    "age": 32,
+                    "height": 1.71,
+                    "weight": 71,
+                }
+            ]
+
+            print(extract_values_in_list("age", sample_list))
+            # [30, 32]
+
+            print(extract_values_in_list("none_key", sample_list))
+            # []
+
+    """
+    result = []
+    if isinstance(list_of_dicts, list):
+        for _dict in list_of_dicts:
+            if _dict.get(key):
+                result.append(_dict.get(key))
+    return result
+
+
 def split_every_n(data, n):
     return [data[i:i + n] for i in range(0, len(data), n)]
 
