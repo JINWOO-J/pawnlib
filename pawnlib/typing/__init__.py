@@ -5,7 +5,9 @@ from .check import (
     is_hex,
     is_regex_keywords,
     list_depth,
-    is_valid_ipv4
+    is_valid_ipv4,
+    guess_type,
+    return_guess_type,
 )
 from .defines import (
     Namespace
@@ -32,6 +34,7 @@ from .converter import (
     list_to_oneline_string,
     long_to_bytes,
     ordereddict_to_dict,
+    extract_values_in_list,
     execute_function,
     influxdb_metrics_dict,
     metrics_key_push,

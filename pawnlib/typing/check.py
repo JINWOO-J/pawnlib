@@ -1,5 +1,6 @@
 import re
 import json
+import datetime
 
 
 def is_json(s) -> bool:
@@ -182,3 +183,52 @@ def list_depth(l):
         return 1 + max(list_depth(item) for item in l)
     else:
         return 0
+
+
+def guess_type(s):
+    """
+    Guess the type of a string.
+
+    :param s:
+    :return:
+
+    Example:
+
+    .. code-block:: python
+
+        from pawnlib.typing import check
+
+        check.guess_type("True")
+        # >> <class 'bool'>
+
+        check.guess_type("2.2")
+        # >> <class 'float'>
+
+    """
+    # s = str(s)
+
+    if isinstance(s, str):
+        if s == "":
+            return None
+        elif re.match("^(\d+)\.(\d+)$", s):
+            return float
+        elif re.match("^(\d)+$", s):
+            return int
+        #2019-01-01 or 01/01/2019 or 01/01/19
+        elif re.match("^(\d){4}-(\d){2}-(\d){2}$", s) or \
+                re.match("^(\d){2}/(\d){2}/((\d){2}|(\d){4})$", s):
+            return datetime.date
+        elif re.match("^(true|false)$", s, re.IGNORECASE):
+            return bool
+        else:
+            return str
+    else:
+        return type(s)
+
+
+def return_guess_type(value):
+    guessed_type = guess_type(value)
+    if guessed_type and not isinstance(guessed_type, type):
+        return guessed_type
+    else:
+        return value
