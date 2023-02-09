@@ -6,10 +6,8 @@ from pawnlib.typing.check import guess_type, return_guess_type
 check_list = [
     "1.1",
     1.1,
-    1.111,
-    23,
     "23",
-    23232323,
+    22,
     0,
     "",
     "2022-02-11",
@@ -19,5 +17,7 @@ check_list = [
 
 ]
 
+
 for item in check_list:
-    pawn.console.log(f"{item} {type(item)} => {guess_type(item)} , return={return_guess_type(item)}")
+    pawn.console.log(f"{item:<10} {str(type(item)):<16}-> {str(guess_type(item)):<16}, "
+                     f"return={str(return_guess_type(item)):<15}, type={type(return_guess_type(item))}")
