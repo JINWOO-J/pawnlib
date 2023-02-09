@@ -205,28 +205,54 @@ def guess_type(s):
         # >> <class 'float'>
 
     """
-    if isinstance(s, str):
-        if s == "":
-            return None
-        elif re.match("^(\d+)\.(\d+)$", s):
-            return float
-        elif re.match("^(\d)+$", s):
-            return int
-        ## 2019-01-01 or 01/01/2019 or 01/01/19
-        # elif re.match("^(\d){4}-(\d){2}-(\d){2}$", s) or \
-        #         re.match("^(\d){2}/(\d){2}/((\d){2}|(\d){4})$", s):
-        #     return datetime.date
-        elif re.match("^(true|false)$", s, re.IGNORECASE):
-            return bool
-        else:
-            return str
+    s = str(s)
+    if s == "":
+        return None
+    elif re.match("^(\d+)\.(\d+)$", s):
+        return float
+    elif re.match("^(\d)+$", s):
+        return int
+    ## 2019-01-01 or 01/01/2019 or 01/01/19
+    # elif re.match("^(\d){4}-(\d){2}-(\d){2}$", s) or \
+    #         re.match("^(\d){2}/(\d){2}/((\d){2}|(\d){4})$", s):
+    #     return datetime.date
+    elif re.match("^(true|false)$", s, re.IGNORECASE):
+        return bool
     else:
-        return type(s)
+        return str
+
+    # else:
+    #     return type(s)
+
+
+def _str2bool(v) -> bool:
+    """
+    this function get the boolean type
+
+    :param v:
+    :return:
+    """
+    if v is None:
+        return False
+    elif type(v) == bool:
+        return v
+    if isinstance(v, str):
+        if v.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+    elif v == 1:
+        return True
+
+    return False
 
 
 def return_guess_type(value):
     guessed_type = guess_type(value)
-    if guessed_type:
+    if isinstance(guessed_type(), bool):
+        return _str2bool(value)
+    elif value is not None and value != "":
         return guessed_type(value)
     else:
         return value
+
