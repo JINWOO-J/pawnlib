@@ -22,8 +22,10 @@ from pawnlib.typing import (
     flatten_dict,
     flatten_list,
     is_valid_ipv4,
+    guess_type,
 )
 
+import datetime
 
 class TestTyping(unittest.TestCase):
     @parameterized.expand([
@@ -210,6 +212,23 @@ class TestTyping(unittest.TestCase):
         self.assertEqual(is_valid_ipv4("255.400.255.256"), False)
         self.assertEqual(is_valid_ipv4("255.255.400.256"), False)
         self.assertEqual(is_valid_ipv4("255.255.255.400"), False)
+
+    def test_guess_type(self):
+        assert guess_type("") == None
+        assert guess_type("this is a string") == str
+        assert guess_type("0.1") == float
+        assert guess_type("true") == bool
+        assert guess_type("True") == bool
+        assert guess_type("TruE") == bool
+        assert guess_type("FALSE") == bool
+        assert guess_type("1") == int
+        assert guess_type("2019-01-01") == datetime.date
+        assert guess_type("01/01/2019") == datetime.date
+        assert guess_type("01/01/19") == datetime.date
+        assert guess_type(1) == int
+        assert guess_type(2) == int
+        assert guess_type(1.2) == float
+        assert guess_type("1.2sss") == str
 
 
 if __name__ == "__main__":
