@@ -1,6 +1,5 @@
 import re
 import json
-import datetime
 
 
 def is_json(s) -> bool:
@@ -212,10 +211,6 @@ def guess_type(s):
         return float
     elif re.match("^(\d)+$", s):
         return int
-    ## 2019-01-01 or 01/01/2019 or 01/01/19
-    # elif re.match("^(\d){4}-(\d){2}-(\d){2}$", s) or \
-    #         re.match("^(\d){2}/(\d){2}/((\d){2}|(\d){4})$", s):
-    #     return datetime.date
     elif re.match("^(true|false)$", s, re.IGNORECASE):
         return bool
     else:
@@ -249,6 +244,10 @@ def _str2bool(v) -> bool:
 
 def return_guess_type(value):
     guessed_type = guess_type(value)
+
+    if guessed_type is None or guessed_type == "":
+        return value
+
     if isinstance(guessed_type(), bool):
         return _str2bool(value)
     elif value is not None and value != "":
