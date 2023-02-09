@@ -205,8 +205,6 @@ def guess_type(s):
         # >> <class 'float'>
 
     """
-    # s = str(s)
-
     if isinstance(s, str):
         if s == "":
             return None
@@ -214,10 +212,10 @@ def guess_type(s):
             return float
         elif re.match("^(\d)+$", s):
             return int
-        #2019-01-01 or 01/01/2019 or 01/01/19
-        elif re.match("^(\d){4}-(\d){2}-(\d){2}$", s) or \
-                re.match("^(\d){2}/(\d){2}/((\d){2}|(\d){4})$", s):
-            return datetime.date
+        ## 2019-01-01 or 01/01/2019 or 01/01/19
+        # elif re.match("^(\d){4}-(\d){2}-(\d){2}$", s) or \
+        #         re.match("^(\d){2}/(\d){2}/((\d){2}|(\d){4})$", s):
+        #     return datetime.date
         elif re.match("^(true|false)$", s, re.IGNORECASE):
             return bool
         else:
@@ -228,7 +226,7 @@ def guess_type(s):
 
 def return_guess_type(value):
     guessed_type = guess_type(value)
-    if guessed_type and not isinstance(guessed_type, type):
-        return guessed_type
+    if guessed_type:
+        return guessed_type(value)
     else:
         return value
