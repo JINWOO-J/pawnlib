@@ -66,42 +66,4 @@ pawn.set(
 
 dump(pawn.to_dict())
 
-
-sys.exit()
-
-# def ConfigSectionMap(section):
-#     dict1 = {}
-#     options = Config.options(section)
-#     for option in options:
-#         try:
-#             dict1[option] = Config.get(section, option)
-#             if dict1[option] == -1:
-#                 DebugPrint("skip: %s" % option)
-#         except:
-#             print("exception on %s!" % option)
-#             dict1[option] = None
-#     return dict1
-
-
-config = ConfigFileParser()
-config.read('config_t_1.ini')
-sec = config.sections()
-
-pawn.console.log(config.__dict__)
-
-
-sections = config.sections()
-for section in sections:
-    pawn.console.log(f"section = {section}")
-    res = config.options(section=section)
-    pawn.console.log(res)
-
-config_file = config.as_dict()
-pawn.console.log(config_file)
-
-# res = converter.UpdateType(default_schema=default_schema, is_debug=True)
-res = converter.UpdateType(default_schema=default_schema, is_debug=True)
-res2 = res.assign_dict(input_schema=config.as_dict(), use_section=True, is_flatten=False)
-
-
-# pawn.console.log(res.find_parent_type(key="ServerAliveInterval"))
+print(pawn.get_path())
