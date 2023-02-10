@@ -284,8 +284,7 @@ class PawnlibConfig(metaclass=Singleton):
                     if conf_key.lower() in duplicate_keys:
                         self.console.log(f"[yellow]\[WARN] Similar keys exist in config.ini - \[{config_category}] {conf_key}={conf_value}")
 
-
-    def get_path(self, path: str) -> Path:
+    def get_path(self, path: str="") -> Path:
         """Get Path from the directory where the configure.json file is.
         :param path: file_name or path
         :return:
