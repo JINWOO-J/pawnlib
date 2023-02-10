@@ -267,6 +267,7 @@ class PawnlibConfig(metaclass=Singleton):
     def _load_config_file(self, config_path=None):
         if self._loaded['on_ready']:
             config = ConfigSectionMap()
+            config.optionxform = str
             _config_filename = self.get_path(self._config_file)
 
             if _config_filename.is_file():
@@ -275,7 +276,14 @@ class PawnlibConfig(metaclass=Singleton):
             else:
                 self.set(PAWN_CONFIG={})
                 self.console.debug(f"[bold red] cannot found config_file - {_config_filename}")
-            # self._loaded['on_ready'] = False
+
+            for config_category, config_value in config.items():
+                lower_keys = [ key.lower() for key in config[config_category].keys() ]
+                duplicate_keys = _list_duplicates(lower_keys)
+                for conf_key, conf_value in config[config_category].items():
+                    if conf_key.lower() in duplicate_keys:
+                        self.console.log(f"[yellow]\[WARN] Similar keys exist in config.ini - \[{config_category}] {conf_key}={conf_value}")
+
 
     def get_path(self, path: str) -> Path:
         """Get Path from the directory where the configure.json file is.
@@ -768,6 +776,15 @@ class PawnlibConfig(metaclass=Singleton):
     #         return self.data
     #
     #     return self.data
+
+
+def _list_duplicates(seq):
+    seen = set()
+    seen_add = seen.add
+    # adds all elements it doesn't know yet to seen and all other to seen_twice
+    seen_twice = set( x for x in seq if x in seen or seen_add(x) )
+    # turn the set into a list (as requested)
+    return list( seen_twice )
 
 
 def set_debug_logger(logger_name=None, propagate=0, get_logger_name='PAWNS', level='DEBUG'):
