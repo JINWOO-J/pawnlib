@@ -1,16 +1,25 @@
 from functools import wraps, partial
 import asyncio
 import aiometer
-from pawnlib.output import debug_print
-
+from pawnlib.output import debug_print, classdump
+from pawnlib.utils.operate_handler import Spinner
+from pawnlib.config import pawnlib_config as pawn
 
 class AsyncTasks:
-    def __init__(self, max_at_once: int = 10, max_per_second: int = 10, debug: bool = False, **kwargs):
+    def __init__(self,
+                 max_at_once: int = 10,
+                 max_per_second: int = 10,
+                 title="Working on async tasks ...",
+                 debug: bool = False,
+                 status: bool = False,
+                 **kwargs):
         """
         This Class is to run asyncio using aiometer.
 
         :param max_at_once: Limit maximum number of concurrently running tasks.
         :param max_per_second: Limit request rate to not overload the server.
+        :param title: Title of the tasks
+        :param status: Status of the tasks
         :param debug: Whether to use debug
         :param kwargs:
 
@@ -37,6 +46,10 @@ class AsyncTasks:
 
         self.async_partial_target_func = None
         self.async_partial_task_func = None
+        self.status_console = None
+
+        self._title = title
+        self._view_status = status
 
     def generate_tasks(self, target_list=None, function=None, **kwargs):
         """
@@ -65,14 +78,32 @@ class AsyncTasks:
 
         :return:
         """
-        return asyncio.run(self._runner())
 
-    async def _runner(self):
-        result = []
+        if self._view_status:
+            with pawn.console.status(self._title) as status:
+                result = asyncio.run(self._runner(status))
+        else:
+            result = asyncio.run(self._runner())
+
+        return result
+
+    async def _runner(self, status=None):
+        result = {}
         if len(self.tasks) > 0:
-            result = await aiometer.run_all(self.tasks, max_at_once=self.max_at_once, max_per_second=self.max_per_second)
+            async with aiometer.amap(
+                    async_fn=lambda fn: fn(),
+                    args=self.tasks,
+                    max_at_once=self.max_at_once,
+                    max_per_second=self.max_per_second,
+                    _include_index=True,
+            ) as amap_results:
+                async for _index, _result in amap_results:
+                    result[_index] = _result
+                    if status and self._view_status:
+                        status.update(f"{self._title} [{_index}] {_result}")
         else:
             print("ERROR: tasks is null")
+
         return result
 
     def _debug_print(self, *args, **kwargs):
