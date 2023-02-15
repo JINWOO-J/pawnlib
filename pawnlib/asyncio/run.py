@@ -1,9 +1,10 @@
 from functools import wraps, partial
 import asyncio
 import aiometer
+from aiometer._impl import utils
 from pawnlib.output import debug_print, classdump
-from pawnlib.utils.operate_handler import Spinner
 from pawnlib.config import pawnlib_config as pawn
+
 
 class AsyncTasks:
     def __init__(self,
@@ -103,8 +104,7 @@ class AsyncTasks:
                         status.update(f"{self._title} [{_index}] {_result}")
         else:
             print("ERROR: tasks is null")
-
-        return result
+        return utils.list_from_indexed_dict(result)
 
     def _debug_print(self, *args, **kwargs):
         if self.debug:
