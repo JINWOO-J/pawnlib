@@ -35,7 +35,8 @@ def main():
     async_tasks = AsyncTasks(
         max_at_once=50,
         max_per_second=50,
-        debug=True
+        debug=True,
+        status=True,
     )
 
     # pawnlib_config.set(result=[])
