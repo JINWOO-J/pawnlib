@@ -38,6 +38,9 @@ class NestedNamespace(SimpleNamespace):
     def _values(self) -> list:
         return list(self.__dict__.values())
 
+    def as_dict(self) -> dict:
+        return self.__dict__
+
 
 def nestednamedtuple(dict_items: dict) -> namedtuple:
     """
@@ -533,7 +536,7 @@ class PawnlibConfig(metaclass=Singleton):
                     self.debug = self.str2bool(p_value)
                     self.console.pawn_debug = self.str2bool(p_value)
                     if self.debug:
-                        rich_traceback_install(show_locals=True)
+                        rich_traceback_install(show_locals=True, width=160)
                         if self.app_logger:
                             set_debug_logger(self.app_logger)
                         # if self.error_logger:
@@ -795,4 +798,5 @@ def set_debug_logger(logger_name=None, propagate=0, get_logger_name='PAWNS', lev
 
 
 pawnlib_config = PawnlibConfig(global_name="pawnlib_global_config").init_with_env()
+pawn = pawnlib_config
 global_verbose = pawnlib_config.get('PAWN_VERBOSE', 0)
