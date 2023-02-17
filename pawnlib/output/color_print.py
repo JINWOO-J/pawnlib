@@ -193,7 +193,12 @@ class PrintRichTable:
 
     """
 
-    def __init__(self, title: str = "", data: Union[dict, list] = None, columns: list = None, with_idx: bool = True, call_hook_value=str,
+    def __init__(self,
+                 title: str = "",
+                 data: Union[dict, list] = None,
+                 columns: list = None,
+                 with_idx: bool = True,
+                 call_hook_value=str,
                  **kwargs) -> None:
 
         if columns is None:
@@ -201,7 +206,9 @@ class PrintRichTable:
         if data is None:
             data = dict()
         self.title = f"[bold cyan] {title}"
-        self.table = Table(title=self.title, **kwargs)
+        self.table_options = kwargs
+        # self.table = Table(title=self.title, **kwargs)
+        self.table = None
         self.data = data
         self.table_data = []
         self.columns = columns
@@ -210,23 +217,40 @@ class PrintRichTable:
         self.with_idx = with_idx
         self.call_hook_value = call_hook_value
 
+        self._initialize_table()
         self._set_table_data()
         self._print_table()
 
-    def _set_table_data(self):
+    def _initialize_table(self):
         if isinstance(self.data, dict):
-            self.table_data = [self.data]
+            self.table_data = self.data
+            if not self.table_options.get('show_header'):
+                self.table_options['show_header'] = False
+            if self.table_options.get('show_lines', "NOT_DEFINED") == "NOT_DEFINED":
+                self.table_options['show_lines'] = False
+
         elif isinstance(self.data, list):
             self.table_data = self.data
         else:
             self.table_data = []
 
-        if self.table_data and len(self.columns) == 0 and isinstance(self.table_data[0], dict):
-            self.columns = list(self.table_data[0].keys())
+        self.table = Table(title=self.title, **self.table_options)
 
+    def _draw_vertical_table(self):
+        if self.with_idx:
+            self.table.add_column("idx")
+
+        self.table.add_column("key", justify="left")
+        self.table.add_column("value", justify="right")
+        _count = 0
+        for item, value in self.table_data.items():
+            lines = [f"{item}", f"{value}"]
             if self.with_idx:
-                self.columns.insert(0, "idx")
+                lines.insert(0, f"{_count}")
+            self.table.add_row(*lines)
+            _count += 1
 
+    def _draw_horizontal_table(self):
         for item in self.table_data:
             if isinstance(item, dict):
                 line_row = []
@@ -238,6 +262,21 @@ class PrintRichTable:
                     line_row.append(value)
                 self.rows.append(line_row)
             self.row_count += 1
+
+
+    def _extract_columns(self):
+        # if self.table_data and len(self.columns) == 0 and isinstance(self.table_data[0], dict):
+        if self.table_data and len(self.columns) == 0:
+            self.columns = list(self.table_data[0].keys())
+        if self.with_idx:
+            self.columns.insert(0, "idx")
+
+    def _set_table_data(self):
+        if isinstance(self.table_data, list):
+            self._extract_columns()
+            self._draw_horizontal_table()
+        elif isinstance(self.table_data, dict):
+            self._draw_vertical_table()
 
     def _print_table(self):
         for col in self.columns:
