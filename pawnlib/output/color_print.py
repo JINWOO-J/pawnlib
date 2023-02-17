@@ -141,7 +141,8 @@ class PrintRichTable:
     :param data: Data of table
     :param columns: Columns of table. Print only column parameter values.
     :param with_idx: Print the row count.
-    :param call_hook_value: The row value must be a string. If you want to perform other tasks, please add the function name.
+    :param call_value_func: The row value must be a string. If you want to perform other tasks, please add the function name.
+    :param call_desc_func: Invoke a function that describes the value.
 
     Example:
 
@@ -198,7 +199,8 @@ class PrintRichTable:
                  data: Union[dict, list] = None,
                  columns: list = None,
                  with_idx: bool = True,
-                 call_hook_value=str,
+                 call_value_func=str,
+                 call_desc_func=None,
                  **kwargs) -> None:
 
         if columns is None:
@@ -215,7 +217,8 @@ class PrintRichTable:
         self.rows = []
         self.row_count = 0
         self.with_idx = with_idx
-        self.call_hook_value = call_hook_value
+        self.call_value_func = call_value_func
+        self.call_desc_func = call_desc_func
 
         self._initialize_table()
         self._set_table_data()
@@ -239,26 +242,37 @@ class PrintRichTable:
     def _draw_vertical_table(self):
         if self.with_idx:
             self.table.add_column("idx")
-
         self.table.add_column("key", justify="left")
         self.table.add_column("value", justify="right")
+
+        if self.call_desc_func and callable(self.call_desc_func):
+            self.table.add_column("description", justify="right")
+
         _count = 0
+        row_dict = {}
         for item, value in self.table_data.items():
-            lines = [f"{item}", f"{value}"]
+            row_dict[item] = value
+            columns = [f"{item}", f"{value}"]
             if self.with_idx:
-                lines.insert(0, f"{_count}")
-            self.table.add_row(*lines)
+                columns.insert(0, f"{_count}")
+            if self.call_desc_func and callable(self.call_desc_func):
+                columns.append(self.call_desc_func(*columns, **row_dict))
+            self.table.add_row(*columns)
             _count += 1
 
     def _draw_horizontal_table(self):
         for item in self.table_data:
             if isinstance(item, dict):
                 line_row = []
+                row_dict = {}
                 for column in self.columns:
                     if self.with_idx and column == "idx":
-                        value = self.call_hook_value(self.row_count)
+                        value = self.call_value_func(self.row_count)
+                    elif column == "desc":
+                        value = self.call_desc_func(*line_row, **row_dict)
                     else:
-                        value = self.call_hook_value(item.get(column))
+                        value = self.call_value_func(item.get(column))
+                    row_dict[column] = value
                     line_row.append(value)
                 self.rows.append(line_row)
             self.row_count += 1
@@ -270,6 +284,8 @@ class PrintRichTable:
             self.columns = list(self.table_data[0].keys())
         if self.with_idx:
             self.columns.insert(0, "idx")
+        if callable(self.call_desc_func):
+            self.columns.append("desc")
 
     def _set_table_data(self):
         if isinstance(self.table_data, list):
