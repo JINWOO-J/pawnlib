@@ -194,14 +194,16 @@ class PrintRichTable:
 
     """
 
-    def __init__(self,
-                 title: str = "",
-                 data: Union[dict, list] = None,
-                 columns: list = None,
-                 with_idx: bool = True,
-                 call_value_func=str,
-                 call_desc_func=None,
-                 **kwargs) -> None:
+    def __init__(
+                self,
+                title: str = "",
+                data: Union[dict, list] = None,
+                columns: list = None,
+                with_idx: bool = True,
+                call_value_func = str,
+                call_desc_func = None,
+                **kwargs
+                ) -> None:
 
         if columns is None:
             columns = list()
@@ -252,6 +254,8 @@ class PrintRichTable:
         row_dict = {}
         for item, value in self.table_data.items():
             row_dict[item] = value
+            if callable(self.call_desc_func):
+                value = self.call_desc_func(value)
             columns = [f"{item}", f"{value}"]
             if self.with_idx:
                 columns.insert(0, f"{_count}")
@@ -267,7 +271,7 @@ class PrintRichTable:
                 row_dict = {}
                 for column in self.columns:
                     if self.with_idx and column == "idx":
-                        value = self.call_value_func(self.row_count)
+                        value = str(self.row_count)
                     elif column == "desc":
                         value = self.call_desc_func(*line_row, **row_dict)
                     else:
