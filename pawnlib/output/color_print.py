@@ -254,8 +254,9 @@ class PrintRichTable:
         row_dict = {}
         for item, value in self.table_data.items():
             row_dict[item] = value
-            if callable(self.call_desc_func):
-                value = self.call_desc_func(value)
+            if callable(self.call_value_func):
+                value = self.call_value_func(value)
+
             columns = [f"{item}", f"{value}"]
             if self.with_idx:
                 columns.insert(0, f"{_count}")
