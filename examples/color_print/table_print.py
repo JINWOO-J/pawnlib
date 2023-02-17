@@ -66,3 +66,32 @@ PrintRichTable(
     call_desc_func=_make_description,
     call_value_func=_make_value
 )
+
+
+term_data = {
+    'termSequence': 99,
+    'startBlockHeight': 4284350,
+    'startBlockHeightTimestamp': 1676538028,
+    'termPeriod': 43200,
+    'endBlockTimestampEstimated': 1676624456,
+    'reportDueTimestampEstimated': 1676617256,
+    'reportDueBlockHeight': 4323950,
+    'currentBlockHeight': 4325670,
+    'currentBlockTimestamp': 1676620696,
+    'fulfillmentTime': 21600
+}
+
+
+def add_comma(value):
+    return f"V = {value}"
+
+
+PrintRichTable(
+    title="RichTable Rows with description",
+    data=term_data,
+    with_idx=True,
+    call_value_func=add_comma
+)
+
+
+
