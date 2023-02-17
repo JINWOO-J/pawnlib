@@ -49,3 +49,12 @@ grid.add_column(justify="right")
 grid.add_row("Raising shields", "[bold magenta]COMPLETED [green]:heavy_check_mark:")
 
 print(grid)
+
+
+def _make_description(*args, **kwargs):
+    return f"description {args},\n {kwargs}"
+
+
+PrintRichTable(title="RichTable Key/Value with description", data=data[0], with_idx=False, call_desc_func=_make_description)
+
+PrintRichTable(title="RichTable Rows with description", data=data,  with_idx=True, call_desc_func=_make_description)
