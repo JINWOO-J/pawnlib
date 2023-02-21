@@ -14,4 +14,11 @@ from .server import (
     get_platform_info,
     get_cpu_load,
     get_mem_info,
+    get_uptime_cmd,
+    get_total_memory_usage,
+    get_mac_platform_info,
+    get_mem_osx_info,
+    get_cpu_time,
+    get_aws_metadata,
+    aws_data_crawl,
 )

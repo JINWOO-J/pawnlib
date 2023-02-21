@@ -1,5 +1,7 @@
 import re
 import json
+import sys
+from pawnlib.config import pawn
 
 
 def is_json(s) -> bool:
@@ -255,3 +257,7 @@ def return_guess_type(value):
     else:
         return value
 
+
+def sys_exit(message="", return_code="-1"):
+    if message:
+        pawn.console.log(message)

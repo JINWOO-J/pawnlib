@@ -3,11 +3,14 @@ from .check import (
     is_float,
     is_int,
     is_hex,
+    is_regex_keyword,
     is_regex_keywords,
     list_depth,
     is_valid_ipv4,
+    is_valid_ipv6,
     guess_type,
     return_guess_type,
+    sys_exit,
 )
 from .defines import (
     Namespace
@@ -78,8 +81,7 @@ from .generator import (
     increase_number,
     hexadecimal,
     decimal,
-    uuid_generator,
-    id_generator,
+    uuid,
 
 )
 
@@ -89,5 +91,7 @@ from .date_utils import (
     get_range_day_of_month,
     todaydate,
     format_seconds_to_hhmmss,
+    timestamp_to_string,
+    second_to_dayhhmm,
 )
 
