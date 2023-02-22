@@ -93,7 +93,9 @@ class AsyncTasks:
 
     async def _runner(self, status=None):
         result = {}
-        if len(self.tasks) > 0:
+        tasks_length = len(self.tasks)
+
+        if tasks_length > 0:
             async with aiometer.amap(
                     async_fn=lambda fn: fn(),
                     args=self.tasks,
@@ -104,7 +106,7 @@ class AsyncTasks:
                 async for _index, _result in amap_results:
                     result[_index] = _result
                     if status and self._view_status:
-                        status.update(f"{self._title} <{self._function_name}> [{_index}] {_result}")
+                        status.update(f"{self._title} <{self._function_name}> [{_index}/{tasks_length}] {_result}")
         else:
             print("ERROR: tasks is null")
         return utils.list_from_indexed_dict(result)
