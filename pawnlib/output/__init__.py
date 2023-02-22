@@ -32,4 +32,5 @@ from .color_print import (
     debug_logging,
     print_progress_bar,
     get_colorful_object,
+    syntax_highlight
 )
