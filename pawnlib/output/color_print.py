@@ -14,6 +14,9 @@ from pygments.formatters import Terminal256Formatter
 from rich.table import Table
 from typing import Union
 from datetime import datetime
+from _ctypes import PyObj_FromPtr
+import re
+
 
 _ATTRIBUTES = dict(
     list(zip([
@@ -669,13 +672,206 @@ def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, bar_l
         sys.stdout.write('\n')
 
 
-def syntax_highlight(data, name="json", style="material"):
+def _patched_make_iterencode(markers, _default, _encoder, _indent, _floatstr,
+                     _key_separator, _item_separator, _sort_keys, _skipkeys, _one_shot,
+                     ## HACK: hand-optimized bytecode; turn globals into locals
+                     ValueError=ValueError,
+                     dict=dict,
+                     float=float,
+                     id=id,
+                     int=int,
+                     isinstance=isinstance,
+                     list=list,
+                     str=str,
+                     tuple=tuple,
+                     _intstr=int.__repr__,
+                     ):
+
+    if _indent is not None and not isinstance(_indent, str):
+        _indent = ' ' * _indent
+
+    def _iterencode_list(lst, _current_indent_level):
+        if not lst:
+            yield '[]'
+            return
+        if markers is not None:
+            markerid = id(lst)
+            if markerid in markers:
+                raise ValueError("Circular reference detected")
+            markers[markerid] = lst
+        buf = '['
+        if _indent is not None:
+            _current_indent_level += 1
+            newline_indent = '\n' + _indent * _current_indent_level
+            # separator = _item_separator + newline_indent
+            separator = ", "
+            buf += newline_indent
+
+        else:
+            newline_indent = None
+            separator = _item_separator
+        first = True
+        for value in lst:
+            if first:
+                first = False
+            else:
+                buf = separator
+            if isinstance(value, str):
+                yield buf + _encoder(value)
+            elif value is None:
+                yield buf + 'null'
+            elif value is True:
+                yield buf + 'true'
+            elif value is False:
+                yield buf + 'false'
+            elif isinstance(value, int):
+                # Subclasses of int/float may override __repr__, but we still
+                # want to encode them as integers/floats in JSON. One example
+                # within the standard library is IntEnum.
+                yield buf + _intstr(value)
+            elif isinstance(value, float):
+                # see comment above for int
+                yield buf + _floatstr(value)
+            else:
+                yield buf
+                if isinstance(value, (list, tuple)):
+                    chunks = _iterencode_list(value, _current_indent_level)
+                elif isinstance(value, dict):
+
+                    chunks = _iterencode_dict(value, _current_indent_level)
+
+                else:
+                    chunks = _iterencode(value, _current_indent_level)
+                yield from chunks
+        if newline_indent is not None:
+            _current_indent_level -= 1
+            yield '\n' + _indent * _current_indent_level
+        yield ']'
+        if markers is not None:
+            del markers[markerid]
+
+    def _iterencode_dict(dct, _current_indent_level):
+        if not dct:
+            yield '{}'
+            return
+        if markers is not None:
+            markerid = id(dct)
+            if markerid in markers:
+                raise ValueError("Circular reference detected")
+            markers[markerid] = dct
+        yield '{'
+        if _indent is not None:
+            _current_indent_level += 1
+            newline_indent = '\n' + _indent * _current_indent_level
+            item_separator = _item_separator + newline_indent
+            yield newline_indent
+        else:
+            newline_indent = None
+            item_separator = _item_separator
+        first = True
+        if _sort_keys:
+            items = sorted(dct.items())
+        else:
+            items = dct.items()
+        for key, value in items:
+            if isinstance(key, str):
+                pass
+            # JavaScript is weakly typed for these, so it makes sense to
+            # also allow them.  Many encoders seem to do something like this.
+            elif isinstance(key, float):
+                # see comment for int/float in _make_iterencode
+                key = _floatstr(key)
+            elif key is True:
+                key = 'true'
+            elif key is False:
+                key = 'false'
+            elif key is None:
+                key = 'null'
+            elif isinstance(key, int):
+                # see comment for int/float in _make_iterencode
+                key = _intstr(key)
+            elif _skipkeys:
+                continue
+            else:
+                raise TypeError(f'keys must be str, int, float, bool or None, '
+                                f'not {key.__class__.__name__}')
+            if first:
+                first = False
+            else:
+                yield item_separator
+            yield _encoder(key)
+            yield _key_separator
+            if isinstance(value, str):
+                yield _encoder(value)
+            elif value is None:
+                yield 'null'
+            elif value is True:
+                yield 'true'
+            elif value is False:
+                yield 'false'
+            elif isinstance(value, int):
+                # see comment for int/float in _make_iterencode
+                yield _intstr(value)
+            elif isinstance(value, float):
+                # see comment for int/float in _make_iterencode
+                yield _floatstr(value)
+            else:
+                if isinstance(value, (list, tuple)):
+                    chunks = _iterencode_list(value, _current_indent_level)
+                elif isinstance(value, dict):
+                    chunks = _iterencode_dict(value, _current_indent_level)
+                else:
+                    chunks = _iterencode(value, _current_indent_level)
+                yield from chunks
+        if newline_indent is not None:
+            _current_indent_level -= 1
+            yield '\n' + _indent * _current_indent_level
+        yield '}'
+        if markers is not None:
+            del markers[markerid]
+
+    def _iterencode(o, _current_indent_level):
+        if isinstance(o, str):
+            yield _encoder(o)
+        elif o is None:
+            yield 'null'
+        elif o is True:
+            yield 'true'
+        elif o is False:
+            yield 'false'
+        elif isinstance(o, int):
+            # see comment for int/float in _make_iterencode
+            yield _intstr(o)
+        elif isinstance(o, float):
+            # see comment for int/float in _make_iterencode
+            yield _floatstr(o)
+        elif isinstance(o, (list, tuple)):
+            yield from _iterencode_list(o, _current_indent_level)
+
+        elif isinstance(o, dict):
+            yield from _iterencode_dict(o, _current_indent_level)
+        else:
+            if markers is not None:
+                markerid = id(o)
+                if markerid in markers:
+                    raise ValueError("Circular reference detected")
+                markers[markerid] = o
+            o = _default(o)
+            yield from _iterencode(o, _current_indent_level)
+            if markers is not None:
+                del markers[markerid]
+    return _iterencode
+
+
+def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True):
     """
     Syntax highlighting function
 
     :param data:
     :param name:
+    :param indent:
     :param style:
+    :param oneline_list:
     :return:
 
     Example:
@@ -695,7 +891,8 @@ def syntax_highlight(data, name="json", style="material"):
     # 'abap', 'solarized-dark', 'solarized-light', 'sas', 'stata', 'stata-light',
     # 'stata-dark', 'inkpot', 'zenburn']
     if name == "json" and isinstance(data, dict):
-        code_data = json.dumps(data, indent=4)
+        # code_data = json.dumps(data, indent=indent, cls=NoListIndentEncoder)
+        code_data = json_compact_dumps(data, indent=indent, monkey_patch=oneline_list)
     else:
         code_data = data
     return highlight(
@@ -703,3 +900,39 @@ def syntax_highlight(data, name="json", style="material"):
         lexer=get_lexer_by_name(name),
         formatter=Terminal256Formatter(style=style))
 
+
+def json_compact_dumps(data, indent=4, monkey_patch=True):
+    if monkey_patch:
+        json.encoder._make_iterencode = _patched_make_iterencode
+    return json.dumps(data,  indent=indent)
+
+
+class NoIndent(object):
+    """ Value wrapper. """
+    def __init__(self, value):
+        self.value = value
+
+
+class NoListIndentEncoder(json.JSONEncoder):
+    def __init__(self, *args, **kwargs):
+        # Save copy of any keyword argument values needed for use here.
+        super(NoListIndentEncoder, self).__init__(*args, **kwargs)
+
+    def iterencode(self, o, _one_shot=False):
+        list_lvl = 0
+        for s in super(NoListIndentEncoder, self).iterencode(o, _one_shot=_one_shot):
+            if s.startswith('['):
+                list_lvl += 1
+                s = s.replace('\n', '').rstrip()
+                s = s.replace(' ', '')
+            elif 0 < list_lvl:
+                s = s.replace('\n', '').rstrip()
+                s = s.replace(' ', '')
+                if s and s[-1] == ',':
+                    s = s[:-1] + self.item_separator
+                elif s and s[-1] == ':':
+                    s = s[:-1] + self.key_separator
+            if s.endswith(']'):
+                list_lvl -= 1
+            s = s.replace(",", ", ")
+            yield s
