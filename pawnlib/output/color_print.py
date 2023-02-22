@@ -8,6 +8,9 @@ import traceback
 import inspect
 from pawnlib.typing import converter, date_utils, list_to_oneline_string, const
 from pawnlib.config import pawnlib_config as pawn, global_verbose
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import Terminal256Formatter
 from rich.table import Table
 from typing import Union
 from datetime import datetime
@@ -639,9 +642,9 @@ def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, bar_l
 
     Example:
 
-        from pawnlib import output
-
         .. code-block:: python
+
+            from pawnlib import output
 
             for i in range(1, 100):
                 time.sleep(0.05)
@@ -664,3 +667,39 @@ def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, bar_l
 
     if iteration == total:
         sys.stdout.write('\n')
+
+
+def syntax_highlight(data, name="json", style="material"):
+    """
+    Syntax highlighting function
+
+    :param data:
+    :param name:
+    :param style:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib import output
+
+            print(output.syntax_highlight("<html><head><meta name='viewport' content='width'>", "html", style=style))
+
+    """
+    # styles available as of pygments 2.8.1.
+    # ['default', 'emacs', 'friendly', 'colorful', 'autumn', 'murphy', 'manni',
+    # 'material', 'monokai', 'perldoc', 'pastie', 'borland', 'trac', 'native',
+    # 'fruity', 'bw', 'vim', 'vs', 'tango', 'rrt', 'xcode', 'igor', 'paraiso-light',
+    # 'paraiso-dark', 'lovelace', 'algol', 'algol_nu', 'arduino', 'rainbow_dash',
+    # 'abap', 'solarized-dark', 'solarized-light', 'sas', 'stata', 'stata-light',
+    # 'stata-dark', 'inkpot', 'zenburn']
+    if name == "json" and isinstance(data, dict):
+        code_data = json.dumps(data, indent=4)
+    else:
+        code_data = data
+    return highlight(
+        code=code_data,
+        lexer=get_lexer_by_name(name),
+        formatter=Terminal256Formatter(style=style))
+

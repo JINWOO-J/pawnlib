@@ -1,4 +1,4 @@
-    #!/usr/bin/env python3
+#!/usr/bin/env python3
 import common
 from pawnlib.output.color_print import *
 import time

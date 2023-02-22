@@ -51,6 +51,7 @@ class AsyncTasks:
 
         self._title = title
         self._view_status = status
+        self._function_name = ""
 
     def generate_tasks(self, target_list=None, function=None, **kwargs):
         """
@@ -61,6 +62,8 @@ class AsyncTasks:
         :param kwargs:
         :return:
         """
+        if function and getattr(function, "__qualname__"):
+            self._function_name = function.__qualname__
 
         self._debug_print(f"{target_list}, {type(target_list)}")
         if kwargs.get('kwargs'):
@@ -101,7 +104,7 @@ class AsyncTasks:
                 async for _index, _result in amap_results:
                     result[_index] = _result
                     if status and self._view_status:
-                        status.update(f"{self._title} [{_index}] {_result}")
+                        status.update(f"{self._title} <{self._function_name}> [{_index}] {_result}")
         else:
             print("ERROR: tasks is null")
         return utils.list_from_indexed_dict(result)
