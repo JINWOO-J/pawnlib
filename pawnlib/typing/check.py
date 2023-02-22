@@ -258,6 +258,7 @@ def return_guess_type(value):
         return value
 
 
-def sys_exit(message="", return_code="-1"):
+def sys_exit(message="", return_code=-1):
     if message:
-        pawn.console.log(message)
+        pawn.console.log(f"[red]{message}")
+    sys.exit(return_code)
