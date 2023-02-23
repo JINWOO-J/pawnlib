@@ -12,10 +12,9 @@ from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import Terminal256Formatter
 from rich.table import Table
-from typing import Union
+from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
+from typing import Union, Callable
 from datetime import datetime
-from _ctypes import PyObj_FromPtr
-import re
 
 
 _ATTRIBUTES = dict(
@@ -205,6 +204,7 @@ class PrintRichTable:
                 title: str = "",
                 data: Union[dict, list] = None,
                 columns: list = None,
+                remove_columns: list = None,
                 with_idx: bool = True,
                 call_value_func = str,
                 call_desc_func = None,
@@ -222,6 +222,7 @@ class PrintRichTable:
         self.data = data
         self.table_data = []
         self.columns = columns
+        self.remove_columns = remove_columns
         self.rows = []
         self.row_count = 0
         self.with_idx = with_idx
@@ -288,7 +289,6 @@ class PrintRichTable:
                 self.rows.append(line_row)
             self.row_count += 1
 
-
     def _extract_columns(self):
         # if self.table_data and len(self.columns) == 0 and isinstance(self.table_data[0], dict):
         if self.table_data and len(self.columns) == 0:
@@ -297,6 +297,10 @@ class PrintRichTable:
             self.columns.insert(0, "idx")
         if callable(self.call_desc_func):
             self.columns.append("desc")
+
+        if self.columns and isinstance(self.remove_columns, list):
+            for r_column in self.remove_columns:
+                self.columns.remove(r_column)
 
     def _set_table_data(self):
         if isinstance(self.table_data, list):
@@ -890,7 +894,7 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
     # 'paraiso-dark', 'lovelace', 'algol', 'algol_nu', 'arduino', 'rainbow_dash',
     # 'abap', 'solarized-dark', 'solarized-light', 'sas', 'stata', 'stata-light',
     # 'stata-dark', 'inkpot', 'zenburn']
-    if name == "json" and isinstance(data, dict):
+    if name == "json" and isinstance(data, (dict, list)):
         # code_data = json.dumps(data, indent=indent, cls=NoListIndentEncoder)
         code_data = json_compact_dumps(data, indent=indent, monkey_patch=oneline_list)
     else:
@@ -936,3 +940,18 @@ class NoListIndentEncoder(json.JSONEncoder):
                 list_lvl -= 1
             s = s.replace(",", ", ")
             yield s
+
+
+class ProgressTime(Progress):
+    def __init__(self, **kwargs):
+
+        if kwargs.get('transient', "__NOT_DEFINED__") == "__NOT_DEFINED__":
+            kwargs['transient'] = True
+
+        super().__init__(
+            SpinnerColumn(),
+            *Progress.get_default_columns(),
+            TimeElapsedColumn(),
+            console=pawn.console,
+            **kwargs
+        )
