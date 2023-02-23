@@ -188,7 +188,7 @@ def list_depth(l):
 
 def guess_type(s):
     """
-    Guess the type of a string.
+    Guess the type of string.
 
     :param s:
     :return:
@@ -259,6 +259,14 @@ def return_guess_type(value):
 
 
 def sys_exit(message="", return_code=-1):
+    """
+    This function executes the sys.exit() method
+
+    :param message: print message
+    :param return_code: exit code
+    :return:
+
+    """
     if message:
-        pawn.console.log(f"[red]{message}")
+        pawn.console.log(f"[red]\[Exit {return_code}] {message}")
     sys.exit(return_code)
