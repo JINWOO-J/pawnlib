@@ -179,6 +179,25 @@ def is_valid_ipv6(ip):
     return pattern.match(ip) is not None
 
 
+def is_valid_private_key(text=None):
+    private_length = 64
+    if text and is_hex(text):
+        if text.startswith("0x"):
+            text = text[2:]
+        if len(text) == private_length:
+            return True
+    return False
+
+
+def is_valid_token_address(text=None, prefix="hx"):
+    if text and prefix \
+            and len(text) == 42 \
+            and text.startswith(prefix)\
+            and is_hex(text[2:]):
+        return True
+    return False
+
+
 def list_depth(l):
     if isinstance(l, list):
         return 1 + max(list_depth(item) for item in l)
@@ -209,11 +228,11 @@ def guess_type(s):
     s = str(s)
     if s == "":
         return None
-    elif re.match("^(\d+)\.(\d+)$", s):
+    elif re.match(r"^(\d+)\.(\d+)$", s):
         return float
-    elif re.match("^(\d)+$", s):
+    elif re.match(r"^(\d)+$", s):
         return int
-    elif re.match("^(true|false)$", s, re.IGNORECASE):
+    elif re.match(r"^(true|false)$", s, re.IGNORECASE):
         return bool
     else:
         return str

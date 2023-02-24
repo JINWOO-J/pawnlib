@@ -8,6 +8,8 @@ from .check import (
     list_depth,
     is_valid_ipv4,
     is_valid_ipv6,
+    is_valid_private_key,
+    is_valid_token_address,
     guess_type,
     return_guess_type,
     sys_exit,
