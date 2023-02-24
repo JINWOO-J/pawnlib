@@ -23,6 +23,10 @@ from pawnlib.typing import (
     flatten_list,
     is_valid_ipv4,
     guess_type,
+    is_valid_token_address,
+    is_valid_private_key,
+    random_token_address,
+    random_private_key
 )
 
 import datetime
@@ -230,6 +234,15 @@ class TestTyping(unittest.TestCase):
         assert guess_type(1.2) == float
         assert guess_type("1.2sss") == str
 
+    def test_is_valid_private_key(self):
+        self.assertEqual(is_valid_private_key(random_private_key()), True)
+        self.assertEqual(is_valid_private_key(f"0x{random_private_key()}"), True)
+        self.assertEqual(is_valid_private_key(f"{random_private_key()[:-3]}"), False)
+
+    def test_is_valid_token_address(self):
+        token_address = random_token_address()
+        self.assertEqual(is_valid_token_address(token_address), True)
+        self.assertEqual(is_valid_token_address(token_address[:-3]), False)
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestTyping)
