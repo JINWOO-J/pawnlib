@@ -98,7 +98,8 @@ def parse_args(parser, commands):
 def get_args():
     parser = argparse.ArgumentParser(
         usage=generate_banner(app_name="PAWNS", version=_version, author="jinwoo", font="graffiti"),
-        formatter_class=argparse.RawTextHelpFormatter)
+        formatter_class=argparse.RawTextHelpFormatter
+    )
 
     commands = parser.add_subparsers(title='sub-module')
     for module_name in get_submodule_names():
@@ -110,12 +111,44 @@ def get_args():
     return args, command, parser
 
 
+# def main():
+#     pawn.console.log(f"main_cli wrapper")
+#     args, command, parser = get_args()
+#     pawn.console.log(f"args = {args}, command = {command}")
+#     if command:
+#         run_with_keyboard_interrupt(run_module, command)
+#     else:
+#         parser.print_help()
+#         sys.exit(1)
+
+def cleanup_args():
+    if len(sys.argv) > 2:
+        if "-" not in sys.argv[2]:
+            pawn.console.debug(f"Remove argument -> {sys.argv[1]}")
+            del sys.argv[1]
+
 def main():
-    pawn.console.log(f"main_cli wrapper")
-    args, command, parser = get_args()
-    pawn.console.log(f"args = {args}, command = {command}")
+    pawn.console.debug("Starting main_cli wrapper")
+    args, command, parser = None, None, None
+    try:
+        args, command, parser = get_args()
+        cleanup_args()
+    except Exception as e:
+        pawn.console.log(f"[red]Exception while parsing an argument = {e}")
+    pawn.console.debug(f"{args}, {command}, {parser}")
+
     if command:
-        run_with_keyboard_interrupt(run_module, command)
+        pawn.console.debug(f"command = {command}, PAWN_DEBUG={pawn.get('PAWN_DEBUG')}")
+        try:
+            # run_with_keyboard_interrupt(run_module, command)
+            run_module(command)
+        except KeyboardInterrupt:
+            pawn.console.log("[red]KeyboardInterrupt")
+        except Exception as e:
+            if pawn.get('PAWN_DEBUG'):
+                pawn.console.print_exception(show_locals=pawn.get("PAWN_DEBUG", False), width=160)
+            else:
+                pawn.console.log(f"[red]Exception -- {e}")
     else:
         parser.print_help()
         sys.exit(1)
@@ -123,4 +156,5 @@ def main():
 
 if __name__ == '__main__':
     run_with_keyboard_interrupt(main)
+    # main()
 

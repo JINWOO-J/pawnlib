@@ -2,6 +2,9 @@
 import common
 from pawnlib.output.color_print import *
 from pygments.styles import get_all_styles
+import requests
+from devtools import debug
+from pawnlib.utils import jequest
 
 nested_data = {
     "a": {
@@ -24,9 +27,17 @@ nested_data = {
     }
 }
 
-styles = get_all_styles()
-for style in styles:
-    pawn.console.rule(f"style name = {style}")
-    print(syntax_highlight(nested_data, style=style))
-    print(syntax_highlight("<html><head><meta name='viewport' content='width'>", "html", style=style))
+print_var(nested_data)
 
+
+res = requests.get("https://httpbin.org/")
+print(res.headers)
+debug(res.headers)
+print_var(dict(res.headers))
+
+
+res = jequest("https://httpbin.org/get")
+debug(res)
+
+print_var(res)
+pawn.console.log(res)

@@ -1,3 +1,4 @@
+from pawnlib.config import pawn, pconf
 
 class _AttributeHolder(object):
     """Abstract base class that provides __repr__.
@@ -66,3 +67,50 @@ class Namespace(_AttributeHolder):
 
     def __contains__(self, key):
         return key in self.__dict__
+
+
+def set_namespace_default_value(namespace=None, key='', default=""):
+    """
+    Set a default value when a key in a namespace has no value
+    :param namespace:
+    :param key:
+    :param default:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.config import pawn, pconf
+            from pawnlib.typing import set_namespace_default_value
+
+            pawn.set(
+            data={"aaaa": "bbbb"}
+            )
+            pawn.console.log(pconf())
+            undefined_key = set_namespace_default_value(
+                namespace=pconf().data,
+                key="cccc",
+                default="ddddd"
+            )
+            pawn.console.log(undefined_key)
+
+    """
+    if key and hasattr(namespace, key):
+        return getattr(namespace, key)
+    return default
+
+
+def fill_required_data_arguments(required={}):
+    none_string = "__NOT_DEFINED_VALUE__"
+    if getattr(pconf(), "data", None) and getattr(pconf().data, "args", None):
+        args = pconf().data.args
+        for req_key, req_value in required.items():
+            args_value = getattr(args, req_key, none_string)
+            if args_value == none_string:
+                # pawn.console.debug(f"Define the data args -> {req_key}, {req_value}")
+                setattr(args, req_key, req_value)
+    else:
+        # pawn.console.debug(f"New definition: {required}")
+        args = Namespace(**required)
+    return args
