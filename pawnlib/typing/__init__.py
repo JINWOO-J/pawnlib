@@ -8,14 +8,18 @@ from .check import (
     list_depth,
     is_valid_ipv4,
     is_valid_ipv6,
+    is_valid_url,
     is_valid_private_key,
     is_valid_token_address,
     guess_type,
     return_guess_type,
     sys_exit,
+    is_include_list,
 )
 from .defines import (
-    Namespace
+    Namespace,
+    set_namespace_default_value,
+    fill_required_data_arguments,
 )
 from .converter import (
     StackList,
@@ -31,6 +35,7 @@ from .converter import (
     get_size,
     convert_bytes,
     str2bool,
+    flatten,
     flatten_list,
     flatten_dict,
     recursive_update_dict,
@@ -58,6 +63,7 @@ from .converter import (
     lower_case_to_camel_case,
     camel_case_to_upper_case,
     upper_case_to_camel_case,
+    shorten_text
 )
 
 from .constants import (

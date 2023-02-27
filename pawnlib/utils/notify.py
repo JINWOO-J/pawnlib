@@ -2,7 +2,7 @@ import requests
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output import color_print
 from pawnlib.resource import net
-from pawnlib.typing import date_utils
+from pawnlib.typing import date_utils, shorten_text
 from pawnlib.utils import http
 
 
@@ -28,10 +28,12 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
     :param msg_level:
     :return:
     """
+
     if title:
         msg_title = title
     else:
-        msg_title = msg_text
+        msg_title = shorten_text(msg_text, width=50)
+
     msg_level = msg_level.lower()
 
     if url is None:
@@ -51,10 +53,10 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
                 "color": "#" + p_color,
                 "blocks": [
                     {
-                        "type": "section",
+                        "type": "header",
                         "text": {
                             "type": "plain_text",
-                            "text": f'Job Title : {msg_title}'
+                            "text": msg_title
                         }
                     },
                     {
@@ -68,20 +70,52 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
                         "type": "section",
                         "text": {
                             "type": "plain_text",
-                            "text": f'{"+ [DATE]":^12s} : {(date_utils.todaydate("time"))}'
+                            "text": f'{"+ [DATE]":^12s} : {(date_utils.todaydate("log"))}'
                         }
                     },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "plain_text",
-                            "text": f'{"+ [DESC]":^12s} : {msg_text}'
-                        }
-                    }
+                    # {
+                    #     "type": "section",
+                    #     "text": {
+                    #         "type": "plain_text",
+                    #         "text": f'{"+ [DESC]":^12s} : {msg_text}'
+                    #     }
+                    # }
                 ]
             }
         ]
     }
+
+    def _make_attachment(key=None, value=None):
+
+        if key and value:
+            text = f'💡{key:<12s}: {value}'
+        elif not key:
+            text = f'{"💡[DESC]":^12s} : {msg_text}'
+        else:
+            text = ""
+
+        return {
+            "type": "section",
+            "text": {
+                "type": "plain_text",
+                "text": text
+            },
+        }
+    _attachments = []
+    for attachment in payload["attachments"]:
+        if isinstance(msg_text, dict):
+            for key, value in msg_text.items():
+                if key and value:
+                    attachment['blocks'].append(_make_attachment(key, value))
+        elif isinstance(msg_text, list):
+            for value_in_list in msg_text:
+                if value_in_list:
+                    attachment['blocks'].append(_make_attachment(value=value_in_list))
+        elif msg_text:
+            attachment['blocks'].append(_make_attachment(value=msg_text))
+        _attachments.append(attachment)
+    payload["attachments"] = _attachments
+
     try:
         post_result = requests.post(url, json=payload, verify=False, timeout=15)
         if post_result and post_result.status_code == 200 and post_result.text == "ok":

@@ -9,12 +9,43 @@ import subprocess
 import threading
 import itertools
 from typing import Callable, List, Dict, Union
+from concurrent.futures import ThreadPoolExecutor
 
 from pawnlib.output import dump, debug_print, bcolors
 from pawnlib import typing
 from functools import wraps
 
 from pawnlib.config.globalconfig import pawnlib_config as pawn
+
+
+class ThreadPoolRunner:
+    def __init__(self, func=None, tasks=[], max_workers=20, verbose=0, sleep=1):
+        self.func = func
+        self.tasks = tasks
+        self.max_workers = max_workers
+        self.results = []
+        self.sleep = sleep
+        self.verbose = verbose
+
+    def initializer_worker(self):
+        pass
+
+    def run(self):
+        self.results = []
+        with ThreadPoolExecutor(max_workers=self.max_workers, initializer=self.initializer_worker) as pool:
+            self.results = pool.map(self.func, self.tasks)
+
+
+
+            if self.verbose > 0:
+                for result in self.results:
+                    if result:
+                        pawn.console.log(result)
+
+    def forever_run(self):
+        while True:
+            self.run()
+            time.sleep(self.sleep)
 
 
 class Daemon(object):
@@ -718,3 +749,10 @@ def run_with_keyboard_interrupt(command, *args, **kwargs):
             pawn.console.print(f"\n[red] {command} not callable ")
     except KeyboardInterrupt:
         pawn.console.print(f"\n\n[red] ^C KeyboardInterrupt - {command.__name__}{str(args)[:-1]}{kwargs}) \n")
+
+def handle_keyboard_interrupt_signal():
+    import signal
+    def handle_ctrl_c(_signal, _frame):
+        pawn.console.rule(f"[red] KeyboardInterrupt, Going down! Signal={_signal}")
+        sys.exit(0)
+    signal.signal(signal.SIGINT, handle_ctrl_c)

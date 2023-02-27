@@ -29,6 +29,7 @@ from .color_print import (
     classdump,
     kvPrint,
     print_json,
+    print_var,
     debug_logging,
     print_progress_bar,
     get_colorful_object,

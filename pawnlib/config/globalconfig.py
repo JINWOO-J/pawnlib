@@ -14,7 +14,9 @@ from collections import OrderedDict
 from rich.traceback import install as rich_traceback_install
 import copy
 from types import SimpleNamespace
-
+from functools import partial
+import collections
+import re
 
 class NestedNamespace(SimpleNamespace):
     @staticmethod
@@ -38,11 +40,59 @@ class NestedNamespace(SimpleNamespace):
     def _values(self) -> list:
         return list(self.__dict__.values())
 
+    # def as_dict(self) -> dict:
+    #     return self.__dict__
+
     def as_dict(self) -> dict:
+        return self._namespace_to_dict(self.__dict__)
+
+    def _namespace_to_dict(self, _dict):
+        dict2 = {}
+        for k in _dict.keys():
+            if isinstance(_dict[k], dict) or isinstance(_dict[k], NestedNamespace):
+                dict2[k] = self._namespace_to_dict(_dict[k]._asdict())
+            else:
+                dict2[k] = _dict[k]
+        return dict2
+
+    def _asdict(self) -> dict:
         return self.__dict__
 
+    # def __repr__(self):
+    #     'Return a nicely formatted representation string'
+    #     field_names = tuple(self.as_dict().keys())
+    #     field_values = tuple(self.as_dict().values())
+    #     indent = "\n    "
+    #     # indent = ""
+    #     repr_fmt = '(' + ', '.join(f'{indent}{name}=%r' for name in field_names) + f'{indent})'
+    #     return self.__class__.__name__ + repr_fmt % field_values
 
-def nestednamedtuple(dict_items: dict) -> namedtuple:
+    def __repr__(self, indent=4):
+        result = self.__class__.__name__ + '('
+        items_len = len(self.__dict__)
+        _first = 0
+        _indent_space = ''
+
+        for k,v in self.__dict__.items():
+            if _first == 0 and items_len > 0:
+                result += "\n"
+                _first = 1
+            if k.startswith('__'):
+                continue
+            if isinstance(v, NestedNamespace):
+                value_str = v.__repr__(indent + 4)
+            else:
+                value_str = str(v)
+
+            if k and value_str:
+                if _first:
+                    _indent_space = ' ' * indent
+                result += _indent_space + k + '=' + value_str + ",\n"
+        result += ' ' * (len(_indent_space) - 4 )  + f')'
+        return result
+
+
+def nestednamedtuple(dict_items: dict, ignore_keys: list = []) -> namedtuple:
     """
     Converts dictionary to a nested namedtuple recursively.
 
@@ -59,7 +109,6 @@ def nestednamedtuple(dict_items: dict) -> namedtuple:
 
     """
     dictionary = copy.copy(dict_items)
-
     if isinstance(dictionary, Mapping) and not isinstance(dictionary, fdict):
         # for ignore_type in ["configparser.SectionProxy", "configparser.ConfigParser"]:
         for ignore_type in ["configparser.ConfigParser"]:
@@ -69,7 +118,11 @@ def nestednamedtuple(dict_items: dict) -> namedtuple:
                 return dictionary
 
         for key, value in list(dictionary.items()):
+            # if  key in ignore_keys:
+            #     dictionary[key] = value
+            # else:
             dictionary[key] = nestednamedtuple(value)
+
         return namedtuple("namedtupled", dictionary)(**dictionary)
     elif isinstance(dictionary, list):
         return [nestednamedtuple(item) for item in dictionary]
@@ -227,6 +280,8 @@ class PawnlibConfig(metaclass=Singleton):
             "on_ready": False
 
         }
+
+        self._do_not_execute_namespace_keys = [f"{self.env_prefix}_LOGGER", f"{self.env_prefix}_CONSOLE"]
         self.log_time_format = None
 
         globals()[self.global_name] = {}
@@ -747,9 +802,10 @@ class PawnlibConfig(metaclass=Singleton):
         """
         g = globals()
         if self.global_name in g:
-            return nestednamedtuple(g[self.global_name])
+            # return nestednamedtuple(g[self.global_name], ignore_keys=self._do_not_execute_namespace_keys)
+            return NestedNamespace(**g[self.global_name])
         else:
-            return nestednamedtuple({})
+            return NestedNamespace({})
 
     def to_dict(self) -> dict:
         """Access global configuration as a dict.
@@ -799,4 +855,5 @@ def set_debug_logger(logger_name=None, propagate=0, get_logger_name='PAWNS', lev
 
 pawnlib_config = PawnlibConfig(global_name="pawnlib_global_config").init_with_env()
 pawn = pawnlib_config
+pconf = partial(pawn.conf)
 global_verbose = pawnlib_config.get('PAWN_VERBOSE', 0)

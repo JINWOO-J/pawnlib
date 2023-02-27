@@ -179,6 +179,20 @@ def is_valid_ipv6(ip):
     return pattern.match(ip) is not None
 
 
+def is_valid_url(url):
+    if "http://" not in url and "https://" not in url:
+        url = f"http://{url}"
+
+    regex = re.compile(
+        r'^https?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    return url is not None and regex.search(url)
+
+
 def is_valid_private_key(text=None):
     private_length = 64
     if text and is_hex(text):
@@ -289,3 +303,20 @@ def sys_exit(message="", return_code=-1):
     if message:
         pawn.console.log(f"[red]\[Exit {return_code}] {message}")
     sys.exit(return_code)
+
+
+def is_include_list(target=None, include_list=[], ignore_case=True):
+    """
+    check if target string exists in list
+    :param target: target string
+    :param include_list: List of strings to check
+    :param ignore_case: ignore case sensitive
+    :return:
+    """
+    if target and include_list:
+        for include_key in include_list:
+            if ignore_case and include_key.lower() in target.lower():
+                return True
+            if include_key in target:
+                return True
+    return False

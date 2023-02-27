@@ -59,6 +59,12 @@ class StackList:
     def mean(self):
         return statistics.mean(self.data)
 
+    def max(self):
+        return max(self.data)
+
+    def min(self):
+        return min(self.data)
+
     def get_list(self):
         return self.data
 
@@ -901,6 +907,28 @@ def str2bool(v) -> bool:
         return True
 
     return False
+
+
+def flatten(dictionary, parent_key=False, separator='.'):
+    """
+    Turn a nested dictionary into a flattened dictionary
+    :param dictionary: The dictionary to flatten
+    :param parent_key: The string to prepend to dictionary's keys
+    :param separator: The string used to separate flattened keys
+    :return: A flattened dictionary
+    """
+
+    items = []
+    for key, value in dictionary.items():
+        new_key = str(parent_key) + separator + key if parent_key else key
+        if isinstance(value, MutableMapping):
+            items.extend(flatten(value, new_key, separator).items())
+        elif isinstance(value, list):
+            for k, v in enumerate(value):
+                items.extend(flatten({str(k): v}, new_key).items())
+        else:
+            items.append((new_key, value))
+    return dict(items)
 
 
 def flatten_list(list_items: list, uniq=False) -> list:
@@ -1796,3 +1824,24 @@ def upper_case_to_camel_case(s):
     """
 
     return lower_case_to_camel_case(s.lower())
+
+
+def shorten_text(text="", width=None, placeholder='[...]' ):
+    """
+    Shortens a text string to the specified width and placeholders.
+    :param text: text to shorten
+    :param width: maximum width of the string
+    :param placeholder: placeholder string of the text
+    :return:
+    """
+    _text = str(text)
+    if not width or not text:
+        return text
+
+    total_length = len(_text) - len(placeholder)
+    max_length = total_length - 1
+
+    if _text and max_length >= width:
+        return f"{_text[0:width]} {placeholder}"
+    return text
+

@@ -17,10 +17,12 @@ LABEL maintainer="infra team" \
 ENV IS_DOCKER=true \
     NAME=${NAME} \
     VERSION=${VERSION} \
-    REMOVE_BUILD_PACKAGE=${REMOVE_BUILD_PACKAGE:-"true"}
+    REMOVE_BUILD_PACKAGE=${REMOVE_BUILD_PACKAGE:-"true"} \
+    LIB_PACKAGE="libcurl4-openssl-dev jq telnet" \
+    BUILD_PACKAGE=""
 #    PYCURL_SSL_LIBRARY=openssl \
-#    LIB_PACKAGE="libcurl4-openssl-dev" \
-#    BUILD_PACKAGE="libssl-dev gcc"
+
+
 
 
 COPY . /pawnlib/

@@ -6,7 +6,7 @@ import json
 import getpass
 import traceback
 import inspect
-from pawnlib.typing import converter, date_utils, list_to_oneline_string, const
+from pawnlib.typing import converter, date_utils, list_to_oneline_string, const, is_include_list
 from pawnlib.config import pawnlib_config as pawn, global_verbose
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -15,6 +15,8 @@ from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 from typing import Union, Callable
 from datetime import datetime
+import textwrap
+from requests.structures import CaseInsensitiveDict
 
 
 _ATTRIBUTES = dict(
@@ -248,7 +250,16 @@ class PrintRichTable:
 
         self.table = Table(title=self.title, **self.table_options)
 
+    # def _specify_columns
+    def _is_showing_columns(self, item):
+        if len(self.columns) == 0:
+            return True
+        if item in self.columns:
+            return True
+        return False
+
     def _draw_vertical_table(self):
+        pawn.console.debug(f"Drawing vertical table")
         if self.with_idx:
             self.table.add_column("idx")
         self.table.add_column("key", justify="left")
@@ -260,19 +271,22 @@ class PrintRichTable:
         _count = 0
         row_dict = {}
         for item, value in self.table_data.items():
-            row_dict[item] = value
-            if callable(self.call_value_func):
-                value = self.call_value_func(value)
+            if self._is_showing_columns(item):
+                row_dict[item] = value
+                if callable(self.call_value_func):
+                    value = self.call_value_func(value)
 
-            columns = [f"{item}", f"{value}"]
-            if self.with_idx:
-                columns.insert(0, f"{_count}")
-            if self.call_desc_func and callable(self.call_desc_func):
-                columns.append(self.call_desc_func(*columns, **row_dict))
-            self.table.add_row(*columns)
-            _count += 1
+                columns = [f"{item}", f"{value}"]
+                if self.with_idx:
+                    columns.insert(0, f"{_count}")
+                if self.call_desc_func and callable(self.call_desc_func):
+                    columns.append(self.call_desc_func(*columns, **row_dict))
+
+                self.table.add_row(*columns)
+                _count += 1
 
     def _draw_horizontal_table(self):
+        pawn.console.debug("Drawing horizontal table")
         for item in self.table_data:
             if isinstance(item, dict):
                 line_row = []
@@ -288,6 +302,9 @@ class PrintRichTable:
                     line_row.append(value)
                 self.rows.append(line_row)
             self.row_count += 1
+
+        for col in self.columns:
+            self.table.add_column(col)
 
     def _extract_columns(self):
         # if self.table_data and len(self.columns) == 0 and isinstance(self.table_data[0], dict):
@@ -310,9 +327,6 @@ class PrintRichTable:
             self._draw_vertical_table()
 
     def _print_table(self):
-        for col in self.columns:
-            self.table.add_column(col)
-
         for row in self.rows:
             self.table.add_row(*row)
 
@@ -485,6 +499,8 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
     def_spacing = '   '
     format_number = lambda n: n if n % 1 else int(n)
 
+    ignore_keys = ["Hash"]
+
     if type(obj) == dict:
         if nested_level == 0 or _is_list:
             print('%s{' % (def_spacing + (nested_level) * spacing))
@@ -512,14 +528,16 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
     else:
         if debug:
             converted_hex = ""
-            if hex_to_int and converter.is_hex(obj):
 
+            if hex_to_int and converter.is_hex(obj) and not is_include_list(target=_last_key, include_list=ignore_keys, ignore_case=False) :
                 if _last_key == "timestamp":
                     t_value = round(int(obj, 16) / 1_000_000)
                     converted_str = f"(from {_last_key})"
                     converted_date = datetime.fromtimestamp(format_number(t_value)).strftime('%Y-%m-%d %H:%M:%S')
                     converted_hex = f"{converted_date} {converted_str}"
 
+                elif isinstance(obj, str) and len(obj) >= 60:
+                    pass
                 else:
                     if len(obj) < 14:
                         TINT = 1
@@ -531,8 +549,8 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
                     converted_float = format_number(round(int(obj, 16) / TINT, 4))
                     converted_hex = f"{converted_float:,} {TINT_STR}"
 
-            obj = f"{get_colorful_object(obj)} " \
-                  f"{bcolors.LIGHT_GREY}{converted_hex}{bcolors.ENDC}" \
+            obj = f"{get_colorful_object(obj)}  " \
+                  f"{bcolors.ITALIC}{bcolors.LIGHT_GREY}{converted_hex}{bcolors.ENDC}" \
                   f"{bcolors.HEADER} {str(type(obj)):>20}{bcolors.ENDC}" \
                   f"{bcolors.DARK_GREY} len={len(str(obj))}{bcolors.ENDC}"
         print(bcolors.WARNING + '%s%s' % (def_spacing + nested_level * spacing, obj) + bcolors.ENDC)
@@ -867,44 +885,6 @@ def _patched_make_iterencode(markers, _default, _encoder, _indent, _floatstr,
     return _iterencode
 
 
-def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True):
-    """
-    Syntax highlighting function
-
-    :param data:
-    :param name:
-    :param indent:
-    :param style:
-    :param oneline_list:
-    :return:
-
-    Example:
-
-        .. code-block:: python
-
-            from pawnlib import output
-
-            print(output.syntax_highlight("<html><head><meta name='viewport' content='width'>", "html", style=style))
-
-    """
-    # styles available as of pygments 2.8.1.
-    # ['default', 'emacs', 'friendly', 'colorful', 'autumn', 'murphy', 'manni',
-    # 'material', 'monokai', 'perldoc', 'pastie', 'borland', 'trac', 'native',
-    # 'fruity', 'bw', 'vim', 'vs', 'tango', 'rrt', 'xcode', 'igor', 'paraiso-light',
-    # 'paraiso-dark', 'lovelace', 'algol', 'algol_nu', 'arduino', 'rainbow_dash',
-    # 'abap', 'solarized-dark', 'solarized-light', 'sas', 'stata', 'stata-light',
-    # 'stata-dark', 'inkpot', 'zenburn']
-    if name == "json" and isinstance(data, (dict, list)):
-        # code_data = json.dumps(data, indent=indent, cls=NoListIndentEncoder)
-        code_data = json_compact_dumps(data, indent=indent, monkey_patch=oneline_list)
-    else:
-        code_data = data
-    return highlight(
-        code=code_data,
-        lexer=get_lexer_by_name(name),
-        formatter=Terminal256Formatter(style=style))
-
-
 def json_compact_dumps(data, indent=4, monkey_patch=True):
     if monkey_patch:
         json.encoder._make_iterencode = _patched_make_iterencode
@@ -955,3 +935,108 @@ class ProgressTime(Progress):
             console=pawn.console,
             **kwargs
         )
+
+def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent=''):
+    """
+    Syntax highlighting function
+
+    :param data:
+    :param name:
+    :param indent:
+    :param style:
+    :param oneline_list:
+    :param line_indent:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib import output
+
+            print(output.syntax_highlight("<html><head><meta name='viewport' content='width'>", "html", style=style))
+
+    """
+    # styles available as of pygments 2.8.1.
+    # ['default', 'emacs', 'friendly', 'colorful', 'autumn', 'murphy', 'manni',
+    # 'material', 'monokai', 'perldoc', 'pastie', 'borland', 'trac', 'native',
+    # 'fruity', 'bw', 'vim', 'vs', 'tango', 'rrt', 'xcode', 'igor', 'paraiso-light',
+    # 'paraiso-dark', 'lovelace', 'algol', 'algol_nu', 'arduino', 'rainbow_dash',
+    # 'abap', 'solarized-dark', 'solarized-light', 'sas', 'stata', 'stata-light',
+    # 'stata-dark', 'inkpot', 'zenburn']
+    if name == "json" and isinstance(data, (dict, list)):
+        data = dict_clean(data)
+        code_data = json_compact_dumps(dict(data), indent=indent, monkey_patch=oneline_list)
+    elif data:
+        code_data = data
+    else:
+        code_data = ""
+
+    if line_indent:
+        code_data = textwrap.indent(code_data, line_indent)
+
+    return highlight(
+        code=code_data,
+        lexer=get_lexer_by_name(name),
+        formatter=Terminal256Formatter(style=style))
+
+def print_here():
+    from inspect import currentframe, getframeinfo
+    frame_info = getframeinfo(currentframe().f_back)
+    filename = frame_info.filename.split('/')[-1]
+    line_number = frame_info.lineno
+    # loc_str = '%s:%d' % (filename, line_number)
+    location_str = f"{filename}:{line_number}"
+    print(location_str)
+
+
+def retrieve_name(var):
+    callers_local_vars = inspect.currentframe().f_back.f_locals.items()
+    return [var_name for var_name, var_val in callers_local_vars if var_val is var]
+
+def retrieve_name_ex(var):
+    stacks = inspect.stack()
+    try:
+        func = stacks[0].function
+        code = stacks[1].code_context[0]
+        s = code.index(func)
+        s = code.index("(", s + len(func)) + 1
+        e = code.index(")", s)
+        return code[s:e].strip()
+    except:
+        return ""
+
+
+def dict_clean(data):
+    result = {}
+    for key, value in data.items():
+        if isinstance(value, CaseInsensitiveDict):
+            value = dict(value)
+        elif value is None:
+            value = ''
+        result[key] = value
+    return result
+
+def print_var(data=None, title='', **kwargs):
+    if kwargs.get('line_indent', '__NOT_DEFINED__') == "__NOT_DEFINED__":
+        kwargs['line_indent'] = '      '
+    if kwargs.get('data', '__NOT_DEFINED__') != "__NOT_DEFINED__":
+        del kwargs['data']
+
+    var_name = ""
+    try:
+        import executing
+        call_frame = sys._getframe(1)
+        source = executing.Source.for_frame(call_frame)
+        ex = source.executing(call_frame)
+        func_ast = ex.node
+        for ast in func_ast.args:
+            var_name = ast.id
+    except:
+        var_name = ""
+
+    pawn.console.log(f"🎁 [yellow bold]{title}[/yellow bold][blue bold]{var_name}[/blue bold] "
+                     f"\t[italic] ({type(data).__name__}), len={len(data)}", _stack_offset=2)
+    print(syntax_highlight(data, **kwargs))
+
+

@@ -7,12 +7,13 @@ from pawnlib.config import pawnlib_config as pawn
 icx = 0.001
 
 def get_parser():
-    parser = get_arguments()
+    parser = argparse.ArgumentParser(description='Command Line Interface for ICX')
+    parser = get_arguments(parser)
     return parser
 
 
 def get_arguments(parser=None):
-    parser = argparse.ArgumentParser(description='Command Line Interface for ICX')
+
     parser.add_argument(
         'command',
         help='account, icx_sendTransaction, icx_sendTransaction_v3, get_transactionResult, icx_getBalance, icx_getTotalSupply')
@@ -23,7 +24,7 @@ def get_arguments(parser=None):
     parser.add_argument('--txhash', metavar='txhash', help='txhash')
     parser.add_argument('--icx', metavar='amount', type=float, help=f'icx amount to transfer. unit: icx. ex) 1.0. default:{icx}', default=icx)
     parser.add_argument('--fee', metavar='amount', type=float, help='transfer fee. default: 0.01', default=0.001)
-    parser.add_argument('--pk', metavar='private_key', help=f'hexa string. default: None', default=None)
+    parser.add_argument('--pk', metavar='private_key', help=f'hex string. default: None', default=None)
     parser.add_argument('--debug', action='store_true', help=f'debug mode. True/False')
     parser.add_argument('-n', '--number', metavar='number', type=int, help=f'try number. default: 1', default=1)
     parser.add_argument('--nid', metavar='nid', type=str, help=f'network id default: 0x1', default="0x1")

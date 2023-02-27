@@ -27,4 +27,10 @@ class UnixtimeStampDigits(EtcNamespace):
     MICRO_SECONDS_DIGITS = 16
 
 
-const = UnixtimeStampDigits()
+class IconAddress(UnixtimeStampDigits):
+    __slots__ = ()
+    CHAIN_SCORE_ADDRESS = f"cx{'0'*39}0"
+    GOVERNANCE_ADDRESS = f"cx{'0'*39}1"
+
+
+const = IconAddress()
