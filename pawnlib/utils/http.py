@@ -15,6 +15,7 @@ except ImportError:
     pass
 
 from typing import Union
+
 try:
     from typing import Literal
 except ImportError:
@@ -32,6 +33,7 @@ import requests
 ALLOWS_HTTP_METHOD = ["get", "post", "patch", "delete"]
 ALLOW_OPERATOR = ["!=", "==", ">=", "<=", ">", "<", "include", "exclude"]
 
+
 class _ResponseWithElapsed(requests.models.Response):
     success = False
 
@@ -45,11 +47,28 @@ class _ResponseWithElapsed(requests.models.Response):
         return f"<Response [{self.status_code}], {self.elapsed}ms, succ={self.success}>"
 
     def as_dict(self):
+
+        if not self.__dict__.get('result'):
+            try:
+                self.__dict__['result'] = self.__dict__['_content'].decode('utf-8')
+            except:
+                pass
+
+        if self.__dict__.get('result') and isinstance(self.__dict__.get('result'), dict):
+            self.__dict__['json'] = self.__dict__['result']
+            self.__dict__['text'] = json.dumps(self.__dict__['result'])
+
+        else:
+            try:
+                self.__dict__['json'] = json.loads(self.__dict__['result'])
+            except:
+                self.__dict__['json'] = {}
         return self.__dict__
+
 
 requests.models.Response.__str__ = _ResponseWithElapsed.__str__
 requests.models.Response.__repr__ = _ResponseWithElapsed.__repr__
-requests.models.Response.as_dict= _ResponseWithElapsed.as_dict
+requests.models.Response.as_dict = _ResponseWithElapsed.as_dict
 
 
 class HttpResponse:
@@ -59,6 +78,10 @@ class HttpResponse:
         self.error = error
         self.elapsed = elapsed
         self.success = success
+        if self.response and self.response.json:
+            self.json = self.response.json
+        else:
+            self.json = {}
 
         if self.error:
             self.ok = False
@@ -85,6 +108,7 @@ class StrEnum(str, Enum):
 
     def __str__(self):
         return self.name
+
 
 class AllowsHttpMethod(StrEnum):
     get = auto()
@@ -268,7 +292,7 @@ class IconRpcTemplates:
             "icx_getTransactionByHash": {"params": {"txHash": ""}},
             "icx_getBlockByHeight": {"params": {"height": ""}},
             "icx_getBlockByHash": {"params": {"hash": ""}},
-            "icx_getScoreApi":  {"params": {"address": ""}},
+            "icx_getScoreApi": {"params": {"address": ""}},
             "icx_call": {"params": ""},
             "icx_sendTransaction": {
                 "params": {
@@ -322,6 +346,7 @@ class IconRpcTemplates:
         if self._method in self.requires_sign_method:
             return True
         return False
+
     def load_template(self):
         if self._category:
             _template = self.templates.get(self._category)
@@ -364,14 +389,14 @@ class IconRpcTemplates:
         return self._params
 
 
-
 class IconRpcHelper:
-    def __init__(self, url="", wallet=None, network_info: NetworkInfo = None):
+    def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=False):
         self.wallet = wallet
         self.governance_address = None
         self.request_payload = None
         self.response = None
         self.network_info = network_info
+        self.raise_on_failure = raise_on_failure
 
         if not url and self.network_info:
             url = self.network_info.network_api
@@ -379,7 +404,9 @@ class IconRpcHelper:
         self.url = append_suffix(url, "/api/v3")
         self.debug_url = append_suffix(url, "/api/v3d")
         self.signed_tx = {}
-
+        self._parent_method = ""
+        self._can_be_signed = False
+        self.on_error = False
         self.initialize()
 
     def initialize(self):
@@ -394,7 +421,7 @@ class IconRpcHelper:
                 else:
                     self.governance_address = const.GOVERNANCE_ADDRESS
             else:
-                self.governance_address = f"cx{'0'*39}1"
+                self.governance_address = f"cx{'0' * 39}1"
 
     def _decorator_enforce_kwargs(func):
         def from_kwargs(self, *args, **kwargs):
@@ -432,24 +459,65 @@ class IconRpcHelper:
 
         return _request_payload
 
-    def rpc_call(self, url=None, method=None, params: dict = {}, payload: dict = {}, print_error=False) -> dict:
+    def rpc_call(self,
+                 url=None,
+                 method=None,
+                 params: dict = {},
+                 payload: dict = {},
+                 print_error=False,
+                 raise_on_failure=False,
+                 store_request_payload=True
+                 ) -> dict:
         if url:
             _url = url
         else:
             _url = self.url
+
+        if raise_on_failure:
+            _raise_on_failure = raise_on_failure
+        else:
+            _raise_on_failure = self.raise_on_failure
+
         _url = append_http(append_api_v3(_url))
         _request_payload = self._convert_valid_payload_format(payload=payload, method=method, params=params)
-        self.response = jequest(
+
+        if store_request_payload:
+            self.request_payload = copy.deepcopy(_request_payload)
+
+        # self.response = jequest(
+        #     url=_url,
+        #     payload=_request_payload,
+        #     method="post"
+        # )
+        self.response = CallHttp(
             url=_url,
+            method="post",
+            timeout=1000,
             payload=_request_payload,
-            method="post"
-        )
+            raise_on_failure=_raise_on_failure,
+        ).run().response.as_dict()
+        # pawn.console.log(self.response)
+        # self.response = CallHttp(
+        #     url=_url,
+        #     method="post",
+        #     timeout=1000,
+        #     payload=_request_payload,
+        #     raise_on_failure=_raise_on_failure,
+        # ).run()
+
+        # pawn.console.log(self.response.response)
+        # pawn.console.log(self.response.response.as_dict())
+        # exit()
+
         if print_error and self.response.get('status_code') != 200:
             if self.response.get('json') and self.response['json'].get('error'):
                 pawn.console.log(f"[red][ERROR] status_code={self.response['status_code']}, error={self.response['json']['error']}")
-                pawn.console.log(f"[ERROR] payload={_request_payload}")
+                pawn.console.log(f"[red][ERROR][/red] payload={_request_payload}")
+            elif self.response.get('status_code') == 999:
+                pawn.console.log(f"[red][ERROR][/red] {self.response.get('error')}")
+                # self.exit_on_failure(f"[red][ERROR][/red] {self.response.get('error')}")
             else:
-                pawn.console.log(f"[red]{self.response.get('status_code')} {self.response.get('text')}")
+                pawn.console.log(f"[red][ERROR][/red] status_code={self.response.get('status_code')}, text={self.response.get('text')}")
         return self.response.get('json')
 
     def print_response(self, hex_to_int=False):
@@ -475,17 +543,25 @@ class IconRpcHelper:
             params=params
         )
 
-    def governance_call(self, url=None, method=None, params={}, governance_address=None, sign=None):
-        if governance_address:
-            self.governance_address = governance_address
-        else:
-            self._set_governance_address(method=method)
+    def _is_signable_governance_method(self, method):
+        if self.network_info.platform == "havah" and method:
+            required_sign_methods = ['set', 'register']
+            for required_sign_method in required_sign_methods:
+                if method.startswith(required_sign_method):
+                    pawn.console.debug(f"{method}, It will be signed with the following. required_sign_methods={required_sign_methods}")
+                    return True
+        return False
 
-        if sign:
+    def _make_governance_payload(self, method, params):
+
+        if self._can_be_signed is None:
+            self._can_be_signed = self._is_signable_governance_method(method)
+            # pawn.console.log(f"[red] can_be_signed = {self._can_be_signed}")
+
+        if self._can_be_signed:
             parent_method = "icx_sendTransaction"
         else:
             parent_method = "icx_call"
-
         _request_payload = self._convert_valid_payload_format(
             method=parent_method,
             params={
@@ -497,37 +573,37 @@ class IconRpcHelper:
                 }
             },
         )
+        return _request_payload
 
-        if sign:
+    def governance_call(self, url=None, method=None, params={}, governance_address=None, sign=None, store_request_payload=True):
+        if governance_address:
+            self.governance_address = governance_address
+        else:
+            self._set_governance_address(method=method)
+
+        self._can_be_signed = sign
+        _request_payload = self._make_governance_payload(method, params)
+
+        if self._can_be_signed:
             _request_payload['params']['value'] = "0x0"
             self.sign_tx(payload=_request_payload)
             response = self.sign_send()
-            pawn.console.log(f"[blue] {response}")
             return response
         else:
             response = self.rpc_call(
                 url=url,
                 payload=_request_payload,
                 print_error=True,
+                store_request_payload=store_request_payload,
             )
-            return response.get('result')
-        # pawn.console.log(_request_payload)
-        # response = self.rpc_call(
-        #     url=url,
-        #     payload=_request_payload,
-        #     print_error=True
-        # )
-        # print(response)
-
-
-
+            return response.get('result', {})
 
     def get_step_price(self, ):
-        response = self.governance_call(method="getStepPrice", governance_address=const.CHAIN_SCORE_ADDRESS)
+        response = self.governance_call(method="getStepPrice", governance_address=const.CHAIN_SCORE_ADDRESS, sign=False, store_request_payload=False)
         return response
 
     def _get_step_costs(self, url=None):
-        response = self.governance_call(method="getStepCosts", governance_address=const.CHAIN_SCORE_ADDRESS)
+        response = self.governance_call(method="getStepCosts", governance_address=const.CHAIN_SCORE_ADDRESS, sign=False, store_request_payload=False)
         return response
 
     def get_step_cost(self, step_kind="apiCall"):
@@ -544,6 +620,7 @@ class IconRpcHelper:
             res = self.rpc_call(
                 url=_url,
                 payload=tx,
+                store_request_payload=False,
                 print_error=True
             )
             res_json = res
@@ -555,28 +632,30 @@ class IconRpcHelper:
         else:
             raise ValueError(f"TX is not dict. tx => {tx}")
 
-    def get_step_limit(self, url=None, tx=None, step_kind="apiCall") :
+    def get_step_limit(self, url=None, tx=None, step_kind="apiCall"):
         if tx:
             _tx = tx
         else:
             _tx = copy.deepcopy(self.request_payload)
         unnecessary_keys = ["stepLimit", "signature"]
         for key in unnecessary_keys:
-            if _tx['params'].get(key, '__NOT_DEFINED__') != "__NOT_DEFINED__" :
+            if _tx['params'].get(key, '__NOT_DEFINED__') != "__NOT_DEFINED__":
                 pawn.console.debug(f"Remove the unnecessary '{key}' in payload")
                 del _tx['params'][key]
 
         estimate_step = self.get_estimate_step(tx=_tx)
         step_cost = self.get_step_cost(step_kind)
         step_price = self.get_step_price()
-        step_limit = hex(hex_to_number(estimate_step) + hex_to_number(step_cost))
-        icx_fee = hex_to_number(estimate_step) * hex_to_number(step_price) / const.TINT
-        pawn.console.debug(f"fee = {icx_fee} => estimate[i]({hex_to_number(estimate_step, debug=True)})[/i] * "
-                           f"step_price[i]({hex_to_number(step_price, debug=True)})[/i]")
+        if estimate_step and step_cost:
+            step_limit = hex(hex_to_number(estimate_step) + hex_to_number(step_cost))
+            icx_fee = hex_to_number(estimate_step) * hex_to_number(step_price) / const.TINT
+            pawn.console.debug(f"fee = {icx_fee} => estimate[i]({hex_to_number(estimate_step, debug=True)})[/i] * "
+                               f"step_price[i]({hex_to_number(step_price, debug=True)})[/i]")
 
-        pawn.console.debug(f"step_limit => {hex_to_number(step_limit, debug=True)}")
-        return step_limit
-
+            pawn.console.debug(f"step_limit => {hex_to_number(step_limit, debug=True)}")
+            return step_limit
+        else:
+            pawn.console.log("[red]An error occurred while running get_step_limit")
 
     def get_balance(self, url=None, address=None, is_comma=False):
         if address:
@@ -662,8 +741,8 @@ class IconRpcHelper:
         self.signed_tx = {}
         if wallet:
             self.wallet = wallet
-        self.request_payload = self._convert_valid_payload_format(payload=payload)
 
+        self.request_payload = self._convert_valid_payload_format(payload=payload)
         # if not isinstance(payload, dict):
         #     try:
         #         payload = json.loads(payload)
@@ -672,7 +751,6 @@ class IconRpcHelper:
 
         private_key = self.wallet.get('private_key')
         address = self.wallet.get('address')
-
         self.auto_fill_parameter()
 
         singer = icx_signer.IcxSigner(data=private_key)
@@ -689,8 +767,6 @@ class IconRpcHelper:
             if isinstance(response, dict) and response.get('result'):
                 resp = self.get_tx_wait(tx_hash=response['result'])
                 return resp
-
-
 
     @staticmethod
     def _check_tx_result(result):
@@ -814,7 +890,7 @@ class SuccessCriteria:
             except:
                 self.result = False
 
-    def _set_string_valid_type(self,):
+    def _set_string_valid_type(self, ):
         _debug_message = ""
         for var_name in ["target", "expected"]:
             _attr_value_in_class = getattr(self, var_name, "__NOT_NONE__")
@@ -838,6 +914,7 @@ class SuccessCriteria:
 
     def to_dict(self):
         return self.__dict__
+
 
 class SuccessResponse(SuccessCriteria):
     def __init__(
@@ -863,52 +940,53 @@ class SuccessResponse(SuccessCriteria):
 
         if not _selected_flatten_target:
             pawn.console.debug(f"[red]<Error>[/red] '{self.target_key}' is not attribute in {list(self.target.keys())}")
-            pawn.console.debug(f"[red]<Error>[/red] '{self.target_key}' not found. \n Did you mean {guess_key(self.target_key, self.target.keys())} ?")
+            pawn.console.debug(
+                f"[red]<Error>[/red] '{self.target_key}' not found. \n Did you mean {guess_key(self.target_key, self.target.keys())} ?")
             self.result = False
 
 
 class CallHttp:
     def __init__(self,
-                url,
-                method: Literal["get", "post", "patch", "delete"] = "get",
-                # method: Literal[AllowsHttpMethod.get] = "get",
-                # method: AllowsHttpMethod = AllowsHttpMethod.get,
-                # method: Literal[tuple(method for method in AllowsHttpMethod)],
-                payload={},
-                timeout=1000,
-                ignore_ssl: bool = False,
-                verbose: int = 0,
-                success_criteria: Union[dict, list, str] = None,
-                success_operator: Literal["and", "or"] = "and",
-                success_syntax: Literal["operator", "string", "auto"] = "auto",
-                raise_on_failure: bool = False,
-                auto_run: bool = True,
+                 url=None,
+                 method: Literal["get", "post", "patch", "delete"] = "get",
+                 # method: Literal[AllowsHttpMethod.get] = "get",
+                 # method: AllowsHttpMethod = AllowsHttpMethod.get,
+                 # method: Literal[tuple(method for method in AllowsHttpMethod)],
+                 payload={},
+                 timeout=1000,
+                 ignore_ssl: bool = False,
+                 verbose: int = 0,
+                 success_criteria: Union[dict, list, str] = None,
+                 success_operator: Literal["and", "or"] = "and",
+                 success_syntax: Literal["operator", "string", "auto"] = "auto",
+                 raise_on_failure: bool = False,
+                 auto_run: bool = True,
 
-                **kwargs
-                ):
+                 **kwargs
+                 ):
 
-            self.url = url
-            self.method = method.lower()
-            self.payload = payload
-            self.timeout = timeout / 1000
-            self.ignore_ssl = ignore_ssl
-            self.verbose = verbose
-            self.success_criteria = success_criteria
-            self.success_operator = success_operator
-            self.success_syntax = success_syntax
+        self.url = url
+        self.method = method.lower()
+        self.payload = payload
+        self.timeout = timeout / 1000
+        self.ignore_ssl = ignore_ssl
+        self.verbose = verbose
+        self.success_criteria = success_criteria
+        self.success_operator = success_operator
+        self.success_syntax = success_syntax
 
-            self.kwargs = kwargs
-            self.raise_on_failure = raise_on_failure
-            self._DEFAULT_UA = f"CallHttp Agent/{pawn.get('PAWN_VERSION')}"
-            self.on_error = False
-            self.response = requests.models.Response()
-            self.flat_response = None
+        self.kwargs = kwargs
+        self.raise_on_failure = raise_on_failure
+        self._DEFAULT_UA = f"CallHttp Agent/{pawn.get('PAWN_VERSION')}"
+        self.on_error = False
+        self.response = requests.models.Response()
+        self.flat_response = None
 
-            self.success = None
-            self._success_results = []
-            self._success_criteria = None
-            self.timing = 0
-            # self.run()
+        self.success = None
+        self._success_results = []
+        self._success_criteria = None
+        self.timing = 0
+        # self.run()
 
     def _shorten_exception_message_handler(self, exception):
         _shorten_message_dict = {
@@ -942,18 +1020,16 @@ class CallHttp:
 
     def exit_on_failure(self, exception):
         self.on_error = True
+        self.response = HttpResponse(status_code=999, error=self._shorten_exception_message_handler(exception), elapsed=self.timing)
         if self.raise_on_failure:
-            raise Exception(exception)
+            raise output.NoTraceBackException(exception)
         else:
             pawn.console.debug(f"[red][FAIL][/red] {exception}")
             # self.response.status_code = 999
             # self.response.success = False
             # self.response.error = self._shorten_exception_message_handler(exception)
             # print(self.timing)
-            self.response = HttpResponse(status_code=999, error=self._shorten_exception_message_handler(exception), elapsed=self.timing)
             return self.response
-
-
 
     def run(self) -> HttpResponse:
         self._prepare()
@@ -977,6 +1053,11 @@ class CallHttp:
             # raise ValueError(f"unsupported method={self.method}, url={self.url}")
             return self.exit_on_failure(f"Unsupported method={self.method}, url={self.url}")
         try:
+            try:
+                _payload_string = json.dumps(self.payload)
+            except Exception as e:
+                _payload_string = self.payload
+            pawn.console.debug(f"[TRY] url={self.url}, method={self.method}, payload={_payload_string}, kwargs={self.kwargs}")
             func = getattr(requests, self.method)
             if self.method == "get":
                 self.response = func(self.url, verify=False, timeout=self.timeout, **self.kwargs)
@@ -989,7 +1070,7 @@ class CallHttp:
         self.response.timing = self.timing
 
         try:
-            _elapsed =  int(self.response.elapsed.total_seconds() * 1000)
+            _elapsed = int(self.response.elapsed.total_seconds() * 1000)
         except AttributeError:
             _elapsed = 0
 
@@ -1028,7 +1109,7 @@ class CallHttp:
             # if isinstance(self.success_criteria, str):
             #     pawn.console.log(f"String {type(self.success_criteria)}. '{self.success_criteria}'")
             #     self.success_criteria = self._convert_criteria(self.success_criteria)
-                # pawn.console.log(res)
+            # pawn.console.log(res)
 
             if self.success_syntax == "string" or self.success_syntax == "auto":
                 _check_syntax = self._check_criteria_syntax()
@@ -1051,7 +1132,6 @@ class CallHttp:
                     self._success_results.append(SuccessResponse(**criteria))
             pawn.console.debug(self._success_results)
 
-
     @staticmethod
     def _find_operator(string):
         for operator in ALLOW_OPERATOR:
@@ -1071,6 +1151,7 @@ class CallHttp:
         elif isinstance(criteria, list):
             for ct in criteria:
                 return self._check_criteria_syntax(ct)
+
     def _recursive_convert_criteria(self, string_criteria=None, depth=None):
 
         if not string_criteria:
@@ -1089,17 +1170,17 @@ class CallHttp:
 
             if len(string_criteria_in_list) > 0:
                 self.success_criteria = string_criteria_in_list
+
     def _convert_criteria(self, argument):
         for operator in ALLOW_OPERATOR:
             if operator in argument:
                 result = argument.split(operator)
-                if any( word in result[0] for word in ALLOW_OPERATOR + ['=']):
+                if any(word in result[0] for word in ALLOW_OPERATOR + ['=']):
                     pawn.console.log(f"[red]Invalid operator - '{argument}', {result}")
                     raise ValueError(f"Invalid operator - '{argument}', {result}")
                 result.insert(1, operator)
                 return result
         return False
-
 
     def _convert_list_criteria(self, arguments):
         result = []
@@ -1123,6 +1204,7 @@ class CallHttp:
         elif self.success_operator == "or" and success_count > 0:
             return True
         return False
+
 
 def jequest(url, method="get", payload={}, elapsed=False, print_error=False, timeout=None, ipaddr=None, **kwargs) -> dict:
     """
@@ -1234,7 +1316,6 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     if print_error:
         if error:
             pawn.error_logger.error(f"{error}") if pawn.error_logger else False
-
 
     if isinstance(payload, dict):
         payload = json.dumps(payload)

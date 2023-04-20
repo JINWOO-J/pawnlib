@@ -34,5 +34,6 @@ from .color_print import (
     print_progress_bar,
     get_colorful_object,
     syntax_highlight,
-    ProgressTime
+    ProgressTime,
+    NoTraceBackException
 )

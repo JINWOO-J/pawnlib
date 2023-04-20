@@ -3,7 +3,6 @@
 import time
 import hashlib
 import base64
-import json
 from os import path
 from secp256k1 import PrivateKey, PublicKey
 from pawnlib.typing import check, date_utils, random_private_key, Namespace, fill_required_data_arguments

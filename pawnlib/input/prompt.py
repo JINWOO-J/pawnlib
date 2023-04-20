@@ -105,7 +105,7 @@ class PromptWithArgument:
             self._args = pconf().data.args
         except Exception as e:
             self._args = None
-            pawn.console.log(f"[yellow] Error parsing - {e}")
+            pawn.console.debug(f"[yellow] Error parsing - {e}")
 
         try:
             category = f"[{self._args.subparser_name.upper()}]"
@@ -139,7 +139,7 @@ class PromptWithArgument:
         if not self._options.get('invalid_message', None):
             self._options['invalid_message'] = "minimum 1 selection"
         if not self._options.get('validate', None):
-            self._options['validate'] = lambda result: len(result) > 1
+            self._options['validate'] = lambda result: len(result) >= 1
 
         self._options['message'] = f"{category} {self._options.get('message', 'undefined message')}"
 
@@ -164,9 +164,12 @@ class PromptWithArgument:
                     del self._options[param]
 
     def _push_argument(self, result="", target_args=None):
-        if not target_args:
-            target_args = pconf().data.args
-        setattr(target_args, self.argument, result)
+        try:
+            if not target_args:
+                target_args = pconf().data.args
+            setattr(target_args, self.argument, result)
+        except:
+            pawn.console.debug(f"args not found, {target_args}, {self.argument}, {result}")
 
     def _skip_if_value_in_args(self):
         if self.argument_value:
