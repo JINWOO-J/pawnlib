@@ -19,7 +19,8 @@ pawn.console.log(private_key)
 
 icon_rpc = IconRpcHelper(
     network_info=NetworkInfo(network_name="cdnet"),
-    wallet=icx_signer.load_wallet_key(private_key)
+    wallet=icx_signer.load_wallet_key(private_key),
+    raise_on_failure=True,
 )
 
 payload = generator.json_rpc(
@@ -40,3 +41,6 @@ signed_transaction = icon_rpc.sign_tx(payload=payload)
 print_var(signed_transaction)
 tx_result = icon_rpc.sign_send()
 print_var(tx_result)
+
+
+print("END---")

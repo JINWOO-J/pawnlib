@@ -4,10 +4,17 @@ from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__
 from pawnlib.output.color_print import *
 from pawnlib.config import pawnlib_config as pawn, pconf
-from pawnlib.utils import icx_signer
+try:
+    from pawnlib.utils import icx_signer
+    icx_signer_loaded = True
+except ImportError:
+    icx_signer_loaded = False
+    pass
 from pawnlib.utils.operate_handler import run_with_keyboard_interrupt
 from pawnlib.input import PromptWithArgument
 
+if not icx_signer_loaded:
+    pawn.console.log("[red]Required packages - secp256k1, eth_keyfile ")
 
 def get_parser():
     parser = argparse.ArgumentParser(description='ICON')

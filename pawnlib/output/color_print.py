@@ -980,6 +980,7 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
         lexer=get_lexer_by_name(name),
         formatter=Terminal256Formatter(style=style))
 
+
 def print_here():
     from inspect import currentframe, getframeinfo
     frame_info = getframeinfo(currentframe().f_back)
@@ -993,6 +994,7 @@ def print_here():
 def retrieve_name(var):
     callers_local_vars = inspect.currentframe().f_back.f_locals.items()
     return [var_name for var_name, var_val in callers_local_vars if var_val is var]
+
 
 def retrieve_name_ex(var):
     stacks = inspect.stack()
@@ -1017,6 +1019,7 @@ def dict_clean(data):
         result[key] = value
     return result
 
+
 def print_var(data=None, title='', **kwargs):
     if kwargs.get('line_indent', '__NOT_DEFINED__') == "__NOT_DEFINED__":
         kwargs['line_indent'] = '      '
@@ -1040,3 +1043,16 @@ def print_var(data=None, title='', **kwargs):
     print(syntax_highlight(data, **kwargs))
 
 
+class NoTraceBackException(Exception):
+    def __init__(self, msg):
+        try:
+            line_no = sys.exc_info()[-1].tb_lineno
+            filename = sys.exc_info()[-1].tb_filename
+        except AttributeError:
+            previous_frame = inspect.currentframe().f_back
+            line_no = inspect.currentframe().f_back.f_lineno
+            (filename, line_number,
+             function_name, ln, index) = inspect.getframeinfo(previous_frame)
+        # self.args = "<{0.__name__}> ({2} line {2}): \n {3}".format(type(self), filename, line_no, msg),
+        self.args = "{0}<{1.__name__}>{2} ({3} line {4}): \n {5}".format(bcolors.FAIL, type(self), bcolors.ENDC, filename, line_no, msg),
+        raise Exception(self)

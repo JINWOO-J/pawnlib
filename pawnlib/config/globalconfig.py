@@ -18,6 +18,7 @@ from functools import partial
 import collections
 import re
 
+
 class NestedNamespace(SimpleNamespace):
     @staticmethod
     def _______map_____entry(entry):
@@ -73,7 +74,7 @@ class NestedNamespace(SimpleNamespace):
         _first = 0
         _indent_space = ''
 
-        for k,v in self.__dict__.items():
+        for k, v in self.__dict__.items():
             if _first == 0 and items_len > 0:
                 result += "\n"
                 _first = 1
@@ -88,7 +89,7 @@ class NestedNamespace(SimpleNamespace):
                 if _first:
                     _indent_space = ' ' * indent
                 result += _indent_space + k + '=' + value_str + ",\n"
-        result += ' ' * (len(_indent_space) - 4 )  + f')'
+        result += ' ' * (len(_indent_space) - 4) + f')'
         return result
 
 
@@ -173,6 +174,10 @@ class ConfigSectionMap(configparser.ConfigParser):
             config_file = config.as_dict()
 
     """
+
+    def __init__(self):
+        # https://stackoverflow.com/questions/47640354/reading-special-characters-text-from-ini-file-in-python
+        super(configparser.ConfigParser, self).__init__(interpolation=None)
 
     def as_dict(self, section=None):
         d = dict(self._sections)
@@ -327,22 +332,23 @@ class PawnlibConfig(metaclass=Singleton):
             config = ConfigSectionMap()
             config.optionxform = str
             _config_filename = self.get_path(self._config_file)
+            try:
+                if _config_filename.is_file():
+                    config.read(_config_filename)
+                    self.set(PAWN_CONFIG=config.as_dict())
+                else:
+                    self.set(PAWN_CONFIG={})
+                    self.console.debug(f"[bold red] cannot found config_file - {_config_filename}")
+                for config_category, config_value in config.items():
+                    lower_keys = [key.lower() for key in config[config_category].keys()]
+                    duplicate_keys = _list_duplicates(lower_keys)
+                    for conf_key, conf_value in config[config_category].items():
+                        if conf_key.lower() in duplicate_keys:
+                            self.console.log(f"[yellow]\[WARN] Similar keys exist in config.ini - \[{config_category}] {conf_key}={conf_value}")
+            except Exception as e:
+                self.console.log(f"[bold red]Error occurred while loading config.ini - {e}")
 
-            if _config_filename.is_file():
-                config.read(_config_filename)
-                self.set(PAWN_CONFIG=config.as_dict())
-            else:
-                self.set(PAWN_CONFIG={})
-                self.console.debug(f"[bold red] cannot found config_file - {_config_filename}")
-
-            for config_category, config_value in config.items():
-                lower_keys = [ key.lower() for key in config[config_category].keys() ]
-                duplicate_keys = _list_duplicates(lower_keys)
-                for conf_key, conf_value in config[config_category].items():
-                    if conf_key.lower() in duplicate_keys:
-                        self.console.log(f"[yellow]\[WARN] Similar keys exist in config.ini - \[{config_category}] {conf_key}={conf_value}")
-
-    def get_path(self, path: str="") -> Path:
+    def get_path(self, path: str = "") -> Path:
         """Get Path from the directory where the configure.json file is.
         :param path: file_name or path
         :return:
@@ -569,7 +575,6 @@ class PawnlibConfig(metaclass=Singleton):
                         and self._environments[p_key].get("input"):
                     if self._environments[p_key].get('input') and \
                             self._environments[p_key].get('value') != p_value:
-
                         self.console.log(f"[yellow][WARN] Environment variables and settings are different. "
                                          f"'{p_key}': {self._environments[p_key]['value']}(ENV) != {p_value}(Config)")
                         p_value = self._environments[p_key]['value']
@@ -840,9 +845,9 @@ def _list_duplicates(seq):
     seen = set()
     seen_add = seen.add
     # adds all elements it doesn't know yet to seen and all other to seen_twice
-    seen_twice = set( x for x in seq if x in seen or seen_add(x) )
+    seen_twice = set(x for x in seq if x in seen or seen_add(x))
     # turn the set into a list (as requested)
-    return list( seen_twice )
+    return list(seen_twice)
 
 
 def set_debug_logger(logger_name=None, propagate=0, get_logger_name='PAWNS', level='DEBUG'):
