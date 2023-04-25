@@ -1005,13 +1005,14 @@ def flatten_dict(init: dict, separator: str = '｡', lkey: str = '') -> dict:
     return ret
 
 
-def dict_to_line(dict_param: dict, quotes: bool = False, separator: str = "=") -> str:
+def dict_to_line(dict_param: dict, quotes: bool = False, separator: str = "=", end_separator: str = ",") -> str:
     """
     This function converts a dict to a line.
 
     :param dict_param:
     :param quotes:
     :param separator:
+    :param end_separator:
     :return:
 
     Example:
@@ -1024,10 +1025,10 @@ def dict_to_line(dict_param: dict, quotes: bool = False, separator: str = "=") -
     return_value = ""
     for k, v in sorted(dict_param.items()):
         if quotes:
-            return_value += f"{k}{separator}\"{v}\","
+            return_value += f"{k}{separator}\"{v}\"{end_separator}"
         else:
-            return_value += f"{k}{separator}{v},"
-    return return_value.rstrip(",")
+            return_value += f"{k}{separator}{v}{end_separator}"
+    return return_value.rstrip(end_separator)
 
 
 def dict_none_to_zero(data: dict) -> dict:
