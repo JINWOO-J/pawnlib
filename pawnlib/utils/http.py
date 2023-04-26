@@ -7,7 +7,7 @@ from pawnlib.resource import net
 from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address
-from pawnlib.typing import check, converter, list_depth
+from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth
 
 try:
     from pawnlib.utils import icx_signer
@@ -25,10 +25,9 @@ from enum import Enum, auto
 import copy
 import operator as _operator
 import time
-
 from dataclasses import dataclass, InitVar, field
-
 import requests
+
 
 ALLOWS_HTTP_METHOD = ["get", "post", "patch", "delete"]
 ALLOW_OPERATOR = ["!=", "==", ">=", "<=", ">", "<", "include", "exclude"]
@@ -575,7 +574,7 @@ class IconRpcHelper:
         )
         return _request_payload
 
-    def governance_call(self, url=None, method=None, params={}, governance_address=None, sign=None, store_request_payload=True):
+    def governance_call(self, url=None, method=None, params={}, governance_address=None, sign=None, store_request_payload=True, is_wait=True):
         if governance_address:
             self.governance_address = governance_address
         else:
@@ -587,7 +586,7 @@ class IconRpcHelper:
         if self._can_be_signed:
             _request_payload['params']['value'] = "0x0"
             self.sign_tx(payload=_request_payload)
-            response = self.sign_send()
+            response = self.sign_send(is_wait=is_wait)
             return response
         else:
             response = self.rpc_call(
@@ -679,11 +678,16 @@ class IconRpcHelper:
         return response.get('text')
 
     def get_tx_wait(self, url=None, tx_hash=None):
-        if not tx_hash and self.response.get('json') and self.response['json'].get('result'):
-            tx_hash = self.response['json']['result']
+
+        if not tx_hash and keys_exists(self.response, 'json', 'result', 'txHash'):
+            tx_hash = self.response['json']['result']['txHash']
+
+        if not tx_hash:
+            pawn.console.log(f"[red] Not found tx_hash='{tx_hash}'")
+            return
 
         pawn.console.log(f"Check a transaction by {tx_hash}")
-        with pawn.console.status(f"[magenta] Wait for transaction to be generated.") as status:
+        with pawn.console.status("[magenta] Wait for transaction to be generated.") as status:
             count = 0
             while True:
                 resp = self.get_tx(url=url, tx_hash=tx_hash)
@@ -761,9 +765,13 @@ class IconRpcHelper:
 
         return self.signed_tx
 
-    def sign_send(self):
+    def sign_send(self, is_wait=True):
         if self.signed_tx:
             response = self.rpc_call(payload=self.signed_tx)
+
+            if not is_wait:
+                return response
+
             if isinstance(response, dict) and response.get('result'):
                 resp = self.get_tx_wait(tx_hash=response['result'])
                 return resp
@@ -896,9 +904,9 @@ class SuccessCriteria:
             _attr_value_in_class = getattr(self, var_name, "__NOT_NONE__")
             if _attr_value_in_class != "__NOT_NONE__":
                 if isinstance(_attr_value_in_class, str):
-                    if check.is_int(_attr_value_in_class):
+                    if is_int(_attr_value_in_class):
                         setattr(self, var_name, int(_attr_value_in_class))
-                    elif check.is_float(_attr_value_in_class):
+                    elif is_float(_attr_value_in_class):
                         setattr(self, var_name, float(_attr_value_in_class))
 
                 _modified_value = getattr(self, var_name)
@@ -1068,21 +1076,16 @@ class CallHttp:
 
     def _parse_response(self):
         self.response.timing = self.timing
-
         try:
             _elapsed = int(self.response.elapsed.total_seconds() * 1000)
         except AttributeError:
             _elapsed = 0
-
         self.response.elapsed = _elapsed
 
         if getattr(self.response, 'raw', None):
             self.response.http_version = self.response.raw.version
         else:
             self.response.http_version = ""
-
-        # self.response.headers = self.response.headers
-
         if self.response and not self.on_error:
             try:
                 self.response.result = self.response.json()
@@ -1093,10 +1096,7 @@ class CallHttp:
                        success_criteria: Union[dict, list] = None,
                        success_operator: Literal["and", "or"] = "and",
                        ):
-        # pawn.console.log(self.response)
         _response_dict = self.response.as_dict()
-
-        # output.dump(_response_dict)
         if success_criteria:
             self.success_criteria = success_criteria
         if success_operator:
@@ -1105,12 +1105,6 @@ class CallHttp:
         if not self.success_criteria:
             pawn.console.debug("passing success_criteria")
         else:
-
-            # if isinstance(self.success_criteria, str):
-            #     pawn.console.log(f"String {type(self.success_criteria)}. '{self.success_criteria}'")
-            #     self.success_criteria = self._convert_criteria(self.success_criteria)
-            # pawn.console.log(res)
-
             if self.success_syntax == "string" or self.success_syntax == "auto":
                 _check_syntax = self._check_criteria_syntax()
                 if _check_syntax:

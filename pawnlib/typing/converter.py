@@ -4,17 +4,19 @@ import binascii
 import re
 import heapq
 from termcolor import cprint
+import decimal
+import math
+import base64
 from .check import is_int, is_hex
 from deprecated import deprecated
-
 from typing import Union, Any, Type
-import base64
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from collections.abc import MutableMapping
 from pawnlib import logger
 from pawnlib.typing.constants import const
 from pawnlib.config.__fix_import import Null
 import statistics
+from datetime import datetime
 
 NO_DEFAULT = object()
 
@@ -76,6 +78,81 @@ class StackList:
 
     def reset(self):
         self.data = []
+
+
+# class ConsecutiveCounter:
+class ErrorCounter:
+
+    def __init__(self, max_consecutive_count=10, increase_index=0.5, reset_threshold_rate=80):
+        self.max_consecutive_count = max_consecutive_count
+        self.increase_index = increase_index
+        self.reset_threshold_rate = reset_threshold_rate
+        self.consecutive_count = 0
+        self.total_count = 0
+        self.dynamic_count = 0
+        self.stack = StackList(max_length=max_consecutive_count)
+        self._hit = 0
+        self._hit_rate = 0
+        self.last_message = ""
+
+        self.last_hit = False
+
+    def push(self, error_boolean=True):
+        self.stack.push(
+            (
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
+                error_boolean
+            )
+        )
+        if error_boolean is True:
+            self.consecutive_count += 1
+            self.total_count += 1
+        else:
+            self.consecutive_count = 0
+        self.calculate_dynamic_count()
+
+    def calculate_dynamic_count(self):
+        self.dynamic_count = self.total_count ** self.increase_index
+        if self.dynamic_count % 1 == 0:
+            self.last_hit = True
+            self._hit += 1
+            self._hit_rate = truncate_decimal((self._hit/self.total_count)*100)
+
+            if self._hit_rate != 100 and self._hit_rate >= self.reset_threshold_rate:
+                self._reset_counter()
+            self.last_message = f"[red]hit/total={self._hit}/{self.total_count} ({self._hit_rate}%)"
+            pawn.console.debug(self.last_message)
+        else:
+            self.last_hit = False
+
+    def _reset_counter(self):
+        self.total_count = 0
+        self._hit = 0
+        self._hit_rate = 0
+        self.dynamic_count = 0
+
+    def is_ok(self):
+        if self.consecutive_count >= self.max_consecutive_count:
+            return False
+        return True
+
+    def push_ok(self, error_boolean=True):
+        self.push(error_boolean)
+        return self.is_ok()
+
+    def push_hit(self, error_boolean=True):
+        self.push(error_boolean)
+        return self.last_hit
+
+    def get_data(self):
+        return self.__dict__
+
+    def __repr__(self):
+        return str(f"<ErrorCounter> consecutive_count={self.consecutive_count}, "
+                   f"total_count={self.total_count}, max={self.max_consecutive_count}, is_ok={self.is_ok()}, last_hit={self.last_hit}")
+
+    def __str__(self):
+        return self.__repr__()
 
 
 class MedianFinder:
@@ -1846,3 +1923,18 @@ def shorten_text(text="", width=None, placeholder='[...]' ):
         return f"{_text[0:width]} {placeholder}"
     return text
 
+
+def truncate_float(number, digits=2) -> float:
+    # Improve accuracy with floating point operations, to avoid truncate(16.4, 2) = 16.39 or truncate(-1.13, 2) = -1.12
+    nb_decimals = len(str(number).split('.')[1])
+    if nb_decimals <= digits:
+        return number
+    stepper = 10.00 ** digits
+    return math.trunc(stepper * number) / stepper
+
+
+def truncate_decimal(number, digits: int = 2) -> decimal.Decimal:
+    round_down_ctx = decimal.getcontext()
+    round_down_ctx.rounding = decimal.ROUND_DOWN
+    new_number = round_down_ctx.create_decimal(number)
+    return round(new_number, digits)

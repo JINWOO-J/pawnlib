@@ -320,3 +320,62 @@ def is_include_list(target=None, include_list=[], ignore_case=True):
             if include_key in target:
                 return True
     return False
+
+
+def keys_exists(element, *keys):
+    """
+    Check if *keys (nested) exists in `element` (dict).
+    You don't have to implement it like this.
+
+    [X] if response.get('json') and response['json'].get('result') and response['json']['result'].get('tx_hash'):
+
+            vs
+
+    [O] if keys_exists(response, 'json', 'result', 'tx_hash'):
+
+    :param element:
+    :param keys:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.check import keys_exists
+
+            dict_example = {
+                "name": "example",
+                "description": {
+                    "description_2": "222",
+                    "description_3": "333",
+                },
+                "none_value_key": None,
+
+            }
+
+            keys_exists(dict_example, 'name', 'description')
+            # >> True
+
+            keys_exists(dict_example, 'name', 'none_value_key')
+            # >> True
+
+            keys_exists(dict_example, 'name', 'none_key')
+            # >> False
+
+
+
+
+    """
+
+    if not isinstance(element, dict):
+        raise AttributeError('keys_exists() expects dict as first argument.')
+    if len(keys) == 0:
+        raise AttributeError('keys_exists() expects at least two arguments, one given.')
+
+    _element = element
+    for key in keys:
+        try:
+            __element = _element[key]
+        except KeyError:
+            return False
+    return True
