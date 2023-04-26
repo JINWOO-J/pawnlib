@@ -15,6 +15,7 @@ from .check import (
     return_guess_type,
     sys_exit,
     is_include_list,
+    keys_exists,
 )
 from .defines import (
     Namespace,
@@ -23,6 +24,7 @@ from .defines import (
 )
 from .converter import (
     StackList,
+    ErrorCounter,
     MedianFinder,
     FlatDict,
     MedianFinder,
