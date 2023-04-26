@@ -1,3 +1,4 @@
+import copy
 import re
 import json
 import sys
@@ -328,9 +329,6 @@ def keys_exists(element, *keys):
     You don't have to implement it like this.
 
     [X] if response.get('json') and response['json'].get('result') and response['json']['result'].get('tx_hash'):
-
-            vs
-
     [O] if keys_exists(response, 'json', 'result', 'tx_hash'):
 
     :param element:
@@ -362,20 +360,19 @@ def keys_exists(element, *keys):
             keys_exists(dict_example, 'name', 'none_key')
             # >> False
 
-
-
-
     """
-
-    if not isinstance(element, dict):
-        raise AttributeError('keys_exists() expects dict as first argument.')
-    if len(keys) == 0:
-        raise AttributeError('keys_exists() expects at least two arguments, one given.')
-
-    _element = element
-    for key in keys:
-        try:
-            __element = _element[key]
-        except KeyError:
+    not_defined = "__NOT_DEFINED__"
+    next_element = ""
+    for index, key in enumerate(keys):
+        if next_element:
+            _element = next_element
+        else:
+            _element = copy.deepcopy(element)
+        if isinstance(_element, dict):
+            if _element.get(key, not_defined) != not_defined:
+                next_element = _element.pop(key, not_defined)
+            else:
+                return False
+        else:
             return False
     return True
