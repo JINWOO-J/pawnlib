@@ -16,6 +16,7 @@ from pawnlib.input import PromptWithArgument
 if not icx_signer_loaded:
     pawn.console.log("[red]Required packages - secp256k1, eth_keyfile ")
 
+
 def get_parser():
     parser = argparse.ArgumentParser(description='ICON')
     parser = get_arguments(parser)
@@ -38,6 +39,7 @@ def get_arguments(parser):
     parser.add_argument('--base-dir', metavar='base_dir', help='base directory', default=os.getcwd())
     return parser
 
+
 def private_key_validator(private_key):
     if icx_signer.is_private_key(private_key) or private_key == "":
         return True
@@ -51,8 +53,7 @@ def least_length_validator(text, length=1):
 
 
 def main():
-    icx_signer.compressed = True
-
+    icx_signer.compressed = False
     banner = generate_banner(
         app_name="WALLET",
         author="jinwoo",

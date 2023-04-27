@@ -14,6 +14,7 @@ st = StackList(max_length=10)
 for i in range(1, 100):
     st.push(i)
 
+
 pawn.console.log(st)
 pawn.console.log(st.mean())
 pawn.console.log(st.median())
