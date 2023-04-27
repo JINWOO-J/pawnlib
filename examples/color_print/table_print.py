@@ -90,7 +90,8 @@ PrintRichTable(
     title="RichTable Rows with description",
     data=term_data,
     with_idx=True,
-    call_value_func=add_comma
+    call_value_func=add_comma,
+    show_lines=True
 )
 
 

@@ -178,6 +178,7 @@ class WalletCli:
             self._args.private_key = random_private_key()
 
         wallet = load_wallet_key(self._args.private_key, password=self._args.password)
+        _wallet_address = wallet.get('address')
         self.print_wallet()
 
         default_filename = f"{wallet.get('address')}_{date_utils.todaydate('ms_text')}.json"
@@ -191,7 +192,13 @@ class WalletCli:
         check_file_overwrite(filename=self._args.keystore)
 
         try:
-            wallet = generate_wallet(file_path=self._args.keystore, password=self._args.password, overwrite=False, private_key=self._args.private_key)
+            wallet = generate_wallet(
+                file_path=self._args.keystore,
+                password=self._args.password,
+                overwrite=False,
+                private_key=self._args.private_key,
+                expected_address=_wallet_address,
+            )
             pawn.console.log(f"Generate Wallet - {wallet.get_hx_address()} to '{self._args.keystore}'")
         except Exception as e:
             pawn.console.log(f"[red][ERROR] Generate wallet - {e}")
@@ -219,11 +226,11 @@ def store_keystore_file_on_the_path(file_path, json_string, overwrite=False):
         f.write(json_string)
 
 
-def generate_wallet(file_path=None, password=None, overwrite=False, private_key=None):
+def generate_wallet(file_path=None, password=None, overwrite=False, private_key=None, expected_address=None):
     singer = IcxSigner(data=private_key)
     if not file_path:
         file_path = f"{singer.get_hx_address()}_{date_utils.todaydate('ms_text')}.json"
-    singer.store(file_path, password, overwrite)
+    singer.store(file_path, password, overwrite, expected_address=expected_address)
     return singer
 
 
@@ -246,10 +253,11 @@ def _parse_keystore_key(file=None, password=None, private_key_hex=None):
     address = f"hx{get_address(pubkey_bytes=public_key_long).hex()}"
     pawn.console.debug(f"address={address}")
     wallet_dict = {
-        "private_key": "0x" + private_key.hex(),
+        # "private_key": "0x" + private_key.hex(),
+        "private_key": private_key.hex(),
         "address": address,
-        "public_key": f"0x{public_key.hex()}",
-        "public_key_long": f"0x{public_key_long.hex()}"
+        "public_key": public_key.hex(),
+        "public_key_long": public_key_long.hex()
     }
     pawn.console.debug(wallet_dict)
     return wallet_dict
@@ -470,7 +478,7 @@ class IcxSigner(object):
         signature = privkey.ecdsa_sign(msg_hash, raw=True)
         return privkey.ecdsa_serialize(signature)
 
-    def store(self, file_path: str, password: str, overwrite: bool = False):
+    def store(self, file_path: str, password: str, overwrite: bool = False, expected_address: str = None):
         try:
             key_store_contents = create_keyfile_json(
                 self.get_privkey_bytes(),
@@ -482,6 +490,9 @@ class IcxSigner(object):
             key_store_contents['coinType'] = 'icx'
 
             # validate the  contents of a keystore file.
+            if expected_address and expected_address != self.get_hx_address():
+                raise ValueError(f"Not expected address => expected({expected_address}) != real({self.get_hx_address()})")
+
             import json
             if key_store_contents:
                 json_string_keystore_data = json.dumps(key_store_contents)
