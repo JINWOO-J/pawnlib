@@ -826,7 +826,7 @@ class __bcolors:
     LIGHT_GREY = '\033[37m'
 
 
-def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = False, change: bool = False, ansi: bool = False):
+def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = False, change: bool = False, ansi: bool = False, is_tint: bool = False):
     """
 
     this function will change the hex to number(int)
@@ -836,6 +836,7 @@ def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = Fal
     :param is_comma:
     :param debug:
     :param change:
+    :param is_tint:
     :return:
 
     Example:
@@ -849,6 +850,9 @@ def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = Fal
 
             converter.hex_to_number("0x22223232d", is_comma=True)
             # >> '9,162,662,701'
+
+            converter.hex_to_number("0x2386f26fc10000", is_tint=True)
+            # >> 0.01
 
     """
     _changed = False
@@ -869,7 +873,7 @@ def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = Fal
     else:
         converted_value = hex_value
     if (_changed and change) or is_int(converted_value):
-        if converted_value >= const.TINT:
+        if converted_value >= const.TINT or is_tint:
             converted_value = converted_value / const.TINT
             changed_text = f"{_bcolors.WARNING}(tint){_bcolors.ENDC}"
 

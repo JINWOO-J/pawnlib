@@ -359,6 +359,13 @@ class PawnlibConfig(metaclass=Singleton):
             root_path = Path(os.path.join(os.getcwd()))
         return root_path.joinpath(path)
 
+    @staticmethod
+    def pawnlib_path():
+        _dir = os.path.dirname(__file__)
+        if "/config" in _dir:
+            return _dir.replace("/config", "")
+        return _dir
+
     def init_with_env(self, **kwargs):
         """
         Initialize with environmental variables.
@@ -370,6 +377,7 @@ class PawnlibConfig(metaclass=Singleton):
         self.set(**kwargs)
         # self._load_config_file()
         self._loaded['on_ready'] = True
+        self.console.debug(f"{__title__}/{__version__}, PATH={self.pawnlib_path()}")
         self._load_config_file()
         return self
 

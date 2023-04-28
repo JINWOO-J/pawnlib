@@ -7,7 +7,7 @@ from os import path
 from secp256k1 import PrivateKey, PublicKey
 from pawnlib.typing import check, date_utils, random_private_key, Namespace, fill_required_data_arguments
 from pawnlib.config import pawnlib_config as pawn
-from pawnlib.output import is_file, is_json, open_json, check_file_overwrite
+from pawnlib.output import is_file, is_json, open_json, check_file_overwrite, NoTraceBackException
 from pawnlib.config import pawn, pconf, NestedNamespace
 from pawnlib.input import PromptWithArgument, PrivateKeyValidator, StringCompareValidator, PrivateKeyOrJsonValidator
 import json
@@ -270,7 +270,14 @@ def is_private_key(private_key):
     return False
 
 
-def load_wallet_key(file_or_object=None, password=None):
+def exit_on_failure(raise_on_failure, exception):
+    if raise_on_failure:
+        raise NoTraceBackException(exception)
+    else:
+        pawn.console.log(f"[red][ERROR][/red] {exception}")
+
+
+def load_wallet_key(file_or_object=None, password=None, raise_on_failure=True):
     if isinstance(password, dict) or isinstance(password, list) or isinstance(password, tuple):
         raise ValueError(f"Wrong password type => {password} ({type(password)})")
     pawn.console.log(f"[red]Load wallet ")
@@ -312,7 +319,8 @@ def load_wallet_key(file_or_object=None, password=None):
         try:
             return _parse_keystore_key(**_keystore_params)
         except Exception as e:
-            pawn.console.log(f"[red][ERROR] {e}")
+            exit_on_failure(raise_on_failure=raise_on_failure, exception=e)
+
     return {}
 
 

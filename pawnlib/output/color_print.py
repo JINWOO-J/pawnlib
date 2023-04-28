@@ -6,6 +6,8 @@ import json
 import getpass
 import traceback
 import inspect
+from contextlib import contextmanager, AbstractContextManager
+
 from pawnlib.typing import converter, date_utils, list_to_oneline_string, const, is_include_list
 from pawnlib.config import pawnlib_config as pawn, global_verbose
 from pygments import highlight
@@ -936,6 +938,7 @@ class ProgressTime(Progress):
             **kwargs
         )
 
+
 def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent=''):
     """
     Syntax highlighting function
@@ -1038,9 +1041,30 @@ def print_var(data=None, title='', **kwargs):
     except:
         var_name = ""
 
+    if not data:
+        data_length = 0
+    else:
+        data_length = len(data)
+
     pawn.console.log(f"🎁 [yellow bold]{title}[/yellow bold][blue bold]{var_name}[/blue bold] "
-                     f"\t[italic] ({type(data).__name__}), len={len(data)}", _stack_offset=2)
+                     f"\t[italic] ({type(data).__name__}), len={data_length}", _stack_offset=2)
     print(syntax_highlight(data, **kwargs))
+
+
+@contextmanager
+def disable_exception_traceback():
+    """
+    All traceback information is suppressed and only the exception type and value are printed
+    """
+    default_value = getattr(sys, "tracebacklimit", 1000)  # `1000` is a Python's default value
+    sys.tracebacklimit = 0
+    yield
+    sys.tracebacklimit = default_value  # revert changes
+    # try:
+    #     sys.tracebacklimit = 0
+    #     yield
+    # finally:
+    #     sys.tracebacklimit = default_value  # revert changes
 
 
 class NoTraceBackException(Exception):
@@ -1055,4 +1079,6 @@ class NoTraceBackException(Exception):
              function_name, ln, index) = inspect.getframeinfo(previous_frame)
         # self.args = "<{0.__name__}> ({2} line {2}): \n {3}".format(type(self), filename, line_no, msg),
         self.args = "{0}<{1.__name__}>{2} ({3} line {4}): \n {5}".format(bcolors.FAIL, type(self), bcolors.ENDC, filename, line_no, msg),
+        # ex_type, ex_value, traceback = sys.exc_info()
         raise Exception(self)
+
