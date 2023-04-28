@@ -29,12 +29,14 @@ pawn.console.log(icon_helper)
 pawn.console.log(icon_helper.network_info)
 
 icon_helper.governance_call(
-    method="setBlockVoteCheckParameters",
+    method="registerValidator",
     sign=None,
     params={
-        "period": "0x64",
-        "allowance": "0x5"
-    },
+        "owner": "hx3ece50aaa01f7c4d128c029d569dd86950c34215",
+        "nodePublicKey": "0x03921d018c1302f9be67e0aca8e583f8970af127e18727d68af4e7caa81c8eb2b1",
+        "grade": "sub",
+        "name": "ABC node"
+    }
 )
 icon_helper.print_request()
 icon_helper.print_response()

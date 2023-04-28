@@ -2,13 +2,12 @@ import re
 import json
 import sys
 from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose, pconf, SimpleNamespace
-from pawnlib import output
+from pawnlib.output import NoTraceBackException, dump, syntax_highlight, kvPrint, debug_logging, PrintRichTable
 from pawnlib.resource import net
 from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address
-from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth
-
+from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address
 try:
     from pawnlib.utils import icx_signer
 except ImportError:
@@ -389,7 +388,7 @@ class IconRpcTemplates:
 
 
 class IconRpcHelper:
-    def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=False):
+    def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=True):
         self.wallet = wallet
         self.governance_address = None
         self.request_payload = None
@@ -526,15 +525,15 @@ class IconRpcHelper:
             style = "rule.line"
         pawn.console.rule(f"<Response {self.response.get('status_code')}>", align='right', style=style, characters="═")
         if self.response.get('json'):
-            output.dump(self.response.get('json'), hex_to_int=hex_to_int)
+            dump(self.response.get('json'), hex_to_int=hex_to_int)
         else:
-            print(output.syntax_highlight(self.response.get('text'), name='html'))
+            print(syntax_highlight(self.response.get('text'), name='html'))
 
     def print_request(self):
         pawn.console.print("")
         pawn.console.rule(f"<Request> {self.url}", align='left')
         pawn.console.print("")
-        print(output.syntax_highlight(self.request_payload, line_indent='   '))
+        print(syntax_highlight(self.request_payload, line_indent='   '))
 
     def make_params(self, method=None, params={}):
         json_rpc(
@@ -584,6 +583,7 @@ class IconRpcHelper:
         _request_payload = self._make_governance_payload(method, params)
 
         if self._can_be_signed:
+            # if _request_payload['params'].get('value', None):
             _request_payload['params']['value'] = "0x0"
             self.sign_tx(payload=_request_payload)
             response = self.sign_send(is_wait=is_wait)
@@ -657,13 +657,20 @@ class IconRpcHelper:
             pawn.console.log("[red]An error occurred while running get_step_limit")
 
     def get_balance(self, url=None, address=None, is_comma=False):
-        if address:
+        if not address and self.wallet:
+            address = self.wallet.get('address')
+
+        if is_valid_token_address(address):
             response = self.rpc_call(
                 url=url,
                 method="icx_getBalance",
-                params={"address": address}
+                params={"address": address},
+                store_request_payload=False,
             )
-            return hex_to_number(response.get('result'), is_comma=is_comma)
+            _balance = response.get('result')
+            return hex_to_number(_balance, is_comma=is_comma, is_tint=True)
+        else:
+            return self.exit_on_failure(f"Invalid token address - {address}")
 
     def get_tx(self, url=None, tx_hash=None, return_key=None):
         response = self.rpc_call(
@@ -678,14 +685,16 @@ class IconRpcHelper:
         return response.get('text')
 
     def get_tx_wait(self, url=None, tx_hash=None):
-
-        if not tx_hash and keys_exists(self.response, 'json', 'result', 'txHash'):
-            tx_hash = self.response['json']['result']['txHash']
+        if not tx_hash and isinstance(self.response, dict):
+            if keys_exists(self.response, 'json', 'result', 'txHash'):
+                tx_hash = self.response['json']['result']['txHash']
+            elif keys_exists(self.response, 'json', 'result'):
+                tx_hash = self.response['json']['result']
 
         if not tx_hash:
             pawn.console.log(f"[red] Not found tx_hash='{tx_hash}'")
             return
-
+        tx_status_result = True
         pawn.console.log(f"Check a transaction by {tx_hash}")
         with pawn.console.status("[magenta] Wait for transaction to be generated.") as status:
             count = 0
@@ -697,15 +706,21 @@ class IconRpcHelper:
                     exit_msg = ""
                     if "InvalidParams" in resp['error'].get('message'):
                         exit_loop = True
-                        exit_msg = f"[red][FAIL][/red]"
+                        exit_msg = "[red][FAIL][/red]"
                     text = f"{prefix_text}{exit_msg}[white] {resp['error']['message']}"
 
                 elif resp.get('result'):
                     if resp['result'].get('logsBloom'):
                         resp['result']['logsBloom'] = int(resp['result']['logsBloom'], 16)
 
+                    if resp['result'].get('failure'):
+                        _resp_status = "[FAIL]"
+                        tx_status_result = False
+                    else:
+                        _resp_status = "[OK]"
+
                     exit_loop = True
-                    text = f"{prefix_text}[OK] {json.dumps(resp['result'])}"
+                    text = f"{prefix_text}[red]{_resp_status}[red] {json.dumps(resp['result'])}"
                 else:
                     text = resp
                 status.update(
@@ -717,7 +732,24 @@ class IconRpcHelper:
                     break
                 count += 1
                 time.sleep(1)
+
+            if not tx_status_result and tx_hash:
+                print("*" * 10)
+                self.get_debug_trace(tx_hash)
         return resp
+
+    def get_debug_trace(self, tx_hash, print_table=True):
+        response = self.rpc_call(
+            url=self.debug_url,
+            method="debug_getTrace",
+            params={"txHash": tx_hash},
+            store_request_payload=False,
+        )
+        if isinstance(response, dict) and keys_exists(response, "result", "logs") and print_table:
+            PrintRichTable(f"debug_getTrace={tx_hash}", data=response['result']['logs'])
+        else:
+            pawn.console.log(response)
+        return response
 
     def auto_fill_parameter(self):
         if isinstance(self.request_payload, dict) and self.request_payload.get('params'):
@@ -740,7 +772,7 @@ class IconRpcHelper:
         else:
             pawn.console.log(f"[red]Invalid payload - {self.request_payload}")
 
-    def sign_tx(self, wallet=None, payload=None):
+    def sign_tx(self, wallet=None, payload=None, is_balance=True):
         self.request_payload = {}
         self.signed_tx = {}
         if wallet:
@@ -755,6 +787,14 @@ class IconRpcHelper:
 
         private_key = self.wallet.get('private_key')
         address = self.wallet.get('address')
+
+        if is_balance:
+            _balance = self.get_balance()
+            pawn.console.log(f"<{address}>'s Balance = {_balance} {self.network_info.symbol}")
+
+            if not _balance or _balance == 0:
+                return self.exit_on_failure(f"Insufficient Balance = {_balance} {self.network_info.symbol}")
+
         self.auto_fill_parameter()
 
         singer = icx_signer.IcxSigner(data=private_key)
@@ -764,6 +804,14 @@ class IconRpcHelper:
             raise ValueError(f'Invalid address {address} != {singer.get_hx_address()}')
 
         return self.signed_tx
+
+    def exit_on_failure(self, exception):
+        self.on_error = True
+        if self.raise_on_failure:
+            raise NoTraceBackException(exception)
+        else:
+            pawn.console.log(f"[red][FAIL][/red] {exception}")
+            return
 
     def sign_send(self, is_wait=True):
         if self.signed_tx:
@@ -1030,7 +1078,7 @@ class CallHttp:
         self.on_error = True
         self.response = HttpResponse(status_code=999, error=self._shorten_exception_message_handler(exception), elapsed=self.timing)
         if self.raise_on_failure:
-            raise output.NoTraceBackException(exception)
+            raise NoTraceBackException(exception)
         else:
             pawn.console.debug(f"[red][FAIL][/red] {exception}")
             # self.response.status_code = 999
@@ -1250,7 +1298,7 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     except requests.exceptions.HTTPError as errh:
         error = errh
         if global_verbose > 0:
-            output.kvPrint("Http Error:", errh)
+            kvPrint("Http Error:", errh)
         pawn.error_logger.error(f"Http Error:{errh}") if pawn.error_logger else False
 
     except requests.exceptions.ConnectionError as errc:
@@ -1260,19 +1308,19 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
                 "[Errno 8] nodename nor servname " in str(errc)):  # OS X
             errc = "DNSLookupError"
         if global_verbose > 0:
-            output.kvPrint("Error Connecting:", errc, "FAIL")
+            kvPrint("Error Connecting:", errc, "FAIL")
         pawn.error_logger.error(f"Error Connecting:{errc}, {url}") if pawn.error_logger else False
 
     except requests.exceptions.Timeout as errt:
         error = errt
         if global_verbose > 0:
-            output.kvPrint("Timeout Error:", errt, "FAIL")
+            kvPrint("Timeout Error:", errt, "FAIL")
         pawn.error_logger.error(f"Timeout Connecting:{errt}, {url}") if pawn.error_logger else False
 
     except requests.exceptions.RequestException as err:
         error = err
         if global_verbose > 0:
-            output.kvPrint("OOps: Something Else", err, "FAIL")
+            kvPrint("OOps: Something Else", err, "FAIL")
         pawn.error_logger.error(f"OOps: Something Else:{err}, {url}") if pawn.error_logger else False
 
     # cprint(f"----> {url}, {method}, {payload} , {response.status_code}", "green")
@@ -1284,7 +1332,7 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
 
     json_payload = json.dumps(payload)
     if global_verbose > 1:
-        output.debug_logging(f"{url}, {method}, {json_payload} , {response_code}")
+        debug_logging(f"{url}, {method}, {json_payload} , {response_code}")
 
     if response_code != 999:
         try:

@@ -14,7 +14,8 @@ import requests
 disable_ssl_warnings()
 icx_signer.compressed = False
 
-private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90819"
+# private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90819"
+private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90810"
 pawn.console.log(private_key)
 
 icon_rpc = IconRpcHelper(
@@ -40,7 +41,8 @@ payload = generator.json_rpc(
 signed_transaction = icon_rpc.sign_tx(payload=payload)
 print_var(signed_transaction)
 tx_result = icon_rpc.sign_send()
-print_var(tx_result)
+print(f"tx_result={tx_result}")
 
+print_var(tx_result)
 
 print("END---")
