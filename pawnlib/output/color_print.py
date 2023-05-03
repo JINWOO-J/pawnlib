@@ -210,8 +210,9 @@ class PrintRichTable:
                 columns: list = None,
                 remove_columns: list = None,
                 with_idx: bool = True,
-                call_value_func = str,
-                call_desc_func = None,
+                call_value_func=str,
+                call_desc_func=None,
+                columns_options=None,
                 **kwargs
                 ) -> None:
 
@@ -233,9 +234,33 @@ class PrintRichTable:
         self.call_value_func = call_value_func
         self.call_desc_func = call_desc_func
 
+        _default_columns_option = dict(
+            key=dict(
+                justify="left",
+            ),
+            value=dict(
+                justify="right",
+            ),
+            description=dict(
+                justify="right",
+            ),
+        )
+        self.columns_options = _default_columns_option
+        if columns_options:
+            self.columns_options.update(columns_options)
+
+        self._check_columns_options()
         self._initialize_table()
         self._set_table_data()
         self._print_table()
+
+    def _check_columns_options(self):
+        allowed_columns = ["header_style", "footer_style", "style", "justify", "vertical", "overflow", "width", "min_width", "max_width", "ratio", "no_wrap"]
+        for column_name, column_values in self.columns_options.items():
+            if isinstance(column_values, dict):
+                for column_key, value in column_values.items():
+                    if column_key not in allowed_columns:
+                        raise ValueError(f"name='{column_name}', key='{column_key}' is not allowed column option, allowed: {allowed_columns}")
 
     def _initialize_table(self):
         if isinstance(self.data, dict):
@@ -261,14 +286,13 @@ class PrintRichTable:
         return False
 
     def _draw_vertical_table(self):
-        pawn.console.debug(f"Drawing vertical table")
+        pawn.console.debug("Drawing vertical table")
         if self.with_idx:
-            self.table.add_column("idx")
-        self.table.add_column("key", justify="left")
-        self.table.add_column("value", justify="right")
-
+            self.table.add_column("idx", **self.columns_options.get('idx', {}))
+        self.table.add_column("key", **self.columns_options.get('key', {}))
+        self.table.add_column("value", **self.columns_options.get('value', {}))
         if self.call_desc_func and callable(self.call_desc_func):
-            self.table.add_column("description", justify="right")
+            self.table.add_column("description", **self.columns_options.get('description', {}))
 
         _count = 0
         row_dict = {}
@@ -306,7 +330,7 @@ class PrintRichTable:
             self.row_count += 1
 
         for col in self.columns:
-            self.table.add_column(col)
+            self.table.add_column(col, **self.columns_options.get(col, {}))
 
     def _extract_columns(self):
         # if self.table_data and len(self.columns) == 0 and isinstance(self.table_data[0], dict):

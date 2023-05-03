@@ -34,6 +34,7 @@ ALLOW_OPERATOR = ["!=", "==", ">=", "<=", ">", "<", "include", "exclude"]
 
 class _ResponseWithElapsed(requests.models.Response):
     success = False
+    error = None
 
     def __init__(self):
         super().__init__()
@@ -66,6 +67,8 @@ class _ResponseWithElapsed(requests.models.Response):
 
 requests.models.Response.__str__ = _ResponseWithElapsed.__str__
 requests.models.Response.__repr__ = _ResponseWithElapsed.__repr__
+requests.models.Response.error = _ResponseWithElapsed.error
+requests.models.Response.success = _ResponseWithElapsed.success
 requests.models.Response.as_dict = _ResponseWithElapsed.as_dict
 
 
@@ -76,6 +79,11 @@ class HttpResponse:
         self.error = error
         self.elapsed = elapsed
         self.success = success
+        self.text = None
+
+        if getattr(response, "text", None):
+            self.response = response.text
+
         if self.response and self.response.json:
             self.json = self.response.json
         else:
@@ -460,6 +468,7 @@ class IconRpcHelper:
     def rpc_call(self,
                  url=None,
                  method=None,
+                 timeout=5000,
                  params: dict = {},
                  payload: dict = {},
                  print_error=False,
@@ -490,7 +499,7 @@ class IconRpcHelper:
         self.response = CallHttp(
             url=_url,
             method="post",
-            timeout=1000,
+            timeout=timeout,
             payload=_request_payload,
             raise_on_failure=_raise_on_failure,
         ).run().response.as_dict()
@@ -943,6 +952,8 @@ class SuccessCriteria:
             try:
                 self._set_string_valid_type()
                 self.result = get_operator_truth(self.target, self.operator, self.expected)
+                pawn.console.debug(f"get_operator_truth({self.target}, {self.operator}, {self.expected}) = {self.result}")
+
             except:
                 self.result = False
 
@@ -1009,15 +1020,14 @@ class CallHttp:
                  # method: AllowsHttpMethod = AllowsHttpMethod.get,
                  # method: Literal[tuple(method for method in AllowsHttpMethod)],
                  payload={},
-                 timeout=1000,
+                 timeout=3000,
                  ignore_ssl: bool = False,
                  verbose: int = 0,
-                 success_criteria: Union[dict, list, str] = None,
+                 success_criteria: Union[dict, list, str, None] = "__DEFAULT__",
                  success_operator: Literal["and", "or"] = "and",
                  success_syntax: Literal["operator", "string", "auto"] = "auto",
                  raise_on_failure: bool = False,
                  auto_run: bool = True,
-
                  **kwargs
                  ):
 
@@ -1027,15 +1037,23 @@ class CallHttp:
         self.timeout = timeout / 1000
         self.ignore_ssl = ignore_ssl
         self.verbose = verbose
-        self.success_criteria = success_criteria
+
+        _default_criteria = [AllowsKey.status_code, "<=", 399]
+        if success_criteria == '__DEFAULT__':
+            self.success_criteria = _default_criteria
+        elif success_criteria:
+            self.success_criteria = success_criteria
+        else:
+            self.success_criteria = None
+
         self.success_operator = success_operator
         self.success_syntax = success_syntax
-
         self.kwargs = kwargs
         self.raise_on_failure = raise_on_failure
         self._DEFAULT_UA = f"CallHttp Agent/{pawn.get('PAWN_VERSION')}"
         self.on_error = False
-        self.response = requests.models.Response()
+        # self.response = requests.models.Response()
+        self.response = HttpResponse()
         self.flat_response = None
 
         self.success = None
@@ -1055,7 +1073,7 @@ class CallHttp:
             requests.exceptions.RequestException: "OOps: Something Else",
         }
         _shorten_message = _shorten_message_dict.get(exception)
-        default_msg = f"(url={self.url}, method={self.method}"
+        default_msg = f"(url={self.url} method={self.method.upper()}"
 
         # connection_pool = exception.__context__.pool
         # hostname = connection_pool.host
@@ -1087,7 +1105,7 @@ class CallHttp:
             # print(self.timing)
             return self.response
 
-    def run(self) -> HttpResponse:
+    def run(self):
         self._prepare()
         start = time.perf_counter()
         self.fetch_response()
@@ -1097,23 +1115,28 @@ class CallHttp:
         self.fetch_criteria()
         self.response.success = self.is_success()
 
+        if not self.is_success() and getattr(self.response, 'reason', ''):
+            self.response.error = f"{self.response.status_code} {self.response.reason}"
+
         return self
 
     def _prepare(self):
         self.url = append_http(self.url)
 
+    def get_response(self) -> HttpResponse:
+        return self.response
+
     def fetch_response(self):
         (json_response, data, http_version, r_headers, error) = ({}, {}, None, None, None)
         if self.method not in ("get", "post", "patch", "delete"):
             pawn.error_logger.error(f"unsupported method='{self.method}', url='{self.url}' ") if pawn.error_logger else False
-            # raise ValueError(f"unsupported method={self.method}, url={self.url}")
             return self.exit_on_failure(f"Unsupported method={self.method}, url={self.url}")
         try:
             try:
                 _payload_string = json.dumps(self.payload)
             except Exception as e:
                 _payload_string = self.payload
-            pawn.console.debug(f"[TRY] url={self.url}, method={self.method}, payload={_payload_string}, kwargs={self.kwargs}")
+            pawn.console.debug(f"[TRY] url={self.url}, method={self.method.upper()}, payload={_payload_string}, kwargs={self.kwargs}")
             func = getattr(requests, self.method)
             if self.method == "get":
                 self.response = func(self.url, verify=False, timeout=self.timeout, **self.kwargs)
@@ -1127,7 +1150,10 @@ class CallHttp:
         try:
             _elapsed = int(self.response.elapsed.total_seconds() * 1000)
         except AttributeError:
-            _elapsed = 0
+            if self.timing:
+                _elapsed = self.timing
+            else:
+                _elapsed = 0
         self.response.elapsed = _elapsed
 
         if getattr(self.response, 'raw', None):
@@ -1145,6 +1171,7 @@ class CallHttp:
                        success_operator: Literal["and", "or"] = "and",
                        ):
         _response_dict = self.response.as_dict()
+
         if success_criteria:
             self.success_criteria = success_criteria
         if success_operator:
@@ -1164,7 +1191,7 @@ class CallHttp:
                 self.success_criteria = [self.success_criteria]
 
             for criteria in self.success_criteria:
-                pawn.console.debug(f"{type(criteria)} {criteria}")
+                pawn.console.debug(f"Compare Criteria => {type(criteria)} {criteria}")
                 if isinstance(criteria, list):
                     _criteria = copy.deepcopy(criteria)
                     _criteria.append(_response_dict)

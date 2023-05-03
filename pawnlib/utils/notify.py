@@ -37,7 +37,7 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
     msg_level = msg_level.lower()
 
     if url is None:
-        color_print.cprint("[ERROR] slack webhook url is None", "red")
+        pawn.error_logger.error("[ERROR] slack webhook url is None")
         return False
     p_color = get_level_color(msg_level)
 
@@ -86,11 +86,10 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
     }
 
     def _make_attachment(key=None, value=None):
-
-        if key and value:
+        if key:
             text = f'💡{key:<12s}: {value}'
         elif not key:
-            text = f'{"💡[DESC]":^12s} : {msg_text}'
+            text = f'{"+ [DESC]":^12s} : {msg_text}'
         else:
             text = ""
 
@@ -105,7 +104,7 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
     for attachment in payload["attachments"]:
         if isinstance(msg_text, dict):
             for key, value in msg_text.items():
-                if key and value:
+                if key:
                     attachment['blocks'].append(_make_attachment(key, value))
         elif isinstance(msg_text, list):
             for value_in_list in msg_text:
@@ -115,14 +114,13 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
             attachment['blocks'].append(_make_attachment(value=msg_text))
         _attachments.append(attachment)
     payload["attachments"] = _attachments
-
     try:
         post_result = requests.post(url, json=payload, verify=False, timeout=15)
         if post_result and post_result.status_code == 200 and post_result.text == "ok":
-            pawn.app_logger.info(f"[OK][Slack] Send slack")
+            pawn.app_logger.info("[OK][Slack] Send slack")
             return True
         else:
-            pawn.error_logger.error(f"[ERROR][Slack] Got errors, status_code={post_result.status_code}, text={post_result.text}")
+            pawn.error_logger.error(f"[ERROR][Slack] Got errors, status_code={post_result.status_code}, text={shorten_text(post_result.text, 50)}")
             return False
 
     except Exception as e:

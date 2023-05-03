@@ -241,6 +241,8 @@ def _parse_keystore_key(file=None, password=None, private_key_hex=None):
         private_key = bytes.fromhex(private_key_hex)
     else:
         try:
+            if not password:
+                raise ValueError(f"Invalid password -> '{password}'")
             private_key: bytes = decode_keyfile_json(file, bytes(password, 'utf-8'))
         except ValueError as e:
             if "MAC mismatch" in str(e):

@@ -54,8 +54,10 @@ print(grid)
 def _make_description(*args, **kwargs):
     return f"description {args},\n {kwargs}"
 
+
 def _make_value(value):
     return f"V = {value}"
+
 
 PrintRichTable(title="RichTable Key/Value with description", data=data[0], with_idx=False, call_desc_func=_make_description)
 
@@ -64,9 +66,15 @@ PrintRichTable(
     data=data,
     with_idx=True,
     call_desc_func=_make_description,
-    call_value_func=_make_value
+    call_value_func=_make_value,
+    columns_options=dict(
+        address=dict(
+            style="magenta",
+            sdsds="sdsd"
+        )
+    ),
 )
-
+pawn.console.log(data)
 
 term_data = {
     'termSequence': 99,
@@ -91,7 +99,13 @@ PrintRichTable(
     data=term_data,
     with_idx=True,
     call_value_func=add_comma,
-    show_lines=True
+    show_lines=True,
+    columns_options=dict(
+        key=dict(
+            justify='right',
+            style="magenta"
+        )
+    )
 )
 
 
