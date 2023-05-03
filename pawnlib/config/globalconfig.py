@@ -588,8 +588,8 @@ class PawnlibConfig(metaclass=Singleton):
                         p_value = self._environments[p_key]['value']
 
                 if p_key == f"{self.env_prefix}_LOGGER" and p_value:
-                    from pawnlib.utils.log import AppLogger
                     if isinstance(p_value, dict):
+                        from pawnlib.utils.log import AppLogger
                         if p_value.get('app_name') is None and kwargs.get('app_name'):
                             p_value['app_name'] = kwargs['app_name']
                             self.app_name = kwargs['app_name']
@@ -612,6 +612,7 @@ class PawnlibConfig(metaclass=Singleton):
                         # from pawnlib import logger
                         # logger.propagate = 0
                         # logger.addHandler(self.app_logger)
+
                 elif p_key == f"{self.env_prefix}_CONSOLE":
                     _enforce_set_value(source_key=f'{self.env_prefix}_TIME_FORMAT', target_key='log_time_format', target_dict=p_value)
                     self.console_options = p_value
