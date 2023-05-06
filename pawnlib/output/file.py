@@ -220,7 +220,7 @@ def write_file(filename: str, data: Any, option: str = 'w', permit: str = '664')
         return "write_file() can not write to file"
 
 
-def write_json(filename: str, data: Union[dict, list], option: str = 'w', permit: str = '664'):
+def write_json(filename: str, data: Union[dict, list], option: str = 'w', permit: str = '664', force_write: bool = True, json_default=None):
     """
     Write the json file with dict
 
@@ -228,10 +228,26 @@ def write_json(filename: str, data: Union[dict, list], option: str = 'w', permit
     :param data:
     :param option:
     :param permit:
+    :param force_write:
+    :param json_default:
     :return:
     """
+
+    def _json_default(obj):
+        if hasattr(obj, 'to_json'):
+            return obj.to_json()
+        else:
+            return str(obj)
+
+    if not force_write:
+        _json_default = None
+
+    if json_default:
+        _json_default = json_default
+
     with open(filename, option) as outfile:
-        json.dump(data, outfile)
+        json.dump(data, outfile, default=_json_default)
+
     os.chmod(filename, int(permit, base=8))
     if os.path.exists(filename):
         return "Write json file -> %s, %s" % (filename, converter.get_size(filename))  # if __main__.args.verbose > 0 else False
