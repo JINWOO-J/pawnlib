@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 import common
-from pawnlib.config import pawn, pconf
+from pawnlib.config import pawn, pconf, NestedNamespace
 from pawnlib.typing import set_namespace_default_value
 
 
 def main():
     pawn.set(
-        data={"aaaa": "bbbb"}
+        data={"aaaa": "bbbb"},
+        asdf=NestedNamespace(**{"ssss": 1222})
     )
     pawn.console.log(pconf())
     undefined_key = set_namespace_default_value(
@@ -14,7 +15,17 @@ def main():
         key="cccc",
         default="ddddd"
     )
-    pawn.console.log(undefined_key)
+    pawn.console.log(f"undefined_key={undefined_key}")
+    _pconf = pconf()
+    pconf().data.ddd = "sdsds"
+    pconf().data.ccc = "sdsds"
+    pawn.console.log(pconf().data)
+
+    _pconf.asdf.sdsd = "sdsd"
+
+    pawn.console.log(_pconf)
+
+    pawn.console.log(pconf())
 
 
 if __name__ == "__main__":
