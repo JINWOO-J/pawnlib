@@ -1102,7 +1102,9 @@ class NoTraceBackException(Exception):
             (filename, line_number,
              function_name, ln, index) = inspect.getframeinfo(previous_frame)
         # self.args = "<{0.__name__}> ({2} line {2}): \n {3}".format(type(self), filename, line_no, msg),
-        self.args = "{0}<{1.__name__}>{2} ({3} line {4}): \n {5}".format(bcolors.FAIL, type(self), bcolors.ENDC, filename, line_no, msg),
+        # self.args = "{0}<{1.__name__}>{2} ({3} line {4}): \n {5}".format(bcolors.FAIL, type(self), bcolors.ENDC, filename, line_no, msg),
+        # self.args = "<{0.__name__}>({1} line {2}): \n {3}".format(type(self), filename, line_no, msg),
+        self.args = "<{0.__name__}> {1}".format(type(self), msg),
         # ex_type, ex_value, traceback = sys.exc_info()
         raise Exception(self)
 
