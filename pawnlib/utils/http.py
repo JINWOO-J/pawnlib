@@ -214,6 +214,12 @@ class NetworkInfo:
         self.network_name = self.network_name.lower()
         self.platform = self.platform.lower()
 
+        if self.network_name == "veganet":
+            self.network_name = "vega"
+
+        elif self.network_name == "denebnet":
+            self.network_name = "deneb"
+
         if not self._platform_info.get(self.platform):
             raise ValueError(f"Allowed platform - values {list(self._platform_info.keys())}")
 
