@@ -4,9 +4,9 @@ from datetime import time
 import common
 from pawnlib.resource import net
 
-print(net.get_public_ip())
-print(net.get_local_ip())
-print(net.get_hostname())
+print(f"public ipaddr: {net.get_public_ip()}")
+print(f"local ipaddr: {net.get_local_ip()}")
+print(f"hostname: {net.get_hostname()}")
 
 
 def calculate_time():

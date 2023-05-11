@@ -4,6 +4,8 @@ from pawnlib.config.globalconfig import pawnlib_config as pawn
 import socket
 import time
 from pawnlib.utils import http
+from pawnlib.typing import is_valid_ipv4
+
 
 try:
     from typing import Literal
@@ -63,8 +65,19 @@ def get_public_ip():
 
 
     """
+    try:
+        public_ip = http.jequest("http://checkip.amazonaws.com").get('text', "").strip()
+        if is_valid_ipv4(public_ip):
+            return public_ip
+        else:
+            pawn.error_logger.error(f"An error occurred while fetching Public IP address. Invalid IPv4 address - '{public_ip}'")
+            pawn.console.debug(f"An error occurred while fetching Public IP address. Invalid IPv4 address - '{public_ip}'")
 
-    return http.jequest("http://checkip.amazonaws.com").get('text', "").strip()
+    except Exception as e:
+        pawn.error_logger.error(f"An error occurred while fetching Public IP address - {e}")
+        pawn.console.debug(f"An error occurred while fetching Public IP address - {e}")
+
+    return ""
 
 
 def get_local_ip():
@@ -90,7 +103,13 @@ def get_local_ip():
         ipaddr = '127.0.0.1'
     finally:
         s.close()
-    return ipaddr
+
+    if is_valid_ipv4(ipaddr):
+        return ipaddr
+    else:
+        pawn.error_logger.error("An error occurred while fetching Local IP address. Invalid IPv4 address")
+        pawn.console.debug("An error occurred while fetching Local IP address. Invalid IPv4 address")
+    return ""
 
 
 def get_hostname():

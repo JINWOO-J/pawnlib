@@ -41,6 +41,6 @@ for network_dict in network_info_args:
     pawn.console.log(f"{info.platform}, {info.network_name}, {info} , valid={info.valid_network}")
 
 
-for network_name in ["vega", "veganet"]:
+for network_name in ["vega", "veganet", "sdsd"]:
     network_info = NetworkInfo(network_name=network_name, platform="havah")
     pawn.console.log(f"{network_name} , {network_info}")
