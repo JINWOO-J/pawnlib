@@ -18,23 +18,24 @@ ENV IS_DOCKER=true \
     NAME=${NAME} \
     VERSION=${VERSION} \
     REMOVE_BUILD_PACKAGE=${REMOVE_BUILD_PACKAGE:-"true"} \
-    LIB_PACKAGE="libcurl4-openssl-dev jq telnet pkg-config" \
+    LIB_PACKAGE="libcurl4-openssl-dev jq telnet" \
     BUILD_PACKAGE=""
 #    PYCURL_SSL_LIBRARY=openssl \
 
 COPY . /pawnlib/
 WORKDIR /pawnlib
 
-RUN apt update && apt install -y ${BUILD_PACKAGE} ${LIB_PACKAGE} && \
-    if [ $(arch) == 'aarch64' ]; then apt install -y gcc make pkg-config; fi && \
+RUN ARCH="$(dpkg --print-architecture)" ; \
+    apt update && apt install -y ${BUILD_PACKAGE} ${LIB_PACKAGE} && \
+    if [ "${ARCH}" = 'aarch64' ]; then apt install -y gcc make pkg-config; fi && \
+    if [ "${ARCH}" = 'arm64' ]; then apt install -y gcc make pkg-config; fi && \
     python3 setup.py bdist_wheel && \
     pip3 install dist/pawnlib-*.whl --force-reinstall && \
+    pip3 install --no-cache-dir eth_keyfile secp256k1 && \
     if [ "$REMOVE_BUILD_PACKAGE" = "true" ]; then \
         echo "REMOVE_BUILD_PACKAGE" ; \
         apt-get purge -y --auto-remove ${BUILD_PACKAGE} && \
         rm -rf /var/lib/apt/lists/* ; \
     fi;
-
-RUN pip install --no-cache-dir eth_keyfile secp256k1
 
 RUN echo 'export PS1=" \[\e[00;32m\]${NAME}: ${VERSION}\[\e[0m\]\[\e[00;37m\]@\[\e[0m\]\[\e[00;31m\]\H:\\$\[\e[0m\] "' >> /root/.bashrc
