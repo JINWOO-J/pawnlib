@@ -12,7 +12,6 @@ from pawnlib.output import get_script_path
 import os
 
 
-
 def get_parser():
     parser = argparse.ArgumentParser(description='httping')
     parser = get_arguments(parser)
@@ -28,7 +27,7 @@ def get_arguments(parser):
     parser.add_argument('-i', '--interval', type=float, help='interval sleep time seconds. (default: %(default)s)', default=1)
     parser.add_argument('-m', '--method', type=lambda s : s.upper(), help='method. (default: %(default)s)', default="get")
     parser.add_argument('-t', '--timeout', type=float, help='timeout seconds (default: %(default)s)', default=10)
-    parser.add_argument('-b', '--base-dir', type=str, help=f'base dir for httping (default: %(default)s)', default=os.getcwd())
+    parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
     parser.add_argument('--success', nargs='+', help='success criteria. (default: %(default)s)', default=['status_code==200'])
     parser.add_argument('--logical-operator',
                         type=str,
@@ -44,7 +43,6 @@ def get_arguments(parser):
     parser.add_argument('--dynamic-increase-stack-limit', type=str2bool, help="error stack limit (default: %(default)s)", default=1)
     parser.add_argument('--slack-url', type=str, help="Slack URL", default="")
     return parser
-
 
 
 def check_url_process(args):
@@ -115,7 +113,7 @@ def handle_failure_on_check_url(args, message, check_url):
     pawn.error_logger.error(f"[FAIL] {message}, Error={check_url.response}")
 
 
-def set_default_counter(section_name = "default"):
+def set_default_counter(section_name="default"):
     args = copy.deepcopy(pconf().args)
     args.section_name = section_name
     args.response_time = StackList()
@@ -123,6 +121,7 @@ def set_default_counter(section_name = "default"):
     args.total_count = 0
     args.fail_count = 0
     return args
+
 
 def generate_task_from_config():
     tasks = []
@@ -176,6 +175,7 @@ def _send_slack(url, msg_text, title=None, send_user_name=None, msg_level='info'
             msg_level=msg_level
         )
 
+
 def print_banner():
     banner = generate_banner(
         app_name=pconf().app_name,
@@ -187,6 +187,7 @@ def print_banner():
         version=_version
     )
     print(banner)
+
 
 def validate_task_exit_on_failure(tasks):
     if not tasks:
