@@ -22,12 +22,8 @@ ENV IS_DOCKER=true \
     BUILD_PACKAGE=""
 #    PYCURL_SSL_LIBRARY=openssl \
 
-
-
-
 COPY . /pawnlib/
 WORKDIR /pawnlib
-
 
 RUN apt update && apt install -y ${BUILD_PACKAGE} ${LIB_PACKAGE} && \
 #    pip install --no-cache-dir -r /pawnlib/requirements.txt && \
@@ -40,10 +36,6 @@ RUN apt update && apt install -y ${BUILD_PACKAGE} ${LIB_PACKAGE} && \
         rm -rf /var/lib/apt/lists/* ; \
     fi;
 
-#RUN pip install --no-cache-dir -r /pawnlib/requirements.txt
-#RUN pip install --no-cache-dir -r /pawnlib/requirements.dev.txt
-#
-#RUN python3 setup.py bdist_wheel
-#RUN pip install dist/pawnlib-*.whl --force-reinstall
+RUN pip install --no-cache-dir eth_keyfile secp256k1
 
 RUN echo 'export PS1=" \[\e[00;32m\]${NAME}: ${VERSION}\[\e[0m\]\[\e[00;37m\]@\[\e[0m\]\[\e[00;31m\]\H:\\$\[\e[0m\] "' >> /root/.bashrc

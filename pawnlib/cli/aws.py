@@ -3,7 +3,9 @@ import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawnlib_config as pawn
-from pawnlib.output import write_json
+from pawnlib.output import write_json, syntax_highlight, PrintRichTable
+from pawnlib.typing.converter import FlatDict, FlatterDict, flatten_dict
+
 from pawnlib.resource import server
 
 
@@ -37,10 +39,12 @@ def main():
     pawn.console.log(f"args = {args}")
 
     res = server.get_aws_metadata(meta_ip=args.meta_ip, timeout=args.timeout)
-    pawn.console.log(res)
+    print(syntax_highlight(res))
+    # PrintRichTable(title="AWS Metadata", data=flatten_dict(res))
 
     if args.write_filename:
-        write_json(filename=args.write_filename, data=res)
+        write_res = write_json(filename=args.write_filename, data=res)
+        pawn.console.log(write_res)
 
 
 if __name__ == '__main__':

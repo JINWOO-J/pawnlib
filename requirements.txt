@@ -8,10 +8,10 @@ parameterized>=0.8.1
 #pyaml==21.10.1
 #PyYAML>=6.0
 PyYAML>=5.3.1
-requests>=2.25.1
+requests~=2.29.0
 six>=1.15.0
 termcolor>=1.1.0
-urllib3>=1.26.10
+#urllib3>=1.26.10
 asyncio>=3.4.3
 aiometer>=0.3.0
 pyfiglet>=0.8.post1

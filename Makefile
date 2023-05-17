@@ -1,4 +1,3 @@
-
 NAME = pawnlib
 GIT_USER = JINWOO-J
 PRIMARY_BRANCH = master
@@ -91,12 +90,6 @@ make_build_args:
 
 test:   make_build_args print_version
 		python3 -m unittest tests/test_*.py
-		#python3 tests/test_*.py
-#		shellcheck -S error src/*.sh
-#		$(foreach TEST_FILE, $(TEST_FILES), \
-#			container-structure-test test --driver docker --image $(REPO_HUB)/$(NAME):$(TAGNAME) \
-#			--config $(TEST_FILE) || exit 1 ;\
-#		)
 
 clean:
 	rm -rf build dist *.egg-info
