@@ -26,9 +26,7 @@ COPY . /pawnlib/
 WORKDIR /pawnlib
 
 RUN apt update && apt install -y ${BUILD_PACKAGE} ${LIB_PACKAGE} && \
-#    pip install --no-cache-dir -r /pawnlib/requirements.txt && \
-#    pip install --no-cache-dir -r /pawnlib/requirements.dev.txt && \
-    if [ $(arch) == 'aarch64' -o $(arch) == 'arm64' ]; then apt install -y gcc make pkg-config; fi \
+    if [ $(arch) == 'aarch64' ]; then apt install -y gcc make pkg-config; fi && \
     python3 setup.py bdist_wheel && \
     pip3 install dist/pawnlib-*.whl --force-reinstall && \
     if [ "$REMOVE_BUILD_PACKAGE" = "true" ]; then \
