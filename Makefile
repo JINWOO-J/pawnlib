@@ -96,7 +96,8 @@ clean:
 
 
 build: make_build_args clean test
-		python3 setup.py bdist_wheel
+		#python3 setup.py bdist_wheel
+		hatchling build
 
 
 init:

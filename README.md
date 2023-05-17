@@ -4,12 +4,30 @@ pawnlib is a collection of libraries for IaC.
 
 utils, globals vars, logging, http, network, pretty printing, resource, converter ...
 
+
+[![Build Docker Images](https://github.com/JINWOO-J/pawnlib/actions/workflows/docker-push.yml/badge.svg)](https://github.com/JINWOO-J/pawnlib/actions/workflows/docker-push.yml)
+
+[![Docs](https://github.com/JINWOO-J/pawnlib/actions/workflows/docs-publish.yml/badge.svg)](https://github.com/JINWOO-J/pawnlib/actions/workflows/docs-publish.yml)
+
+[![pages-build-deployment](https://github.com/JINWOO-J/pawnlib/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/JINWOO-J/pawnlib/actions/workflows/pages/pages-build-deployment)
+
+[![PyPI version](https://badge.fury.io/py/pawnlib.svg)](https://badge.fury.io/py/pawnlib)
+
+
+
 ### Installing pawnlib
 
 pawnlib is available on PyPI:
 
 ```
 pip3 install pawnlib
+
+```
+
+pawnlib with wallet is available on PyPI:
+
+```
+pip3 install pawnlib[wallet]
 
 ```
 

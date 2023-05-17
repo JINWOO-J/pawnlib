@@ -1,0 +1,83 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pawnlib"
+description = "pawnlib is a collection of libraries for IaC."
+license = "MIT"
+requires-python = ">=3.7"
+authors = [
+    { name = "Jinwoo", email = "jinwoo@parametacorp.com" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Plugins",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Internet :: WWW/HTTP",
+]
+dependencies = [
+    "asttokens>=2.0.5",
+    "certifi>=2020.12.15",
+    "charset-normalizer>=2.1.0",
+    "devtools>=0.8.0",
+    "executing>=0.8.3",
+    "idna>=2.5",
+    "parameterized>=0.8.1",
+    "PyYAML>=5.3.1",
+    "requests~=2.29.0",
+    "six>=1.15.0",
+    "termcolor>=1.1.0",
+    "asyncio>=3.4.3",
+    "aiometer>=0.3.0",
+    "pyfiglet>=0.8.post1",
+    "deprecated~=1.2.13",
+    "argparse>=1.4.0",
+    "Jinja2>=3.0.3",
+    "rich>=12.0.1",
+    "Pygments>=2.14.0",
+    "inquirerpy==0.3.4",
+]
+dynamic = ["readme", "version"]
+
+[project.optional-dependencies]
+brotli = [
+    "brotli; platform_python_implementation == 'CPython'",
+    "brotlicffi; platform_python_implementation != 'CPython'",
+]
+wallet = [
+    "eth_keyfile>=0.6.1",
+    "secp256k1==0.14.0",
+    "rich>=10,<14",
+]
+
+[project.scripts]
+pawns = "pawnlib.cli.main_cli:main"
+
+[project.urls]
+Changelog = "https://github.com/jinwoo-j/pawnlib"
+Documentation = "https://github.com/jinwoo-j/pawnlib"
+Homepage = "https://github.com/jinwoo-j/pawnlib"
+Source = "https://github.com/jinwoo-j/pawnlib"
+
+[tool.hatch.version]
+path = "pawnlib/__version__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/pawnlib",
+    "/README.md",
+]
+
+[tool.coverage.run]
+omit = ["venv/*", "httpx/_compat.py"]
+include = ["pawnlib/*", "tests/*"]
