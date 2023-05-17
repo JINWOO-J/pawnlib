@@ -18,7 +18,7 @@ ENV IS_DOCKER=true \
     NAME=${NAME} \
     VERSION=${VERSION} \
     REMOVE_BUILD_PACKAGE=${REMOVE_BUILD_PACKAGE:-"true"} \
-    LIB_PACKAGE="libcurl4-openssl-dev jq telnet" \
+    LIB_PACKAGE="libcurl4-openssl-dev jq telnet pkg-config" \
     BUILD_PACKAGE=""
 #    PYCURL_SSL_LIBRARY=openssl \
 
