@@ -234,7 +234,7 @@ def generate_wallet(file_path=None, password=None, overwrite=False, private_key=
     return singer
 
 
-def _parse_keystore_key(file=None, password=None, private_key_hex=None):
+def _parse_keystore_key(file=None, password=None, private_key_hex=None, use_namespace=False):
     if private_key_hex:
         if private_key_hex.startswith("0x"):
             private_key_hex = private_key_hex[2:]
@@ -262,6 +262,8 @@ def _parse_keystore_key(file=None, password=None, private_key_hex=None):
         "public_key_long": public_key_long.hex()
     }
     pawn.console.debug(wallet_dict)
+    if use_namespace:
+        return NestedNamespace(**wallet_dict)
     return wallet_dict
 
 
@@ -279,7 +281,7 @@ def exit_on_failure(raise_on_failure, exception):
         pawn.console.log(f"[red][ERROR][/red] {exception}")
 
 
-def load_wallet_key(file_or_object=None, password=None, raise_on_failure=True):
+def load_wallet_key(file_or_object=None, password=None, raise_on_failure=True, use_namespace=False):
     if isinstance(password, dict) or isinstance(password, list) or isinstance(password, tuple):
         raise ValueError(f"Wrong password type => {password} ({type(password)})")
     pawn.console.log(f"[red]Load wallet ")
@@ -319,7 +321,7 @@ def load_wallet_key(file_or_object=None, password=None, raise_on_failure=True):
 
     if _keystore_params:
         try:
-            return _parse_keystore_key(**_keystore_params)
+            return _parse_keystore_key(use_namespace=use_namespace, **_keystore_params)
         except Exception as e:
             exit_on_failure(raise_on_failure=raise_on_failure, exception=e)
 

@@ -13,6 +13,8 @@ except ImportError:
 from pawnlib.utils.operate_handler import run_with_keyboard_interrupt
 from pawnlib.input import PromptWithArgument
 
+__description__ = "This command can read and write to the wallet."
+
 if not icx_signer_loaded:
     pawn.console.log("[red]Required packages - secp256k1, eth_keyfile ")
 

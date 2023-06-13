@@ -39,4 +39,3 @@ print(wallet)
 #
 # icon_rpc.sign_tx(wallet=wallet)
 print(f"LAST = {getattr(sys, 'tracebacklimit', 1000)}")
-t/sd

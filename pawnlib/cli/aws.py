@@ -8,6 +8,8 @@ from pawnlib.typing.converter import FlatDict, FlatterDict, flatten_dict
 
 from pawnlib.resource import server
 
+__description__ = 'Get meta information from AWS EC2.'
+
 
 def get_parser():
     parser = argparse.ArgumentParser(description='AWS')

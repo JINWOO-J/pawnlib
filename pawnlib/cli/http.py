@@ -11,6 +11,8 @@ from pawnlib.utils import ThreadPoolRunner, send_slack
 from pawnlib.output import get_script_path
 import os
 
+__description__ = 'This is a tool to measure RTT on HTTP/S requests.'
+
 
 def get_parser():
     parser = argparse.ArgumentParser(description='httping')
@@ -19,8 +21,9 @@ def get_parser():
 
 
 def get_arguments(parser):
-    # parser.add_argument('url', help='url', type=str, nargs='?',default="")
-    parser.add_argument('-u', '--url',  type=str, default="", help="url")
+    parser.add_argument('url', help='url', type=str, nargs='?', default="")
+    # parser.add_argument('-u', '--url',  type=str, default="", help="url")
+    # parser.add_argument('url', help='url')
     parser.add_argument('-c', '--command', type=str, help='command', default=None, choices=["start", "stop", "restart", None])
     parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level (default: %(default)s)', default=0)
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
@@ -180,7 +183,7 @@ def print_banner():
     banner = generate_banner(
         app_name=pconf().app_name,
         author="jinwoo",
-        description=f"This is a tool to measure RTT on HTTP/S requests \n"
+        description=f"{__description__} \n"
                     f" - base_dir    : {pconf().args.base_dir} \n" 
                     f" - logs_dir    : {pconf().args.base_dir}/logs \n",
         font="graffiti",
@@ -198,7 +201,7 @@ def validate_task_exit_on_failure(tasks):
             is_least_one_url = True
 
     if not is_least_one_url:
-        sys_exit("Requires at least one valid URL.")
+        sys_exit("Requires at least one valid URL. The URL argument must be in the first position.")
 
 
 def main():

@@ -89,36 +89,68 @@ class Counter:
     def __init__(self,
                  start: Union[float, int] = 1,
                  stop: Union[float, int] = 10,
-                 count: Union[float, int] = 1,
-                 convert_func: Union[Type[str], Type[int], Type[float]] = int):
+                 step: Union[float, int] = 1,
+                 convert_func: Callable = int,
+                 kwargs: Dict = None):
         """
         Count up
 
-        :param start:
-        :param stop:
-        :param count:
-        :param convert_func:
+        :param start: Start Number ( float or int )
+        :param stop: Stop Number ( float or int )
+        :param step: Step Number ( float or int )
+        :param convert_func: Functions to execute on increment
+        :param kwargs: Arguments to the function to be executed on increment
+
+        Example:
+
+            .. code-block:: python
+
+                from pawnlib.utils.generator import Counter, generate_hex
+
+                for i in Counter(start=0, step=1, stop=4):
+                    pawn.console.log(f"Counter => {i}")
+
+                # Counter => 0
+                # Counter => 1
+                # Counter => 2
+                # Counter => 3
+
+                for i in Counter(start=0, step=1, stop=10, convert_func=generate_hex, kwargs={"zfill": 10}):
+                    pawn.console.log(f"Hex Counter => {i}")
+
+                # Hex Counter => 0000000000
+                # Hex Counter => 0000000001
+                # Hex Counter => 0000000002
+                # Hex Counter => 0000000003
+
         """
+        if kwargs is None:
+            kwargs = {}
+
         self.start = start
         self.stop = stop
-        self.count = count
+        self.step = step
         self.convert_func = convert_func
+        self.kwargs = kwargs
 
     def __iter__(self):
         return self
 
     def __str__(self):
-        element_count = math.ceil((self.stop - self.start) / self.count)
-        return f"<Counter> start={self.start}, stop={self.stop}, " \
-               f"count={self.count}, " \
-               f"element_count={element_count}, convert_func={self.convert_func}"
+        element_count = math.ceil((self.stop - self.start) / self.step)
+        if getattr(self.convert_func, '__name__', None):
+            function_name = f"{self.convert_func.__name__}()"
+        else:
+            function_name = self.convert_func
+        return f"<Counter> start={self.start}, step={self.step}, stop={self.stop}, " \
+               f"element_count={element_count}, convert_func={function_name}"
 
     def __next__(self):
         if self.start < self.stop:
             r = self.start
-            self.start += self.count
-            if isinstance(self.convert_func, type):
-                return self.convert_func(r)
+            self.start += self.step
+            if isinstance(self.convert_func, Callable):
+                return self.convert_func(r, **self.kwargs)
             return r
         else:
             raise StopIteration
@@ -139,7 +171,6 @@ class GenMultiMetrics:
         self.update_type = UpdateType(structure_types=self.structure_types)
         self.ignore_fields = ignore_fields
         self.return_value = {}
-
 
     def _set_default_metric(self):
         default_metric = {
@@ -270,7 +301,6 @@ class Sentinel:
         return f"<{sys.intern(str(self.name)).rsplit('.', 1)[-1]}>"
 
 
-
 def compose(*fs: Callable[..., Any]) -> Callable[..., Any]:
     def compose2(f: Callable[..., Any], g: Callable[..., Any]) -> Callable[..., Any]:
         return lambda *a, **kw: f(g(*a, **kw))
@@ -389,10 +419,18 @@ def increase_hex(c=itertools.count(), prefix="", zfill=0, remove_prefix=True):
 
 
     """
+    return generate_hex(next(c), prefix, zfill, remove_prefix)
+
+
+def generate_hex(number=0, prefix="", zfill=0, remove_prefix=True):
     if remove_prefix:
-        return f"{prefix}{hex(next(c)).removeprefix('0x').zfill(zfill)}"
+        return f"{prefix}{hex(number).removeprefix('0x').zfill(zfill)}"
     else:
-        return f"{prefix}{hex(next(c)).zfill(zfill)}"
+        return f"{prefix}{hex(number).zfill(zfill)}"
+
+
+def generate_token_address(number=0, prefix="hx", zfill=40, remove_prefix=True):
+    return generate_hex(number, prefix=prefix, zfill=zfill, remove_prefix=remove_prefix)
 
 
 def increase_token_address(c=itertools.count(), prefix="hx", zfill=40, remove_prefix=True):

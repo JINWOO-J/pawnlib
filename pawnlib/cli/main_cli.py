@@ -1,5 +1,5 @@
 from pawnlib.config import pawnlib_config as pawn
-from pawnlib.output import get_real_path
+from pawnlib.output import get_real_path, classdump
 import argparse
 
 from glob import glob
@@ -95,17 +95,32 @@ def parse_args(parser, commands):
     return args, command
 
 
+def get_sys_argv():
+    if len(sys.argv) > 2:
+        return sys.argv[1]
+    return ""
+
+
+def load_cli_module(commands=None, module_name=""):
+    pawn.console.debug(f"add parser => {module_name}")
+    module = importlib.import_module(f"pawnlib.cli.{module_name}")
+    description = getattr(module, "__description__", f"{module_name} module")
+    _parser = commands.add_parser(module_name, help=f'{description}')
+    module.get_arguments(_parser)
+
+
 def get_args():
     parser = argparse.ArgumentParser(
         usage=generate_banner(app_name="PAWNS", version=_version, author="jinwoo", font="graffiti"),
         formatter_class=argparse.RawTextHelpFormatter
     )
-
     commands = parser.add_subparsers(title='sub-module')
-    for module_name in get_submodule_names():
-        _parser = commands.add_parser(module_name, help=f'{module_name} module')
-        module = importlib.import_module(f"pawnlib.cli.{module_name}")
-        module.get_arguments(_parser)
+    pawn.console.debug(f"sys_argv={get_sys_argv()}, modules={get_submodule_names()}")
+    if get_sys_argv():
+        load_cli_module(commands, get_sys_argv())
+    else:
+        for module_name in get_submodule_names():
+            load_cli_module(commands, module_name)
 
     args, command = parse_args(parser, commands)
     return args, command, parser
@@ -127,6 +142,7 @@ def cleanup_args():
             pawn.console.debug(f"Remove argument -> {sys.argv[1]}")
             del sys.argv[1]
 
+
 def main():
     pawn.console.debug("Starting main_cli wrapper")
     args, command, parser = None, None, None
@@ -135,7 +151,7 @@ def main():
         cleanup_args()
     except Exception as e:
         pawn.console.log(f"[red]Exception while parsing an argument = {e}")
-    pawn.console.debug(f"{args}, {command}, {parser}")
+    pawn.console.debug(f"args={args}, command={command}, parser={parser}")
 
     if command:
         pawn.console.debug(f"command = {command}, PAWN_DEBUG={pawn.get('PAWN_DEBUG')}")

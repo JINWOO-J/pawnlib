@@ -6,6 +6,7 @@ import json
 import getpass
 import traceback
 import inspect
+import executing
 from contextlib import contextmanager, AbstractContextManager
 
 from pawnlib.typing import converter, date_utils, list_to_oneline_string, const, is_include_list
@@ -992,8 +993,8 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
     # 'abap', 'solarized-dark', 'solarized-light', 'sas', 'stata', 'stata-light',
     # 'stata-dark', 'inkpot', 'zenburn']
     if name == "json" and isinstance(data, (dict, list)):
-        data = dict_clean(data)
-        code_data = json_compact_dumps(dict(data), indent=indent, monkey_patch=oneline_list)
+        data = data_clean(data)
+        code_data = json_compact_dumps(data, indent=indent, monkey_patch=oneline_list)
     elif data:
         code_data = data
     else:
@@ -1016,6 +1017,28 @@ def print_here():
     # loc_str = '%s:%d' % (filename, line_number)
     location_str = f"{filename}:{line_number}"
     print(location_str)
+
+
+def print_frames(frame_list):
+    module_frame_index = [i for i, f in enumerate(frame_list) if f.function == '<module>'][0]
+    for i in range(module_frame_index):
+        d = frame_list[i][0].f_locals
+        local_vars = {x: d[x] for x in d}
+        print("  [Frame {} '{}': {}]".format(module_frame_index - i, frame_list[i].function, local_vars))
+    print("  [Frame '<module>']\n")
+
+
+def get_debug_here_info():
+    previous_frame = inspect.currentframe().f_back.f_back
+    (filename, line_number, function_name, ln, index) = inspect.getframeinfo(previous_frame)
+
+    return {
+        "filename": filename,
+        "line_number": line_number,
+        "function_name": function_name,
+        "ln": ln,
+        "index": index
+    }
 
 
 def retrieve_name(var):
@@ -1047,6 +1070,31 @@ def dict_clean(data):
     return result
 
 
+def list_clean(data):
+    result = []
+    for value in data:
+        if value is None:
+            value = ''
+        result.append(value)
+    return result
+
+
+def data_clean(data):
+    if isinstance(data, dict):
+        return dict(dict_clean(data))
+    elif isinstance(data, list):
+        return list(list_clean(data))
+    return data
+
+
+def count_nested_dict_len(d):
+    length = len(d)
+    for key, value in d.items():
+        if isinstance(value, dict):
+            length += count_nested_dict_len(value)
+    return length
+
+
 def print_var(data=None, title='', **kwargs):
     if kwargs.get('line_indent', '__NOT_DEFINED__') == "__NOT_DEFINED__":
         kwargs['line_indent'] = '      '
@@ -1055,24 +1103,35 @@ def print_var(data=None, title='', **kwargs):
 
     var_name = ""
     try:
-        import executing
         call_frame = sys._getframe(1)
         source = executing.Source.for_frame(call_frame)
         ex = source.executing(call_frame)
         func_ast = ex.node
         for ast in func_ast.args:
-            var_name = ast.id
-    except:
+            if getattr(ast, 'id', ''):
+                var_name = ast.id
+    except Exception as e:
         var_name = ""
 
-    if not data:
-        data_length = 0
-    else:
-        data_length = len(data)
+    try:
+        if isinstance(data, dict):
+            data_length = f"nested_dict_len={count_nested_dict_len(data)}"
+        else:
+            data_length = f"len={len(data)}"
+    except Exception as e:
+        data_length = ""
 
-    pawn.console.log(f"🎁 [yellow bold]{title}[/yellow bold][blue bold]{var_name}[/blue bold] "
-                     f"\t[italic] ({type(data).__name__}), len={data_length}", _stack_offset=2)
-    print(syntax_highlight(data, **kwargs))
+    if title:
+        _title = f"[yellow bold]{title}[/yellow bold]"
+    else:
+        _title = ""
+
+    pawn.console.log(f"🎁 [[blue bold]{var_name}[/blue bold]] {_title}"
+                     f"\t[italic] ({type(data).__name__}), {data_length}", _stack_offset=2)
+    if isinstance(data, dict) or isinstance(data, list):
+        print(syntax_highlight(data, **kwargs))
+    else:
+        pawn.console.print(f"\t[white bold]{data}\n")
 
 
 @contextmanager

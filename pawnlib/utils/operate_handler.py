@@ -16,6 +16,7 @@ from pawnlib import typing
 from functools import wraps
 
 from pawnlib.config.globalconfig import pawnlib_config as pawn
+from pawnlib.typing.converter import shorten_text
 
 
 class ThreadPoolRunner:
@@ -605,7 +606,6 @@ class WaitStateLoop:
         error_text = ""
         count = 0
         start_time = time.time()
-
         if getattr(self.loop_function, "func"):
             func_name = self.loop_function.func.__name__
             spin_text = f"[{self.text}] Wait for {func_name}{self.loop_function.args}"
@@ -618,7 +618,8 @@ class WaitStateLoop:
                 # spinner.title(f"{error_text}[{count}]{spin_text}: result={result}, is_success={is_success}, {elapsed} {time.time()} < {start_time + self.timeout}")
                 if is_success is True:
                     return result
-                spinner.title(f"{error_text}[{count}]{spin_text}: result={result}, is_success={is_success}, {elapsed} secs passed")
+                spinner.title(f"{error_text}[{count}]{spin_text}: result={shorten_text(result, 30)}, is_success={is_success}, {elapsed} secs passed")
+                # spinner.title(f" {elapsed} secs passed")
                 time.sleep(self.delay)
 
                 try:
@@ -750,8 +751,10 @@ def run_with_keyboard_interrupt(command, *args, **kwargs):
     except KeyboardInterrupt:
         pawn.console.print(f"\n\n[red] ^C KeyboardInterrupt - {command.__name__}{str(args)[:-1]}{kwargs}) \n")
 
+
 def handle_keyboard_interrupt_signal():
     import signal
+
     def handle_ctrl_c(_signal, _frame):
         pawn.console.rule(f"[red] KeyboardInterrupt, Going down! Signal={_signal}")
         sys.exit(0)

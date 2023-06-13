@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import Optional
 import json
+import logging
 
 
 def singleton(class_):
@@ -33,7 +34,6 @@ class Configure:
         self.config.read(self.full_path)
         return self._converter(self.config._sections)
 
-import logging
 
 class Config:
     CONFIG_DEFAULT_FILE = 'configure.json'

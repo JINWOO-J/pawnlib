@@ -24,7 +24,6 @@ pawn.console.log(f"step_price={hex_to_number(step_price, debug=True)}")
 # pawn.console.log(f"get_step_cost={icon_rpc.get_step_costs()}")
 pawn.console.log(convert_dict_hex_to_int(icon_rpc._get_step_costs(), debug=True))
 
-
 estimate_payload = json_rpc(
     method="icx_sendTransaction",
     params={
@@ -38,14 +37,22 @@ estimate_payload = json_rpc(
             "2": "sdsd",
             "3": "sdsd",
             "4": "sdsd",
+            "5": "sdsd",
+            "6": "sdsd",
+            "7": "sdsd",
+            "8": "sdsd",
+            "9": "sdsd",
+            "10": "sdsd",
         }
     }
 )
 estimate = icon_rpc.get_estimate_step(tx=estimate_payload)
 step_cost = hex_to_number(icon_rpc.get_step_cost())
 
-icx_fee = hex_to_number(estimate) * hex_to_number(step_price) / const.TINT
 step_limit = hex(hex_to_number(estimate) + hex_to_number(step_cost))
+# icx_fee = hex_to_number(estimate) * hex_to_number(step_price) / const.TINT
+icx_fee = hex_to_number(step_limit) * hex_to_number(step_price) / const.TINT
+
 
 pawn.console.log(f"icx_fee => estimate[i]({hex_to_number(estimate, debug=True)})[/i] * "
                  f"step_price[i]({hex_to_number(step_price, debug=True)})[/i] = {icx_fee}")

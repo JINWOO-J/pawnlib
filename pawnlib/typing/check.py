@@ -302,7 +302,7 @@ def sys_exit(message="", return_code=-1):
 
     """
     if message:
-        pawn.console.log(f"[red]\[Exit {return_code}] {message}")
+        pawn.console.log(f"[red]\[Exit {return_code}] {message}", _stack_offset=2)
     sys.exit(return_code)
 
 

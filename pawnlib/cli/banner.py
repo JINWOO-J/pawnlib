@@ -7,6 +7,9 @@ from pawnlib.output import write_json
 from pawnlib.resource import server
 import pyfiglet
 
+__description__ = 'Command to test the banner.'
+
+
 def get_parser():
     parser = argparse.ArgumentParser(description='BANNER')
     parser = get_arguments(parser)

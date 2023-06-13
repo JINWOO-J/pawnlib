@@ -1,6 +1,7 @@
 import logging
 import os
 import configparser
+import sys
 from uuid import uuid4
 from pathlib import Path
 from typing import Optional, Callable
@@ -40,9 +41,6 @@ class NestedNamespace(SimpleNamespace):
 
     def _values(self) -> list:
         return list(self.__dict__.values())
-
-    # def as_dict(self) -> dict:
-    #     return self.__dict__
 
     def as_dict(self) -> dict:
         return self._namespace_to_dict(self.__dict__)
@@ -366,6 +364,11 @@ class PawnlibConfig(metaclass=Singleton):
             return _dir.replace("/config", "")
         return _dir
 
+    @staticmethod
+    def get_python_version():
+        major, minor, micro = sys.version_info[:3]
+        return f"Python {major}.{minor}.{micro}"
+
     def init_with_env(self, **kwargs):
         """
         Initialize with environmental variables.
@@ -377,15 +380,9 @@ class PawnlibConfig(metaclass=Singleton):
         self.set(**kwargs)
         # self._load_config_file()
         self._loaded['on_ready'] = True
-        self.console.debug(f"{__title__}/{__version__}, PATH={self.pawnlib_path()}")
+        self.console.debug(f"🐍 {self.get_python_version()}, ♙ {__title__.title()}/{__version__}, PATH={self.pawnlib_path()}")
         self._load_config_file()
         return self
-
-    # def set_config_ini(self):
-    #     from configparser import ConfigParser
-    #     self.configure = ConfigParser()
-    #     self.configure.optionxform = str  # change to uppercase
-    #     self.configure.read(self.full_path)
 
     @staticmethod
     def str2bool(v):
@@ -517,14 +514,6 @@ class PawnlibConfig(metaclass=Singleton):
         """
         dictionary = dictionary or {}
         globals()[self.global_name] = {**dictionary, **kwargs}
-
-    # def __getitem__(self, key):
-    #     print(f"__getitem__" * 10)
-    #     # return getattr(self, key)
-    #     return globals()[self.global_name].get(key)
-    #
-    # def __setitem__(self, key, value):
-    #     return setattr(self, key, value)
 
     def get(self, key=None, default=None):
         """
