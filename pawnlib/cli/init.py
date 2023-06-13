@@ -6,9 +6,11 @@ import argparse
 from rich.console import Console
 from rich.syntax import Syntax
 
+__description__ = "Python app builder with a template."
+
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='pawns client for goloop')
+    parser = argparse.ArgumentParser(description=__description__)
     parser = get_arguments(parser)
     return parser
 

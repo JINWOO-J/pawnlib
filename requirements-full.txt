@@ -22,6 +22,7 @@ rich>=12.0.1
 #pycurl==7.45.1 --install-option="--with-openssl"
 Pygments>=2.14.0
 inquirerpy==0.3.4
-#eth_keyfile==0.6.1
-#secp256k1==0.14.0
+eth_keyfile>=0.6.1
+secp256k1==0.14.0
 httpx~=0.24.0
+websocket-client~=0.59.0

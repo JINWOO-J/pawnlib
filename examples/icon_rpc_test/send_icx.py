@@ -45,7 +45,7 @@ pawn.console.log(f"transaction = {json.dumps(transaction)}")
 # singer.sign(bytes.fromhex(private_key[2:]), )
 
 # res = requests.post(url="https://sejong.net.solidwallet.io/api/v3", json=transaction)
-res = requests.post(url="http://20.20.1.122/api/v3", json=transaction)
+res = requests.post(url="http://20.20.1.122:9000/api/v3", json=transaction)
 
 print(res.text)
 

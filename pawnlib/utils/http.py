@@ -1,19 +1,26 @@
 import re
 import json
 import sys
-from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose, pconf, SimpleNamespace
-from pawnlib.output import NoTraceBackException, dump, syntax_highlight, kvPrint, debug_logging, PrintRichTable
+import socket
+import ssl
+from functools import partial
+from datetime import datetime
+from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose, pconf, SimpleNamespace, Null
+from pawnlib.output import NoTraceBackException, dump, syntax_highlight, kvPrint, debug_logging, PrintRichTable, get_debug_here_info
 from pawnlib.resource import net
+from pawnlib.typing import date_utils
 from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const
 from pawnlib.typing.constants import const
-from pawnlib.typing.generator import json_rpc, random_token_address
-from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address
+from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
+from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, keys_exists
+from pawnlib.utils.operate_handler import WaitStateLoop
+from websocket import create_connection, WebSocket, enableTrace
 try:
     from pawnlib.utils import icx_signer
 except ImportError:
     pass
 
-from typing import Union
+from typing import Any, Dict, Iterator, Tuple, Union, Callable, Type
 
 try:
     from typing import Literal
@@ -161,6 +168,10 @@ class NetworkInfo:
                     "lisbon": {
                         "network_api": "https://lisbon.net.solidwallet.io",
                         "nid": "0x2"
+                    },
+                    "sejong": {
+                        "network_api": "https://sejong.net.solidwallet.io",
+                        "nid": "0x53"
                     },
                     "cdnet": {
                         "network_api": "http://20.20.1.122:9000",
@@ -420,10 +431,15 @@ class IconRpcHelper:
         self._can_be_signed = False
         self.on_error = False
         self.initialize()
+        self._use_global_reqeust_payload = False
 
     def initialize(self):
         # self._set_governance_address()
-        pass
+
+        if self.network_info:
+            pawn.console.debug(self.network_info)
+        else:
+            pawn.console.debug("Not found network_info")
 
     def _set_governance_address(self, method=None):
         if self.network_info and not self.governance_address:
@@ -629,11 +645,14 @@ class IconRpcHelper:
         else:
             _url = self.debug_url
 
-        if isinstance(tx, dict):
-            tx['method'] = "debug_estimateStep"
+        _tx = copy.deepcopy(tx)
+        _tx = self.auto_fill_parameter(_tx)
+
+        if isinstance(_tx, dict):
+            _tx['method'] = "debug_estimateStep"
             res = self.rpc_call(
                 url=_url,
-                payload=tx,
+                payload=_tx,
                 store_request_payload=False,
                 print_error=True
             )
@@ -644,7 +663,7 @@ class IconRpcHelper:
             return res.get('result')
 
         else:
-            raise ValueError(f"TX is not dict. tx => {tx}")
+            raise ValueError(f"TX is not dict. tx => {_tx}")
 
     def get_step_limit(self, url=None, tx=None, step_kind="apiCall"):
         if tx:
@@ -658,8 +677,11 @@ class IconRpcHelper:
                 del _tx['params'][key]
 
         estimate_step = self.get_estimate_step(tx=_tx)
-        step_cost = self.get_step_cost(step_kind)
+        _guess_step_kind = self._guess_step_kind(tx=_tx)
+        pawn.console.debug(f"guess step_kind = {_guess_step_kind}")
+        step_cost = self.get_step_cost(_guess_step_kind)
         step_price = self.get_step_price()
+
         if estimate_step and step_cost:
             step_limit = hex(hex_to_number(estimate_step) + hex_to_number(step_cost))
             icx_fee = hex_to_number(estimate_step) * hex_to_number(step_price) / const.TINT
@@ -670,6 +692,40 @@ class IconRpcHelper:
             return step_limit
         else:
             pawn.console.log("[red]An error occurred while running get_step_limit")
+
+    @staticmethod
+    def _guess_step_kind(tx=None):
+        step_kind_dict = {
+            "dataType": {
+                "deploy": "contractCreate",
+                "call": "apiCall"
+            }
+        }
+        _default_step_kind = "get"
+        if not isinstance(tx, dict):
+            return _default_step_kind
+
+        for payload_key, value in step_kind_dict.items():
+            if keys_exists(tx, "params", payload_key):
+                _data_type = tx['params'][payload_key]
+                return step_kind_dict[payload_key].get(_data_type, _default_step_kind)
+        return _default_step_kind
+
+    def get_fee(self, tx=None):
+        _tx = self.parse_tx_var(tx)
+        estimate_step = self.get_estimate_step(tx=_tx)
+        step_kind = self._guess_step_kind(tx)
+        pawn.console.debug(f"_guess_step_kind = {step_kind}")
+        step_cost = self.get_step_cost(step_kind)
+        step_price = self.get_step_price()
+        step_limit = hex(hex_to_number(estimate_step) + hex_to_number(step_cost))
+
+        icx_fee = hex_to_number(step_limit) * hex_to_number(step_price) / const.TINT
+        fee = hex_to_number(estimate_step) * hex_to_number(step_price) / const.TINT
+
+        pawn.console.log(f"[red] fee = (estimate_step + step_cost) * step_price = {icx_fee}")
+        pawn.console.log(f"[red] fee = ({estimate_step} + {step_cost}) * {step_price} = {icx_fee}")
+        return icx_fee
 
     def get_balance(self, url=None, address=None, is_comma=False):
         if not address and self.wallet:
@@ -766,26 +822,58 @@ class IconRpcHelper:
             pawn.console.log(response)
         return response
 
-    def auto_fill_parameter(self):
-        if isinstance(self.request_payload, dict) and self.request_payload.get('params'):
-            self.request_payload['params']['from'] = self.wallet.get('address')
-
-            if not self.request_payload['params'].get('nonce'):
-                self.request_payload['params']['nonce'] = "0x1"
-
-            if not self.request_payload['params'].get('version'):
-                self.request_payload['params']['version'] = "0x3"
-
-            if not self.request_payload['params'].get('timestamp'):
-                self.request_payload['params']['timestamp'] = hex(icx_signer.get_timestamp_us())
-
-            if self.network_info.nid and not self.request_payload['params'].get('nid'):
-                self.request_payload['params']['nid'] = self.network_info.nid
-
-            if not self.request_payload['params'].get('stepLimit'):
-                self.request_payload['params']['stepLimit'] = self.get_step_limit()
+    def parse_tx_var(self, tx=None):
+        if tx:
+            _tx = copy.deepcopy(tx)
+            self._use_global_reqeust_payload = False
         else:
-            pawn.console.log(f"[red]Invalid payload - {self.request_payload}")
+            _tx = self.request_payload
+            self._use_global_reqeust_payload = True
+            pawn.console.debug(f"[red]_use_global_reqeust_payload={self._use_global_reqeust_payload}")
+        return _tx
+
+    def _force_fill_from_address(self, tx=None):
+        _tx = self.parse_tx_var(tx)
+        if not isinstance(_tx, dict):
+            pawn.console.debug(f"tx is not dict, tx={tx}, _tx={_tx}, request_payload = {self.request_payload}")
+            exit()
+
+        if self.wallet and self.wallet.get('address'):
+            _tx['params']['from'] = self.wallet.get('address')
+        else:
+            self.exit_on_failure(exception="Not found 'from address'. Not defined wallet")
+        return _tx
+
+    def auto_fill_parameter(self, tx=None, is_force_from_addr=False):
+        _tx = self.parse_tx_var(tx)
+        if isinstance(_tx, dict) and _tx.get('params'):
+            if not _tx['params'].get('from') or is_force_from_addr:
+                self._force_fill_from_address()
+            if not _tx['params'].get('nonce'):
+                _tx['params']['nonce'] = "0x1"
+
+            if not _tx['params'].get('version'):
+                _tx['params']['version'] = "0x3"
+
+            if not _tx['params'].get('timestamp'):
+                _tx['params']['timestamp'] = hex(icx_signer.get_timestamp_us())
+
+            if not _tx['params'].get('nid') and self.network_info and self.network_info.nid:
+                _tx['params']['nid'] = self.network_info.nid
+        else:
+            self.exit_on_failure(f"Invalid payload => {_tx}")
+
+        if self._use_global_reqeust_payload:
+            self.request_payload = _tx
+        return _tx
+
+    def auto_fill_step_limit(self, tx=None):
+        _tx = self.parse_tx_var(tx)
+        if isinstance(_tx, dict) and _tx.get('params'):
+            if not _tx['params'].get('stepLimit'):
+                _tx['params']['stepLimit'] = self.get_step_limit()
+        else:
+            self.exit_on_failure(f"Invalid payload => {_tx}")
 
     def sign_tx(self, wallet=None, payload=None, is_balance=True):
         self.request_payload = {}
@@ -794,23 +882,22 @@ class IconRpcHelper:
             self.wallet = wallet
 
         self.request_payload = self._convert_valid_payload_format(payload=payload)
-        # if not isinstance(payload, dict):
-        #     try:
-        #         payload = json.loads(payload)
-        #     except Exception as e:
-        #         raise ValueError(f"Invalid payload - {e}, payload={payload}")
-
         private_key = self.wallet.get('private_key')
         address = self.wallet.get('address')
 
         if is_balance:
             _balance = self.get_balance()
-            pawn.console.log(f"<{address}>'s Balance = {_balance} {self.network_info.symbol}")
+            if self.network_info:
+                symbol = self.network_info.symbol
+            else:
+                symbol = ""
+            pawn.console.log(f"<{address}>'s Balance = {_balance} {symbol}")
 
             if not _balance or _balance == 0:
-                return self.exit_on_failure(f"Insufficient Balance = {_balance} {self.network_info.symbol}")
+                return self.exit_on_failure(f"Insufficient Balance = {_balance} {symbol}")
 
-        self.auto_fill_parameter()
+        self.auto_fill_parameter(is_force_from_addr=True)
+        self.auto_fill_step_limit()
 
         singer = icx_signer.IcxSigner(data=private_key)
         self.signed_tx = singer.sign_tx(self.request_payload)
@@ -825,13 +912,12 @@ class IconRpcHelper:
         if self.raise_on_failure:
             raise NoTraceBackException(exception)
         else:
-            pawn.console.log(f"[red][FAIL][/red] {exception}")
-            return
+            pawn.console.log(f"[red][FAIL][/red] Stopped {get_debug_here_info().get('function_name')}(), {exception}")
+        return exception
 
     def sign_send(self, is_wait=True):
         if self.signed_tx:
-            response = self.rpc_call(payload=self.signed_tx)
-
+            response = self.rpc_call(payload=self.signed_tx, print_error=True)
             if not is_wait:
                 return response
 
@@ -1279,6 +1365,314 @@ class CallHttp:
         elif self.success_operator == "or" and success_count > 0:
             return True
         return False
+
+
+class CheckSSL:
+
+    def __init__(self, host=None, timeout: float = 5.0, port: int = 443, raw_data=False):
+        self._host = host
+        self._timeout = timeout
+        self._port = port
+        self.ssl_info = None
+        self._now = datetime.now()
+        self._raw_data = raw_data
+        self.ssl_dateformat = r'%b %d %H:%M:%S %Y %Z'
+        self.get_ssl()
+        self.ssl_result = {}
+
+    def get_ssl(self):
+        context = ssl.create_default_context()
+        context.check_hostname = False
+
+        conn = context.wrap_socket(
+            socket.socket(socket.AF_INET),
+            server_hostname=self._host,
+        )
+        conn.settimeout(self._timeout)
+        conn.connect((self._host, self._port))
+        conn.do_handshake()
+        self.ssl_info = conn.getpeercert()
+        self._parse_ssl_info()
+        conn.close()
+        return self.ssl_info
+
+    def _parse_ssl_info(self):
+        expire_date = self.ssl_expiry_datetime()
+        diff = expire_date - datetime.now()
+        self._calculated_date = {
+            "expire_date": expire_date.strftime("%Y-%m-%d"),
+            "left_days": diff.days
+        }
+        self.ssl_info.update(self._calculated_date)
+        if not self._raw_data:
+            _tmp_ssl_info = {}
+            _to_dict_keys = ["subject", "issuer"]
+            _to_list_keys = ["subjectAltName"]
+
+            for key, value in self.ssl_info.items():
+                if key in _to_dict_keys:
+                    self.ssl_info[key] = self._tuple_to_dict(value)
+                elif key in _to_list_keys:
+                    print(f"key={key}, value={value}")
+                    self.ssl_info[key] = self._tuple_to_list(value)
+
+    @staticmethod
+    def _tuple_to_dict(_tuple=None):
+        _tmp_dict = {}
+        if isinstance(_tuple, tuple):
+            for _data in _tuple:
+                _tmp_dict.update(_data)
+        return _tmp_dict
+
+    @staticmethod
+    def _tuple_to_list(_tuple=None):
+        _tmp_dict = {}
+        if isinstance(_tuple, tuple):
+            for _data in _tuple:
+                _key = _data[0]
+                _domain = _data[1]
+                pawn.console.log(f"[red] _tuple_to_list ={_key}, {_domain}")
+                if not _tmp_dict.get(_key):
+                    _tmp_dict[_key] = []
+                _tmp_dict[_key].append(_domain)
+        return _tmp_dict
+
+    def ssl_expiry_datetime(self) -> datetime:
+        return datetime.strptime(self.ssl_info['notAfter'], self.ssl_dateformat)
+
+    def analyze_ssl(self):
+        api_url = 'https://api.ssllabs.com/api/v3/'
+        _do_function = partial(jequest, f"{api_url}/analyze?host={self._host}")
+        WaitStateLoop(
+            loop_function=_do_function,
+            exit_function=self._check_ssl_result,
+        ).run()
+
+    def _check_ssl_result(self, result):
+        if result.get('json') and result['json'].get('status') == "READY":
+            self.ssl_result = result['json']
+            pawn.console.log(self.ssl_result)
+            return True
+
+
+class CallWebsocket:
+
+    def __init__(
+            self,
+            connect_url,
+            verbose=0,
+            timeout=10,
+            send_callback: Callable[..., Any] = None,
+            recv_callback: Callable[..., Any] = None,
+            use_status_console: bool = False,
+    ):
+        self.connect_url = connect_url
+        self.verbose = verbose
+        self.timeout = timeout
+        self.send_callback = send_callback
+        self.recv_callback = recv_callback
+
+        self.ws_url = append_ws(connect_url)
+        self.http_url = append_http(connect_url)
+        self.status_console = Null()
+        self._use_status_console = use_status_console
+
+        self._ws = None
+
+        if self.verbose > 3:
+            enableTrace(True)
+
+    def connect_websocket(self, api_url=""):
+        self._ws = create_connection(f"{self.ws_url}/{api_url}", timeout=self.timeout, sslopt={"cert_reqs": ssl.CERT_NONE})
+        self._ws.settimeout(self.timeout)
+
+    def run(self, api_url="api/v3/icon_dex/block", status_console=False):
+        self.connect_websocket(api_url)
+        if self._use_status_console or status_console:
+            with pawn.console.status("Call WebSocket") as self.status_console:
+                self.send_recv_callback()
+        else:
+            self.send_recv_callback()
+
+    def send_recv_callback(self):
+        if callable(self.send_callback):
+            self._ws.send(self.send_callback())
+
+        while True:
+            response = self._ws.recv()
+            if callable(self.recv_callback):
+                self.recv_callback(response)
+
+
+class GoloopWebsocket(CallWebsocket):
+
+    def __init__(self,
+                 connect_url,
+                 verbose=0,
+                 timeout=10,
+                 blockheight=0,
+                 sec_thresholds=4,
+                 monitoring_target=None,
+                 ignore_ssl=True,
+                 ):
+
+        self.connect_url = connect_url
+        self.verbose = verbose
+        self.timeout = timeout
+        self.blockheight = blockheight
+        self.sec_thresholds = sec_thresholds
+        self.monitoring_target = monitoring_target
+        if self.monitoring_target is None:
+            self.monitoring_target = ["block"]
+
+        self.compare_diff_time = {}
+        self.delay_cnt = {}
+
+        self.block_timestamp_prev = 0
+        self.block_timestamp = None
+        self.tx_count = 0
+        self.tx_timestamp = 0
+        self.tx_timestamp_dt = None
+
+        self.blockheight_now = 0
+
+        if ignore_ssl:
+            disable_ssl_warnings()
+
+        if self.verbose > 0:
+            use_status_console = True
+        else:
+            use_status_console = False
+
+        super().__init__(
+            connect_url=self.connect_url,
+            verbose=self.verbose,
+            timeout=self.timeout,
+            send_callback=self.request_blockheight_callback,
+            recv_callback=self.parse_blockheight,
+            use_status_console=use_status_console
+        )
+
+    def request_blockheight_callback(self):
+        if self.blockheight == 0:
+            self.blockheight = self.get_last_blockheight()
+        pawn.console.log(f"Call request_blockheight_callback - blockheight: {self.blockheight:,}")
+        send_data = {
+            "height": hex(self.blockheight)
+        }
+        return json.dumps(send_data)
+
+    def parse_blockheight(self, response=None):
+        response_json = json.loads(response)
+        self.compare_diff_time = {}
+
+        if response_json and response_json.get('hash'):
+            hash_result = self.get_block_hash(response_json.get('hash'))
+            self.blockheight_now = hash_result.get("height")
+            pawn.set(LAST_EXECUTE_POINT=self.blockheight_now)
+            self.block_timestamp = hash_result.get("time_stamp")
+
+            _message = f"[bold][📦 {self.blockheight_now:,}][/bold] 📅 {date_utils.timestamp_to_string(self.block_timestamp)}, tx_hash: {hash_result.get('block_hash')}"
+            pawn.console.debug(_message)
+            self.status_console.update(_message)
+
+            if self.block_timestamp_prev != 0:
+                self.compare_diff_time['block'] = abs(self.block_timestamp_prev - self.block_timestamp)
+
+            tx_list = hash_result.get('confirmed_transaction_list')
+            self.tx_count = len(tx_list)
+
+            for tx in tx_list:
+                self.tx_timestamp = int(tx.get("timestamp", "0x0"), 0)  # 16진수, timestamp가 string이여야한다.
+                if self.tx_timestamp:
+                    self.compare_diff_time['tx'] = abs(self.block_timestamp - self.tx_timestamp)
+
+                for target in self.monitoring_target:
+                    diff_time = self.compare_diff_time.get(target, 0) / 1_000_000
+                    if diff_time != 0 and abs(diff_time) > self.sec_thresholds:
+                        pawn.console.log(f"[{target.upper():^5}] {self.output_format(key_string=target, diff_time=diff_time, is_string=True)}")
+                        if self.verbose > 2:
+                            dump(hash_result['confirmed_transaction_list'])
+            self.block_timestamp_prev = self.block_timestamp
+
+        else:
+            pawn.console.log(response_json)
+
+    def output_format(self, key_string="", diff_time=0, is_string=False):
+        self.delay_cnt[key_string] = self.delay_cnt.get(key_string, 0) + 1
+
+        blockheight_date = date_utils.timestamp_to_string(self.block_timestamp)
+        if key_string == "block":
+            diff_message = f"BH_time(now): {blockheight_date}, " \
+                           f"BH_time(prev): {date_utils.timestamp_to_string(self.block_timestamp_prev)}"
+        else:
+            diff_message = f"BH_time: {blockheight_date}, TX_time: {date_utils.timestamp_to_string(self.tx_timestamp)}"
+
+        result = (f"<{self.delay_cnt[key_string]}> [{key_string} Delay][{date_utils.second_to_dayhhmm(diff_time)}] ",
+                  f"BH: {self.blockheight_now}, "
+                  # f"diff: {date_utils.second_to_dayhhmm(diff_time)}, "
+                  f"TX_CNT:{self.tx_count}, {diff_message}")
+        if is_string:
+            return "".join(result)
+        return result
+
+    def get_last_blockheight(self):
+        res = jequest(method="post", url=f"{self.http_url}/api/v3", data=generate_json_rpc(method="icx_getLastBlock"))
+        pawn.console.log(res['json'].get('result'))
+        if res['json'].get('result'):
+            return res['json']['result'].get('height')
+
+    def get_block_hash(self, hash):
+        res = jequest(
+            method="post",
+            url=f"{self.http_url}/api/v3",
+            data=generate_json_rpc(method="icx_getBlockByHash", params={"hash": hash})
+        )
+        if res.get('json'):
+            return res['json'].get('result')
+        else:
+            pawn.console.log(f"[red] {res}")
+
+
+def gen_rpc_params(method=None, params=None):
+    default_rpc = {
+        "jsonrpc": "2.0",
+        "id": 1234,
+        "method": method,
+    }
+
+    if params:
+        default_rpc['params'] = params
+    return default_rpc
+
+
+def getBlockByHash(nodeHost, hash):
+    url = append_http(f"{nodeHost}/api/v3")
+    data = gen_rpc_params(method="icx_getBlockByHash", params={"hash": hash})
+    response = requests.post(url=url, data=json.dumps(data), timeout=10, verify=False)
+    return response.json()
+
+
+def getTransactionByHash(nodeHost, hash):
+    url = append_http(f"{nodeHost}/api/v3")
+    data = gen_rpc_params(method="icx_getTransactionByHash", params={"txHash": hash})
+    response = requests.post(url=url, data=json.dumps(data), timeout=10, verify=False)
+    return response.json()
+
+
+def getLastBlock(nodeHost):
+    url = append_http(f"{nodeHost}/api/v3")
+    data = gen_rpc_params(method="icx_getLastBlock")
+    response = requests.post(url=url, data=json.dumps(data), timeout=10, verify=False)
+
+    if response.status_code == 200:
+        json_res = response.json()
+        if json_res.get("result"):
+            return json_res["result"]["height"]
+    else:
+        print(response)
+        sys.exit()
+    return 0
 
 
 def jequest(url, method="get", payload={}, elapsed=False, print_error=False, timeout=None, ipaddr=None, **kwargs) -> dict:
