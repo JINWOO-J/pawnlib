@@ -9,10 +9,10 @@ from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose, 
 from pawnlib.output import NoTraceBackException, dump, syntax_highlight, kvPrint, debug_logging, PrintRichTable, get_debug_here_info
 from pawnlib.resource import net
 from pawnlib.typing import date_utils
-from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const
+from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const, shorten_text
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
-from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, keys_exists
+from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, keys_exists, sys_exit
 from pawnlib.utils.operate_handler import WaitStateLoop
 from websocket import create_connection, WebSocket, enableTrace
 try:
@@ -495,7 +495,8 @@ class IconRpcHelper:
                  payload: dict = {},
                  print_error=False,
                  raise_on_failure=False,
-                 store_request_payload=True
+                 store_request_payload=True,
+                 http_method: Literal["get", "post", "patch", "delete"] = 'post',
                  ) -> dict:
         if url:
             _url = url
@@ -520,7 +521,7 @@ class IconRpcHelper:
         # )
         self.response = CallHttp(
             url=_url,
-            method="post",
+            method=http_method,
             timeout=timeout,
             payload=_request_payload,
             raise_on_failure=_raise_on_failure,
@@ -711,7 +712,7 @@ class IconRpcHelper:
                 return step_kind_dict[payload_key].get(_data_type, _default_step_kind)
         return _default_step_kind
 
-    def get_fee(self, tx=None):
+    def get_fee(self, tx=None, symbol=False):
         _tx = self.parse_tx_var(tx)
         estimate_step = self.get_estimate_step(tx=_tx)
         step_kind = self._guess_step_kind(tx)
@@ -720,12 +721,14 @@ class IconRpcHelper:
         step_price = self.get_step_price()
         step_limit = hex(hex_to_number(estimate_step) + hex_to_number(step_cost))
 
-        icx_fee = hex_to_number(step_limit) * hex_to_number(step_price) / const.TINT
         fee = hex_to_number(estimate_step) * hex_to_number(step_price) / const.TINT
+        pawn.console.debug(f"[red] fee = (estimate_step + step_cost) * step_price = {fee}")
+        pawn.console.debug(f"[red] fee = ({estimate_step} + {step_cost}) * {step_price} = {fee}")
 
-        pawn.console.log(f"[red] fee = (estimate_step + step_cost) * step_price = {icx_fee}")
-        pawn.console.log(f"[red] fee = ({estimate_step} + {step_cost}) * {step_price} = {icx_fee}")
-        return icx_fee
+        if symbol:
+            fee = f"{fee} {self.network_info.symbol}"
+
+        return fee
 
     def get_balance(self, url=None, address=None, is_comma=False):
         if not address and self.wallet:
@@ -755,7 +758,7 @@ class IconRpcHelper:
             return response
         return response.get('text')
 
-    def get_tx_wait(self, url=None, tx_hash=None):
+    def get_tx_wait(self, url=None, tx_hash=None, is_compact=False):
         if not tx_hash and isinstance(self.response, dict):
             if keys_exists(self.response, 'json', 'result', 'txHash'):
                 tx_hash = self.response['json']['result']['txHash']
@@ -791,7 +794,7 @@ class IconRpcHelper:
                         _resp_status = "[OK]"
 
                     exit_loop = True
-                    text = f"{prefix_text}[red]{_resp_status}[red] {json.dumps(resp['result'])}"
+                    text = f"{prefix_text}[red]{_resp_status}[/red] {json.dumps(resp['result'])}"
                 else:
                     text = resp
                 status.update(
@@ -799,7 +802,11 @@ class IconRpcHelper:
                     spinner_style="yellow",
                 )
                 if exit_loop:
-                    pawn.console.log(f"[bold green][white] {text}")
+                    final_result = f"[bold green][white] {text}"
+                    if is_compact:
+                        final_result = shorten_text(final_result, width=150)
+
+                    pawn.console.log(final_result)
                     break
                 count += 1
                 time.sleep(1)
@@ -881,6 +888,9 @@ class IconRpcHelper:
         if wallet:
             self.wallet = wallet
 
+        if not self.wallet or not isinstance(self.wallet, dict):
+            self.exit_on_failure(f"[red] Not defined wallet => {self.wallet}")
+
         self.request_payload = self._convert_valid_payload_format(payload=payload)
         private_key = self.wallet.get('private_key')
         address = self.wallet.get('address')
@@ -895,7 +905,6 @@ class IconRpcHelper:
 
             if not _balance or _balance == 0:
                 return self.exit_on_failure(f"Insufficient Balance = {_balance} {symbol}")
-
         self.auto_fill_parameter(is_force_from_addr=True)
         self.auto_fill_step_limit()
 
@@ -915,15 +924,17 @@ class IconRpcHelper:
             pawn.console.log(f"[red][FAIL][/red] Stopped {get_debug_here_info().get('function_name')}(), {exception}")
         return exception
 
-    def sign_send(self, is_wait=True):
+    def sign_send(self, is_wait=True, is_compact=False):
         if self.signed_tx:
             response = self.rpc_call(payload=self.signed_tx, print_error=True)
             if not is_wait:
                 return response
 
             if isinstance(response, dict) and response.get('result'):
-                resp = self.get_tx_wait(tx_hash=response['result'])
+                resp = self.get_tx_wait(tx_hash=response['result'], is_compact=is_compact)
                 return resp
+        else:
+            self.exit_on_failure(f"Required signed transaction")
 
     @staticmethod
     def _check_tx_result(result):
