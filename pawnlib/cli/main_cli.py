@@ -9,6 +9,7 @@ import importlib
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.utils.operate_handler import run_with_keyboard_interrupt
+from pawnlib.typing.check import sys_exit
 
 
 def load_submodule_parsers(parent_module, parser, help=None):
@@ -102,7 +103,7 @@ def get_sys_argv():
 
 
 def load_cli_module(commands=None, module_name=""):
-    pawn.console.debug(f"add parser => {module_name}")
+    pawn.console.debug(f"Add parser => {module_name}")
     module = importlib.import_module(f"pawnlib.cli.{module_name}")
     description = getattr(module, "__description__", f"{module_name} module")
     _parser = commands.add_parser(module_name, help=f'{description}')
@@ -126,31 +127,24 @@ def get_args():
     return args, command, parser
 
 
-# def main():
-#     pawn.console.log(f"main_cli wrapper")
-#     args, command, parser = get_args()
-#     pawn.console.log(f"args = {args}, command = {command}")
-#     if command:
-#         run_with_keyboard_interrupt(run_module, command)
-#     else:
-#         parser.print_help()
-#         sys.exit(1)
-
 def cleanup_args():
-    if len(sys.argv) > 2:
-        if "-" not in sys.argv[2]:
-            pawn.console.debug(f"Remove argument -> {sys.argv[1]}")
-            del sys.argv[1]
+    if len(sys.argv) > 2 and "-" not in sys.argv[2]:
+        pawn.console.debug(f"Remove argument -> {sys.argv[1]}")
+        del sys.argv[1]
 
 
 def main():
     pawn.console.debug("Starting main_cli wrapper")
     args, command, parser = None, None, None
     try:
+        pawn.console.log(f"<before> {sys.argv}")
         args, command, parser = get_args()
+        pawn.console.log(f"<after> parser {args}, {command}, {parser}")
         cleanup_args()
+        pawn.console.log(f"<after> {sys.argv}")
     except Exception as e:
         pawn.console.log(f"[red]Exception while parsing an argument = {e}")
+        sys_exit("Stopped CLI")
     pawn.console.debug(f"args={args}, command={command}, parser={parser}")
 
     if command:

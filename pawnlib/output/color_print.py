@@ -509,7 +509,7 @@ def get_colorful_object(v):
     return value
 
 
-def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _is_list=False, _last_key=None):
+def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _is_list=False, _last_key=None, is_compact=False):
     """
     Print a variable for debugging.
 
@@ -520,6 +520,7 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
     :param debug:
     :param _is_list:
     :param _last_key:
+    :param is_compact:
     :return:
     """
     spacing = '   '
@@ -537,7 +538,7 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
         for k, v in obj.items():
             if hasattr(v, '__iter__'):
                 print(bcolors.OKGREEN + '%s%s: ' % (def_spacing + (nested_level + 1) * spacing, k) + bcolors.ENDC, end="")
-                dump(v, nested_level + 1, output, hex_to_int, debug, _last_key=k)
+                dump(v, nested_level + 1, output, hex_to_int, debug, _last_key=k, is_compact=is_compact)
             else:
                 if debug:
                     v = f"{get_colorful_object(v)} {bcolors.HEADER} {str(type(v)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(v))}{bcolors.ENDC}"
@@ -545,12 +546,24 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
                       file=output)
         print('%s}' % (def_spacing + nested_level * spacing), file=output)
     elif type(obj) == list:
-        print('%s[' % (def_spacing + (nested_level) * spacing), file=output)
+        if is_compact:
+            end = ' '
+        else:
+            end = '\n'
+
+        print('%s[' % (def_spacing + (nested_level) * spacing), file=output, end=end)
         for v in obj:
             if hasattr(v, '__iter__'):
-                dump(v, nested_level + 1, output, hex_to_int, debug, _is_list=True)
+                dump(v, nested_level + 1, output, hex_to_int, debug, _is_list=True, is_compact=is_compact)
             else:
-                print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, get_colorful_object(v)) + bcolors.ENDC, file=output)
+                if is_compact:
+                    spacing = ""
+                    def_spacing = ''
+                    end = ', '
+                else:
+                    end = '\n'
+                # print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, get_colorful_object(v)) + bcolors.ENDC, file=output)
+                print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, get_colorful_object(v)) + bcolors.ENDC, file=output, end=end)
         print('%s]' % (def_spacing + (nested_level) * spacing), file=output)
     else:
         if debug:
