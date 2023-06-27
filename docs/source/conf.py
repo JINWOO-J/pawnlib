@@ -54,6 +54,8 @@ extensions = [
 
 default_role = "py:obj"
 
+html_title = 'Pawnlib v%s' % release
+
 # Order of docs.
 autodoc_member_order = "bysource"
 

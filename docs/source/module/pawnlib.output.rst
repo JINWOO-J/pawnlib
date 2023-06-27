@@ -31,11 +31,3 @@ pawnlib.output.file module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pawnlib.output
-   :members:
-   :undoc-members:
-   :show-inheritance:

@@ -31,11 +31,3 @@ pawnlib.resource.server module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pawnlib.resource
-   :members:
-   :undoc-members:
-   :show-inheritance:

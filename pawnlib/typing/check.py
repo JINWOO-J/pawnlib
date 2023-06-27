@@ -94,7 +94,6 @@ def is_regex_keyword(keyword: str, value: str) -> bool:
             return True
 
 
-
 def is_regex_keywords(keywords, value)-> bool:
     """
     Check the value of the keyword regular expression.
@@ -195,6 +194,13 @@ def is_valid_url(url):
 
 
 def is_valid_private_key(text=None):
+    """
+    Validates the Private Key
+
+    :param text: private key text
+    :return:
+
+    """
     private_length = 64
     if text and is_hex(text):
         if text.startswith("0x"):
@@ -205,6 +211,13 @@ def is_valid_private_key(text=None):
 
 
 def is_valid_token_address(text=None, prefix="hx"):
+    """
+    Validates the token address
+    :param text:
+    :param prefix:
+    :return:
+
+    """
     if text and prefix \
             and len(text) == 42 \
             and text.startswith(prefix)\
@@ -214,6 +227,12 @@ def is_valid_token_address(text=None, prefix="hx"):
 
 
 def list_depth(l):
+    """
+    returns depth count of list
+
+    :param l: list
+    :return:
+    """
     if isinstance(l, list):
         return 1 + max(list_depth(item) for item in l)
     else:
@@ -279,6 +298,14 @@ def _str2bool(v) -> bool:
 
 
 def return_guess_type(value):
+    """
+
+    This function returns the result of :func:`guess_type` and :func:`_strbool`
+
+    :param value:
+    :return:
+
+    """
     guessed_type = guess_type(value)
 
     if guessed_type is None or guessed_type == "":
@@ -330,11 +357,11 @@ def keys_exists(element, *keys):
     Check if **keys** (nested) exists in `element` (dict).
     You don't have to implement it like this.
 
-    [X] if response.get('json') and response['json'].get('result') and response['json']['result'].get('tx_hash'):
-    [O] if keys_exists(response, 'json', 'result', 'tx_hash'):
+    [X] if response.get('json') and response['json'].get('result') and response['json']['result'].get('tx_hash'): \n
+    [O] if keys_exists(response, 'json', 'result', 'tx_hash'): \n
 
-    :param element:
-    :param keys:
+    :param element: dictionary value
+    :param keys: The keys you want to find in the dictionary.
     :return:
 
     Example:

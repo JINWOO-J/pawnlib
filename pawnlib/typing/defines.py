@@ -1,5 +1,6 @@
 from pawnlib.config import pawn, pconf
 
+
 class _AttributeHolder(object):
     """Abstract base class that provides __repr__.
 
