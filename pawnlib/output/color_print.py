@@ -1045,9 +1045,15 @@ def print_frames(frame_list):
 
 
 def get_debug_here_info():
-    previous_frame = inspect.currentframe().f_back.f_back
-    (filename, line_number, function_name, ln, index) = inspect.getframeinfo(previous_frame)
+    """
+    Get debug information from the previous frame.
 
+    This function uses the inspect module to get information about the previous frame, including the filename, line number, function name, lines of context, and index.
+
+    Returns:
+        dict: A dictionary containing the debug information.
+    """
+    filename, line_number, function_name, ln, index = inspect.getframeinfo(inspect.currentframe().f_back.f_back)
     return {
         "filename": filename,
         "line_number": line_number,
@@ -1076,6 +1082,17 @@ def retrieve_name_ex(var):
 
 
 def dict_clean(data):
+    """
+    Clean the dictionary data.
+
+    This function iterates over the items in the dictionary. If the value is an instance of CaseInsensitiveDict, it converts it to a regular dictionary. If the value is None, it converts it to an empty string.
+
+    Args:
+        data (dict): The dictionary to clean.
+
+    Returns:
+        dict: The cleaned dictionary.
+    """
     result = {}
     for key, value in data.items():
         if isinstance(value, CaseInsensitiveDict):
@@ -1087,6 +1104,18 @@ def dict_clean(data):
 
 
 def list_clean(data):
+    """
+    Clean the list data.
+
+    This function iterates over the items in the list. If the value is None, it converts it to an empty string.
+
+    Args:
+        data (list): The list to clean.
+
+    Returns:
+        list: The cleaned list.
+    """
+
     result = []
     for value in data:
         if value is None:
@@ -1096,6 +1125,18 @@ def list_clean(data):
 
 
 def data_clean(data):
+    """
+    Clean the data.
+
+    This function checks the type of the data. If the data is a dictionary, it cleans it using the dict_clean function. If the data is a list, it cleans it using the list_clean function.
+
+    Args:
+        data (Any): The data to clean.
+
+    Returns:
+        Any: The cleaned data.
+    """
+
     if isinstance(data, dict):
         return dict(dict_clean(data))
     elif isinstance(data, list):
@@ -1104,6 +1145,18 @@ def data_clean(data):
 
 
 def count_nested_dict_len(d):
+    """
+    Count the length of a nested dictionary.
+
+    This function counts the number of items in a dictionary. If a value in the dictionary is also a dictionary, it recursively counts the number of items in that dictionary as well.
+
+    Args:
+        d (dict): The dictionary to count the length of.
+
+    Returns:
+        int: The length of the dictionary.
+    """
+
     length = len(d)
     for key, value in d.items():
         if isinstance(value, dict):
@@ -1111,36 +1164,69 @@ def count_nested_dict_len(d):
     return length
 
 
-def print_var(data=None, title='', **kwargs):
-    if kwargs.get('line_indent', '__NOT_DEFINED__') == "__NOT_DEFINED__":
-        kwargs['line_indent'] = '      '
-    if kwargs.get('data', '__NOT_DEFINED__') != "__NOT_DEFINED__":
-        del kwargs['data']
+def get_var_name():
+    """
+    Get the variable name from the call frame.
 
-    var_name = ""
+    This function uses the sys._getframe() function to get the call frame, and then uses the executing library to get the variable name from the call frame.
+
+    Returns:
+        str: The variable name if it can be found, otherwise an empty string.
+    """
+
     try:
-        call_frame = sys._getframe(1)
+        call_frame = sys._getframe(2)
         source = executing.Source.for_frame(call_frame)
         ex = source.executing(call_frame)
         func_ast = ex.node
         for ast in func_ast.args:
             if getattr(ast, 'id', ''):
-                var_name = ast.id
-    except Exception as e:
-        var_name = ""
+                return ast.id
+    except Exception:
+        return ""
+
+
+def get_data_length(data):
+    """
+    Get the length of the data.
+
+    This function tries to get the length of the data. If the data is a dictionary, it gets the nested dictionary length. If the data is not a dictionary, it gets the length of the data.
+
+    Args:
+        data (Any): The data to get the length of.
+
+    Returns:
+        str: A string representing the length of the data. If the length cannot be found, it returns an empty string.
+    """
 
     try:
         if isinstance(data, dict):
-            data_length = f"nested_dict_len={count_nested_dict_len(data)}"
+            return f"nested_dict_len={count_nested_dict_len(data)}"
         else:
-            data_length = f"len={len(data)}"
-    except Exception as e:
-        data_length = ""
+            return f"len={len(data)}"
+    except Exception:
+        return ""
 
-    if title:
-        _title = f"[yellow bold]{title}[/yellow bold]"
-    else:
-        _title = ""
+
+def print_var(data=None, title='', **kwargs):
+    """
+    Print the variable.
+
+    This function prints the variable with its name, type, and length. It also prints the data if it is a dictionary or a list.
+
+    Args:
+        data (Any, optional): The data to print. Defaults to None.
+        title (str, optional): The title to print. Defaults to ''.
+        **kwargs: Arbitrary keyword arguments.
+
+    Keyword Args:
+        line_indent (str): The line indent to use when printing the data. Defaults to '      '.
+    """
+
+    kwargs.setdefault('line_indent', '      ')
+    var_name = get_var_name()
+    data_length = get_data_length(data)
+    _title = f"[yellow bold]{title}[/yellow bold]" if title else ""
 
     pawn.console.log(f"🎁 [[blue bold]{var_name}[/blue bold]] {_title}"
                      f"\t[italic] ({type(data).__name__}), {data_length}", _stack_offset=2)

@@ -7,8 +7,10 @@ Welcome to pawnlib's documentation!
 ===================================
 
 #######
-Content
+Latest version: |version|
 #######
+
+
 
 
 .. include:: contents.rst

@@ -20,12 +20,3 @@ pawnlib.asyncio.run module
    :members:
    :undoc-members:
    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: pawnlib.asyncio
-   :members:
-   :undoc-members:
-   :show-inheritance:

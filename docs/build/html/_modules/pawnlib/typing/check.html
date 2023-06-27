@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.typing.check &mdash; pawnlib 1.0.19p documentation</title>
+  <title>pawnlib.typing.check &mdash; Pawnlib v1.0.20</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.19p
+                1.0.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -282,6 +282,13 @@
 
 
 <div class="viewcode-block" id="is_valid_private_key"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_valid_private_key">[docs]</a><span class="k">def</span> <span class="nf">is_valid_private_key</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validates the Private Key</span>
+
+<span class="sd">    :param text: private key text</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">private_length</span> <span class="o">=</span> <span class="mi">64</span>
     <span class="k">if</span> <span class="n">text</span> <span class="ow">and</span> <span class="n">is_hex</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;0x&quot;</span><span class="p">):</span>
@@ -292,6 +299,13 @@
 
 
 <div class="viewcode-block" id="is_valid_token_address"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_valid_token_address">[docs]</a><span class="k">def</span> <span class="nf">is_valid_token_address</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;hx&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validates the token address</span>
+<span class="sd">    :param text:</span>
+<span class="sd">    :param prefix:</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">text</span> <span class="ow">and</span> <span class="n">prefix</span> \
             <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">==</span> <span class="mi">42</span> \
             <span class="ow">and</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>\
@@ -301,6 +315,12 @@
 
 
 <div class="viewcode-block" id="list_depth"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.list_depth">[docs]</a><span class="k">def</span> <span class="nf">list_depth</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns depth count of list</span>
+
+<span class="sd">    :param l: list</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">list_depth</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">l</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -366,6 +386,14 @@
 
 
 <div class="viewcode-block" id="return_guess_type"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.return_guess_type">[docs]</a><span class="k">def</span> <span class="nf">return_guess_type</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    This function returns the result of :func:`guess_type` and :func:`_strbool`</span>
+
+<span class="sd">    :param value:</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">guessed_type</span> <span class="o">=</span> <span class="n">guess_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">guessed_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">guessed_type</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
@@ -417,11 +445,11 @@
 <span class="sd">    Check if **keys** (nested) exists in `element` (dict).</span>
 <span class="sd">    You don&#39;t have to implement it like this.</span>
 
-<span class="sd">    [X] if response.get(&#39;json&#39;) and response[&#39;json&#39;].get(&#39;result&#39;) and response[&#39;json&#39;][&#39;result&#39;].get(&#39;tx_hash&#39;):</span>
-<span class="sd">    [O] if keys_exists(response, &#39;json&#39;, &#39;result&#39;, &#39;tx_hash&#39;):</span>
+<span class="sd">    [X] if response.get(&#39;json&#39;) and response[&#39;json&#39;].get(&#39;result&#39;) and response[&#39;json&#39;][&#39;result&#39;].get(&#39;tx_hash&#39;): \n</span>
+<span class="sd">    [O] if keys_exists(response, &#39;json&#39;, &#39;result&#39;, &#39;tx_hash&#39;): \n</span>
 
-<span class="sd">    :param element:</span>
-<span class="sd">    :param keys:</span>
+<span class="sd">    :param element: dictionary value</span>
+<span class="sd">    :param keys: The keys you want to find in the dictionary.</span>
 <span class="sd">    :return:</span>
 
 <span class="sd">    Example:</span>

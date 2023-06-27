@@ -19,11 +19,3 @@ pawnlib.builder.generator module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pawnlib.builder
-   :members:
-   :undoc-members:
-   :show-inheritance:

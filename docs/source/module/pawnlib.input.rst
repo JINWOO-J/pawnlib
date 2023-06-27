@@ -8,7 +8,7 @@ pawnlib.input package
 Submodules
 ----------
 
-pawnlib.output.prompt
+pawnlib.input.prompt
 ----------------------------------
 
 .. code-block:: python

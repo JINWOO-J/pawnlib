@@ -32,16 +32,17 @@ class ThreadPoolRunner:
         pass
 
     def run(self):
-        self.results = []
         with ThreadPoolExecutor(max_workers=self.max_workers, initializer=self.initializer_worker) as pool:
-            self.results = pool.map(self.func, self.tasks)
-
-
-
+            results = pool.map(self.func, self.tasks)
             if self.verbose > 0:
-                for result in self.results:
-                    if result:
-                        pawn.console.log(result)
+                self.log_results(results)
+        return results
+
+    @staticmethod
+    def log_results(results):
+        for result in results:
+            if result:
+                pawn.console.log(result)
 
     def forever_run(self):
         while True:

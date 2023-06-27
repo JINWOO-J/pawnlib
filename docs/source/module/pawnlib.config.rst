@@ -56,11 +56,3 @@ pawnlib.config.globalconfig.pawnlib_config
           PAWN_GLOBAL_NAME: pawnlib_global_config_P2707BP1-0VN1HJA9-DVWMRDS2-98L6IO0U,
           params: 1
        }
-
-Module contents
----------------
-
-.. automodule:: pawnlib.config
-   :members:
-   :undoc-members:
-   :show-inheritance:

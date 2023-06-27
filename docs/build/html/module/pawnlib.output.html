@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.output package &mdash; pawnlib 1.0.19p documentation</title>
+  <title>pawnlib.output package &mdash; Pawnlib v1.0.20</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -38,7 +38,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.19p
+                1.0.20
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -113,6 +113,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.output.color_print.list_clean"><code class="docutils literal notranslate"><span class="pre">list_clean()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.output.color_print.data_clean"><code class="docutils literal notranslate"><span class="pre">data_clean()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.output.color_print.count_nested_dict_len"><code class="docutils literal notranslate"><span class="pre">count_nested_dict_len()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.output.color_print.get_var_name"><code class="docutils literal notranslate"><span class="pre">get_var_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.output.color_print.get_data_length"><code class="docutils literal notranslate"><span class="pre">get_data_length()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.output.color_print.print_var"><code class="docutils literal notranslate"><span class="pre">print_var()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.output.color_print.disable_exception_traceback"><code class="docutils literal notranslate"><span class="pre">disable_exception_traceback()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.output.color_print.NoTraceBackException"><code class="docutils literal notranslate"><span class="pre">NoTraceBackException</span></code></a></li>
@@ -136,7 +138,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.output.file.write_yaml"><code class="docutils literal notranslate"><span class="pre">write_yaml()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#module-pawnlib.output">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.resource.html">pawnlib.resource package</a></li>
@@ -787,9 +788,58 @@ representation as available.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.output.color_print.get_var_name">
+<span class="sig-name descname"><span class="pre">get_var_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#get_var_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.get_var_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get the variable name from the call frame.</p>
+<p>This function uses the sys._getframe() function to get the call frame, and then uses the executing library to get the variable name from the call frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The variable name if it can be found, otherwise an empty string.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.output.color_print.get_data_length">
+<span class="sig-name descname"><span class="pre">get_data_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#get_data_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.get_data_length" title="Permalink to this definition"></a></dt>
+<dd><p>Get the length of the data.</p>
+<p>This function tries to get the length of the data. If the data is a dictionary, it gets the nested dictionary length. If the data is not a dictionary, it gets the length of the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Any</em>) – The data to get the length of.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A string representing the length of the data. If the length cannot be found, it returns an empty string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.print_var">
 <span class="sig-name descname"><span class="pre">print_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#print_var"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.print_var" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Print the variable.</p>
+<p>This function prints the variable with its name, type, and length. It also prints the data if it is a dictionary or a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Any</em><em>, </em><em>optional</em>) – The data to print. Defaults to None.
+<a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – The title to print. Defaults to ‘’.
+<a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>line_indent</strong> (<em>str</em>) – The line indent to use when printing the data. Defaults to ‘      ‘.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.disable_exception_traceback">
@@ -817,7 +867,7 @@ representation as available.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> – </p></li>
-<li><p><strong>answer</strong> (<em>optional</em>) – <a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>answer</strong> (<em>optional</em>) – <a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -877,7 +927,7 @@ representation as available.</p>
 <dd><p>Returns the parent path</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>run_path</strong> (<em>optional</em>) – <a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'/Users/jinwoo/work/python_prj/pawnlib/pawnlib/output/file.py'</span></code></p>
+<dd class="field-odd"><p><strong>run_path</strong> (<em>optional</em>) – <a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'/Users/jinwoo/work/python_prj/pawnlib/pawnlib/output/file.py'</span></code></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -1010,8 +1060,8 @@ representation as available.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – </p></li>
-<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
-<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
+<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
+<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1029,10 +1079,10 @@ representation as available.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – </p></li>
-<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
-<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
-<li><p><strong>force_write</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>json_default</strong> (<em>optional</em>) – <a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
+<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
+<li><p><strong>force_write</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id89"><span class="problematic" id="id90">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>json_default</strong> (<em>optional</em>) – <a href="#id91"><span class="problematic" id="id92">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1050,8 +1100,8 @@ representation as available.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – </p></li>
-<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id89"><span class="problematic" id="id90">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
-<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id91"><span class="problematic" id="id92">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
+<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id93"><span class="problematic" id="id94">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
+<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id95"><span class="problematic" id="id96">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1060,9 +1110,6 @@ representation as available.</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-pawnlib.output">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pawnlib.output" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 

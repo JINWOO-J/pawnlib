@@ -75,11 +75,3 @@ pawnlib.typing.generator module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pawnlib.typing
-   :members:
-   :undoc-members:
-   :show-inheritance:
