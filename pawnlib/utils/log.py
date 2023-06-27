@@ -225,6 +225,7 @@ class AppLogger:
                  debug: bool = False,
                  use_hook_exception: bool = True,
                  exception_handler: Callable = "",
+                 **kwargs
                  ):
         self.app_name = app_name
         self.log_path = log_path
@@ -235,6 +236,7 @@ class AppLogger:
         self.markup = markup
         self.log_level = log_level
         self.use_hook_exception = use_hook_exception
+        self.kwargs = kwargs
 
         if self.use_hook_exception:
             if exception_handler:
@@ -304,7 +306,9 @@ class AppLogger:
                     RichHandler(
                         rich_tracebacks=True,
                         log_time_format=log_time_formatter,
-                        markup=self.markup
+                        markup=self.markup,
+                        **self.kwargs
+                        # show_path=False,
                         # log_time_format=lambda dt: f"[{dt.strftime('%Y-%m-%d %H:%M:%S,%f')[:-3]}]",
                         # log_time_format=lambda dt:Text.from_markup(f"[red]{dt.ctime()}")
                     )

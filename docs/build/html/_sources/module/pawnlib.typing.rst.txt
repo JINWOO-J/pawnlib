@@ -40,6 +40,18 @@ pawnlib.typing.date\_utils module
    :undoc-members:
    :show-inheritance:
 
+pawnlib.typing.constants module
+-------------------------------
+
+.. code-block:: python
+
+    from pawnlib.typing import constants
+
+.. automodule:: pawnlib.typing.constants
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pawnlib.typing.defines module
 -----------------------------
 

@@ -309,9 +309,11 @@ def sys_exit(message="", return_code=-1):
 def is_include_list(target=None, include_list=[], ignore_case=True):
     """
     check if target string exists in list
+
     :param target: target string
     :param include_list: List of strings to check
     :param ignore_case: ignore case sensitive
+
     :return:
     """
     if target and include_list:
@@ -325,7 +327,7 @@ def is_include_list(target=None, include_list=[], ignore_case=True):
 
 def keys_exists(element, *keys):
     """
-    Check if *keys (nested) exists in `element` (dict).
+    Check if **keys** (nested) exists in `element` (dict).
     You don't have to implement it like this.
 
     [X] if response.get('json') and response['json'].get('result') and response['json']['result'].get('tx_hash'):

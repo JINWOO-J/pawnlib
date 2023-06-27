@@ -403,11 +403,15 @@ class FlatDict(MutableMapping):
     def items(self):
         """Return a copy of the flat dictionary's list of ``(key, value)``
         pairs.
-        .. note:: CPython implementation detail: Keys and values are listed in
+
+        .. note::
+            CPython implementation detail: Keys and values are listed in
             an arbitrary order which is non-random, varies across Python
             implementations, and depends on the flat dictionary's history of
             insertions and deletions.
+
         :rtype: list
+
         """
         return [(k, self.__getitem__(k)) for k in self.keys()]
 
@@ -993,6 +997,7 @@ def str2bool(v) -> bool:
 def flatten(dictionary, parent_key=False, separator='.'):
     """
     Turn a nested dictionary into a flattened dictionary
+
     :param dictionary: The dictionary to flatten
     :param parent_key: The string to prepend to dictionary's keys
     :param separator: The string used to separate flattened keys
@@ -1283,28 +1288,28 @@ def recursive_operate_dict(obj, fn, target="key"):
                 }
             }
 
-            recursive_operate_dict(obj, fn=lower_case, target="key")
-
-            {
-              llllll:       'AAAAAAAA'         <class 'str'> len=8
-              aaaaaa:       'AAAAAAAA'         <class 'str'> len=8
-              dddddd: 11111         <class 'int'> len=5
-              ddddsd: {
-                 asdfasdf: 111         <class 'int'> len=3
-                 zxczxczxc:          'DDDDDDDD'         <class 'str'> len=8
-            }
-
-            recursive_operate_dict(obj, fn=lower_case, target="value")
-
-           {
-              LLLLLL:       'aaaaaaaa'         <class 'str'> len=8
-              AAAAAA:       'aaaaaaaa'         <class 'str'> len=8
-              DDDDDD:       '11111'         <class 'str'> len=5
-              DDDDSD: {
-                 ASDFASDF:          '111'         <class 'str'> len=3
-                 ZXCZXCZXC:          'dddddddd'         <class 'str'> len=8
-              }
-           }
+           #  recursive_operate_dict(obj, fn=lower_case, target="key")
+           #
+           #  {
+           #    llllll:       'AAAAAAAA'         <class 'str'> len=8
+           #    aaaaaa:       'AAAAAAAA'         <class 'str'> len=8
+           #    dddddd: 11111         <class 'int'> len=5
+           #    ddddsd: {
+           #       asdfasdf: 111         <class 'int'> len=3
+           #       zxczxczxc:          'DDDDDDDD'         <class 'str'> len=8
+           #  }
+           #
+           #  recursive_operate_dict(obj, fn=lower_case, target="value")
+           #
+           # {
+           #    LLLLLL:       'aaaaaaaa'         <class 'str'> len=8
+           #    AAAAAA:       'aaaaaaaa'         <class 'str'> len=8
+           #    DDDDDD:       '11111'         <class 'str'> len=5
+           #    DDDDSD: {
+           #       ASDFASDF:          '111'         <class 'str'> len=3
+           #       ZXCZXCZXC:          'dddddddd'         <class 'str'> len=8
+           #    }
+           # }
 
     """
     return_result = {}
@@ -1911,6 +1916,7 @@ def upper_case_to_camel_case(s):
 def shorten_text(text="", width=None, placeholder='[...]' ):
     """
     Shortens a text string to the specified width and placeholders.
+
     :param text: text to shorten
     :param width: maximum width of the string
     :param placeholder: placeholder string of the text

@@ -134,7 +134,7 @@ def generate_task_from_config():
     if pconf_dict:
         pawn.console.log(f"Found config file={config_file}")
         for section_name, section_value in pconf_dict.items():
-            pawn.console.log(f"section_name={section_name}, value={section_value}")
+            pawn.console.debug(f"section_name={section_name}, value={section_value}")
             args = set_default_counter(section_name)
             # args = copy.deepcopy(pconf().args)
             # # args = pconf().args
@@ -153,8 +153,9 @@ def generate_task_from_config():
                     pawn.console.debug(f"Update argument from {config_file}, <{section_name}> {conf_key}={conf_value} <ignore args={getattr(args, conf_key, None)}>")
                     setattr(args, conf_key, conf_value)
 
-            pawn.console.log(args)
-            tasks.append(args)
+            pawn.console.debug(args)
+            if args.url != "http":
+                tasks.append(args)
 
     if not tasks:
         args = set_default_counter()
@@ -208,7 +209,7 @@ def main():
     app_name = 'httping'
     parser = get_parser()
     args, unknown = parser.parse_known_args()
-
+    is_hide_line_number = True if args.verbose > 1 else False
     stdout = True
     pawn.set(
         PAWN_PATH=args.base_dir,
@@ -218,10 +219,12 @@ def main():
             log_path=f"{args.base_dir}/logs",
             stdout=stdout,
             use_hook_exception=True,
+            show_path=False, #hide line numbers
         ),
         PAWN_CONSOLE=dict(
             redirect=True,
-            record=True
+            record=True,
+            log_path=is_hide_line_number, # hide line number
         ),
         app_name=app_name,
         args=args,
@@ -241,7 +244,6 @@ def main():
 
         ))
     print_banner()
-
     if args.ignore_ssl:
         disable_ssl_warnings()
     tasks = generate_task_from_config()
@@ -250,10 +252,12 @@ def main():
     #     res = _send_slack(url=args.slack_url, msg_text=tasks)
     #     pawn.console.log(res)
 
-    _send_slack(url=args.slack_url, title=f"Error HTTPING {args.url}", msg_text=args.__dict__)
-
+    # _send_slack(url=args.slack_url, title=f"Error HTTPING {args.url}", msg_text=args.__dict__)
+    pawn.console.log(f"console_options={pawn.console_options}")
+    # exit()
     pawn.console.log(f"Start httping ... url_count={len(tasks)}")
     pawn.console.log("If you want to see more logs, use the [yellow]-v[/yellow] option")
+
     pawn.console.log(tasks)
 
     ThreadPoolRunner(

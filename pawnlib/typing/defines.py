@@ -72,6 +72,7 @@ class Namespace(_AttributeHolder):
 def set_namespace_default_value(namespace=None, key='', default=""):
     """
     Set a default value when a key in a namespace has no value
+
     :param namespace:
     :param key:
     :param default:

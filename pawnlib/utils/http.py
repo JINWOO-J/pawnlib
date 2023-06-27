@@ -714,6 +714,8 @@ class IconRpcHelper:
 
     def get_fee(self, tx=None, symbol=False):
         _tx = self.parse_tx_var(tx)
+        if keys_exists(_tx, "params", "stepLimit"):
+            del _tx['params']['stepLimit']
         estimate_step = self.get_estimate_step(tx=_tx)
         step_kind = self._guess_step_kind(tx)
         pawn.console.debug(f"_guess_step_kind = {step_kind}")
