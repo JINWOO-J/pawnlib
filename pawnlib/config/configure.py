@@ -105,9 +105,12 @@ class Config:
 
     def write_config(self, config_path: Optional[Path] = None, encoding: str = 'utf-8'):
         """You can set config values in code, and save it as a file.
+
         :param config_path: Path or CONFIG_DEFAULT_FILE.
         :param encoding: file encoding.
+
         :return:
+
         """
         write_path = config_path or self._config_path
         with open(write_path, 'w', encoding=encoding) as config_file:
@@ -120,6 +123,7 @@ class Config:
         """
         root_path = self._current_path or Path(os.path.join(os.getcwd()))
         return root_path.joinpath(path)
+
 
 if __name__ == '__main__':
     CFG = Configure()

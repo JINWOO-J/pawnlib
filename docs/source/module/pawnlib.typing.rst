@@ -41,7 +41,7 @@ pawnlib.typing.date\_utils module
    :show-inheritance:
 
 pawnlib.typing.constants module
------------------------------
+-------------------------------
 
 .. code-block:: python
 

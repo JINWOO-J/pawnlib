@@ -561,6 +561,7 @@ class WaitStateLoop:
     :param delay: sleep time
     :param text: text message
 
+
     Example:
 
         .. code-block:: python
@@ -584,6 +585,7 @@ class WaitStateLoop:
                 exit_function=loop_exit_func,
                 timeout=10
             ).run()
+
     """
     def __init__(self,
                  loop_function: Callable,

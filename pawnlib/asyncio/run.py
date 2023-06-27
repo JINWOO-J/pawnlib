@@ -12,7 +12,7 @@ class AsyncTasks:
     def __init__(self,
                  max_at_once: int = 10,
                  max_per_second: int = 10,
-                 title="Working on async tasks ...",
+                 title: str = "Working on async tasks ...",
                  debug: bool = False,
                  status: bool = False,
                  **kwargs):

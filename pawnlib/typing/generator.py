@@ -397,8 +397,8 @@ def increase_number(c=itertools.count()):
 
 def increase_hex(c=itertools.count(), prefix="", zfill=0, remove_prefix=True):
     """
-
     Returns increase hex value
+
     :param c: itertools.count()
     :param prefix:
     :param zfill: adds zeros (0) at the beginning of the string, until it reaches the specified length.

@@ -323,6 +323,7 @@ class PawnlibConfig(metaclass=Singleton):
                         self.console_options['log_time_format'] = lambda dt: f"[{dt.strftime(_log_time_format)}]"
                     self.stdout_log_formatter = self.console_options['log_time_format']
                 _console_options.update(self.console_options)
+            # self.console_options = copy.deepcopy(_console_options)
             self.console = Console(**_console_options)
 
     def _load_config_file(self, config_path=None):
@@ -348,8 +349,11 @@ class PawnlibConfig(metaclass=Singleton):
 
     def get_path(self, path: str = "") -> Path:
         """Get Path from the directory where the configure.json file is.
+
         :param path: file_name or path
+
         :return:
+
         """
         if self._current_path:
             root_path = Path(self._current_path)
