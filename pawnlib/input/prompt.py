@@ -11,6 +11,7 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
+
 class PromptWithArgument:
     def __init__(self, argument="", min_length=1, max_length=1000, verbose=1,  **kwargs):
         self.argument = argument

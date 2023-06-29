@@ -145,6 +145,17 @@ def run_in_async_loop(f):
 
 
 class AsyncHttp(AsyncTasks):
+    """
+    This class is a subclass of AsyncTasks and is used to handle asynchronous HTTP requests.
+
+    Attributes:
+        max_at_once (int): Maximum number of tasks to run at once.
+        max_per_second (int): Maximum number of tasks to start per second.
+        title (str): Title for the progress bar.
+        debug (bool): If True, print debug information.
+        status (bool): If True, print status information.
+        urls (list): List of URLs to fetch.
+    """
 
     def __init__(self,
                  max_at_once: int = 10,
@@ -161,6 +172,13 @@ class AsyncHttp(AsyncTasks):
         self._prepare()
 
     def append_task(self, task):
+        """
+        Append a new task to the task list.
+
+        Args:
+            task (str or dict): If it's a string, it's considered as a URL. If it's a dictionary, it should contain a 'url' key.
+        """
+
         _url = None
         _kwargs = {}
 
@@ -171,18 +189,6 @@ class AsyncHttp(AsyncTasks):
             _url = task.pop("url")
             _kwargs = task
 
-        # if _kwargs:
-        #     self.generate_tasks(
-        #         target_list=[_url],
-        #         function=fetch_httpx_url,
-        #         kwargs=_kwargs
-        #     )
-        # else:
-        #     self.generate_tasks(
-        #         target_list=[_url],
-        #         function=fetch_httpx_url,
-        #     )
-
         self.generate_tasks(
             target_list=[_url],
             function=fetch_httpx_url,
@@ -191,18 +197,33 @@ class AsyncHttp(AsyncTasks):
         pawn.console.log(f"IN] url={_url}, kwargs={_kwargs}, max_at_once={self.max_at_once}")
 
     def _prepare(self):
+        """
+        Prepare the tasks based on the provided URLs.
+        """
+
         if len(self.urls) > 0:
             for info in self.urls:
 
                 self.append_task(info)
 
 
-    # def fetch(self):
-    #     print(self.urls)
-    #     self.run()
-
-
 async def fetch_httpx_url(url, method="get", timeout=4, info="", max_keepalive_connections=10, max_connections=20, **kwargs):
+    """
+    Asynchronously fetch a URL using httpx.
+
+    Args:
+        url (str): The URL to fetch.
+        method (str): The HTTP method to use. Default is "get".
+        timeout (int): The timeout for the request in seconds. Default is 4.
+        info (str): Additional information for the request. Default is an empty string.
+        max_keepalive_connections (int): The maximum number of keep-alive connections. Default is 10.
+        max_connections (int): The maximum number of connections. Default is 20.
+        **kwargs: Additional keyword arguments for the httpx request.
+
+    Returns:
+        httpx.Response or dict: The response from the server, or an empty dictionary if an error occurred.
+    """
+
     response = None
     try:
         limits = httpx.Limits(max_keepalive_connections=max_keepalive_connections, max_connections=max_connections)

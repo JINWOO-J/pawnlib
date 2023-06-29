@@ -755,7 +755,17 @@ representation as available.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.get_debug_here_info">
 <span class="sig-name descname"><span class="pre">get_debug_here_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#get_debug_here_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.get_debug_here_info" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get debug information from the previous frame.</p>
+<p>This function uses the inspect module to get information about the previous frame, including the filename, line number, function name, lines of context, and index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary containing the debug information.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.retrieve_name">
@@ -770,22 +780,74 @@ representation as available.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.dict_clean">
 <span class="sig-name descname"><span class="pre">dict_clean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#dict_clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.dict_clean" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Clean the dictionary data.</p>
+<p>This function iterates over the items in the dictionary. If the value is an instance of CaseInsensitiveDict, it converts it to a regular dictionary. If the value is None, it converts it to an empty string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – The dictionary to clean.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The cleaned dictionary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.list_clean">
 <span class="sig-name descname"><span class="pre">list_clean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#list_clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.list_clean" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Clean the list data.</p>
+<p>This function iterates over the items in the list. If the value is None, it converts it to an empty string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list</em>) – The list to clean.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The cleaned list.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.data_clean">
 <span class="sig-name descname"><span class="pre">data_clean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#data_clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.data_clean" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Clean the data.</p>
+<p>This function checks the type of the data. If the data is a dictionary, it cleans it using the dict_clean function. If the data is a list, it cleans it using the list_clean function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Any</em>) – The data to clean.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The cleaned data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.count_nested_dict_len">
 <span class="sig-name descname"><span class="pre">count_nested_dict_len</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/output/color_print.html#count_nested_dict_len"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.output.color_print.count_nested_dict_len" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Count the length of a nested dictionary.</p>
+<p>This function counts the number of items in a dictionary. If a value in the dictionary is also a dictionary, it recursively counts the number of items in that dictionary as well.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – The dictionary to count the length of.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The length of the dictionary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.output.color_print.get_var_name">

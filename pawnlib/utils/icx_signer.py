@@ -33,7 +33,41 @@ translator = str.maketrans({
 
 
 def guess_wallet_type(data):
+    """
+    Guesses the type of wallet based on the provided data.
 
+    :param data: The data to analyze and determine the wallet type.
+    :type data: str or object
+
+    :return: The guessed wallet type. It can be "private_key" for a private key wallet, "json" for a JSON wallet, or None if the type cannot be determined.
+    :rtype: str or None
+
+    This function attempts to determine the type of a wallet based on the provided data.
+    If the `data` parameter is a string and its length is either 66 or 64 characters, it is considered a PrivateKey wallet type.
+    If the `data` parameter is a valid JSON object, it is considered a JSON wallet type.
+    If the wallet type cannot be determined, None is returned.
+
+    Example:
+
+    .. code-block:: python
+
+        # Example 1: PrivateKey wallet type
+        wallet_data = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+        wallet_type = guess_wallet_type(wallet_data)
+        # wallet_type = "private_key"
+
+        # Example 2: JSON wallet type
+        wallet_data = '{"address": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"}'
+        wallet_type = guess_wallet_type(wallet_data)
+        # wallet_type = "json"
+
+        # Example 3: Unknown wallet type
+        wallet_data = 12345
+        wallet_type = guess_wallet_type(wallet_data)
+        # wallet_type = None
+
+    :raises: None
+    """
     if isinstance(data, str) and len(data) == 66 or len(data) == 64:
         pawn.console.log("Wallet type is PrivateKey")
         return "private_key"

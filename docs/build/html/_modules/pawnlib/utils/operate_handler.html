@@ -119,16 +119,17 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="ThreadPoolRunner.run"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.operate_handler.ThreadPoolRunner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_workers</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initializer_worker</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span>
-
-
-
+            <span class="n">results</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
-                        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="ThreadPoolRunner.log_results"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.operate_handler.ThreadPoolRunner.log_results">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">log_results</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ThreadPoolRunner.forever_run"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run">[docs]</a>    <span class="k">def</span> <span class="nf">forever_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>

@@ -66,6 +66,12 @@
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.asyncio.run.async_partial"><code class="docutils literal notranslate"><span class="pre">async_partial()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.asyncio.run.run_in_async_loop"><code class="docutils literal notranslate"><span class="pre">run_in_async_loop()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.asyncio.run.AsyncHttp"><code class="docutils literal notranslate"><span class="pre">AsyncHttp</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.asyncio.run.AsyncHttp.max_at_once"><code class="docutils literal notranslate"><span class="pre">AsyncHttp.max_at_once</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.asyncio.run.AsyncHttp.max_per_second"><code class="docutils literal notranslate"><span class="pre">AsyncHttp.max_per_second</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.asyncio.run.AsyncHttp.title"><code class="docutils literal notranslate"><span class="pre">AsyncHttp.title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.asyncio.run.AsyncHttp.debug"><code class="docutils literal notranslate"><span class="pre">AsyncHttp.debug</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.asyncio.run.AsyncHttp.status"><code class="docutils literal notranslate"><span class="pre">AsyncHttp.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.asyncio.run.AsyncHttp.urls"><code class="docutils literal notranslate"><span class="pre">AsyncHttp.urls</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.asyncio.run.AsyncHttp.append_task"><code class="docutils literal notranslate"><span class="pre">AsyncHttp.append_task()</span></code></a></li>
 </ul>
 </li>
@@ -235,6 +241,73 @@
 <dt class="sig sig-object py" id="pawnlib.asyncio.run.AsyncHttp">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AsyncHttp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_at_once</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_per_second</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Working</span> <span class="pre">on</span> <span class="pre">async</span> <span class="pre">tasks</span> <span class="pre">...'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">urls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/asyncio/run.html#AsyncHttp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.asyncio.run.AsyncHttp" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pawnlib.asyncio.run.AsyncTasks" title="pawnlib.asyncio.run.AsyncTasks"><code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncTasks</span></code></a></p>
+<p>This class is a subclass of AsyncTasks and is used to handle asynchronous HTTP requests.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.asyncio.run.AsyncHttp.max_at_once">
+<span class="sig-name descname"><span class="pre">max_at_once</span></span><a class="headerlink" href="#pawnlib.asyncio.run.AsyncHttp.max_at_once" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum number of tasks to run at once.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.asyncio.run.AsyncHttp.max_per_second">
+<span class="sig-name descname"><span class="pre">max_per_second</span></span><a class="headerlink" href="#pawnlib.asyncio.run.AsyncHttp.max_per_second" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum number of tasks to start per second.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.asyncio.run.AsyncHttp.title">
+<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#pawnlib.asyncio.run.AsyncHttp.title" title="Permalink to this definition"></a></dt>
+<dd><p>Title for the progress bar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.asyncio.run.AsyncHttp.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><a class="headerlink" href="#pawnlib.asyncio.run.AsyncHttp.debug" title="Permalink to this definition"></a></dt>
+<dd><p>If True, print debug information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.asyncio.run.AsyncHttp.status">
+<span class="sig-name descname"><span class="pre">status</span></span><a class="headerlink" href="#pawnlib.asyncio.run.AsyncHttp.status" title="Permalink to this definition"></a></dt>
+<dd><p>If True, print status information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.asyncio.run.AsyncHttp.urls">
+<span class="sig-name descname"><span class="pre">urls</span></span><a class="headerlink" href="#pawnlib.asyncio.run.AsyncHttp.urls" title="Permalink to this definition"></a></dt>
+<dd><p>List of URLs to fetch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
 <p>This Class is to run asyncio using aiometer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -265,14 +338,45 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.asyncio.run.AsyncHttp.append_task">
 <span class="sig-name descname"><span class="pre">append_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/asyncio/run.html#AsyncHttp.append_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.asyncio.run.AsyncHttp.append_task" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Append a new task to the task list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>task</strong> (<em>str</em><em> or </em><em>dict</em>) – If it’s a string, it’s considered as a URL. If it’s a dictionary, it should contain a ‘url’ key.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.asyncio.run.fetch_httpx_url">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_httpx_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'get'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_keepalive_connections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_connections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/asyncio/run.html#fetch_httpx_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.asyncio.run.fetch_httpx_url" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Asynchronously fetch a URL using httpx.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<em>str</em>) – The URL to fetch.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – The HTTP method to use. Default is “get”.
+<a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'get'</span></code></p></li>
+<li><p><strong>timeout</strong> (<em>int</em><em>, </em><em>optional</em>) – The timeout for the request in seconds. Default is 4.
+<a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">4</span></code></p></li>
+<li><p><strong>info</strong> (<em>str</em><em>, </em><em>optional</em>) – Additional information for the request. Default is an empty string.
+<a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>max_keepalive_connections</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of keep-alive connections. Default is 10.
+<a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>max_connections</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of connections. Default is 20.
+<a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">20</span></code></p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments for the httpx request.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The response from the server, or an empty dictionary if an error occurred.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>httpx.Response or dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>

@@ -80,7 +80,6 @@ class StackList:
         self.data = []
 
 
-# class ConsecutiveCounter:
 class ErrorCounter:
 
     def __init__(self, max_consecutive_count=10, increase_index=0.5, reset_threshold_rate=80):

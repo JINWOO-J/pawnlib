@@ -56,3 +56,17 @@ pawnlib.utils.operate\_handler module
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+pawnlib.utils.icx_signer module
+-------------------------------------
+
+.. code-block:: python
+
+    from pawnlib.utils import icx_signer
+
+.. automodule:: pawnlib.utils.icx_signer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

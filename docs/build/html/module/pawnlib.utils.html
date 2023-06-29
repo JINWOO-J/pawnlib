@@ -227,6 +227,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner"><code class="docutils literal notranslate"><span class="pre">ThreadPoolRunner</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.initializer_worker"><code class="docutils literal notranslate"><span class="pre">ThreadPoolRunner.initializer_worker()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.run"><code class="docutils literal notranslate"><span class="pre">ThreadPoolRunner.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.log_results"><code class="docutils literal notranslate"><span class="pre">ThreadPoolRunner.log_results()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run"><code class="docutils literal notranslate"><span class="pre">ThreadPoolRunner.forever_run()</span></code></a></li>
 </ul>
 </li>
@@ -265,6 +266,56 @@
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.operate_handler.wait_state_loop"><code class="docutils literal notranslate"><span class="pre">wait_state_loop()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.operate_handler.run_with_keyboard_interrupt"><code class="docutils literal notranslate"><span class="pre">run_with_keyboard_interrupt()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.operate_handler.handle_keyboard_interrupt_signal"><code class="docutils literal notranslate"><span class="pre">handle_keyboard_interrupt_signal()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-utils-icx-signer-module">pawnlib.utils.icx_signer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.guess_wallet_type"><code class="docutils literal notranslate"><span class="pre">guess_wallet_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.WalletCli"><code class="docutils literal notranslate"><span class="pre">WalletCli</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.WalletCli.load"><code class="docutils literal notranslate"><span class="pre">WalletCli.load()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.WalletCli.create"><code class="docutils literal notranslate"><span class="pre">WalletCli.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.WalletCli.print_wallet"><code class="docutils literal notranslate"><span class="pre">WalletCli.print_wallet()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.store_keystore_file_on_the_path"><code class="docutils literal notranslate"><span class="pre">store_keystore_file_on_the_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.generate_wallet"><code class="docutils literal notranslate"><span class="pre">generate_wallet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.is_private_key"><code class="docutils literal notranslate"><span class="pre">is_private_key()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.exit_on_failure"><code class="docutils literal notranslate"><span class="pre">exit_on_failure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.load_wallet_key"><code class="docutils literal notranslate"><span class="pre">load_wallet_key()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.generate_keys"><code class="docutils literal notranslate"><span class="pre">generate_keys()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.get_address"><code class="docutils literal notranslate"><span class="pre">get_address()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.verify_recoverable_signature"><code class="docutils literal notranslate"><span class="pre">verify_recoverable_signature()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.recover_signature"><code class="docutils literal notranslate"><span class="pre">recover_signature()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner"><code class="docutils literal notranslate"><span class="pre">IcxSigner</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.__init__"><code class="docutils literal notranslate"><span class="pre">IcxSigner.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.set_privkey_bytes"><code class="docutils literal notranslate"><span class="pre">IcxSigner.set_privkey_bytes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.get_privkey_bytes"><code class="docutils literal notranslate"><span class="pre">IcxSigner.get_privkey_bytes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.get_pubkey_bytes"><code class="docutils literal notranslate"><span class="pre">IcxSigner.get_pubkey_bytes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.get_address"><code class="docutils literal notranslate"><span class="pre">IcxSigner.get_address()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.get_hx_address"><code class="docutils literal notranslate"><span class="pre">IcxSigner.get_hx_address()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.sign_tx"><code class="docutils literal notranslate"><span class="pre">IcxSigner.sign_tx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.sign"><code class="docutils literal notranslate"><span class="pre">IcxSigner.sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.store"><code class="docutils literal notranslate"><span class="pre">IcxSigner.store()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.sign_recoverable"><code class="docutils literal notranslate"><span class="pre">IcxSigner.sign_recoverable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.from_bytes"><code class="docutils literal notranslate"><span class="pre">IcxSigner.from_bytes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.from_der"><code class="docutils literal notranslate"><span class="pre">IcxSigner.from_der()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSignVerifier"><code class="docutils literal notranslate"><span class="pre">IcxSignVerifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSignVerifier.__init__"><code class="docutils literal notranslate"><span class="pre">IcxSignVerifier.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSignVerifier.get_address"><code class="docutils literal notranslate"><span class="pre">IcxSignVerifier.get_address()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSignVerifier.verify"><code class="docutils literal notranslate"><span class="pre">IcxSignVerifier.verify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSignVerifier.from_bytes"><code class="docutils literal notranslate"><span class="pre">IcxSignVerifier.from_bytes()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.get_timestamp_us"><code class="docutils literal notranslate"><span class="pre">get_timestamp_us()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.icx_to_wei"><code class="docutils literal notranslate"><span class="pre">icx_to_wei()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.get_string_decimal"><code class="docutils literal notranslate"><span class="pre">get_string_decimal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.sha3_256"><code class="docutils literal notranslate"><span class="pre">sha3_256()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.get_tx_hash"><code class="docutils literal notranslate"><span class="pre">get_tx_hash()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.get_tx_phrase"><code class="docutils literal notranslate"><span class="pre">get_tx_phrase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.sign_recoverable"><code class="docutils literal notranslate"><span class="pre">sign_recoverable()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.serialize"><code class="docutils literal notranslate"><span class="pre">serialize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.icx_signer.generate_message"><code class="docutils literal notranslate"><span class="pre">generate_message()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1260,6 +1311,11 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.operate_handler.ThreadPoolRunner.log_results">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">log_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/operate_handler.html#ThreadPoolRunner.log_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.log_results" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run">
 <span class="sig-name descname"><span class="pre">forever_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/operate_handler.html#ThreadPoolRunner.forever_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -1579,6 +1635,539 @@ daemonized by start() or restart().</p>
 <dt class="sig sig-object py" id="pawnlib.utils.operate_handler.handle_keyboard_interrupt_signal">
 <span class="sig-name descname"><span class="pre">handle_keyboard_interrupt_signal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/operate_handler.html#handle_keyboard_interrupt_signal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.operate_handler.handle_keyboard_interrupt_signal" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+</section>
+<section id="pawnlib-utils-icx-signer-module">
+<h2>pawnlib.utils.icx_signer module<a class="headerlink" href="#pawnlib-utils-icx-signer-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.utils</span> <span class="kn">import</span> <span class="n">icx_signer</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.utils.icx_signer"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.guess_wallet_type">
+<span class="sig-name descname"><span class="pre">guess_wallet_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#guess_wallet_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.guess_wallet_type" title="Permalink to this definition"></a></dt>
+<dd><p>Guesses the type of wallet based on the provided data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>str</em><em> or </em><em>object</em>) – The data to analyze and determine the wallet type.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The guessed wallet type. It can be “private_key” for a private key wallet, “json” for a JSON wallet, or None if the type cannot be determined.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or None</p>
+</dd>
+</dl>
+<p>This function attempts to determine the type of a wallet based on the provided data.
+If the <code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code> parameter is a string and its length is either 66 or 64 characters, it is considered a PrivateKey wallet type.
+If the <code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code> parameter is a valid JSON object, it is considered a JSON wallet type.
+If the wallet type cannot be determined, None is returned.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example 1: PrivateKey wallet type</span>
+<span class="n">wallet_data</span> <span class="o">=</span> <span class="s2">&quot;0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef&quot;</span>
+<span class="n">wallet_type</span> <span class="o">=</span> <span class="n">guess_wallet_type</span><span class="p">(</span><span class="n">wallet_data</span><span class="p">)</span>
+<span class="c1"># wallet_type = &quot;private_key&quot;</span>
+
+<span class="c1"># Example 2: JSON wallet type</span>
+<span class="n">wallet_data</span> <span class="o">=</span> <span class="s1">&#39;{&quot;address&quot;: &quot;0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef&quot;}&#39;</span>
+<span class="n">wallet_type</span> <span class="o">=</span> <span class="n">guess_wallet_type</span><span class="p">(</span><span class="n">wallet_data</span><span class="p">)</span>
+<span class="c1"># wallet_type = &quot;json&quot;</span>
+
+<span class="c1"># Example 3: Unknown wallet type</span>
+<span class="n">wallet_data</span> <span class="o">=</span> <span class="mi">12345</span>
+<span class="n">wallet_type</span> <span class="o">=</span> <span class="n">guess_wallet_type</span><span class="p">(</span><span class="n">wallet_data</span><span class="p">)</span>
+<span class="c1"># wallet_type = None</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.WalletCli">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">WalletCli</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#WalletCli"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.WalletCli" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.WalletCli.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#WalletCli.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.WalletCli.load" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.WalletCli.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#WalletCli.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.WalletCli.create" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.WalletCli.print_wallet">
+<span class="sig-name descname"><span class="pre">print_wallet</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#WalletCli.print_wallet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.WalletCli.print_wallet" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.store_keystore_file_on_the_path">
+<span class="sig-name descname"><span class="pre">store_keystore_file_on_the_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#store_keystore_file_on_the_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.store_keystore_file_on_the_path" title="Permalink to this definition"></a></dt>
+<dd><p>Stores a created keystore string data which is JSON format on the file path.
+:param file_path: The path where the file will be saved. type(str)
+:param json_string: Contents of the keystore.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.generate_wallet">
+<span class="sig-name descname"><span class="pre">generate_wallet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#generate_wallet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.generate_wallet" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.is_private_key">
+<span class="sig-name descname"><span class="pre">is_private_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">private_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#is_private_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.is_private_key" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.exit_on_failure">
+<span class="sig-name descname"><span class="pre">exit_on_failure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_on_failure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exception</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#exit_on_failure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.exit_on_failure" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.load_wallet_key">
+<span class="sig-name descname"><span class="pre">load_wallet_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_or_object</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_on_failure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_namespace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#load_wallet_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.load_wallet_key" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.generate_keys">
+<span class="sig-name descname"><span class="pre">generate_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#generate_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.generate_keys" title="Permalink to this definition"></a></dt>
+<dd><p>generate privkey and pubkey pair.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>privkey(bytes, 32), pubkey(bytes, 65)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.get_address">
+<span class="sig-name descname"><span class="pre">get_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pubkey_bytes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#get_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.get_address" title="Permalink to this definition"></a></dt>
+<dd><p>generate address from public key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pubkey_bytes</strong> (<em>bytes</em>) – public key bytes</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>icx address (20bytes)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.verify_recoverable_signature">
+<span class="sig-name descname"><span class="pre">verify_recoverable_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature_bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#verify_recoverable_signature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.verify_recoverable_signature" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg_hash</strong> (<em>bytes</em>) – 256bit hash value</p></li>
+<li><p><strong>signature_bytes</strong> (<em>bytes</em>) – </p></li>
+<li><p><strong>recovery_id</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.recover_signature">
+<span class="sig-name descname"><span class="pre">recover_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature_bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#recover_signature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.recover_signature" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg_hash</strong> (<em>bytes</em>) – sha3 256bit hash value</p></li>
+<li><p><strong>signature_bytes</strong> (<em>bytes</em>) – </p></li>
+<li><p><strong>recovery_id</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>signature(object):</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pubkey(PublicKey)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IcxSigner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Digital Signing  using secp256k1</p>
+<p>Constructor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>object</em><em>, </em><em>optional</em>) – bytes or der
+<a href="#id95"><span class="problematic" id="id96">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – True(bytes) False(der)
+<a href="#id97"><span class="problematic" id="id98">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>object</em><em>, </em><em>optional</em>) – bytes or der
+<a href="#id99"><span class="problematic" id="id100">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – True(bytes) False(der)
+<a href="#id101"><span class="problematic" id="id102">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.set_privkey_bytes">
+<span class="sig-name descname"><span class="pre">set_privkey_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.set_privkey_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.set_privkey_bytes" title="Permalink to this definition"></a></dt>
+<dd><p>Set private key using private key data in bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – private key data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.get_privkey_bytes">
+<span class="sig-name descname"><span class="pre">get_privkey_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.get_privkey_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.get_privkey_bytes" title="Permalink to this definition"></a></dt>
+<dd><p>Get private key data in bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>private key data (32 bytes)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.get_pubkey_bytes">
+<span class="sig-name descname"><span class="pre">get_pubkey_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.get_pubkey_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.get_pubkey_bytes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.get_address">
+<span class="sig-name descname"><span class="pre">get_address</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.get_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.get_address" title="Permalink to this definition"></a></dt>
+<dd><p>Create an address with pubkey.
+address is made from pubkey.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>address represented in hexadecimal string starting with ‘0x’</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.get_hx_address">
+<span class="sig-name descname"><span class="pre">get_hx_address</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.get_hx_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.get_hx_address" title="Permalink to this definition"></a></dt>
+<dd><p>Create an address with pubkey.
+address is made from pubkey.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>address represented in hexadecimal string starting with ‘0x’</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.sign_tx">
+<span class="sig-name descname"><span class="pre">sign_tx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.sign_tx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.sign_tx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.sign">
+<span class="sig-name descname"><span class="pre">sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg_hash</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.sign"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.sign" title="Permalink to this definition"></a></dt>
+<dd><p>Make a signature using the hash value of msg.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg_hash</strong> (<em>bytes</em>) – msg_hash = sha3_256(msg)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>signature bytes</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.store">
+<span class="sig-name descname"><span class="pre">store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.store"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.store" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.sign_recoverable">
+<span class="sig-name descname"><span class="pre">sign_recoverable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg_hash</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.sign_recoverable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.sign_recoverable" title="Permalink to this definition"></a></dt>
+<dd><p>Make a recoverable signature using message hash data
+We can extract public key from recoverable signature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg_hash</strong> (<em>bytes</em>) – hash data of message</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>bytes: 65 bytes data
+int: recovery id</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.from_bytes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.from_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.from_bytes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.from_der">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_der</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.from_der"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.from_der" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSignVerifier">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IcxSignVerifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSignVerifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSignVerifier" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Digial signature verification</p>
+<p>Refer to <a class="reference external" href="https://github.com/ludbb/secp256k1-py">https://github.com/ludbb/secp256k1-py</a> api documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>bytes</em>) – 65 bytes data which PublicKey.serialize() returns</p></li>
+<li><p><strong>raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – if False, it is assumed that pubkey has gone through PublicKey.deserialize already, otherwise it must be specified as bytes.
+<a href="#id103"><span class="problematic" id="id104">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSignVerifier.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSignVerifier.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSignVerifier.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Refer to <a class="reference external" href="https://github.com/ludbb/secp256k1-py">https://github.com/ludbb/secp256k1-py</a> api documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>bytes</em>) – 65 bytes data which PublicKey.serialize() returns</p></li>
+<li><p><strong>raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – if False, it is assumed that pubkey has gone through PublicKey.deserialize already, otherwise it must be specified as bytes.
+<a href="#id105"><span class="problematic" id="id106">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSignVerifier.get_address">
+<span class="sig-name descname"><span class="pre">get_address</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSignVerifier.get_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSignVerifier.get_address" title="Permalink to this definition"></a></dt>
+<dd><p>Create an address with pubkey.
+address is made from pubkey.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>address represented in hexadecimal string starting with ‘0x’</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSignVerifier.verify">
+<span class="sig-name descname"><span class="pre">verify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature_bytes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSignVerifier.verify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSignVerifier.verify" title="Permalink to this definition"></a></dt>
+<dd><p>Check whether signature is valid or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pubkey_bytes</strong> (<em>bytes</em>) – byte data of pubkey</p></li>
+<li><p><strong>msg_hash</strong> (<em>bytes</em>) – hash value of msg</p></li>
+<li><p><strong>signature_bytes</strong> (<em>bytes</em>) – signature data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the result of signature verification</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSignVerifier.from_bytes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSignVerifier.from_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSignVerifier.from_bytes" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>bytes</em>) – bytes data which PublicKey.serialize() returns</p></li>
+<li><p><strong>raw</strong> (<em>bool</em>) – if False, it is assumed that pubkey has gone through PublicKey.deserialize already, otherwise it must be specified as bytes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.get_timestamp_us">
+<span class="sig-name descname"><span class="pre">get_timestamp_us</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#get_timestamp_us"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.get_timestamp_us" title="Permalink to this definition"></a></dt>
+<dd><p>Get epoch time in us.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.icx_to_wei">
+<span class="sig-name descname"><span class="pre">icx_to_wei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">icx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#icx_to_wei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.icx_to_wei" title="Permalink to this definition"></a></dt>
+<dd><p>Convert amount in icx unitt to wei unit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>icx</strong> (<em>float</em>) – float value in icx unit</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>int value in wei unit</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.get_string_decimal">
+<span class="sig-name descname"><span class="pre">get_string_decimal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">place</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#get_string_decimal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.get_string_decimal" title="Permalink to this definition"></a></dt>
+<dd><p>value를 10의 place 제곱으로 나눈 값을 string으로 변환하여 반환</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>int</em>) – </p></li>
+<li><p><strong>place</strong> – 10의 몇 제곱을 나눌지 입력받음</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.sha3_256">
+<span class="sig-name descname"><span class="pre">sha3_256</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#sha3_256"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.sha3_256" title="Permalink to this definition"></a></dt>
+<dd><p>Get hash value using sha3_256 hash function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – data to hash</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>256bit hash value (32 bytes)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.get_tx_hash">
+<span class="sig-name descname"><span class="pre">get_tx_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#get_tx_hash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.get_tx_hash" title="Permalink to this definition"></a></dt>
+<dd><p>Create tx_hash from params object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em><em>, </em><em>optional</em>) – the value of ‘params’ key in jsonrpc
+<a href="#id107"><span class="problematic" id="id108">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>sha3_256 hash value
+:param params:</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.get_tx_phrase">
+<span class="sig-name descname"><span class="pre">get_tx_phrase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#get_tx_phrase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.get_tx_phrase" title="Permalink to this definition"></a></dt>
+<dd><p>Create tx phrase from method and params.
+tx_phrase means input text to create tx_hash.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – the value of ‘params’ key in jsonrpc</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>sha3_256 hash format without ‘0x’ prefix</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.sign_recoverable">
+<span class="sig-name descname"><span class="pre">sign_recoverable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">privkey_bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_hash_bytes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#sign_recoverable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.sign_recoverable" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tx_hash</strong> (<em>bytes</em>) – 32byte tx_hash data</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>signature_bytes + recovery_id(1)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.serialize">
+<span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.serialize" title="Permalink to this definition"></a></dt>
+<dd><p>Serialized params of an original JSON request starting with <code class="xref py py-obj docutils literal notranslate"><span class="pre">icx_sendTransaction</span></code>
+to generate a message hash for a signature.
+:type params: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>
+:param params: params in a original JSON request for transaction.
+:rtype: <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>
+:return: serialized params.
+For example, data like <code class="xref py py-obj docutils literal notranslate"><span class="pre">icx_sendTransaction.</span></code> is converted to bytes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.generate_message">
+<span class="sig-name descname"><span class="pre">generate_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#generate_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.generate_message" title="Permalink to this definition"></a></dt>
+<dd><p>Generates transaction’s message hash from params in request for transaction.
+:type params: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>
+:param params: params in request for transaction.
+:rtype: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>
+:return: the 256 bit hash digest of a message. Hexadecimal encoded.</p>
+</dd></dl>
 
 </section>
 </section>
