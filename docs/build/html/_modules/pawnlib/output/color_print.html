@@ -108,7 +108,6 @@
 <span class="kn">import</span> <span class="nn">textwrap</span>
 <span class="kn">from</span> <span class="nn">requests.structures</span> <span class="kn">import</span> <span class="n">CaseInsensitiveDict</span>
 
-
 <span class="n">_ATTRIBUTES</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
     <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span>
         <span class="s1">&#39;bold&#39;</span><span class="p">,</span>
@@ -292,17 +291,17 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span>
-                <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">remove_columns</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">with_idx</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                <span class="n">call_value_func</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-                <span class="n">call_desc_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">columns_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">kwargs</span>
-                <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">remove_columns</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">with_idx</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">call_value_func</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">call_desc_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">columns_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
         <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -343,7 +342,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_print_table</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_check_columns_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">allowed_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;header_style&quot;</span><span class="p">,</span> <span class="s2">&quot;footer_style&quot;</span><span class="p">,</span> <span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="s2">&quot;justify&quot;</span><span class="p">,</span> <span class="s2">&quot;vertical&quot;</span><span class="p">,</span> <span class="s2">&quot;overflow&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;min_width&quot;</span><span class="p">,</span> <span class="s2">&quot;max_width&quot;</span><span class="p">,</span> <span class="s2">&quot;ratio&quot;</span><span class="p">,</span> <span class="s2">&quot;no_wrap&quot;</span><span class="p">]</span>
+        <span class="n">allowed_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;header_style&quot;</span><span class="p">,</span> <span class="s2">&quot;footer_style&quot;</span><span class="p">,</span> <span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="s2">&quot;justify&quot;</span><span class="p">,</span> <span class="s2">&quot;vertical&quot;</span><span class="p">,</span> <span class="s2">&quot;overflow&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;min_width&quot;</span><span class="p">,</span> <span class="s2">&quot;max_width&quot;</span><span class="p">,</span> <span class="s2">&quot;ratio&quot;</span><span class="p">,</span>
+                           <span class="s2">&quot;no_wrap&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column_values</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column_values</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">column_key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">column_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -653,13 +653,14 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">end</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
                 <span class="c1"># print(bcolors.WARNING + &#39;%s%s&#39; % (def_spacing + (nested_level + 1) * spacing, get_colorful_object(v)) + bcolors.ENDC, file=output)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">bcolors</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="n">nested_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">get_colorful_object</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">bcolors</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="n">nested_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">get_colorful_object</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">,</span>
+                      <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">def_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="n">nested_level</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
             <span class="n">converted_hex</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-            <span class="k">if</span> <span class="n">hex_to_int</span> <span class="ow">and</span> <span class="n">converter</span><span class="o">.</span><span class="n">is_hex</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_include_list</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_last_key</span><span class="p">,</span> <span class="n">include_list</span><span class="o">=</span><span class="n">ignore_keys</span><span class="p">,</span> <span class="n">ignore_case</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">hex_to_int</span> <span class="ow">and</span> <span class="n">converter</span><span class="o">.</span><span class="n">is_hex</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_include_list</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_last_key</span><span class="p">,</span> <span class="n">include_list</span><span class="o">=</span><span class="n">ignore_keys</span><span class="p">,</span> <span class="n">ignore_case</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">_last_key</span> <span class="o">==</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span>
                     <span class="n">t_value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1_000_000</span><span class="p">)</span>
                     <span class="n">converted_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;(from </span><span class="si">{</span><span class="n">_last_key</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -825,20 +826,19 @@
 
 
 <span class="k">def</span> <span class="nf">_patched_make_iterencode</span><span class="p">(</span><span class="n">markers</span><span class="p">,</span> <span class="n">_default</span><span class="p">,</span> <span class="n">_encoder</span><span class="p">,</span> <span class="n">_indent</span><span class="p">,</span> <span class="n">_floatstr</span><span class="p">,</span>
-                     <span class="n">_key_separator</span><span class="p">,</span> <span class="n">_item_separator</span><span class="p">,</span> <span class="n">_sort_keys</span><span class="p">,</span> <span class="n">_skipkeys</span><span class="p">,</span> <span class="n">_one_shot</span><span class="p">,</span>
-                     <span class="c1">## HACK: hand-optimized bytecode; turn globals into locals</span>
-                     <span class="ne">ValueError</span><span class="o">=</span><span class="ne">ValueError</span><span class="p">,</span>
-                     <span class="nb">dict</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span>
-                     <span class="nb">float</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
-                     <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
-                     <span class="nb">int</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
-                     <span class="nb">isinstance</span><span class="o">=</span><span class="nb">isinstance</span><span class="p">,</span>
-                     <span class="nb">list</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span>
-                     <span class="nb">str</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-                     <span class="nb">tuple</span><span class="o">=</span><span class="nb">tuple</span><span class="p">,</span>
-                     <span class="n">_intstr</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">,</span>
-                     <span class="p">):</span>
-
+                             <span class="n">_key_separator</span><span class="p">,</span> <span class="n">_item_separator</span><span class="p">,</span> <span class="n">_sort_keys</span><span class="p">,</span> <span class="n">_skipkeys</span><span class="p">,</span> <span class="n">_one_shot</span><span class="p">,</span>
+                             <span class="c1">## HACK: hand-optimized bytecode; turn globals into locals</span>
+                             <span class="ne">ValueError</span><span class="o">=</span><span class="ne">ValueError</span><span class="p">,</span>
+                             <span class="nb">dict</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span>
+                             <span class="nb">float</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                             <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
+                             <span class="nb">int</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                             <span class="nb">isinstance</span><span class="o">=</span><span class="nb">isinstance</span><span class="p">,</span>
+                             <span class="nb">list</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span>
+                             <span class="nb">str</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                             <span class="nb">tuple</span><span class="o">=</span><span class="nb">tuple</span><span class="p">,</span>
+                             <span class="n">_intstr</span><span class="o">=</span><span class="nb">int</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">,</span>
+                             <span class="p">):</span>
     <span class="k">if</span> <span class="n">_indent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_indent</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">_indent</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">_indent</span>
 
@@ -1012,17 +1012,19 @@
             <span class="k">yield from</span> <span class="n">_iterencode</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">_current_indent_level</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">markers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">del</span> <span class="n">markers</span><span class="p">[</span><span class="n">markerid</span><span class="p">]</span>
+
     <span class="k">return</span> <span class="n">_iterencode</span>
 
 
 <div class="viewcode-block" id="json_compact_dumps"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.json_compact_dumps">[docs]</a><span class="k">def</span> <span class="nf">json_compact_dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">monkey_patch</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">monkey_patch</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">_make_iterencode</span> <span class="o">=</span> <span class="n">_patched_make_iterencode</span>
-    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>  <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="NoIndent"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.NoIndent">[docs]</a><span class="k">class</span> <span class="nc">NoIndent</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Value wrapper. &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span></div>
 
@@ -1054,7 +1056,6 @@
 
 <div class="viewcode-block" id="ProgressTime"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.ProgressTime">[docs]</a><span class="k">class</span> <span class="nc">ProgressTime</span><span class="p">(</span><span class="n">Progress</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
         <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;transient&#39;</span><span class="p">,</span> <span class="s2">&quot;__NOT_DEFINED__&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;__NOT_DEFINED__&quot;</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;transient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -1132,9 +1133,15 @@
 
 
 <div class="viewcode-block" id="get_debug_here_info"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.get_debug_here_info">[docs]</a><span class="k">def</span> <span class="nf">get_debug_here_info</span><span class="p">():</span>
-    <span class="n">previous_frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span>
-    <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">function_name</span><span class="p">,</span> <span class="n">ln</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getframeinfo</span><span class="p">(</span><span class="n">previous_frame</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get debug information from the previous frame.</span>
 
+<span class="sd">    This function uses the inspect module to get information about the previous frame, including the filename, line number, function name, lines of context, and index.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary containing the debug information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span><span class="p">,</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">function_name</span><span class="p">,</span> <span class="n">ln</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getframeinfo</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span>
         <span class="s2">&quot;line_number&quot;</span><span class="p">:</span> <span class="n">line_number</span><span class="p">,</span>
@@ -1163,6 +1170,17 @@
 
 
 <div class="viewcode-block" id="dict_clean"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.dict_clean">[docs]</a><span class="k">def</span> <span class="nf">dict_clean</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clean the dictionary data.</span>
+
+<span class="sd">    This function iterates over the items in the dictionary. If the value is an instance of CaseInsensitiveDict, it converts it to a regular dictionary. If the value is None, it converts it to an empty string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (dict): The dictionary to clean.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: The cleaned dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">CaseInsensitiveDict</span><span class="p">):</span>
@@ -1174,6 +1192,18 @@
 
 
 <div class="viewcode-block" id="list_clean"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.list_clean">[docs]</a><span class="k">def</span> <span class="nf">list_clean</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clean the list data.</span>
+
+<span class="sd">    This function iterates over the items in the list. If the value is None, it converts it to an empty string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (list): The list to clean.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: The cleaned list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1183,6 +1213,18 @@
 
 
 <div class="viewcode-block" id="data_clean"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.data_clean">[docs]</a><span class="k">def</span> <span class="nf">data_clean</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clean the data.</span>
+
+<span class="sd">    This function checks the type of the data. If the data is a dictionary, it cleans it using the dict_clean function. If the data is a list, it cleans it using the list_clean function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (Any): The data to clean.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Any: The cleaned data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">dict_clean</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -1191,6 +1233,18 @@
 
 
 <div class="viewcode-block" id="count_nested_dict_len"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.count_nested_dict_len">[docs]</a><span class="k">def</span> <span class="nf">count_nested_dict_len</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Count the length of a nested dictionary.</span>
+
+<span class="sd">    This function counts the number of items in a dictionary. If a value in the dictionary is also a dictionary, it recursively counts the number of items in that dictionary as well.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        d (dict): The dictionary to count the length of.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: The length of the dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -1207,8 +1261,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        str: The variable name if it can be found, otherwise an empty string.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">call_frame</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">call_frame</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">source</span> <span class="o">=</span> <span class="n">executing</span><span class="o">.</span><span class="n">Source</span><span class="o">.</span><span class="n">for_frame</span><span class="p">(</span><span class="n">call_frame</span><span class="p">)</span>
         <span class="n">ex</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">executing</span><span class="p">(</span><span class="n">call_frame</span><span class="p">)</span>
         <span class="n">func_ast</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">node</span>
@@ -1255,17 +1310,16 @@
 <span class="sd">    Keyword Args:</span>
 <span class="sd">        line_indent (str): The line indent to use when printing the data. Defaults to &#39;      &#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="n">line_indent</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;line_indent&#39;</span><span class="p">,</span> <span class="s1">&#39;      &#39;</span><span class="p">)</span>
+
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;line_indent&#39;</span><span class="p">,</span> <span class="s1">&#39;      &#39;</span><span class="p">)</span>
     <span class="n">var_name</span> <span class="o">=</span> <span class="n">get_var_name</span><span class="p">()</span>
     <span class="n">data_length</span> <span class="o">=</span> <span class="n">get_data_length</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">_title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[yellow bold]</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">[/yellow bold]&quot;</span> <span class="k">if</span> <span class="n">title</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
-    <span class="n">title_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[yellow bold]</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">[/yellow bold]&quot;</span> <span class="k">if</span> <span class="n">title</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-
-    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🎁 [[blue bold]</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">[/blue bold]] </span><span class="si">{</span><span class="n">title_str</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🎁 [[blue bold]</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">[/blue bold]] </span><span class="si">{</span><span class="n">_title</span><span class="si">}</span><span class="s2">&quot;</span>
                      <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[italic] (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">), </span><span class="si">{</span><span class="n">data_length</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">_stack_offset</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">syntax_highlight</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">line_indent</span><span class="o">=</span><span class="n">line_indent</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">syntax_highlight</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[white bold]</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
@@ -1302,7 +1356,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="s2">&quot;&lt;</span><span class="si">{0.__name__}</span><span class="s2">&gt; </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">msg</span><span class="p">),</span>
         <span class="c1"># ex_type, ex_value, traceback = sys.exc_info()</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
-
 </pre></div>
 
            </div>

@@ -21,7 +21,6 @@ from datetime import datetime
 import textwrap
 from requests.structures import CaseInsensitiveDict
 
-
 _ATTRIBUTES = dict(
     list(zip([
         'bold',
@@ -205,17 +204,17 @@ class PrintRichTable:
     """
 
     def __init__(
-                self,
-                title: str = "",
-                data: Union[dict, list] = None,
-                columns: list = None,
-                remove_columns: list = None,
-                with_idx: bool = True,
-                call_value_func=str,
-                call_desc_func=None,
-                columns_options=None,
-                **kwargs
-                ) -> None:
+            self,
+            title: str = "",
+            data: Union[dict, list] = None,
+            columns: list = None,
+            remove_columns: list = None,
+            with_idx: bool = True,
+            call_value_func=str,
+            call_desc_func=None,
+            columns_options=None,
+            **kwargs
+    ) -> None:
 
         if columns is None:
             columns = list()
@@ -256,7 +255,8 @@ class PrintRichTable:
         self._print_table()
 
     def _check_columns_options(self):
-        allowed_columns = ["header_style", "footer_style", "style", "justify", "vertical", "overflow", "width", "min_width", "max_width", "ratio", "no_wrap"]
+        allowed_columns = ["header_style", "footer_style", "style", "justify", "vertical", "overflow", "width", "min_width", "max_width", "ratio",
+                           "no_wrap"]
         for column_name, column_values in self.columns_options.items():
             if isinstance(column_values, dict):
                 for column_key, value in column_values.items():
@@ -566,13 +566,14 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
                 else:
                     end = '\n'
                 # print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, get_colorful_object(v)) + bcolors.ENDC, file=output)
-                print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, get_colorful_object(v)) + bcolors.ENDC, file=output, end=end)
+                print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, get_colorful_object(v)) + bcolors.ENDC, file=output,
+                      end=end)
         print('%s]' % (def_spacing + (nested_level) * spacing), file=output)
     else:
         if debug:
             converted_hex = ""
 
-            if hex_to_int and converter.is_hex(obj) and not is_include_list(target=_last_key, include_list=ignore_keys, ignore_case=False) :
+            if hex_to_int and converter.is_hex(obj) and not is_include_list(target=_last_key, include_list=ignore_keys, ignore_case=False):
                 if _last_key == "timestamp":
                     t_value = round(int(obj, 16) / 1_000_000)
                     converted_str = f"(from {_last_key})"
@@ -738,20 +739,19 @@ def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, bar_l
 
 
 def _patched_make_iterencode(markers, _default, _encoder, _indent, _floatstr,
-                     _key_separator, _item_separator, _sort_keys, _skipkeys, _one_shot,
-                     ## HACK: hand-optimized bytecode; turn globals into locals
-                     ValueError=ValueError,
-                     dict=dict,
-                     float=float,
-                     id=id,
-                     int=int,
-                     isinstance=isinstance,
-                     list=list,
-                     str=str,
-                     tuple=tuple,
-                     _intstr=int.__repr__,
-                     ):
-
+                             _key_separator, _item_separator, _sort_keys, _skipkeys, _one_shot,
+                             ## HACK: hand-optimized bytecode; turn globals into locals
+                             ValueError=ValueError,
+                             dict=dict,
+                             float=float,
+                             id=id,
+                             int=int,
+                             isinstance=isinstance,
+                             list=list,
+                             str=str,
+                             tuple=tuple,
+                             _intstr=int.__repr__,
+                             ):
     if _indent is not None and not isinstance(_indent, str):
         _indent = ' ' * _indent
 
@@ -925,17 +925,19 @@ def _patched_make_iterencode(markers, _default, _encoder, _indent, _floatstr,
             yield from _iterencode(o, _current_indent_level)
             if markers is not None:
                 del markers[markerid]
+
     return _iterencode
 
 
 def json_compact_dumps(data, indent=4, monkey_patch=True):
     if monkey_patch:
         json.encoder._make_iterencode = _patched_make_iterencode
-    return json.dumps(data,  indent=indent)
+    return json.dumps(data, indent=indent)
 
 
 class NoIndent(object):
     """ Value wrapper. """
+
     def __init__(self, value):
         self.value = value
 
@@ -967,7 +969,6 @@ class NoListIndentEncoder(json.JSONEncoder):
 
 class ProgressTime(Progress):
     def __init__(self, **kwargs):
-
         if kwargs.get('transient', "__NOT_DEFINED__") == "__NOT_DEFINED__":
             kwargs['transient'] = True
 
@@ -1268,4 +1269,3 @@ class NoTraceBackException(Exception):
         self.args = "<{0.__name__}> {1}".format(type(self), msg),
         # ex_type, ex_value, traceback = sys.exc_info()
         raise Exception(self)
-

@@ -232,6 +232,17 @@
 
 
 <div class="viewcode-block" id="AsyncHttp"><a class="viewcode-back" href="../../../module/pawnlib.asyncio.html#pawnlib.asyncio.run.AsyncHttp">[docs]</a><span class="k">class</span> <span class="nc">AsyncHttp</span><span class="p">(</span><span class="n">AsyncTasks</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is a subclass of AsyncTasks and is used to handle asynchronous HTTP requests.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        max_at_once (int): Maximum number of tasks to run at once.</span>
+<span class="sd">        max_per_second (int): Maximum number of tasks to start per second.</span>
+<span class="sd">        title (str): Title for the progress bar.</span>
+<span class="sd">        debug (bool): If True, print debug information.</span>
+<span class="sd">        status (bool): If True, print status information.</span>
+<span class="sd">        urls (list): List of URLs to fetch.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">max_at_once</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -248,6 +259,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_prepare</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AsyncHttp.append_task"><a class="viewcode-back" href="../../../module/pawnlib.asyncio.html#pawnlib.asyncio.run.AsyncHttp.append_task">[docs]</a>    <span class="k">def</span> <span class="nf">append_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Append a new task to the task list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task (str or dict): If it&#39;s a string, it&#39;s considered as a URL. If it&#39;s a dictionary, it should contain a &#39;url&#39; key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">_url</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -258,18 +276,6 @@
             <span class="n">_url</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">)</span>
             <span class="n">_kwargs</span> <span class="o">=</span> <span class="n">task</span>
 
-        <span class="c1"># if _kwargs:</span>
-        <span class="c1">#     self.generate_tasks(</span>
-        <span class="c1">#         target_list=[_url],</span>
-        <span class="c1">#         function=fetch_httpx_url,</span>
-        <span class="c1">#         kwargs=_kwargs</span>
-        <span class="c1">#     )</span>
-        <span class="c1"># else:</span>
-        <span class="c1">#     self.generate_tasks(</span>
-        <span class="c1">#         target_list=[_url],</span>
-        <span class="c1">#         function=fetch_httpx_url,</span>
-        <span class="c1">#     )</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_tasks</span><span class="p">(</span>
             <span class="n">target_list</span><span class="o">=</span><span class="p">[</span><span class="n">_url</span><span class="p">],</span>
             <span class="n">function</span><span class="o">=</span><span class="n">fetch_httpx_url</span><span class="p">,</span>
@@ -278,18 +284,33 @@
         <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;IN] url=</span><span class="si">{</span><span class="n">_url</span><span class="si">}</span><span class="s2">, kwargs=</span><span class="si">{</span><span class="n">_kwargs</span><span class="si">}</span><span class="s2">, max_at_once=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_at_once</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare the tasks based on the provided URLs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">urls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">urls</span><span class="p">:</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">append_task</span><span class="p">(</span><span class="n">info</span><span class="p">)</span></div>
 
 
-    <span class="c1"># def fetch(self):</span>
-    <span class="c1">#     print(self.urls)</span>
-    <span class="c1">#     self.run()</span>
-
-
 <div class="viewcode-block" id="fetch_httpx_url"><a class="viewcode-back" href="../../../module/pawnlib.asyncio.html#pawnlib.asyncio.run.fetch_httpx_url">[docs]</a><span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_httpx_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">max_keepalive_connections</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_connections</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Asynchronously fetch a URL using httpx.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        url (str): The URL to fetch.</span>
+<span class="sd">        method (str): The HTTP method to use. Default is &quot;get&quot;.</span>
+<span class="sd">        timeout (int): The timeout for the request in seconds. Default is 4.</span>
+<span class="sd">        info (str): Additional information for the request. Default is an empty string.</span>
+<span class="sd">        max_keepalive_connections (int): The maximum number of keep-alive connections. Default is 10.</span>
+<span class="sd">        max_connections (int): The maximum number of connections. Default is 20.</span>
+<span class="sd">        **kwargs: Additional keyword arguments for the httpx request.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        httpx.Response or dict: The response from the server, or an empty dictionary if an error occurred.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">response</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Limits</span><span class="p">(</span><span class="n">max_keepalive_connections</span><span class="o">=</span><span class="n">max_keepalive_connections</span><span class="p">,</span> <span class="n">max_connections</span><span class="o">=</span><span class="n">max_connections</span><span class="p">)</span>
