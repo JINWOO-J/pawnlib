@@ -79,6 +79,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.check.sys_exit"><code class="docutils literal notranslate"><span class="pre">sys_exit()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.check.is_include_list"><code class="docutils literal notranslate"><span class="pre">is_include_list()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.check.keys_exists"><code class="docutils literal notranslate"><span class="pre">keys_exists()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.check.detect_encoding"><code class="docutils literal notranslate"><span class="pre">detect_encoding()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pawnlib-typing-converter-module">pawnlib.typing.converter module</a><ul>
@@ -642,6 +643,45 @@ You don’t have to implement it like this.</p>
 </div>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.typing.check.detect_encoding">
+<span class="sig-name descname"><span class="pre">detect_encoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">byte_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_encode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/check.html#detect_encoding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.check.detect_encoding" title="Permalink to this definition"></a></dt>
+<dd><p>Detects the encoding of byte data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>byte_data</strong> (<em>bytes</em>) – The byte data to be decoded.</p></li>
+<li><p><strong>default_encode</strong> (<em>str</em><em>, </em><em>optional</em>) – The default encoding to be used if no suitable encoding is found. Defaults to “utf8”.
+<a href="#id17"><span class="problematic" id="id18">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'utf8'</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The detected encoding.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>UnicodeDecodeError</strong> – If the byte data cannot be decoded using any of the available encodings.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Detect the encoding of byte data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">byte_data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;ABC&quot;</span>
+<span class="n">detect_encoding</span><span class="p">(</span><span class="n">byte_data</span><span class="p">)</span>
+<span class="c1"># Output: &#39;ascii&#39;</span>
+
+<span class="n">byte_data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;ê°ëë¤&quot;</span>
+<span class="n">detect_encoding</span><span class="p">(</span><span class="n">byte_data</span><span class="p">)</span>
+<span class="c1"># Output: &#39;utf8&#39;</span>
+
+<span class="n">byte_data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;°¡±âÆ®&quot;</span>
+<span class="n">detect_encoding</span><span class="p">(</span><span class="n">byte_data</span><span class="p">)</span>
+<span class="c1"># Output: &#39;euc-kr&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 <section id="pawnlib-typing-converter-module">
 <h2>pawnlib.typing.converter module<a class="headerlink" href="#pawnlib-typing-converter-module" title="Permalink to this heading"></a></h2>
@@ -656,7 +696,7 @@ You don’t have to implement it like this.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>max_length</strong> (<em>optional</em>) – max length size for list
-<a href="#id17"><span class="problematic" id="id18">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1000</span></code></p>
+<a href="#id19"><span class="problematic" id="id20">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1000</span></code></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -1008,7 +1048,7 @@ the implementation added in v1.2 of FlatDict.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – data</p></li>
 <li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – human-readable notation
-<a href="#id19"><span class="problematic" id="id20">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<a href="#id21"><span class="problematic" id="id22">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1033,9 +1073,9 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – </p></li>
-<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id21"><span class="problematic" id="id22">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id23"><span class="problematic" id="id24">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>ignore_keys</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <em>optional</em>) – <a href="#id25"><span class="problematic" id="id26">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p></li>
+<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id23"><span class="problematic" id="id24">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id25"><span class="problematic" id="id26">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>ignore_keys</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <em>optional</em>) – <a href="#id27"><span class="problematic" id="id28">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1058,12 +1098,12 @@ the implementation added in v1.2 of FlatDict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ansi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id27"><span class="problematic" id="id28">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>hex_value</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id33"><span class="problematic" id="id34">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>change</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>is_tint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>ansi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>hex_value</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id33"><span class="problematic" id="id34">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>change</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>is_tint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1092,8 +1132,8 @@ the implementation added in v1.2 of FlatDict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>attr</strong> (<em>optional</em>) – <a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>file_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>attr</strong> (<em>optional</em>) – <a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1165,9 +1205,9 @@ the implementation added in v1.2 of FlatDict.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dictionary</strong> – The dictionary to flatten</p></li>
 <li><p><strong>parent_key</strong> (<em>optional</em>) – The string to prepend to dictionary’s keys
-<a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<a href="#id45"><span class="problematic" id="id46">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 <li><p><strong>separator</strong> (<em>optional</em>) – The string used to separate flattened keys
-<a href="#id45"><span class="problematic" id="id46">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
+<a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1184,7 +1224,7 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>list_items</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – </p></li>
-<li><p><strong>uniq</strong> (<em>optional</em>) – <a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>uniq</strong> (<em>optional</em>) – <a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1208,8 +1248,8 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>init</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – </p></li>
-<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'｡'</span></code></p></li>
-<li><p><strong>lkey</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'｡'</span></code></p></li>
+<li><p><strong>lkey</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1241,9 +1281,9 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dict_param</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – </p></li>
-<li><p><strong>quotes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'='</span></code></p></li>
-<li><p><strong>end_separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">','</span></code></p></li>
+<li><p><strong>quotes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'='</span></code></p></li>
+<li><p><strong>end_separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">','</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1286,8 +1326,8 @@ the implementation added in v1.2 of FlatDict.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source_dict</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>], <em>optional</em>) – <a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>target_dict</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>], <em>optional</em>) – <a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>source_dict</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>], <em>optional</em>) – <a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>target_dict</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>], <em>optional</em>) – <a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1334,7 +1374,7 @@ the implementation added in v1.2 of FlatDict.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>list_param</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List</p></li>
 <li><p><strong>split_str</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – String to separate
-<a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
+<a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1372,7 +1412,7 @@ Using <span class="xref std std-ref">string formatting</span> lets us use Python
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – </p></li>
-<li><p><strong>reverse</strong> (<em>optional</em>) – <a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>reverse</strong> (<em>optional</em>) – <a href="#id67"><span class="problematic" id="id68">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1389,7 +1429,7 @@ Using <span class="xref std std-ref">string formatting</span> lets us use Python
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – </p></li>
 <li><p><strong>fn</strong> – </p></li>
-<li><p><strong>target</strong> (<em>optional</em>) – <a href="#id67"><span class="problematic" id="id68">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'key'</span></code></p></li>
+<li><p><strong>target</strong> (<em>optional</em>) – <a href="#id69"><span class="problematic" id="id70">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'key'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1511,7 +1551,7 @@ influxdb data not allowed space</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – </p></li>
-<li><p><strong>replace_str</strong> (<em>optional</em>) – <a href="#id69"><span class="problematic" id="id70">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'_'</span></code></p></li>
+<li><p><strong>replace_str</strong> (<em>optional</em>) – <a href="#id71"><span class="problematic" id="id72">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'_'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1528,8 +1568,8 @@ influxdb data not allowed space</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – </p></li>
-<li><p><strong>patterns</strong> (<em>optional</em>) – <a href="#id71"><span class="problematic" id="id72">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>replace_str</strong> (<em>optional</em>) – <a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'_'</span></code></p></li>
+<li><p><strong>patterns</strong> (<em>optional</em>) – <a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>replace_str</strong> (<em>optional</em>) – <a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'_'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1577,8 +1617,8 @@ influxdb data not allowed space</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key_values</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – </p></li>
-<li><p><strong>sep</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">','</span></code></p></li>
-<li><p><strong>operator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'='</span></code></p></li>
+<li><p><strong>sep</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">','</span></code></p></li>
+<li><p><strong>operator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'='</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1608,7 +1648,7 @@ influxdb data not allowed space</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – </p></li>
-<li><p><strong>list_of_dicts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <em>optional</em>) – <a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p></li>
+<li><p><strong>list_of_dicts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <em>optional</em>) – <a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1792,11 +1832,11 @@ influxdb data not allowed space</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> (<em>optional</em>) – text to shorten
-<a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
 <li><p><strong>width</strong> (<em>optional</em>) – maximum width of the string
-<a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>placeholder</strong> (<em>optional</em>) – placeholder string of the text
-<a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'[...]'</span></code></p></li>
+<a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'[...]'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1838,7 +1878,7 @@ influxdb data not allowed space</p>
 <p>It will be calculated seconds to string format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>seconds</strong> (<em>optional</em>) – <a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
+<dd class="field-odd"><p><strong>seconds</strong> (<em>optional</em>) – <a href="#id89"><span class="problematic" id="id90">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -1854,7 +1894,7 @@ influxdb data not allowed space</p>
 <dd><p>It will be calculated seconds to string format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>seconds</strong> (<em>optional</em>) – <a href="#id89"><span class="problematic" id="id90">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
+<dd class="field-odd"><p><strong>seconds</strong> (<em>optional</em>) – <a href="#id91"><span class="problematic" id="id92">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -1918,7 +1958,7 @@ influxdb data not allowed space</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>year</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
 <li><p><strong>month</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
-<li><p><strong>return_unix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id91"><span class="problematic" id="id92">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>return_unix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id93"><span class="problematic" id="id94">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1942,7 +1982,7 @@ influxdb data not allowed space</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>date_type</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘file’, ‘time’, ‘hour’, ‘ms’, ‘log’, ‘log_ms’, ‘ms_text’, ‘unix’, ‘ms_unix’]], <em>optional</em>) – file, time, hour, ms, ms_text, unix, ms_unix
-<a href="#id93"><span class="problematic" id="id94">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+<a href="#id95"><span class="problematic" id="id96">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -1969,7 +2009,7 @@ influxdb data not allowed space</p>
 <dd><p>This functions will be returned seconds to hh:mm:ss format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>seconds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id95"><span class="problematic" id="id96">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
+<dd class="field-odd"><p><strong>seconds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id97"><span class="problematic" id="id98">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
@@ -1993,7 +2033,7 @@ influxdb data not allowed space</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>unix_timestamp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – unix_timestamp</p></li>
 <li><p><strong>str_format</strong> (<em>optional</em>) – string format
-<a href="#id97"><span class="problematic" id="id98">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M:%S'</span></code></p></li>
+<a href="#id99"><span class="problematic" id="id100">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M:%S'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2016,7 +2056,7 @@ influxdb data not allowed space</p>
 <dd><p>This functions will be returned unix timestamp to days hh:mm:ss format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>seconds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id99"><span class="problematic" id="id100">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
+<dd class="field-odd"><p><strong>seconds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id101"><span class="problematic" id="id102">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
@@ -2246,9 +2286,9 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>namespace</strong> (<em>optional</em>) – <a href="#id101"><span class="problematic" id="id102">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>key</strong> (<em>optional</em>) – <a href="#id103"><span class="problematic" id="id104">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>default</strong> (<em>optional</em>) – <a href="#id105"><span class="problematic" id="id106">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>namespace</strong> (<em>optional</em>) – <a href="#id103"><span class="problematic" id="id104">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>key</strong> (<em>optional</em>) – <a href="#id105"><span class="problematic" id="id106">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>default</strong> (<em>optional</em>) – <a href="#id107"><span class="problematic" id="id108">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2308,15 +2348,15 @@ string representation.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Start Number ( float or int )
-<a href="#id107"><span class="problematic" id="id108">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<a href="#id109"><span class="problematic" id="id110">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
 <li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Stop Number ( float or int )
-<a href="#id109"><span class="problematic" id="id110">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<a href="#id111"><span class="problematic" id="id112">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
 <li><p><strong>step</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Step Number ( float or int )
-<a href="#id111"><span class="problematic" id="id112">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<a href="#id113"><span class="problematic" id="id114">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
 <li><p><strong>convert_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>, <em>optional</em>) – Functions to execute on increment
-<a href="#id113"><span class="problematic" id="id114">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;</span></code></p></li>
+<a href="#id115"><span class="problematic" id="id116">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;</span></code></p></li>
 <li><p><strong>kwargs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>], <em>optional</em>) – Arguments to the function to be executed on increment
-<a href="#id115"><span class="problematic" id="id116">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id117"><span class="problematic" id="id118">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -2348,15 +2388,15 @@ string representation.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Start Number ( float or int )
-<a href="#id117"><span class="problematic" id="id118">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<a href="#id119"><span class="problematic" id="id120">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
 <li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Stop Number ( float or int )
-<a href="#id119"><span class="problematic" id="id120">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<a href="#id121"><span class="problematic" id="id122">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
 <li><p><strong>step</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Step Number ( float or int )
-<a href="#id121"><span class="problematic" id="id122">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<a href="#id123"><span class="problematic" id="id124">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
 <li><p><strong>convert_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>, <em>optional</em>) – Functions to execute on increment
-<a href="#id123"><span class="problematic" id="id124">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;</span></code></p></li>
+<a href="#id125"><span class="problematic" id="id126">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;</span></code></p></li>
 <li><p><strong>kwargs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>], <em>optional</em>) – Arguments to the function to be executed on increment
-<a href="#id125"><span class="problematic" id="id126">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id127"><span class="problematic" id="id128">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -2412,8 +2452,8 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<em>optional</em>) – <a href="#id127"><span class="problematic" id="id128">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">8</span></code></p></li>
-<li><p><strong>chars</strong> (<em>optional</em>) – <a href="#id129"><span class="problematic" id="id130">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'</span></code></p></li>
+<li><p><strong>size</strong> (<em>optional</em>) – <a href="#id129"><span class="problematic" id="id130">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">8</span></code></p></li>
+<li><p><strong>chars</strong> (<em>optional</em>) – <a href="#id131"><span class="problematic" id="id132">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2435,9 +2475,9 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id131"><span class="problematic" id="id132">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">8</span></code></p></li>
-<li><p><strong>count</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id133"><span class="problematic" id="id134">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">4</span></code></p></li>
-<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id135"><span class="problematic" id="id136">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'-'</span></code></p></li>
+<li><p><strong>size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id133"><span class="problematic" id="id134">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">8</span></code></p></li>
+<li><p><strong>count</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id135"><span class="problematic" id="id136">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">4</span></code></p></li>
+<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id137"><span class="problematic" id="id138">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'-'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2460,7 +2500,7 @@ e.g. 1, 2, 3, .. 9, 10, 11, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – start: The first value to start with.
-<a href="#id137"><span class="problematic" id="id138">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p>
+<a href="#id139"><span class="problematic" id="id140">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
@@ -2479,7 +2519,7 @@ e.g. 1, 2, 3, .. 9, a, b, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The first value to start with.
-<a href="#id139"><span class="problematic" id="id140">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p>
+<a href="#id141"><span class="problematic" id="id142">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
@@ -2542,11 +2582,11 @@ e.g. 1, 2, 3, .. 9, a, b, etc.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>method</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id141"><span class="problematic" id="id142">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>params</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>], <em>optional</em>) – <a href="#id143"><span class="problematic" id="id144">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <em>optional</em>) – <a href="#id145"><span class="problematic" id="id146">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'&lt;NO_ID&gt;'</span></code></p></li>
+<li><p><strong>method</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id143"><span class="problematic" id="id144">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>params</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>], <em>optional</em>) – <a href="#id145"><span class="problematic" id="id146">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <em>optional</em>) – <a href="#id147"><span class="problematic" id="id148">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'&lt;NO_ID&gt;'</span></code></p></li>
 <li><p><strong>dumps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – to json string
-<a href="#id147"><span class="problematic" id="id148">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<a href="#id149"><span class="problematic" id="id150">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2578,12 +2618,12 @@ e.g. 1, 2, 3, .. 9, a, b, etc.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>c</strong> (<em>optional</em>) – itertools.count()
-<a href="#id149"><span class="problematic" id="id150">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">count(0)</span></code></p></li>
-<li><p><strong>prefix</strong> (<em>optional</em>) – <a href="#id151"><span class="problematic" id="id152">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<a href="#id151"><span class="problematic" id="id152">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">count(0)</span></code></p></li>
+<li><p><strong>prefix</strong> (<em>optional</em>) – <a href="#id153"><span class="problematic" id="id154">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
 <li><p><strong>zfill</strong> (<em>optional</em>) – adds zeros (0) at the beginning of the string, until it reaches the specified length.
-<a href="#id153"><span class="problematic" id="id154">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<a href="#id155"><span class="problematic" id="id156">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
 <li><p><strong>remove_prefix</strong> (<em>optional</em>) – remove prefix ‘0x’ string
-<a href="#id155"><span class="problematic" id="id156">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<a href="#id157"><span class="problematic" id="id158">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2620,13 +2660,13 @@ e.g. 1, 2, 3, .. 9, a, b, etc.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>c</strong> (<em>optional</em>) – itertools.count()
-<a href="#id157"><span class="problematic" id="id158">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">count(0)</span></code></p></li>
+<a href="#id159"><span class="problematic" id="id160">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">count(0)</span></code></p></li>
 <li><p><strong>prefix</strong> (<em>optional</em>) – prefix address
-<a href="#id159"><span class="problematic" id="id160">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'hx'</span></code></p></li>
+<a href="#id161"><span class="problematic" id="id162">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'hx'</span></code></p></li>
 <li><p><strong>zfill</strong> (<em>optional</em>) – adds zeros (0) at the beginning of the string, until it reaches the specified length.
-<a href="#id161"><span class="problematic" id="id162">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">40</span></code></p></li>
+<a href="#id163"><span class="problematic" id="id164">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">40</span></code></p></li>
 <li><p><strong>remove_prefix</strong> (<em>optional</em>) – remove prefix ‘0x’ string
-<a href="#id163"><span class="problematic" id="id164">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<a href="#id165"><span class="problematic" id="id166">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
 </ul>
 </dd>
 </dl>

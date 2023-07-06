@@ -405,3 +405,45 @@ def keys_exists(element, *keys):
         else:
             return False
     return True
+
+
+def detect_encoding(byte_data, default_encode="utf8"):
+    """
+    Detects the encoding of byte data.
+
+    :param byte_data: The byte data to be decoded.
+    :type byte_data: bytes
+    :param default_encode: The default encoding to be used if no suitable encoding is found. Defaults to "utf8".
+    :type default_encode: str
+    :return: The detected encoding.
+    :rtype: str
+    :raises UnicodeDecodeError: If the byte data cannot be decoded using any of the available encodings.
+
+    Examples:
+
+        Detect the encoding of byte data:
+
+        .. code-block:: python
+
+            byte_data = b"\x41\x42\x43"
+            detect_encoding(byte_data)
+            # Output: 'ascii'
+
+            byte_data = b"\xea\xb0\x80\xeb\x82\x98\xeb\x8b\xa4"
+            detect_encoding(byte_data)
+            # Output: 'utf8'
+
+            byte_data = b"\xb0\xa1\xb1\xe2\xc6\xae"
+            detect_encoding(byte_data)
+            # Output: 'euc-kr'
+    """
+
+    encodings = ["ascii", "utf8", "euc-kr", "iso2022_jp", "euc_jp", "shift_jis", "cp932", "latin1"]
+    for encoding in encodings:
+        try:
+            byte_data.decode(encoding)
+            return encoding
+        except UnicodeDecodeError:
+            pass
+    return default_encode
+

@@ -492,6 +492,48 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="detect_encoding"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.detect_encoding">[docs]</a><span class="k">def</span> <span class="nf">detect_encoding</span><span class="p">(</span><span class="n">byte_data</span><span class="p">,</span> <span class="n">default_encode</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detects the encoding of byte data.</span>
+
+<span class="sd">    :param byte_data: The byte data to be decoded.</span>
+<span class="sd">    :type byte_data: bytes</span>
+<span class="sd">    :param default_encode: The default encoding to be used if no suitable encoding is found. Defaults to &quot;utf8&quot;.</span>
+<span class="sd">    :type default_encode: str</span>
+<span class="sd">    :return: The detected encoding.</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    :raises UnicodeDecodeError: If the byte data cannot be decoded using any of the available encodings.</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        Detect the encoding of byte data:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            byte_data = b&quot;\x41\x42\x43&quot;</span>
+<span class="sd">            detect_encoding(byte_data)</span>
+<span class="sd">            # Output: &#39;ascii&#39;</span>
+
+<span class="sd">            byte_data = b&quot;\xea\xb0\x80\xeb\x82\x98\xeb\x8b\xa4&quot;</span>
+<span class="sd">            detect_encoding(byte_data)</span>
+<span class="sd">            # Output: &#39;utf8&#39;</span>
+
+<span class="sd">            byte_data = b&quot;\xb0\xa1\xb1\xe2\xc6\xae&quot;</span>
+<span class="sd">            detect_encoding(byte_data)</span>
+<span class="sd">            # Output: &#39;euc-kr&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">encodings</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ascii&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">,</span> <span class="s2">&quot;euc-kr&quot;</span><span class="p">,</span> <span class="s2">&quot;iso2022_jp&quot;</span><span class="p">,</span> <span class="s2">&quot;euc_jp&quot;</span><span class="p">,</span> <span class="s2">&quot;shift_jis&quot;</span><span class="p">,</span> <span class="s2">&quot;cp932&quot;</span><span class="p">,</span> <span class="s2">&quot;latin1&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">encoding</span> <span class="ow">in</span> <span class="n">encodings</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">byte_data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">encoding</span>
+        <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">default_encode</span></div>
+
 </pre></div>
 
            </div>
