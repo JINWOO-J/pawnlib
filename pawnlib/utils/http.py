@@ -35,7 +35,7 @@ from dataclasses import dataclass, InitVar, field
 import requests
 
 
-ALLOWS_HTTP_METHOD = ["get", "post", "patch", "delete"]
+ALLOWS_HTTP_METHOD = ["get", "post", "patch", "delete", "head", "put", "connect", "options", "trace", "patch"]
 ALLOW_OPERATOR = ["!=", "==", ">=", "<=", ">", "<", "include", "exclude"]
 
 
@@ -1118,6 +1118,16 @@ class SuccessResponse(SuccessCriteria):
 
 
 class CallHttp:
+    SHORTEN_MESSAGE_DICT = {
+        requests.exceptions.Timeout: {
+            "message": "Timeout Error",
+            "params_message": "timeout={}"
+        },
+        requests.exceptions.HTTPError: "HTTP Error",
+        requests.exceptions.ConnectionError: "DNS lookup Error",
+        requests.exceptions.RequestException: "OOps: Something Else",
+    }
+
     def __init__(self,
                  url=None,
                  method: Literal["get", "post", "patch", "delete"] = "get",
@@ -1168,25 +1178,9 @@ class CallHttp:
         # self.run()
 
     def _shorten_exception_message_handler(self, exception):
-        _shorten_message_dict = {
-            requests.exceptions.Timeout: {
-                "message": "Timeout Error",
-                "params_message": f"timeout={self.timeout}"
-            },
-            requests.exceptions.HTTPError: "HTTP Error",
-            requests.exceptions.ConnectionError: "DNS lookup Error",
-            requests.exceptions.RequestException: "OOps: Something Else",
-        }
-        _shorten_message = _shorten_message_dict.get(exception)
         default_msg = f"(url={self.url} method={self.method.upper()}"
-
-        # connection_pool = exception.__context__.pool
-        # hostname = connection_pool.host
-        # port = connection_pool.port
-
-        for req_exception, values in _shorten_message_dict.items():
+        for req_exception, values in self.SHORTEN_MESSAGE_DICT.items():
             if isinstance(exception, req_exception):
-
                 if isinstance(values, dict) and values.get('message'):
                     _message = f"<{values.get('message')}>"
                     _params_message = f" {values.get('params_message', '')}"

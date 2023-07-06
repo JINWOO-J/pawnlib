@@ -15,6 +15,7 @@ from .check import (
     return_guess_type,
     sys_exit,
     is_include_list,
+    detect_encoding,
     keys_exists,
 )
 from .defines import (

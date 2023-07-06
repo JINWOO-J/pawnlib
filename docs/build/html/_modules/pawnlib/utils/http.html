@@ -122,7 +122,7 @@
 <span class="kn">import</span> <span class="nn">requests</span>
 
 
-<span class="n">ALLOWS_HTTP_METHOD</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="s2">&quot;delete&quot;</span><span class="p">]</span>
+<span class="n">ALLOWS_HTTP_METHOD</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="s2">&quot;delete&quot;</span><span class="p">,</span> <span class="s2">&quot;head&quot;</span><span class="p">,</span> <span class="s2">&quot;put&quot;</span><span class="p">,</span> <span class="s2">&quot;connect&quot;</span><span class="p">,</span> <span class="s2">&quot;options&quot;</span><span class="p">,</span> <span class="s2">&quot;trace&quot;</span><span class="p">,</span> <span class="s2">&quot;patch&quot;</span><span class="p">]</span>
 <span class="n">ALLOW_OPERATOR</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;!=&quot;</span><span class="p">,</span> <span class="s2">&quot;==&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="s2">&quot;include&quot;</span><span class="p">,</span> <span class="s2">&quot;exclude&quot;</span><span class="p">]</span>
 
 
@@ -1205,6 +1205,16 @@
 
 
 <div class="viewcode-block" id="CallHttp"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.CallHttp">[docs]</a><span class="k">class</span> <span class="nc">CallHttp</span><span class="p">:</span>
+    <span class="n">SHORTEN_MESSAGE_DICT</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">Timeout</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Timeout Error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;params_message&quot;</span><span class="p">:</span> <span class="s2">&quot;timeout=</span><span class="si">{}</span><span class="s2">&quot;</span>
+        <span class="p">},</span>
+        <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">:</span> <span class="s2">&quot;HTTP Error&quot;</span><span class="p">,</span>
+        <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span> <span class="s2">&quot;DNS lookup Error&quot;</span><span class="p">,</span>
+        <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span><span class="p">:</span> <span class="s2">&quot;OOps: Something Else&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="s2">&quot;delete&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;get&quot;</span><span class="p">,</span>
@@ -1255,25 +1265,9 @@
         <span class="c1"># self.run()</span>
 
     <span class="k">def</span> <span class="nf">_shorten_exception_message_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
-        <span class="n">_shorten_message_dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">Timeout</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Timeout Error&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;params_message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;timeout=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">},</span>
-            <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">:</span> <span class="s2">&quot;HTTP Error&quot;</span><span class="p">,</span>
-            <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span> <span class="s2">&quot;DNS lookup Error&quot;</span><span class="p">,</span>
-            <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span><span class="p">:</span> <span class="s2">&quot;OOps: Something Else&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">_shorten_message</span> <span class="o">=</span> <span class="n">_shorten_message_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">exception</span><span class="p">)</span>
         <span class="n">default_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;(url=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2"> method=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
-
-        <span class="c1"># connection_pool = exception.__context__.pool</span>
-        <span class="c1"># hostname = connection_pool.host</span>
-        <span class="c1"># port = connection_pool.port</span>
-
-        <span class="k">for</span> <span class="n">req_exception</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">_shorten_message_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">req_exception</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">SHORTEN_MESSAGE_DICT</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span> <span class="n">req_exception</span><span class="p">):</span>
-
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">):</span>
                     <span class="n">_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
                     <span class="n">_params_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params_message&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
