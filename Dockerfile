@@ -31,7 +31,7 @@ RUN ARCH="$(dpkg --print-architecture)" ; \
     if [ "${ARCH}" = 'arm64' ]; then apt install -y gcc make pkg-config; fi && \
     python3 setup.py bdist_wheel && \
     pip3 install dist/pawnlib-*.whl --force-reinstall && \
-    pip3 install --no-cache-dir eth_keyfile secp256k1 && \
+    pip3 install -r requirements-full.txt && \
     if [ "$REMOVE_BUILD_PACKAGE" = "true" ]; then \
         echo "REMOVE_BUILD_PACKAGE" ; \
         apt-get purge -y --auto-remove ${BUILD_PACKAGE} && \
