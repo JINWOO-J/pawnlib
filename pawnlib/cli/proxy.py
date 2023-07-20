@@ -300,10 +300,10 @@ class EchoWebServer:
 
             elif data_arr and self._is_http_method(data_arr[0]):
                 pawn.console.log(f"[bold blue]Request from {self.l_host}:{self.l_port}")
-                pawn.console.log(f"[green] request-> {self.data}")
+                pawn.console.debug(f"[green] request-> {self.data}")
                 self.parse_http_request()
                 self.modify_http_request_headers(headers={'Host': self.f_hostname})
-                pawn.console.log(f"[bold blue] {self.data}")
+                pawn.console.debug(f"[bold blue] {self.data}")
                 data_arr = self._get_decoded_data_lines()
 
             elif self._ongoing_response:

@@ -6,6 +6,7 @@ from pawnlib.config import pawnlib_config as pawn
 
 icx = 0.001
 
+
 def get_parser():
     parser = argparse.ArgumentParser(description='Command Line Interface for ICX')
     parser = get_arguments(parser)
