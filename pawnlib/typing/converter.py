@@ -1988,7 +1988,6 @@ def truncate_decimal(number, digits: int = 2) -> decimal.Decimal:
     new_number = round_down_ctx.create_decimal(number)
     return round(new_number, digits)
 
-
 def remove_tags(text,
                 case_sensitive: Literal["lower", "upper", "both"] = "lower",
                 tag_style: Literal["angle", "square"] = "square") -> str:

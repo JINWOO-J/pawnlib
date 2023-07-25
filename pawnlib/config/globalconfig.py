@@ -371,7 +371,7 @@ class PawnlibConfig(metaclass=Singleton):
     @staticmethod
     def get_python_version():
         major, minor, micro = sys.version_info[:3]
-        return f"Python {major}.{minor}.{micro}"
+        return f"Python {major}.{minor}.{micro} {sys.platform}"
 
     def init_with_env(self, **kwargs):
         """
