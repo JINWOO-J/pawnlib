@@ -9,17 +9,23 @@ from pawnlib.output import get_parent_path, cprint
 from pawnlib.input.prompt import *
 from parameterized import parameterized
 
-os.environ = {
-    "OK_STRING": "SSSS",
-    "OK_INT": "12",
-    "INVALID_INT": 12,
-    "OK_LIST_1": '["item1", "item2"]',
-    "OK_LIST_2": "item1, item2",
-    "OK_LIST_3": "[\"item1\", \"item2\"]",
-}
-
 
 class TestMethodRequest(unittest.TestCase):
+
+    def setUp(self):
+        self.original_env = os.environ.copy()
+        os.environ = {
+            "OK_STRING": "SSSS",
+            "OK_INT": "12",
+            "INVALID_INT": 12,
+            "OK_LIST_1": '["item1", "item2"]',
+            "OK_LIST_2": "item1, item2",
+            "OK_LIST_3": "[\"item1\", \"item2\"]",
+        }
+
+    def tearDown(self):
+        os.environ.clear()
+        os.environ.update(self.original_env)
 
     @parameterized.expand([
             ('EnvTest ', get_environment, dict(key="OK_STRING", default="SSSS", func=None), "SSSS"),
