@@ -66,7 +66,10 @@ from .converter import (
     lower_case_to_camel_case,
     camel_case_to_upper_case,
     upper_case_to_camel_case,
-    shorten_text
+    shorten_text,
+    truncate_float,
+    truncate_decimal,
+    remove_tags
 )
 
 from .constants import (

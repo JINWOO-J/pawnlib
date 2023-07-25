@@ -1,4 +1,5 @@
 import json
+import os
 import operator as _operator
 from pawnlib.config import pawnlib_config as pawn, pconf
 from pawnlib.typing import is_hex, is_int, is_float, FlatDict, Namespace, sys_exit, is_valid_token_address, is_valid_private_key
@@ -6,6 +7,10 @@ from InquirerPy import prompt, inquirer, get_style
 from InquirerPy.validator import NumberValidator
 from prompt_toolkit.validation import ValidationError, Validator, DynamicValidator
 from prompt_toolkit.shortcuts import prompt as toolkit_prompt
+import string
+from typing import Callable
+all_special_characters = string.punctuation
+
 try:
     from typing import Literal
 except ImportError:
@@ -560,10 +565,9 @@ def fuzzy_prompt(**kwargs):
 
     if not kwargs.get('validate', None):
         kwargs['validate'] = lambda result: len(result) > 1
-
-
     answer = inquirer.fuzzy(**kwargs).execute()
     return answer
+
 
 def fuzzy_prompt_to_argument(**kwargs):
     _pconf = pconf()
@@ -609,3 +613,73 @@ def is_data_args_namespace():
     else:
         return False
 
+
+def parse_list(value):
+    """
+    Parse a comma-separated string into a Python list.
+
+    :param value: A string to be parsed into a list
+    :type value: str
+    :return: A list of parsed items or the original value if not a string
+    :rtype: list or any
+
+    Example:
+
+        .. code-block:: python
+
+            parse_list("apple, banana, orange")
+            # >> ['apple', 'banana', 'orange']
+
+            parse_list(42)
+            # >> 42
+
+    """
+    try:
+        # If the value looks like a list (comma-separated), parse it into a Python list
+        return [item.strip().strip(all_special_characters) for item in value.split(",")]
+    except AttributeError:
+        # If the value is not a string, return it as-is
+        return value
+
+
+def get_environment(key, default="", func: Callable = ""):
+    """
+    Get the value of an environment variable, optionally applying a transformation function.
+
+    :param key: The key of the environment variable
+    :param default: The default value to use if the environment variable is not set, default is an empty string
+    :param func: A function to apply to the environment variable value, default is no function (identity)
+    :type key: str
+    :type default: Any
+    :type func: Callable
+    :return: The value of the environment variable after applying the transformation function
+    :rtype: Any
+
+    Example:
+
+        .. code-block:: python
+
+            os.environ["EXAMPLE_VARIABLE"] = "1,2,3"
+
+            get_environment("EXAMPLE_VARIABLE")
+            # >> '1,2,3'
+
+            get_environment("EXAMPLE_VARIABLE", func=lambda x: x.split(','))
+            # >> ['1', '2', '3']
+
+            get_environment("NON_EXISTENT_VARIABLE", default="default_value")
+            # >> 'default_value'
+
+    """
+    env_raw_value = os.getenv(key, default)
+    if not isinstance(env_raw_value, str):
+        raise ValueError(f"Environment variables must be strings. - {env_raw_value}")
+
+    env_value = env_raw_value.strip().strip(all_special_characters)
+
+    if func and isinstance(func, Callable):
+        return func(env_value)
+    elif isinstance(env_value, str) and "," in env_value:
+        return parse_list(env_value)
+
+    return env_value
