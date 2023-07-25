@@ -18,6 +18,8 @@ from pawnlib.config.__fix_import import Null
 import statistics
 from datetime import datetime
 
+from typing import Literal
+
 NO_DEFAULT = object()
 
 
@@ -46,7 +48,6 @@ class StackList:
     """
 
     def __init__(self, max_length=1000):
-
         self.max_length = max_length
         self.data = []
 
@@ -115,7 +116,7 @@ class ErrorCounter:
         if self.dynamic_count % 1 == 0:
             self.last_hit = True
             self._hit += 1
-            self._hit_rate = truncate_decimal((self._hit/self.total_count)*100)
+            self._hit_rate = truncate_decimal((self._hit / self.total_count) * 100)
 
             if self._hit_rate != 100 and self._hit_rate >= self.reset_threshold_rate:
                 self._reset_counter()
@@ -1912,7 +1913,7 @@ def upper_case_to_camel_case(s):
     return lower_case_to_camel_case(s.lower())
 
 
-def shorten_text(text="", width=None, placeholder='[...]' ):
+def shorten_text(text="", width=None, placeholder='[...]'):
     """
     Shortens a text string to the specified width and placeholders.
 
@@ -1934,7 +1935,26 @@ def shorten_text(text="", width=None, placeholder='[...]' ):
 
 
 def truncate_float(number, digits=2) -> float:
-    # Improve accuracy with floating point operations, to avoid truncate(16.4, 2) = 16.39 or truncate(-1.13, 2) = -1.12
+    """
+    Truncate a float to a specified number of decimal places.
+
+    :param number: float number to be truncated.
+    :param digits: number of decimal places to truncate to. Default is 2.
+    :return: float truncated to the specified number of decimal places.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import truncate_float
+
+            truncate_float(16.42413, 3)
+            # >> 16.424
+
+            truncate_float(-1.13034, 2)
+            # >> -1.13
+
+    """
     nb_decimals = len(str(number).split('.')[1])
     if nb_decimals <= digits:
         return number
@@ -1943,7 +1963,67 @@ def truncate_float(number, digits=2) -> float:
 
 
 def truncate_decimal(number, digits: int = 2) -> decimal.Decimal:
+    """
+    Truncate a decimal number to the specified number of decimal places without rounding.
+
+    :param number: The decimal number to be truncated.
+    :param digits: The number of decimal places to truncate the number to. Default is 2.
+    :return: The truncated decimal number.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import truncate_decimal
+
+            truncate_decimal(3.14159, 2)
+            # >> 3.14
+
+            truncate_decimal(3.14159, 4)
+            # >> 3.1415
+
+    """
     round_down_ctx = decimal.getcontext()
     round_down_ctx.rounding = decimal.ROUND_DOWN
     new_number = round_down_ctx.create_decimal(number)
     return round(new_number, digits)
+
+
+def remove_tags(text,
+                case_sensitive: Literal["lower", "upper", "both"] = "lower",
+                tag_style: Literal["angle", "square"] = "square") -> str:
+    """
+    Remove specific tags from given text based on case sensitivity and tag style options.
+
+    :param text: The input text from which tags need to be removed.
+    :param case_sensitive: The case sensitivity option for tags, default is "lower". Available options are "lower", "upper", and "both".
+    :param tag_style: The tag style to be removed, default is "square". Available options are "angle" and "square".
+    :return: The cleaned text after specific tags have been removed.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import remove_tags
+
+            remove_tags("<b>Hello</b> [WORLD]", case_sensitive="both", tag_style="angle")
+            # >> "Hello [WORLD]"
+
+            remove_tags("<b>Hello</b> [WORLD]", case_sensitive="both", tag_style="square")
+            # >> "<b>Hello</b> "
+
+    """
+    if case_sensitive == "lower":
+        case_pattern = r'[a-z]'
+    elif case_sensitive == "upper":
+        case_pattern = r'[A-Z]'
+    else:
+        case_pattern = r'\w'
+
+    if tag_style == "angle":
+        tag_pattern = r'<(/?' + case_pattern + '+)>'
+    else:
+        tag_pattern = r'\[(?:/?' + case_pattern + '+)\]'
+    cleaned_text = re.sub(tag_pattern, '', text)
+    return cleaned_text
+

@@ -9,6 +9,7 @@ from pawnlib.typing import str2bool, StackList, is_json, is_valid_url, sys_exit
 from pawnlib.utils.http import CallHttp, disable_ssl_warnings
 from pawnlib.utils import ThreadPoolRunner, send_slack
 from pawnlib.output import get_script_path
+from pawnlib.typing import remove_tags
 import os
 
 __description__ = 'This is a tool to measure RTT on HTTP/S requests.'
@@ -94,18 +95,19 @@ def check_url_process(args):
             message = f"{message} 😞 "
 
     if check_url.is_success():
-        pawn.app_logger.info(f"[ OK ] {message}")
+        pawn.app_logger.info(remove_tags(f"[ OK ] {message}"))
     else:
         handle_failure_on_check_url(args, message, check_url)
 
 
 def handle_failure_on_check_url(args, message, check_url):
     args.fail_count += 1
-    args.error_stack_count +=1
+    args.error_stack_count += 1
 
     if args.error_stack_count >= args.stack_limit:
         # pawn.console.log(f"[red][ERROR][/red] Error Stack Count: {args.error_stack_count}, SEND_SLACK")
-        pawn.error_logger.error(f"[FAIL][OVERFLOW]{args.error_stack_count}/{args.stack_limit} Error Stack Count: {args.error_stack_count}, SEND_SLACK")
+        pawn.error_logger.error(remove_tags(f"[FAIL][OVERFLOW]{args.error_stack_count}/{args.stack_limit} "
+                                            f"Error Stack Count: {args.error_stack_count}, SEND_SLACK"))
         args.error_stack_count = 0
 
         if args.dynamic_increase_stack_limit:
@@ -113,7 +115,7 @@ def handle_failure_on_check_url(args, message, check_url):
             _send_slack(url=args.slack_url, title=f"Error {args.url}", msg_text=args.__dict__)
 
     # pawn.error_logger.error(f"[red][FAIL] {message}[/red][bold] Error={check_url.response}[/bold]")
-    pawn.error_logger.error(f"[FAIL] {message}, Error={check_url.response}")
+    pawn.error_logger.error(remove_tags(f"[FAIL] {message}, Error={check_url.response}"))
 
 
 def set_default_counter(section_name="default"):
