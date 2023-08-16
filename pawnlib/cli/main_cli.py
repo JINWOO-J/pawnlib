@@ -54,7 +54,7 @@ def get_submodule_names():
 def run_module(module_name=None):
     module = importlib.import_module(f"pawnlib.cli.{module_name}")
     module.main()
-    pawn.console.log(f"load a {module_name}")
+    pawn.console.debug(f"load a {module_name}")
     return module
 
 
@@ -97,7 +97,7 @@ def parse_args(parser, commands):
 
 
 def get_sys_argv():
-    if len(sys.argv) > 2:
+    if len(sys.argv) > 1:
         return sys.argv[1]
     return ""
 
@@ -117,11 +117,14 @@ def get_args():
     )
     commands = parser.add_subparsers(title='sub-module')
     pawn.console.debug(f"sys_argv={get_sys_argv()}, modules={get_submodule_names()}")
-    if get_sys_argv():
+    if get_sys_argv() and  get_sys_argv() in get_submodule_names():
         load_cli_module(commands, get_sys_argv())
     else:
         for module_name in get_submodule_names():
-            load_cli_module(commands, module_name)
+            try:
+                load_cli_module(commands, module_name)
+            except Exception as e:
+                pawn.console.debug(f"[red] An error occurred while loading the module [/red] - {e}")
 
     args, command = parse_args(parser, commands)
     return args, command, parser
@@ -137,14 +140,14 @@ def main():
     pawn.console.debug("Starting main_cli wrapper")
     args, command, parser = None, None, None
     try:
-        pawn.console.log(f"<before> {sys.argv}")
+        pawn.console.debug(f"<before> {sys.argv}")
         args, command, parser = get_args()
-        pawn.console.log(f"<after> parser {args}, {command}, {parser}")
+        # pawn.console.debug(f"<after> parser {args}, {command}, {parser}")
         cleanup_args()
-        pawn.console.log(f"<after> {sys.argv}")
+        # pawn.console.debug(f"<after> {sys.argv}")
     except Exception as e:
-        pawn.console.log(f"[red]Exception while parsing an argument = {e}")
-        sys_exit("Stopped CLI")
+        pawn.console.debug(f"[red]Exception while parsing an argument = {e}")
+        # sys_exit("Stopped CLI")
     pawn.console.debug(f"args={args}, command={command}, parser={parser}")
 
     if command:
@@ -160,7 +163,8 @@ def main():
             else:
                 pawn.console.log(f"[red]Exception -- {e}")
     else:
-        parser.print_help()
+        if parser:
+            parser.print_help()
         sys.exit(1)
 
 

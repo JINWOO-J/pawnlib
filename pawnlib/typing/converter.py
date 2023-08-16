@@ -18,7 +18,11 @@ from pawnlib.config.__fix_import import Null
 import statistics
 from datetime import datetime
 
-from typing import Literal
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 
 NO_DEFAULT = object()
 
@@ -1988,6 +1992,7 @@ def truncate_decimal(number, digits: int = 2) -> decimal.Decimal:
     new_number = round_down_ctx.create_decimal(number)
     return round(new_number, digits)
 
+
 def remove_tags(text,
                 case_sensitive: Literal["lower", "upper", "both"] = "lower",
                 tag_style: Literal["angle", "square"] = "square") -> str:
@@ -2013,11 +2018,11 @@ def remove_tags(text,
 
     """
     if case_sensitive == "lower":
-        case_pattern = r'[a-z]'
+        case_pattern = r'[a-z\s]'
     elif case_sensitive == "upper":
-        case_pattern = r'[A-Z]'
+        case_pattern = r'[A-Z\s]'
     else:
-        case_pattern = r'\w'
+        case_pattern = r'[\w\s]'
 
     if tag_style == "angle":
         tag_pattern = r'<(/?' + case_pattern + '+)>'

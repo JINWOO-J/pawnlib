@@ -26,7 +26,8 @@ from pawnlib.typing import (
     is_valid_token_address,
     is_valid_private_key,
     random_token_address,
-    random_private_key
+    random_private_key,
+    remove_tags,
 )
 
 import datetime
@@ -243,6 +244,18 @@ class TestTyping(unittest.TestCase):
         token_address = random_token_address()
         self.assertEqual(is_valid_token_address(token_address), True)
         self.assertEqual(is_valid_token_address(token_address[:-3]), False)
+
+    @parameterized.expand([
+        ("valid tag", remove_tags, dict(text="<b>Hello</b>", tag_style="angle"),  "Hello"),
+        ("valid tag", remove_tags, dict(text="[b]Hello[/b]", tag_style="square"),  "Hello"),
+        ("valid tag", remove_tags, dict(text="[bold red]Hello[/bold red]", tag_style="square"),  "Hello"),
+    ]
+    )
+    def test_remove_tags(self, name, function=None, param=None, expected_value=None):
+        result = function(**param)
+        print(f"<{name}> {function.__name__}({param}) <{type(param)}> result => {result}")
+        self.assertEqual(result, expected_value)
+
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestTyping)

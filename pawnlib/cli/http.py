@@ -5,10 +5,10 @@ from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
 import json
 import copy
-from pawnlib.typing import str2bool, StackList, is_json, is_valid_url, sys_exit
+from pawnlib.typing import str2bool, StackList, is_json, is_valid_url, sys_exit, Null
 from pawnlib.utils.http import CallHttp, disable_ssl_warnings
 from pawnlib.utils import ThreadPoolRunner, send_slack
-from pawnlib.output import get_script_path
+from pawnlib.output import get_script_path, dump, debug_print, print_var
 from pawnlib.typing import remove_tags
 import os
 
@@ -23,10 +23,8 @@ def get_parser():
 
 def get_arguments(parser):
     parser.add_argument('url', help='url', type=str, nargs='?', default="")
-    # parser.add_argument('-u', '--url',  type=str, default="", help="url")
-    # parser.add_argument('url', help='url')
-    parser.add_argument('-c', '--command', type=str, help='command', default=None, choices=["start", "stop", "restart", None])
-    parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level (default: %(default)s)', default=0)
+    parser.add_argument('-c', '--config-file', type=str, help='config', default="config.ini")
+    parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level (default: %(default)s)', default=1)
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
     parser.add_argument('-i', '--interval', type=float, help='interval sleep time seconds. (default: %(default)s)', default=1)
     parser.add_argument('-m', '--method', type=lambda s : s.upper(), help='method. (default: %(default)s)', default="get")
@@ -105,7 +103,6 @@ def handle_failure_on_check_url(args, message, check_url):
     args.error_stack_count += 1
 
     if args.error_stack_count >= args.stack_limit:
-        # pawn.console.log(f"[red][ERROR][/red] Error Stack Count: {args.error_stack_count}, SEND_SLACK")
         pawn.error_logger.error(remove_tags(f"[FAIL][OVERFLOW]{args.error_stack_count}/{args.stack_limit} "
                                             f"Error Stack Count: {args.error_stack_count}, SEND_SLACK"))
         args.error_stack_count = 0
@@ -114,7 +111,6 @@ def handle_failure_on_check_url(args, message, check_url):
             args.stack_limit = args.stack_limit ** 2
             _send_slack(url=args.slack_url, title=f"Error {args.url}", msg_text=args.__dict__)
 
-    # pawn.error_logger.error(f"[red][FAIL] {message}[/red][bold] Error={check_url.response}[/bold]")
     pawn.error_logger.error(remove_tags(f"[FAIL] {message}, Error={check_url.response}"))
 
 
@@ -138,13 +134,6 @@ def generate_task_from_config():
         for section_name, section_value in pconf_dict.items():
             pawn.console.debug(f"section_name={section_name}, value={section_value}")
             args = set_default_counter(section_name)
-            # args = copy.deepcopy(pconf().args)
-            # # args = pconf().args
-            # args.section_name = section_name
-            # args.response_time = StackList()
-            # args.error_stack_count = 0
-            # args.total_count = 0
-            # args.fail_count = 0
 
             for conf_key, conf_value in section_value.items():
                 if getattr(args, conf_key, "__NOT_DEFINED__") != "__NOT_DEFINED__":
@@ -202,6 +191,8 @@ def validate_task_exit_on_failure(tasks):
     for task in tasks:
         if is_valid_url(task.url):
             is_least_one_url = True
+        else:
+            pawn.console.log(f"Invalid url: name={task.section_name}, url={task.url}")
 
     if not is_least_one_url:
         sys_exit("Requires at least one valid URL. The URL argument must be in the first position.")
@@ -211,9 +202,13 @@ def main():
     app_name = 'httping'
     parser = get_parser()
     args, unknown = parser.parse_known_args()
-    is_hide_line_number = True if args.verbose > 1 else False
-    stdout = True
+    config_file = args.config_file
+
+    is_hide_line_number = args.verbose > 1
+    stdout = not args.quiet
+
     pawn.set(
+        PAWN_CONFIG_FILE=config_file,
         PAWN_PATH=args.base_dir,
         PAWN_LOGGER=dict(
             log_level="INFO",
@@ -226,7 +221,7 @@ def main():
         PAWN_CONSOLE=dict(
             redirect=True,
             record=True,
-            log_path=is_hide_line_number, # hide line number
+            log_path=is_hide_line_number, # hide line number on the right side
         ),
         app_name=app_name,
         args=args,
@@ -240,26 +235,25 @@ def main():
 
     )
     if args.verbose > 2:
-        pawn.set(PAWN_LOGGER=dict(
-            log_level="DEBUG",
-            stdout_level="DEBUG",
-
-        ))
+        pawn.set(
+            PAWN_LOGGER=dict(
+                log_level="DEBUG",
+                stdout_level="DEBUG",
+            )
+        )
     print_banner()
+
     if args.ignore_ssl:
         disable_ssl_warnings()
     tasks = generate_task_from_config()
-
     # if args.slack_url:
     #     res = _send_slack(url=args.slack_url, msg_text=tasks)
     #     pawn.console.log(res)
-
     # _send_slack(url=args.slack_url, title=f"Error HTTPING {args.url}", msg_text=args.__dict__)
-    pawn.console.log(f"console_options={pawn.console_options}")
+    # pawn.console.log(f"console_options={pawn.console_options}")
     # exit()
     pawn.console.log(f"Start httping ... url_count={len(tasks)}")
     pawn.console.log("If you want to see more logs, use the [yellow]-v[/yellow] option")
-
     pawn.console.log(tasks)
 
     ThreadPoolRunner(
