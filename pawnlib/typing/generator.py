@@ -212,6 +212,25 @@ class GenMultiMetrics:
 
 
 def generate_number_list(start=10000, count=100, convert_func=int):
+    """
+    Generate a list of numbers based on the given parameters.
+
+    :param start: (int) Starting number (default: 10000)
+    :param count: (int) Number of numbers to generate (default: 100)
+    :param convert_func: (function) Function to convert the numbers (default: int)
+    :return: (list) List of generated numbers
+
+    Example:
+
+        .. code-block:: python
+
+            # Generate a list of integers from 10000 to 10099
+            generate_number_list()
+
+            # Generate a list of floats from 10000.0 to 10099.0
+            generate_number_list(start=10000.0, convert_func=float)
+
+    """
     result = []
     end = start + count + 1
     for i in range(start, end):

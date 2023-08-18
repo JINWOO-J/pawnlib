@@ -104,6 +104,24 @@ def set_namespace_default_value(namespace=None, key='', default=""):
 
 
 def fill_required_data_arguments(required={}):
+    """
+     Fill the required data arguments.
+
+     :param required: A dictionary of required arguments.
+     :type required: dict
+     :return: The filled arguments.
+     :rtype: argparse.Namespace
+
+     Example:
+
+         .. code-block:: python
+
+             required = {"arg1": "value1", "arg2": "value2"}
+             args = fill_required_data_arguments(required)
+             # args.arg1 == "value1"
+             # args.arg2 == "value2"
+
+     """
     none_string = "__NOT_DEFINED_VALUE__"
     if getattr(pconf(), "data", None) and getattr(pconf().data, "args", None):
         args = pconf().data.args
