@@ -23,7 +23,6 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
-
 NO_DEFAULT = object()
 
 
@@ -86,6 +85,24 @@ class StackList:
 
 
 class ErrorCounter:
+    """
+    A class for counting consecutive errors and calculating dynamic count.
+
+    :param max_consecutive_count: Maximum number of consecutive errors allowed. Default is 10.
+    :type max_consecutive_count: int
+    :param increase_index: Index for calculating dynamic count. Default is 0.5.
+    :type increase_index: float
+    :param reset_threshold_rate: Threshold rate for resetting the counter. Default is 80.
+    :type reset_threshold_rate: int
+
+    Example:
+
+        .. code-block:: python
+
+            ec = ErrorCounter()
+            ec.push(True)
+            ec.push(False)
+    """
 
     def __init__(self, max_consecutive_count=10, increase_index=0.5, reset_threshold_rate=80):
         self.max_consecutive_count = max_consecutive_count
@@ -98,10 +115,24 @@ class ErrorCounter:
         self._hit = 0
         self._hit_rate = 0
         self.last_message = ""
-
         self.last_hit = False
 
     def push(self, error_boolean=True):
+        """
+        Pushes an error boolean to the stack and updates counts.
+
+        :param error_boolean: Boolean indicating if an error occurred. Default is True.
+        :type error_boolean: bool
+        :return: None
+
+        Example:
+
+            .. code-block:: python
+
+                ec.push(True)
+                ec.push(False)
+
+        """
         self.stack.push(
             (
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
@@ -116,6 +147,18 @@ class ErrorCounter:
         self.calculate_dynamic_count()
 
     def calculate_dynamic_count(self):
+        """
+        Calculates the dynamic count and updates hit rate and counter if necessary.
+
+        :return: None
+
+        Example:
+
+            .. code-block:: python
+
+                ec.calculate_dynamic_count()
+
+        """
         self.dynamic_count = self.total_count ** self.increase_index
         if self.dynamic_count % 1 == 0:
             self.last_hit = True
@@ -130,25 +173,82 @@ class ErrorCounter:
             self.last_hit = False
 
     def _reset_counter(self):
+        """
+        Resets the counter.
+
+        :return: None
+
+        Example:
+
+            .. code-block:: python
+
+                ec._reset_counter()
+
+        """
         self.total_count = 0
         self._hit = 0
         self._hit_rate = 0
         self.dynamic_count = 0
 
     def is_ok(self):
+        """
+        Checks if the consecutive count is less than the maximum allowed.
+
+        :return: True if the consecutive count is less than the maximum allowed, False otherwise.
+
+        Example:
+
+            .. code-block:: python
+
+                ec.is_ok()
+
+        """
         if self.consecutive_count >= self.max_consecutive_count:
             return False
         return True
 
     def push_ok(self, error_boolean=True):
+        """
+        Pushes an error boolean to the stack and checks if it is ok.
+
+        :param error_boolean: Boolean indicating if an error occurred. Default is True.
+        :type error_boolean: bool
+        :return: True if it is ok, False otherwise.
+
+        Example:
+
+            .. code-block:: python
+
+                ec.push_ok(True)
+
+        """
         self.push(error_boolean)
         return self.is_ok()
 
     def push_hit(self, error_boolean=True):
+        """
+        Pushes an error boolean to the stack and returns the last hit.
+
+        :param error_boolean: Boolean indicating if an error occurred. Default is True.
+        :type error_boolean: bool
+        :return: True if it is a hit, False otherwise.
+
+        Example:
+
+            .. code-block:: python
+
+                ec.push_hit(True)
+
+        """
         self.push(error_boolean)
         return self.last_hit
 
     def get_data(self):
+        """
+        Returns the dictionary representation of the object.
+
+        :return:
+        """
         return self.__dict__
 
     def __repr__(self):
@@ -160,16 +260,56 @@ class ErrorCounter:
 
 
 class MedianFinder:
+    """
+    A class to find the median of a stream of numbers.
+
+    Example:
+
+        .. code-block:: python
+
+            mf = MedianFinder()
+            mf.add_number(1)
+            mf.add_number(2)
+            mf.median() # 1.5
+            mf.add_number(3)
+            mf.median() # 2.0
+
+    """
 
     def __init__(self):
-        # initialize data structure
+        """
+        Initialize the data structure.
+
+        Example:
+
+            .. code-block:: python
+
+                mf = MedianFinder()
+
+        """
         self.max_heap = []
         self.min_heap = []
         self.num_list = []
 
     def add_number(self, num):
+        """
+        Add a number to the data structure.
+
+        :param num: An integer to be added to the data structure.
+        :type num: int
+        :return: None
+
+        Example:
+
+            .. code-block:: python
+
+                mf = MedianFinder()
+                mf.add_number(1)
+                mf.add_number(2)
+                mf.add_number(3)
+
+        """
         self.num_list.append(num)
-        # type num: int, rtype: void
         if not self.max_heap and not self.min_heap:
             heapq.heappush(self.min_heap, num)
             return
@@ -199,7 +339,24 @@ class MedianFinder:
                 heapq.heappush(self.max_heap, -num)
 
     def median(self):
-        # rtype: float
+        """
+        Find the median of the numbers in the data structure.
+
+        :return: The median of the numbers in the data structure.
+        :rtype: float
+
+        Example:
+
+            .. code-block:: python
+
+                mf = MedianFinder()
+                mf.add_number(1)
+                mf.add_number(2)
+                mf.median() # 1.5
+                mf.add_number(3)
+                mf.median() # 2.0
+
+        """
         if len(self.max_heap) == len(self.min_heap):
             return (-self.max_heap[0] + self.min_heap[0]) / 2
         elif len(self.max_heap) > len(self.min_heap):
@@ -208,6 +365,24 @@ class MedianFinder:
             return self.min_heap[0]
 
     def mean(self):
+        """
+        Find the mean of the numbers in the data structure.
+
+        :return: The mean of the numbers in the data structure.
+        :rtype: float
+
+        Example:
+
+            .. code-block:: python
+
+                mf = MedianFinder()
+                mf.add_number(1)
+                mf.add_number(2)
+                mf.mean() # 1.5
+                mf.add_number(3)
+                mf.mean() # 2.0
+
+        """
         count = len(self.num_list)
         return sum(self.num_list) / count
 
@@ -808,7 +983,6 @@ def convert_dict_hex_to_int(data: Any, is_comma: bool = False, debug: bool = Fal
             else:
                 change = True
                 if key in ignore_keys:
-                    # return_data[key] = value
                     change = False
                 # else:
                 return_data[key] = hex_to_number(value, is_comma, debug, change, ansi=ansi)
@@ -1211,7 +1385,7 @@ def list_to_oneline_string(list_param: list, split_str: str = "."):
     """
     return_value = ''
     for idx, value in enumerate(list_param):
-        return_value += value
+        return_value += f"{value}"
         if len(list_param) - 1 > idx:
             return_value += split_str
     return return_value
@@ -1761,10 +1935,62 @@ def extract_values_in_list(key: Any, list_of_dicts: list = []):
 
 
 def split_every_n(data, n):
+    """
+     Split a list into sublists of length n.
+
+     :param data: (list) The list to split.
+     :param n: (int) The length of each sublist.
+     :return: (list) A list of sublists.
+
+     Example:
+
+         .. code-block:: python
+
+             data = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+             split_every_n(data, 3)
+             # >> [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+             data = ['a', 'b', 'c', 'd', 'e', 'f']
+             split_every_n(data, 2)
+             # >> [['a', 'b'], ['c', 'd'], ['e', 'f']]
+     """
     return [data[i:i + n] for i in range(0, len(data), n)]
 
 
 def class_extract_attr_list(obj, attr_name="name"):
+    """
+    Extract a list of attributes from a list of objects or a single object.
+
+    :param obj: A list of objects or a single object.
+    :type obj: list or object
+    :param attr_name: The name of the attribute to extract. Default is "name".
+    :type attr_name: str
+    :return: A list of attributes.
+    :rtype: list
+
+    Example:
+
+        .. code-block:: python
+
+            class Person:
+                def __init__(self, name, age):
+                    self.name = name
+                    self.age = age
+
+            people = [Person("Alice", 25), Person("Bob", 30), Person("Charlie", 35)]
+
+            # Extract names from a list of objects
+            names = class_extract_attr_list(people, "name")
+            # >> ["Alice", "Bob", "Charlie"]
+
+            # Extract age from a list of objects
+            ages = class_extract_attr_list(people, "age")
+            # >> [25, 30, 35]
+
+            # Extract name from a single object
+            name = class_extract_attr_list(Person("David", 40), "name")
+            # >> "David"
+    """
     if isinstance(obj, list):
         return_list = []
         for item in obj:
@@ -1775,18 +2001,76 @@ def class_extract_attr_list(obj, attr_name="name"):
 
 
 def append_zero(value):
+    """
+    Append zero to the value if it is less than 10.
+
+    :param value: (int) The value to check.
+    :return: (str) The value with zero appended if it is less than 10.
+
+    Example:
+
+        .. code-block:: python
+
+            append_zero(5)
+            # >> '05'
+
+            append_zero(15)
+            # >> 15
+    """
     if value < 10:
         value = f"0{value}"
     return value
 
 
 def append_suffix(text=None, suffix=None):
+    """
+     Append suffix to the end of the given text if it does not already end with the suffix.
+
+     :param text: (str) The text to which the suffix will be appended.
+     :param suffix: (str) The suffix to be appended to the text.
+     :return: (str) The text with the suffix appended.
+
+     Example:
+
+         .. code-block:: python
+
+             text = "example"
+             suffix = "_test"
+             append_suffix(text, suffix)
+             # >> "example_test"
+
+             text = "example_test"
+             suffix = "_test"
+             append_suffix(text, suffix)
+             # >> "example_test"
+     """
     if suffix and not text.endswith(suffix):
         return f"{text}{suffix}"
     return text
 
 
 def append_prefix(text=None, prefix=None):
+    """
+     Add a prefix to the given text if it doesn't already start with the prefix.
+
+     :param text: (str) The text to add prefix to.
+     :param prefix: (str) The prefix to add to the text.
+     :return: (str) The text with the prefix added.
+
+     Example:
+
+         .. code-block:: python
+
+             text = "world"
+             prefix = "hello_"
+             append_prefix(text, prefix)
+             # >> "hello_world"
+
+             text = "hello_world"
+             prefix = "hello_"
+             append_prefix(text, prefix)
+             # >> "hello_world"
+     """
     if prefix and not text.startswith(prefix):
         return f"{prefix}{text}"
     return text
@@ -1794,29 +2078,53 @@ def append_prefix(text=None, prefix=None):
 
 def camel_case_to_space_case(s):
     """
-    Convert a string from camelcase to spacecase.
+    Convert a camel case string to a space separated string.
 
-    :param s:
-    :return:
+    :param s: (str) The camel case string to convert.
+    :return: (str) The space separated string.
 
     Example:
 
         .. code-block:: python
 
-            from pawnlib.typing import converter
-            converter.camelcase_to_underscore('HelloWorld')
-            # >> 'Hello world'
+            print(camel_case_to_space_case("helloWorld"))
+            # >> "hello world"
+
+            print(camel_case_to_space_case("thisIsAReallyLongString"))
+            # >> "this is a really long string"
 
     """
-
-    if s == '': return s
+    if s == '':
+        return s
     process_character = lambda c: (' ' + c.lower()) if c.isupper() else c
     return s[0] + ''.join(process_character(c) for c in s[1:])
 
 
+def camelcase_to_underscore(name):
+    """
+    Convert camelCase string to underscore_case string.
+
+    :param name: A string in camelCase format.
+    :return: A string in underscore_case format.
+
+    Example:
+
+        .. code-block:: python
+
+            camelcase_to_underscore("camelCaseString")
+            # >> 'camel_case_string'
+
+            camelcase_to_underscore("anotherExample")
+            # >> 'another_example'
+
+    """
+    name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+
+
 def lower_case(s):
     """
-
+    Convert string to lower case.
     :param s:
     :return:
 
@@ -1830,6 +2138,56 @@ def lower_case(s):
 
     """
     return str(s).lower()
+
+
+def upper_case(s):
+    """
+    Convert string to uppercase.
+
+    :param s: string to convert
+    :type s: str
+    :return: uppercase string
+    :rtype: str
+
+    Example:
+
+        .. code-block:: python
+
+            print(upper_case("hello world"))
+            # >> "HELLO WORLD"
+
+            print(upper_case("Python"))
+            # >> "PYTHON"
+
+    """
+    return str(s).upper()
+
+
+def snake_case(s):
+    """
+    Convert a string to snake_case.
+
+    :param s: (str) The string to convert.
+    :return: (str) The snake_case version of the string.
+
+    Example:
+
+        .. code-block:: python
+
+            snake_case("HelloWorld")
+            # >> 'hello_world'
+
+            snake_case("hello-world")
+            # >> 'hello_world'
+
+            snake_case("snake_case")
+            # >> 'snake_case'
+
+    """
+    return '_'.join(
+        re.sub('([A-Z][a-z]+)', r' \1',
+               re.sub('([A-Z]+)', r' \1',
+                      s.replace('-', ' '))).split()).lower()
 
 
 def camel_case_to_lower_case(s):
@@ -2030,4 +2388,3 @@ def remove_tags(text,
         tag_pattern = r'\[(?:/?' + case_pattern + '+)\]'
     cleaned_text = re.sub(tag_pattern, '', text)
     return cleaned_text
-

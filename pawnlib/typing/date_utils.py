@@ -9,22 +9,22 @@ from pawnlib.typing.constants import const
 
 
 class TimeCalculator:
+    """
+    A class that converts seconds to a string format.
+
+    :param seconds: The number of seconds to be converted.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing import date_utils
+            date_utils.TimeCalculator(1224411)
+
+            # >>  "14 days, 04:06:51"
+
+    """
     def __init__(self, seconds=0):
-        """
-        It will be calculated seconds to string format
-
-        :param seconds:
-
-        Example:
-
-            .. code-block:: python
-
-                from pawnlib.typing import date_utils
-                date_utils.TimeCalculator(1224411)
-
-                # >>  "14 days, 04:06:51"
-
-        """
         self.seconds = seconds
         self._days = 0
         self._hours = 0
@@ -35,6 +35,11 @@ class TimeCalculator:
         self.calculate()
 
     def calculate(self):
+        """
+        Calculate the number of days, hours, minutes, and seconds from the given seconds.
+
+        :return: A string representing the number of days, hours, minutes, and seconds.
+        """
         seconds = self.seconds
         self._days = int(seconds // const.DAY_IN_SECONDS)
         seconds = int(seconds % const.DAY_IN_SECONDS)
@@ -52,34 +57,78 @@ class TimeCalculator:
         return self.hhmmss
 
     def __str__(self):
+        """
+        Return the string representation of the calculated time.
+
+        :return: A string representing the number of days, hours, minutes, and seconds.
+        """
         return str(self.hhmmss)
 
     def __repr__(self):
-        # https://stackoverflow.com/questions/33229036/why-doesnt-this-repr-function-return-a-string
-        # __repr__ returns not string
-        # It doesn't work well.
-        # An error occurs in the asertEqual() of unittest.
-        # return self.hhmmss
+        """
+        Return the string representation of the calculated time.
+
+        :return: A string representing the number of days, hours, minutes, and seconds.
+        """
         return repr(self.hhmmss)
 
     def to_strings(self):
+        """
+        Return the string representation of the calculated time.
+
+        :return: A string representing the number of days, hours, minutes, and seconds.
+        """
         return str(self.hhmmss)
 
     def to_minutes(self):
+        """
+        Convert the given seconds to minutes.
+
+        :return: The number of minutes.
+        """
         return self.seconds // const.MINUTE_IN_SECONDS
 
     def to_hours(self):
+        """
+        Convert the given seconds to hours.
+
+        :return: The number of hours.
+        """
         return self.seconds // const.HOUR_IN_SECONDS
 
     def to_days(self):
+        """
+        Convert the given seconds to days.
+
+        :return: The number of days.
+        """
         return self.seconds // const.DAY_IN_SECONDS
 
 
-def convert_unix_timestamp(date_param) -> int:
+def convert_unix_timestamp(date_param):
     """
+    Convert a date parameter to a Unix timestamp.
 
-    :param date_param:
-    :return:
+    :param date_param: A date parameter to be converted to a Unix timestamp.
+    :type date_param: datetime.datetime or int
+    :return: A Unix timestamp.
+    :rtype: int
+
+    Example:
+
+        .. code-block:: python
+
+            import datetime
+
+            # Convert a datetime object to a Unix timestamp.
+            date = datetime.datetime(2022, 1, 1, 0, 0, 0)
+            convert_unix_timestamp(date)
+            # >> 1640995200
+
+            # Convert an integer to a Unix timestamp.
+            date = 1640995200
+            convert_unix_timestamp(date)
+            # >> 1640995200
     """
     if isinstance(date_param, datetime.datetime):
         return int(date_param.timestamp())
@@ -218,6 +267,7 @@ def timestamp_to_string(unix_timestamp: int, str_format='%Y-%m-%d %H:%M:%S'):
         if unix_timestamp:
             return datetime.datetime.fromtimestamp(unix_timestamp).strftime(str_format)
     raise ValueError('Invalid timestamp')
+
 
 def second_to_dayhhmm(seconds: int = 0):
     """

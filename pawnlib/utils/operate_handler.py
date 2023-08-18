@@ -20,6 +20,30 @@ from pawnlib.typing.converter import shorten_text
 
 
 class ThreadPoolRunner:
+    """
+    A class that runs a function with multiple arguments in parallel using a thread pool.
+
+    :param func: The function to run in parallel.
+    :type func: function
+    :param tasks: A list of arguments to pass to the function.
+    :type tasks: list
+    :param max_workers: The maximum number of worker threads to use.
+    :type max_workers: int
+    :param verbose: Whether to print the results of each task as they complete.
+    :type verbose: int
+    :param sleep: The number of seconds to sleep between runs when using `forever_run`.
+    :type sleep: int
+
+    Example:
+
+        .. code-block:: python
+
+            runner = ThreadPoolRunner(func=my_function, tasks=my_args, max_workers=10, verbose=1, sleep=5)
+            results = runner.run()
+            runner.forever_run()
+
+    """
+
     def __init__(self, func=None, tasks=[], max_workers=20, verbose=0, sleep=1):
         self.func = func
         self.tasks = tasks
@@ -29,9 +53,18 @@ class ThreadPoolRunner:
         self.verbose = verbose
 
     def initializer_worker(self):
+        """
+        A method that is run once by each worker thread when the thread pool is created.
+        """
         pass
 
     def run(self):
+        """
+        Run the function with the given arguments in parallel using a thread pool.
+
+        :return: A list of results from each task.
+        :rtype: list
+        """
         with ThreadPoolExecutor(max_workers=self.max_workers, initializer=self.initializer_worker) as pool:
             results = pool.map(self.func, self.tasks)
             if self.verbose > 0:
@@ -40,11 +73,20 @@ class ThreadPoolRunner:
 
     @staticmethod
     def log_results(results):
+        """
+        Print the results of each task as they complete.
+
+        :param results: A list of results from each task.
+        :type results: list
+        """
         for result in results:
             if result:
-                pawn.console.log(result)
+                print(result)
 
     def forever_run(self):
+        """
+        Run the function with the given arguments in parallel using a thread pool indefinitely.
+        """
         while True:
             self.run()
             time.sleep(self.sleep)

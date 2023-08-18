@@ -365,7 +365,7 @@ class SystemMonitor:
                 total_read_bytes += read_bytes
                 total_write_bytes += write_bytes
 
-        disk_usage['Total'] = {
+        disk_usage['total'] = {
             'read_ios': total_read_ios,
             'read_bytes': total_read_bytes,
             'write_ios': total_write_ios,
@@ -382,7 +382,8 @@ class SystemMonitor:
             lines = f.readlines()
         return lines
 
-    def parse_meminfo(self, lines):
+    @staticmethod
+    def parse_meminfo(lines):
         meminfo = {}
         for line in lines:
             key, value = line.strip().split(":")
@@ -406,6 +407,7 @@ class SystemMonitor:
         total_memory = parsed_meminfo["MemTotal"] / unit_multiplier
         free_memory = parsed_meminfo["MemFree"] / unit_multiplier
         available_memory = parsed_meminfo["MemAvailable"] / unit_multiplier
+        cached_memory = parsed_meminfo["Cached"] / unit_multiplier
 
         used_memory = total_memory - free_memory
         percent_used = 100 * used_memory / total_memory
@@ -413,9 +415,11 @@ class SystemMonitor:
         # print(f"Memory Usage --> {percent_used:.2f}% ({used_memory:.2f} {unit} Used / {total_memory:.2f} {unit} Total)")
         return {
             "total": round(total_memory, 2),
-            "used":round(used_memory, 2),
+            "used": round(used_memory, 2),
             "free": round(free_memory, 2),
-            "percent": round(percent_used,2),
+            "avail": round(available_memory, 2),
+            "cached": round(cached_memory, 2),
+            "percent": round(percent_used, 2),
             "unit": unit
         }
 

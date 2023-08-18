@@ -3,7 +3,7 @@ import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
-from pawnlib.typing import StackList
+from pawnlib.typing import StackList, list_to_oneline_string
 from pawnlib.resource import SystemMonitor, get_cpu_load, get_interface_ips, get_platform_info, get_mem_info
 import os
 import re
@@ -30,6 +30,7 @@ def get_arguments(parser):
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
     parser.add_argument('-i', '--interval', type=float, help='interval sleep time seconds. (default: %(default)s)', default=1)
     parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
+    parser.add_argument('-t', '--print-type', type=str, help='printing type  %(default)s)', default="live", choices=["live", "line"])
     return parser
 
 
@@ -49,6 +50,7 @@ class CriticalText:
             "disk_write":  100,
             "load":  int(cores),
             "io_wait":  int(cores) * 2,
+            "cached":  10,
         }
         self.warning_percent = warning_percent
         self.medium_percent = medium_percent
@@ -138,33 +140,37 @@ def main():
 
     lines = []
     system_info = get_platform_info()
-
     system_monitor = SystemMonitor(interval=args.interval)
+    table_title = f"Server status <{system_info.get('model')},  {system_info.get('cores')} cores, {get_mem_info().get('mem_total')} GB>"
+
+    if args.print_type == "live":
+        print_live_status(table_title=table_title,  system_info=system_info, system_monitor=system_monitor)
+    elif args.print_type == "line":
+        count = 0
+
+        while True:
+            data = get_resources_status(system_monitor=system_monitor)
+            line = []
+            columns = []
+            for column_key, value in data.items():
+                columns.append(column_key)
+                line.append(CriticalText(column_key, value, cores=system_info.get('cores', 1)).return_text())
+
+            pawn.console.print(list_to_oneline_string(columns, " | ")) if count % 15 == 0 else []
+            print(list_to_oneline_string(line, " │ "))
+            count += 1
+
+
+def print_live_status(table_title="",  system_info={}, system_monitor=None):
+    lines = []
+
     with Live(console=pawn.console, refresh_per_second=1) as live_table:
         while True:
             columns, rows = os.get_terminal_size()
             diff_rows = len(lines) - rows
+            table = Table(title=table_title)
 
-            table = Table(title=f"Server status <{system_info.get('model')},  {system_info.get('cores')} cores, {get_mem_info().get('mem_total')} GB>")
-            memory = system_monitor.get_memory_status()
-            network, cpu, disk = system_monitor.get_network_cpu_status()
-
-            data = {
-                "Time": todaydate("time"),
-                "NET IN": f"{network['Total'].get('recv'):.2f} Mbps",
-                "NET OUT": f"{network['Total'].get('sent'):.2f} Mbps",
-                "PK  IN": f"{network['Total'].get('packets_recv')} p/s",
-                "PK OUT": f"{network['Total'].get('packets_sent')} p/s",
-                "load": f"{get_cpu_load()['1min']}",
-                "usr": f"{cpu.get('usr')}%",
-                "sys": f"{cpu.get('sys')}%",
-                "io_wait": f"{cpu.get('io_wait')}",
-                "disk_read":  f"{disk['Total'].get('read_mb')} M/s",
-                "disk_write":  f"{disk['Total'].get('write_mb')} M/s",
-                "mem_used": f"{memory.get('percent')}%",
-                "mem_free": f"{memory.get('free')} {memory.get('unit')}",
-            }
-
+            data = get_resources_status(system_monitor=system_monitor)
             line = []
             for column_key, value in data.items():
                 table.add_column(column_key)
@@ -178,9 +184,34 @@ def main():
                 lines.pop(0)
             if diff_rows > -6:
                 del lines[:6]
-
             live_table.update(Align.center(table))
-            # live_table.update(table)
+
+
+def get_resources_status(system_monitor={}):
+
+    memory = system_monitor.get_memory_status()
+    network, cpu, disk = system_monitor.get_network_cpu_status()
+    # memory_unit = memory.get('unit').replace('B', "")
+    memory_unit = memory.get('unit')
+
+    data = {
+        "time": todaydate("time"),
+        "net_in": f"{network['Total'].get('recv'):.2f} Mbps",
+        "net_out": f"{network['Total'].get('sent'):.2f} Mbps",
+        "pk_int": f"{network['Total'].get('packets_recv')} p/s",
+        "pk_out": f"{network['Total'].get('packets_sent')} p/s",
+        "load": f"{get_cpu_load()['1min']}",
+        "usr": f"{cpu.get('usr')}%",
+        "sys": f"{cpu.get('sys')}%",
+        "io_w": f"{cpu.get('io_wait')}",
+        "disk_read":  f"{disk['total'].get('read_mb')} M/s",
+        "disk_write":  f"{disk['total'].get('write_mb')} M/s",
+        "mem_total": f"{memory.get('total')} {memory_unit}",
+        # "mem_used": f"{memory.get('percent')}%",
+        "mem_free": f"{memory.get('free')} {memory_unit}",
+        "cached": f"{memory.get('cached')} {memory_unit}",
+    }
+    return data
 
 
 if __name__ == '__main__':
