@@ -278,8 +278,40 @@ class PromptWithArgument:
         ).execute()
 
 
-
 class CompareValidator(NumberValidator):
+    """
+    Validator that compares the input value with the given operator and length.
+
+    :param operator: Comparison operator. Allowed operators are '!=', '==', '>=', '<=', '>', and '<'.
+    :type operator: Literal["!=", "==", ">=", "<=", ">", "<"]
+    :param length: Length of the input value.
+    :type length: int
+    :param message: Error message to display when the validation fails.
+    :type message: str
+    :param float_allowed: Flag to allow float input values.
+    :type float_allowed: bool
+    :param value_type: Type of the input value. Allowed types are 'number', 'string', and 'min_max'.
+    :type value_type: str
+    :param min_value: Minimum value for 'min_max' value type.
+    :type min_value: int
+    :param max_value: Maximum value for 'min_max' value type.
+    :type max_value: int
+
+    Example:
+
+        .. code-block:: python
+
+            validator = CompareValidator(
+                operator=">=",
+                length=3,
+                message="Input should be a number greater than or equal to 3",
+                float_allowed=True,
+                value_type="number",
+                min_value=3
+            )
+
+            validator.validate(document)
+    """
     def __init__(
             self,
             operator: Literal["!=", "==", ">=", "<=", ">", "<"] = ">=",
@@ -310,12 +342,28 @@ class CompareValidator(NumberValidator):
         self._max = max_value
 
     def raise_error(self, document, message=""):
+        """
+        Raises a ValidationError with the given error message.
+
+        :param document: The document being validated.
+        :type document: Any
+        :param message: The error message to display.
+        :type message: str
+        """
         _message = f"{self._message}, {message}"
         raise ValidationError(
             message=_message, cursor_position=document.cursor_position
         )
 
     def _numberify(self, value):
+        """
+        Converts the input value to a number.
+
+        :param value: The input value to convert.
+        :type value: Any
+        :return: The converted number.
+        :rtype: Union[int, float]
+        """
         if is_float(value) or is_int(value):
             if self._float_allowed:
                 number = float(value)
@@ -326,6 +374,14 @@ class CompareValidator(NumberValidator):
         return number
 
     def _max_min_operator(self, value=0):
+        """
+        Checks if the input value is within the given min and max values.
+
+        :param value: The input value to check.
+        :type value: Union[int, float]
+        :return: True if the value is within the min and max values, False otherwise.
+        :rtype: bool
+        """
         if self._max > 0 and self._min > 0:
             if value > self._max or value < self._min:
                 return False
@@ -338,6 +394,12 @@ class CompareValidator(NumberValidator):
             return True
 
     def validate(self, document) -> None:
+        """
+        Validates the input document.
+
+        :param document: The document to validate.
+        :type document: Any
+        """
         try:
             text_length = self._numberify(document.text)
             if self._value_type == "number":
@@ -357,30 +419,118 @@ class CompareValidator(NumberValidator):
 
 
 class NumberCompareValidator(CompareValidator):
-    def __init__(self, operator = "", length: int = 0, message: str = "Input should be a ", float_allowed: bool = False) -> None:
+    """
+    A validator that compares a number with a given operator.
+
+    :param operator: A string representing the operator. Default is "".
+    :param length: An integer representing the length of the input. Default is 0.
+    :param message: A string representing the error message. Default is "Input should be a ".
+    :param float_allowed: A boolean representing whether float input is allowed. Default is False.
+
+    Example:
+
+        .. code-block:: python
+
+            validator = NumberCompareValidator(operator=">", length=0, message="Input should be a number", float_allowed=True)
+            validator.validate(5) # >> True
+            validator.validate("5.0") # >> True
+            validator.validate("abc") # >> False
+    """
+
+    def __init__(self, operator="", length: int = 0, message: str = "Input should be a ", float_allowed: bool = False) -> None:
         super().__init__(operator=operator, length=length, message=message, float_allowed=float_allowed, value_type="number")
 
 
 class StringCompareValidator(CompareValidator):
-    def __init__(self, operator = "", length: int = 0, message: str = "Input should be a ", float_allowed: bool = False) -> None:
+    """
+    A validator that compares a string with a given operator.
+
+    :param operator: A string representing the operator. Default is "".
+    :param length: An integer representing the length of the input. Default is 0.
+    :param message: A string representing the error message. Default is "Input should be a ".
+    :param float_allowed: A boolean representing whether float input is allowed. Default is False.
+
+    Example:
+
+        .. code-block:: python
+
+            validator = StringCompareValidator(operator=">", length=0, message="Input should be a string", float_allowed=False)
+            validator.validate("abc") # >> True
+            validator.validate(123) # >> False
+            validator.validate("abcdefg") # >> False
+    """
+
+    def __init__(self, operator="", length: int = 0, message: str = "Input should be a ", float_allowed: bool = False) -> None:
         super().__init__(operator=operator, length=length, message=message, float_allowed=float_allowed, value_type="string")
 
 
 class MinMaxValidator(CompareValidator):
+    """
+    A validator that checks whether a number is within a given range.
+
+    :param min_value: An integer representing the minimum value. Default is 0.
+    :param max_value: An integer representing the maximum value. Default is 0.
+    :param message: A string representing the error message. Default is "Input should be a ".
+    :param float_allowed: A boolean representing whether float input is allowed. Default is False.
+
+    Example:
+
+        .. code-block:: python
+
+            validator = MinMaxValidator(min_value=0, max_value=10, message="Input should be between 0 and 10", float_allowed=True)
+            validator.validate(5) # >> True
+            validator.validate(15) # >> False
+            validator.validate("5.0") # >> True
+            validator.validate("abc") # >> False
+    """
+
     def __init__(self, min_value: int = 0, max_value: int = 0, message: str = "Input should be a ", float_allowed: bool = False) -> None:
         super().__init__(min_value=min_value, max_value=max_value, message=message, float_allowed=float_allowed, value_type="min_max")
 
 
 class PrivateKeyValidator(CompareValidator):
+    """
+    Validator class for private key.
+
+    :param message: Error message to display.
+    :param allow_none: If True, allows None as a valid input.
+    :type message: str
+    :type allow_none: bool
+
+    Example:
+
+        .. code-block:: python
+
+            validator = PrivateKeyValidator()
+            validator.validate("4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d")
+            # >> None
+
+    """
     def __init__(self, message: str = "Input should be a ", allow_none: bool = False) -> None:
         self.allow_none = allow_none
         super().__init__(message=message,  value_type="PrivateKey Hex")
 
     def validate(self, document) -> None:
+        """
+        Validates whether the input is a valid private key.
+
+        :param document: The input to validate.
+        :type document: Any
+
+        :raises ValueError: If the input is not a valid private key.
+
+        Example:
+
+            .. code-block:: python
+
+                validator = PrivateKeyValidator()
+                validator.validate("4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d")
+                # >> None
+
+        """
         try:
             text = document.text
 
-            # if isinstance(text, str):
             if self.allow_none and not text:
                 return
             elif not is_hex(text):
@@ -392,19 +542,55 @@ class PrivateKeyValidator(CompareValidator):
 
 
 class PrivateKeyOrJsonValidator(CompareValidator):
+    """
+    Validator class for private key or JSON.
+
+    :param message: Error message to display.
+    :param allow_none: If True, allows None as a valid input.
+    :type message: str
+    :type allow_none: bool
+
+    Example:
+
+        .. code-block:: python
+
+            validator = PrivateKeyOrJsonValidator()
+            validator.validate('{"private_key": "4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d"}')
+            # >> None
+
+    """
     def __init__(self, message: str = "Input should be a ", allow_none: bool = False) -> None:
         self.allow_none = allow_none
         super().__init__(message=message,  value_type="PrivateKey Hex")
 
     def validate(self, document) -> None:
+        """
+        Validates whether the input is a valid private key or JSON.
+
+        :param document: The input to validate.
+        :type document: Any
+
+        :raises ValueError: If the input is not a valid private key or JSON.
+
+        Example:
+
+            .. code-block:: python
+
+                validator = PrivateKeyOrJsonValidator()
+                validator.validate('{"private_key": "4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d"}')
+                # >> None
+
+        """
         try:
             text = document.text
 
-            # if isinstance(text, str):
             if self.allow_none and not text:
                 return
             elif not is_hex(text):
-                self.raise_error(document, message=f"Invalid Private Key. '{document.text}' is not Hex ")
+                try:
+                    json.loads(text)
+                except ValueError:
+                    self.raise_error(document, message=f"Invalid input. '{document.text}' is not Hex or JSON.")
             elif not is_valid_private_key(text):
                 self.raise_error(document, message=f"Invalid Private Key. Length should be 64. len={len(text)}")
         except ValueError:
@@ -412,6 +598,23 @@ class PrivateKeyOrJsonValidator(CompareValidator):
 
 
 def check_valid_private_length(text):
+    """
+    Check if the length of a private key is valid.
+
+    :param text: a string representing a private key.
+    :return: True if the length of the private key is valid, False otherwise.
+
+    Example:
+
+        .. code-block:: python
+
+            check_valid_private_length("0x1234567890123456789012345678901234567890123456789012345678901234")
+            # >> True
+
+            check_valid_private_length("0x123456789012345678901234567890123456789012345678901234567890")
+            # >> False
+
+    """
     private_length = 64
     if is_hex(text):
         if text.startswith("0x"):
@@ -422,6 +625,29 @@ def check_valid_private_length(text):
 
 
 def get_operator_truth(inp, relate, cut):
+    """
+    Compare two values based on a relationship operator.
+
+    :param inp: First value to compare.
+    :type inp: any
+    :param relate: Relationship operator.
+    :type relate: str
+    :param cut: Second value to compare.
+    :type cut: any
+    :return: Comparison result.
+    :rtype: bool
+
+    Example:
+
+        .. code-block:: python
+
+            get_operator_truth(3, '>', 2)
+            # >> True
+
+            get_operator_truth('hello', 'include', 'he')
+            # >> True
+
+    """
     ops = {
         '>': _operator.gt,
         '<': _operator.lt,

@@ -268,7 +268,31 @@ def is_valid_ipv6(ip):
     """, re.VERBOSE | re.IGNORECASE | re.DOTALL)
     return pattern.match(ip) is not None
 
+
 def is_valid_url(url):
+    """
+    Check if the given url is valid.
+
+    :param url: (str) url to check
+    :return: (bool) True if valid, False otherwise
+
+    Example:
+
+        .. code-block:: python
+
+            check.is_valid_url("google.com")
+            # >> True
+
+            check.is_valid_url("http://google.com")
+            # >> True
+
+            check.is_valid_url("https://www.google.com/search?q=python")
+            # >> True
+
+            check.is_valid_url("ftp://example.com")
+            # >> False
+
+    """
     if "http://" not in url and "https://" not in url:
         url = f"http://{url}"
 
@@ -278,7 +302,8 @@ def is_valid_url(url):
         r'localhost|'  # localhost...
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
         r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        r'(?:/?|[/?]\S+)',
+        re.IGNORECASE)
     return url is not None and regex.search(url)
 
 
