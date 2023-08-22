@@ -1427,10 +1427,26 @@ def ordereddict_to_dict(obj, reverse=False):
     """
     Change the order of the keys in the dictionary.
 
+    :param obj: (OrderedDict) The dictionary to change the order of keys.
+    :param reverse: (bool) Whether to sort in reverse order. Default is False.
+    :return: (dict) A new dictionary with the keys sorted in the specified order.
 
-    :param obj:
-    :param reverse:
-    :return:
+    Example:
+
+        .. code-block:: python
+
+            from collections import OrderedDict
+
+            # Create an ordered dictionary
+            od = OrderedDict([('c', 3), ('b', 2), ('a', 1)])
+
+            # Change the order of the keys in the dictionary
+            new_dict = ordereddict_to_dict(od)
+
+            # Print the new dictionary
+            print(new_dict)
+            # >> {'a': 1, 'b': 2, 'c': 3}
+
     """
     return_result = {}
     for k, v in sorted(obj.items(), reverse=reverse):
@@ -1721,10 +1737,26 @@ class UpdateType:
 
 def execute_function(module_func):
     """
-    Run under the name of the module name of the module.
+    Run the specified function or method.
 
-    :param module_func:
-    :return:
+    :param module_func: The name of the function or method to be executed.
+                        If the function is a method of a class, the format should be "module.class.method".
+                        If the function is a top-level function, the format should be "module.function".
+    :type module_func: str
+    :return: The return value of the executed function or method.
+    :rtype: any
+
+    Example:
+
+        .. code-block:: python
+
+            # Execute a top-level function
+            execute_function("os.getcwd")
+            # >> '/Users/username'
+
+            # Execute a method of a class
+            execute_function("requests.Session.get")
+            # >> <Response [200]>
     """
 
     if isinstance(module_func, str):
@@ -1771,12 +1803,31 @@ def dict2influxdb_line(data):
 
 def rm_space(value, replace_str="_"):
     """
-    remove the all space from value
-    influxdb data not allowed space
+    Remove all spaces from the given value.
+    InfluxDB does not allow spaces
 
-    :param value:
-    :param replace_str:
-    :return:
+    :param value: The value to remove spaces from.
+    :type value: str or any
+    :param replace_str: The string to replace the spaces with. Default is "_".
+    :type replace_str: str
+    :return: The value without spaces.
+    :rtype: str or any
+
+    Example:
+
+        .. code-block:: python
+
+            # Removing spaces from a string
+            assert rm_space("hello world") == "hello_world"
+
+            # Replacing spaces with a custom string
+            assert rm_space("hello world", "-") == "hello-world"
+
+            # Removing spaces from a non-string value
+            assert rm_space(1234) == 1234
+
+            # Removing spaces from an empty string
+            assert rm_space("") == 0
     """
     if len(str(value)) == 0:
         return 0
@@ -1788,12 +1839,33 @@ def rm_space(value, replace_str="_"):
 
 def replace_ignore_char(value, patterns=None, replace_str="_"):
     """
-    Remove the ignoring character for add to InfluxDB
+    Remove the ignoring character for adding to InfluxDB.
 
-    :param value:
-    :param patterns:
-    :param replace_str:
-    :return:
+    :param value: A value to remove ignoring characters.
+    :type value: str, float, or int
+    :param patterns: A list of ignoring characters to remove. Default is [" ", ","].
+    :type patterns: list
+    :param replace_str: A string to replace the ignoring characters. Default is "_".
+    :type replace_str: str
+    :return: A value without ignoring characters.
+    :rtype: str, float, or int
+
+    Example:
+
+        .. code-block:: python
+
+            # example 1
+            >>> replace_ignore_char("hello world")
+            'hello_world'
+
+            # example 2
+            >>> replace_ignore_char("1,234.56")
+            '1_234.56'
+
+            # example 3
+            >>> replace_ignore_char(1234)
+            1234
+
     """
     if patterns is None:
         patterns = [" ", ","]
@@ -1808,6 +1880,7 @@ def replace_ignore_char(value, patterns=None, replace_str="_"):
         for replace_pattern in patterns:
             value = value.replace(replace_pattern, replace_str).strip()
     return value
+
 
 
 # def replace_ignore_dict_kv(dict_data, pattern=None, replace_str="_"):

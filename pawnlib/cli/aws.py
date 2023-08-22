@@ -21,6 +21,8 @@ def get_arguments(parser):
     parser.add_argument("--meta-ip", "-i", type=str, help="IP address for retrieving Metadata", default="169.254.169.254")
     parser.add_argument("--timeout", '-t', type=float, help="timeout for request", default=2)
     parser.add_argument("--write-filename", '-w', type=str, help="write filename", default="")
+    parser.add_argument("--print-type", '-p', type=str, help="print type", choices=["json", "flat"], default="json")
+
 
     return parser
 
@@ -41,7 +43,19 @@ def main():
     pawn.console.log(f"args = {args}")
 
     res = server.get_aws_metadata(meta_ip=args.meta_ip, timeout=args.timeout)
-    print(syntax_highlight(res))
+    if args.print_type == "json":
+        print(syntax_highlight(res))
+    elif args.print_type == "flat":
+        PrintRichTable(
+            title="AWS Metadata",
+            data=flatten_dict(res),
+            columns_options=dict(
+                value=dict(
+                    justify="left",
+                )
+            )
+        )
+
     # PrintRichTable(title="AWS Metadata", data=flatten_dict(res))
 
     if args.write_filename:

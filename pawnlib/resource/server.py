@@ -36,6 +36,18 @@ def hex_mask_to_cidr(hex_mask):
 
 
 def get_interface_names():
+    """
+    Get a list of interface names on the system.
+
+    :return: a list of interface names
+
+    Example:
+
+        .. code-block:: python
+
+            check.get_interface_names()
+            # >> ['lo', 'enp0s31f6', 'wlp0s20f3']
+    """
     if platform.system() == 'Linux':
         with open('/proc/net/dev') as f:
             data = f.readlines()
@@ -48,6 +60,20 @@ def get_interface_names():
 
 
 def get_ip_addresses(interface):
+    """
+    Get a list of IP addresses associated with a given network interface.
+
+    :param interface: A string representing the name of the network interface.
+    :return: A list of IP addresses associated with the given network interface.
+
+    Example:
+
+        .. code-block:: python
+
+            ip_addresses = get_ip_addresses('eth0')
+            # >> ['192.168.0.1', '192.168.0.2']
+
+    """
     ip_addresses = []
     if platform.system() == 'Linux':
         try:
@@ -66,14 +92,27 @@ def get_ip_addresses(interface):
         addresses = [line.split()[1] for line in lines if 'inet ' in line]
         for address in addresses:
             ip_addresses.append(address)
-            # if 'addr' in address:
-            #     ip_addresses.append(address.split('addr')[1])
     else:
         raise ValueError("Only Linux and macOS are supported")
     return ip_addresses
 
 
 def get_ip_and_netmask(interface):
+    """
+    Get IP address and netmask of the given interface.
+
+    :param interface: The name of the interface.
+    :return: A list containing the IP address and netmask.
+
+    Example:
+
+        .. code-block:: python
+
+            ip_info = get_ip_and_netmask('eth0')
+            print(ip_info)
+            # >> ['192.168.0.2', '255.255.255.0']
+
+    """
     ip_info = []
 
     if platform.system() == 'Linux':
@@ -107,37 +146,90 @@ def get_ip_and_netmask(interface):
                 netmask = parts[3]
                 cidr_netmask = hex_mask_to_cidr(netmask)
                 if cidr_netmask:
-                    ip_info.append(str(cidr_netmask))
-                # else:
-                #     ip_info.append("")
+                    ip_info.append(str(subnet_mask_to_decimal(cidr_netmask)))
+
     return ip_info
 
 
-def get_interface_ips(ignore_interface=[], colorize=False, detail=True):
+def subnet_mask_to_decimal(subnet_mask):
+    """
+    Convert subnet mask to decimal.
+
+    :param subnet_mask: Subnet mask in integer format.
+    :type subnet_mask: int
+    :return: Decimal subnet mask.
+    :rtype: str
+
+    Example:
+
+        .. code-block:: python
+
+            check.subnet_mask_to_decimal(24)
+            # >> '255.255.255.0'
+
+            check.subnet_mask_to_decimal(16)
+            # >> '255.255.0.0'
+
+    """
+    if 0 <= subnet_mask <= 32:
+        binary_subnet = "1" * subnet_mask + "0" * (32 - subnet_mask)
+        decimal_subnet = [str(int(binary_subnet[i:i+8], 2)) for i in range(0, 32, 8)]
+        return ".".join(decimal_subnet)
+    return None
+
+
+def get_interface_ips(ignore_interfaces=None, detail=True, is_sort=True):
+    """
+    Get the IP addresses of the interfaces.
+
+    :param ignore_interfaces: A list of interface names to ignore.
+    :param detail: Whether to show detailed information or not.
+    :param is_sort: Whether to sort the results or not.
+    :return: A list of tuples containing interface name and IP address.
+
+    Example:
+
+        .. code-block:: python
+
+            check.get_interface_ips()
+            # >> [('lo', '127.0.0.1 / 8'), ('wlan0', '192.168.0.10 / 24, G/W: 192.168.0.1')]
+
+    """
     interfaces_and_ips = []
+
+    if ignore_interfaces is None:
+        ignore_interfaces = []
+
     interface_names = get_interface_names()
     default_route, default_interface = parse_proc_route()
 
     for interface_name in interface_names:
-        if interface_name not in ignore_interface:
-            if detail:
-                ip_address = " /".join(get_ip_and_netmask(interface_name))
-            else:
-                ip_address = " ".join(get_ip_addresses(interface_name))
+        if interface_name in ignore_interfaces:
+            continue
 
-            if ip_address:
-                if default_interface and default_route and interface_name == default_interface:
-                    # interface_name = f"[bold blue][on #050B27]{interface_name:<8}[/bold blue]"
-                    ip_address = f"{ip_address}, G/W: {default_route}"
-                interfaces_and_ips.append((interface_name, ip_address))
+        if detail:
+            ip_and_netmask = get_ip_and_netmask(interface_name)
+            ip_address = f"{ip_and_netmask[0]:<15} / {ip_and_netmask[1]}" if len(ip_and_netmask) > 1 else " ".join(ip_and_netmask)
+        else:
+            ip_address = " ".join(get_ip_addresses(interface_name))
+
+        if ip_address:
+            if default_interface and default_route and interface_name == default_interface:
+                ip_address += f", G/W: {default_route}"
+
+            interfaces_and_ips.append((interface_name, ip_address))
+
+    if is_sort:
+        interfaces_and_ips.sort(key=lambda x: 'G/W' in x[1], reverse=True)
+
     return interfaces_and_ips
 
 
-def get_interface_ips_dict(ignore_interface=[], colorize=False):
+def get_interface_ips_dict(ignore_interfaces=[]):
     interface_dict = {}
-    default_route, default_interface = parse_proc_route()
-    for interface, ipaddr in get_interface_ips(ignore_interface=ignore_interface, colorize=colorize):
+    for interface, ipaddr in get_interface_ips(ignore_interfaces=ignore_interfaces):
         interface_dict[interface] = ipaddr
+    return interface_dict
 
 
 def parse_proc_route():

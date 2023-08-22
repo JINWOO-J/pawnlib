@@ -10,6 +10,7 @@ from .net import (
 
 from .server import (
     SystemMonitor,
+    get_interface_ips_dict,
     get_interface_ips,
     get_ip_and_netmask,
     get_cpu_usage_percentage,
