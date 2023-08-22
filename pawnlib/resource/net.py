@@ -223,13 +223,22 @@ def check_port(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Li
 
 def listen_socket(host, port):
     """
-    The listen_socket function creates a socket object and binds it to the host and port
-    provided. The function then listens for incoming connections on that socket, with a maximum of 5
-    connections in the queue.
+    Create a socket object and bind it to the host and port provided.
+    Listen for incoming connections on that socket, with a maximum of 5 connections in the queue.
 
-    :param host: Specify the hostname of the machine where the server is running
-    :param port: Specify the port number that the server will listen on
-    :return: A socket object
+    :param host: str - hostname of the machine where the server is running
+    :param port: int - port number that the server will listen on
+    :return: socket - a socket object
+
+    Example:
+        .. code-block:: python
+
+            # create a socket object and bind it to localhost and port 8080
+            sock = listen_socket("localhost", 8080)
+
+            # listen for incoming connections
+            conn, addr = sock.accept()
+
     """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((host, port))
