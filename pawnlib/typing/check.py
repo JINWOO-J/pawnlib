@@ -7,10 +7,20 @@ from pawnlib.config import pawn
 
 def is_json(s) -> bool:
     """
-    Check if a string is valid JSON
-    :param s:
-    :return:
+    Check if a string is valid JSON.
 
+    :param s: a string to check if it is valid JSON.
+    :return: True if the string is valid JSON, False otherwise.
+
+    Example:
+
+        .. code-block:: python
+
+            check.is_json('{"name": "John", "age": 30, "city": "New York"}')
+            # >> True
+
+            check.is_json('{"name": "John", "age": 30, "city": "New York",}')
+            # >> False
     """
     try:
         json.loads(s)
@@ -23,30 +33,61 @@ def is_float(s) -> bool:
     """
     Check if a value is float
 
-    :param s:
-    :return:
+    :param s: A value to check if it is a float
+    :type s: Any
+    :return: True if the value is a float, False otherwise
+    :rtype: bool
+
+    Example:
+
+        .. code-block:: python
+
+            check.is_float(3.14)
+            # >> True
+
+            check.is_float("3.14")
+            # >> True
+
+            check.is_float("hello")
+            # >> False
+
     """
     try:
         float(s)
-    except TypeError:
-        return False
-    except ValueError:
+    except (TypeError, ValueError):
         return False
     return True
 
 
 def is_int(s) -> bool:
     """
-    Check if a value is integer
+    Check if a value is integer.
 
-    :param s:
-    :return:
+    :param s: A value to check.
+    :type s: Any
+    :return: True if the value is an integer, False otherwise.
+    :rtype: bool
+
+    Example:
+
+        .. code-block:: python
+
+            check.is_int(1)
+            # >> True
+
+            check.is_int(1.0)
+            # >> False
+
+            check.is_int("2")
+            # >> True
+
+            check.is_int("2.0")
+            # >> False
+
     """
     try:
         int(s)
-    except TypeError:
-        return False
-    except ValueError:
+    except (TypeError, ValueError):
         return False
     return True
 
@@ -55,8 +96,19 @@ def is_hex(s) -> bool:
     """
     Check if a value is hexadecimal
 
-    :param s:
-    :return:
+    :param s: string to check
+    :return: True if s is hexadecimal, False otherwise
+
+    Example:
+
+        .. code-block:: python
+
+            check.is_hex("1a")
+            # >> True
+
+            check.is_hex("g")
+            # >> False
+
     """
     try:
         int(s, 16)
@@ -77,8 +129,20 @@ def is_regex_keyword(keyword: str, value: str) -> bool:
     :param keyword:str: Check if the value:str parameter matches the keyword
     :param value:str: Check if the keyword is in the value
     :return: True if the keyword is a regex and matches
-    """
 
+    Example:
+
+        .. code-block:: python
+
+            check.is_regex_keyword("/hello/", "hello world")
+            # >> True
+
+            check.is_regex_keyword("(hello)+", "hello world")
+            # >> True
+
+            check.is_regex_keyword("hello", "world")
+            # >> False
+    """
     if len(keyword) <= 0 or len(value) <= 0:
         return False
 
@@ -131,8 +195,21 @@ def is_valid_ipv4(ip):
     """
     Validates IPv4 addresses.
 
-    :param ip:
-    :return:
+    :param ip: (str) IPv4 address to validate.
+    :return: (bool) True if valid IPv4 address, False otherwise.
+
+    Example:
+
+        .. code-block:: python
+
+            check.is_valid_ipv4("192.168.0.1")
+            # >> True
+
+            check.is_valid_ipv4("255.255.255.0")
+            # >> True
+
+            check.is_valid_ipv4("300.168.0.1")
+            # >> False
 
     """
     pattern = re.compile(
@@ -146,8 +223,21 @@ def is_valid_ipv6(ip):
     """
     Validates IPv6 addresses.
 
-    :param ip:
-    :return:
+    :param ip: A string representing an IPv6 address.
+    :return: True if the given string is a valid IPv6 address, False otherwise.
+
+    Example:
+
+        .. code-block:: python
+
+            check.is_valid_ipv6("2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+            # >> True
+
+            check.is_valid_ipv6("2001:0db8:85a3::8a2e:0370:7334")
+            # >> True
+
+            check.is_valid_ipv6("2001:0db8:85a3:0:0:8a2e:0370:7334:1234")
+            # >> False
 
     """
     pattern = re.compile(r"""
@@ -178,7 +268,6 @@ def is_valid_ipv6(ip):
     """, re.VERBOSE | re.IGNORECASE | re.DOTALL)
     return pattern.match(ip) is not None
 
-
 def is_valid_url(url):
     if "http://" not in url and "https://" not in url:
         url = f"http://{url}"
@@ -197,8 +286,20 @@ def is_valid_private_key(text=None):
     """
     Validates the Private Key
 
-    :param text: private key text
-    :return:
+    :param text: A string of private key text.
+    :type text: str
+    :return: A boolean value indicating whether the private key is valid or not.
+    :rtype: bool
+
+    Example:
+
+        .. code-block:: python
+
+            is_valid_private_key("0x1234567890123456789012345678901234567890123456789012345678901234")
+            # >> True
+
+            is_valid_private_key("0x12345678901234567890123456789012345678901234567890123456789012345")
+            # >> False
 
     """
     private_length = 64
@@ -212,15 +313,26 @@ def is_valid_private_key(text=None):
 
 def is_valid_token_address(text=None, prefix="hx"):
     """
-    Validates the token address
-    :param text:
-    :param prefix:
-    :return:
+    Validates the token address.
+
+    :param text: A string representing the token address to be validated.
+    :param prefix: A string representing the prefix of the token address. Default value is "hx".
+    :return: A boolean value indicating whether the token address is valid or not.
+
+    Example:
+
+        .. code-block:: python
+
+            is_valid_token_address("hx1234567890123456789012345678901234567890")
+            # >> True
+
+            is_valid_token_address("tx1234567890123456789012345678901234567890")
+            # >> False
 
     """
     if text and prefix \
             and len(text) == 42 \
-            and text.startswith(prefix)\
+            and text.startswith(prefix) \
             and is_hex(text[2:]):
         return True
     return False
@@ -228,10 +340,21 @@ def is_valid_token_address(text=None, prefix="hx"):
 
 def list_depth(l):
     """
-    returns depth count of list
+    Returns the depth count of a list.
 
-    :param l: list
-    :return:
+    :param l: A list.
+    :return: An integer representing the depth count of the list.
+
+    Example:
+
+        .. code-block:: python
+
+            list_depth([1, 2, 3])
+            # >> 1
+
+            list_depth([1, [2, 3], [4, [5, 6]]])
+            # >> 3
+
     """
     if isinstance(l, list):
         return 1 + max(list_depth(item) for item in l)
@@ -277,10 +400,25 @@ def guess_type(s):
 
 def _str2bool(v) -> bool:
     """
-    this function get the boolean type
+    This function returns boolean type of given string.
 
-    :param v:
-    :return:
+    :param v: A string to be converted to boolean type.
+    :type v: str
+    :return: Boolean value of given string.
+    :rtype: bool
+
+    Example:
+
+        .. code-block:: python
+
+            >>> _str2bool('True')
+            True
+            >>> _str2bool('false')
+            False
+            >>> _str2bool('1')
+            True
+            >>> _str2bool(None)
+            False
     """
     if v is None:
         return False
@@ -299,11 +437,22 @@ def _str2bool(v) -> bool:
 
 def return_guess_type(value):
     """
-
     This function returns the result of :func:`guess_type` and :func:`_strbool`
 
-    :param value:
-    :return:
+    :param value: A value to guess the type of.
+    :type value: any
+    :return: The guessed type of the input value.
+    :rtype: any
+
+    Example:
+
+        .. code-block:: python
+
+            return_guess_type("True")
+            # >> <class 'bool'>
+
+            return_guess_type("2.2")
+            # >> <class 'float'>
 
     """
     guessed_type = guess_type(value)
@@ -321,11 +470,23 @@ def return_guess_type(value):
 
 def sys_exit(message="", return_code=-1):
     """
-    This function executes the sys.exit() method
+    This function executes the sys.exit() method.
 
-    :param message: print message
-    :param return_code: exit code
-    :return:
+    :param message: A message to be printed before exiting. (default="")
+    :type message: str
+    :param return_code: An exit code to be returned. (default=-1)
+    :type return_code: int
+    :return: None
+
+    Example:
+
+        .. code-block:: python
+
+            # Example 1: Exit with default return code and message
+            sys_exit()
+
+            # Example 2: Exit with custom return code and message
+            sys_exit("An error occurred!", 1)
 
     """
     if message:
@@ -335,13 +496,26 @@ def sys_exit(message="", return_code=-1):
 
 def is_include_list(target=None, include_list=[], ignore_case=True):
     """
-    check if target string exists in list
+    Check if target string exists in list.
 
-    :param target: target string
-    :param include_list: List of strings to check
-    :param ignore_case: ignore case sensitive
+    :param target: Target string to check.
+    :type target: str
+    :param include_list: List of strings to check.
+    :type include_list: list
+    :param ignore_case: If True, ignore case sensitive. Default is True.
+    :type ignore_case: bool
 
-    :return:
+    :return: Return True if target string exists in include_list, else False.
+    :rtype: bool
+
+    Example:
+        .. code-block:: python
+
+            result = is_include_list("hello world", ["hello", "world"])
+            # >> True
+
+            result = is_include_list("hello world", ["hello", "world"], ignore_case=False)
+            # >> False
     """
     if target and include_list:
         for include_key in include_list:

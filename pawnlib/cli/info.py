@@ -113,19 +113,22 @@ def main():
 
     local_tree = network_tree.add("[bold] Local IP[/bold]")
 
-    for interface, ipaddr in get_interface_ips(ignore_interface=['lo0', 'lo'], colorize=True):
-        result['network'][interface] = ipaddr
-        if "G/W" in ipaddr:
-            interface = f"[bold blue][on #050B27]{interface} [/bold blue]"
-            ipaddr = f"{ipaddr}[/on #050B27]"
-        local_tree.add(f"[bold]{interface:<8}[/bold]: {ipaddr}")
-        # pawn.console.print(f" ├━ {interface:<6}: {ipaddr}")
+    interface_list = get_interface_ips(ignore_interfaces=['lo0', 'lo'])
 
-    pawn.console.print(network_tree)
+    if interface_list:
+        longest_length = max(len(item[0]) for item in interface_list)
 
-    if args.write_filename:
-        write_res = write_json(filename=args.write_filename, data=result)
-        pawn.console.log(write_res)
+        for interface, ipaddr in get_interface_ips(ignore_interfaces=['lo0', 'lo']):
+            result['network'][interface] = ipaddr
+            if "G/W" in ipaddr:
+                interface = f"[bold blue][on #050B27]{interface:<{longest_length}} [/bold blue]"
+                ipaddr = f"{ipaddr}[/on #050B27]"
+            local_tree.add(f"[bold]{interface:<{longest_length+1}}[/bold]: {ipaddr}")
+        pawn.console.print(network_tree)
+
+        if args.write_filename:
+            write_res = write_json(filename=args.write_filename, data=result)
+            pawn.console.log(write_res)
 
 
 if __name__ == '__main__':
