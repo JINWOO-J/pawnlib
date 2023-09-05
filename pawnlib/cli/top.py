@@ -3,8 +3,9 @@ import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
-from pawnlib.typing import StackList, list_to_oneline_string
-from pawnlib.resource import SystemMonitor, get_cpu_load, get_interface_ips, get_platform_info, get_mem_info
+from pawnlib.typing import StackList, list_to_oneline_string, str2bool
+from pawnlib.resource import SystemMonitor, get_cpu_load, get_interface_ips, get_platform_info, get_mem_info, get_netstat_count
+from pawnlib.output import is_file
 import os
 import re
 
@@ -13,8 +14,16 @@ from rich.table import Table
 from rich.align import Align
 from rich.text import Text
 from pawnlib.typing import todaydate
+import time
 
 __description__ = "This is a tool to measure your server's resources."
+
+
+if str2bool(os.environ.get("IS_DOCKER")) and is_file("/rootfs/proc"):
+    PROCFS_PATH = "/rootfs/proc"
+    pawn.console.log("Running in Docker mode on " + PROCFS_PATH)
+else:
+    PROCFS_PATH = "/proc"
 
 
 def get_parser():
@@ -24,25 +33,26 @@ def get_parser():
 
 
 def get_arguments(parser):
-    parser.add_argument('url', help='url', type=str, nargs='?', default="")
+    parser.add_argument('command', help='command', type=str, nargs='?', default="")
     parser.add_argument('-c', '--config-file', type=str, help='config', default="config.ini")
     parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level (default: %(default)s)', default=1)
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
     parser.add_argument('-i', '--interval', type=float, help='interval sleep time seconds. (default: %(default)s)', default=1)
     parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
-    parser.add_argument('-t', '--print-type', type=str, help='printing type  %(default)s)', default="live", choices=["live", "line"])
+    parser.add_argument('-t', '--print-type', type=str, help='printing type  %(default)s)', default="line", choices=["live", "tab", "line"])
     return parser
 
 
 class CriticalText:
-    def __init__(self, column="", value="",  cores=1, warning_percent=75, medium_percent=50):
+    def __init__(self, column="", value="",  cores=1, warning_percent=75, medium_percent=50, low_percent=30, align_space=0):
         self.column = column
         self.value = value
-        self.number_value = self.extract_first_number(value)
+        self.number_value = self.extract_first_number(str(value))
+        self.align_space = align_space
 
         self.critical_limit_dict = {
-            "NET IN": 100,
-            "NET OUT": 100,
+            "net_in": 100,
+            "net_out": 100,
             "usr": 80,
             "sys": 80,
             "mem_used": 99.5,
@@ -54,6 +64,7 @@ class CriticalText:
         }
         self.warning_percent = warning_percent
         self.medium_percent = medium_percent
+        self.low_percent = low_percent
 
     @staticmethod
     def extract_first_number(text):
@@ -71,13 +82,28 @@ class CriticalText:
                 return "#FF9C3F"
             elif self.number_value >= (limit_value * self.medium_percent / 100):
                 return "yellow"
+            elif self.number_value >= (limit_value * self.low_percent / 100):
+                return "green"
         return "white"
 
     def return_text(self):
-        return Text(self.value, self.check_limit())
+        return Text(f"{self.value:>{self.align_space}}", self.check_limit())
+        # return self.format_value_color()
 
     def __str__(self):
-        return Text(self.value, self.check_limit())
+        return Text(f"{self.value:>{self.align_space}}", self.check_limit())
+
+    # @staticmethod
+    def format_value_color(self):
+        formatted_text = ""
+        color = self.check_limit()
+        parts = self.value.split()
+        for part in parts:
+            if any(char.isdigit() for char in part):
+                formatted_text += f'[{color}]{part}[/{color}] '
+            else:
+                formatted_text += f'[gray]{part}[/gray]'
+        return f"{formatted_text:>{self.align_space+(len(color)*2)+1}}"
 
 
 def print_banner():
@@ -137,28 +163,38 @@ def main():
             )
         )
     print_banner()
-
     lines = []
     system_info = get_platform_info()
-    system_monitor = SystemMonitor(interval=args.interval)
+    system_monitor = SystemMonitor(interval=args.interval, proc_path=PROCFS_PATH)
     table_title = f"Server status <{system_info.get('model')},  {system_info.get('cores')} cores, {get_mem_info().get('mem_total')} GB>"
 
     if args.print_type == "live":
         print_live_status(table_title=table_title,  system_info=system_info, system_monitor=system_monitor)
+    # elif args.print_type == "tab":
+    #     print_tabulate_status(system_monitor=system_monitor)
     elif args.print_type == "line":
         count = 0
-
         while True:
-            data = get_resources_status(system_monitor=system_monitor)
+            columns, term_rows = os.get_terminal_size()
+
+            data = get_resources_status(system_monitor=system_monitor, args=args)
             line = []
             columns = []
             for column_key, value in data.items():
-                columns.append(column_key)
-                line.append(CriticalText(column_key, value, cores=system_info.get('cores', 1)).return_text())
-
-            pawn.console.print(list_to_oneline_string(columns, " | ")) if count % 15 == 0 else []
-            print(list_to_oneline_string(line, " │ "))
+                align_space = max([len(str(value)), len(column_key)]) + 2
+                columns.append(f"[blue][u]{column_key:^{align_space}}[/u][/blue]")
+                _value = CriticalText(column_key, value, cores=system_info.get('cores', 1), align_space=align_space).return_text()
+                line.append(_value)
+            # pawn.console.print(list_to_oneline_string(columns, " | ")) if count % 15 == 0 else None
+            print_line_status(columns) if count % term_rows == 0 else None
+            print_line_status(line)
             count += 1
+
+
+def print_line_status(line):
+    for cell in line:
+        pawn.console.print(cell, end="│")
+    print()
 
 
 def print_live_status(table_title="",  system_info={}, system_monitor=None):
@@ -187,30 +223,50 @@ def print_live_status(table_title="",  system_info={}, system_monitor=None):
             live_table.update(Align.center(table))
 
 
-def get_resources_status(system_monitor={}):
+# def print_tabulate_status(system_monitor=None):
+#     _data = []
+#     while True:
+#         data = get_resources_status(system_monitor=system_monitor)
+#         headers = list(data.keys())
+#         values = list(data.values())
+#         _data.append(values)
+#         print(tabulate(_data, headers=headers, tablefmt="grid"))
+#
+#     print()
 
-    memory = system_monitor.get_memory_status()
-    network, cpu, disk = system_monitor.get_network_cpu_status()
-    # memory_unit = memory.get('unit').replace('B', "")
-    memory_unit = memory.get('unit')
 
-    data = {
-        "time": todaydate("time"),
-        "net_in": f"{network['Total'].get('recv'):.2f} Mbps",
-        "net_out": f"{network['Total'].get('sent'):.2f} Mbps",
-        "pk_int": f"{network['Total'].get('packets_recv')} p/s",
-        "pk_out": f"{network['Total'].get('packets_sent')} p/s",
-        "load": f"{get_cpu_load()['1min']}",
-        "usr": f"{cpu.get('usr')}%",
-        "sys": f"{cpu.get('sys')}%",
-        "io_w": f"{cpu.get('io_wait')}",
-        "disk_read":  f"{disk['total'].get('read_mb')} M/s",
-        "disk_write":  f"{disk['total'].get('write_mb')} M/s",
-        "mem_total": f"{memory.get('total')} {memory_unit}",
-        # "mem_used": f"{memory.get('percent')}%",
-        "mem_free": f"{memory.get('free')} {memory_unit}",
-        "cached": f"{memory.get('cached')} {memory_unit}",
-    }
+def get_resources_status(system_monitor={}, args=None):
+
+    if args.command == "net":
+        netstat = get_netstat_count(proc_path=PROCFS_PATH)
+        data = {
+            "time": todaydate("time_sec"),
+        }
+        data.update(netstat.get('COUNT'))
+        time.sleep(args.interval)
+    else:
+        memory = system_monitor.get_memory_status()
+        network, cpu, disk = system_monitor.get_network_cpu_status()
+        # memory_unit = memory.get('unit').replace('B', "")
+        memory_unit = memory.get('unit')
+
+        data = {
+            "time": todaydate("time_sec"),
+            "net_in": f"{network['Total'].get('recv'):.2f}M",
+            "net_out": f"{network['Total'].get('sent'):.2f}M",
+            "pk_in": f"{network['Total'].get('packets_recv')}",
+            "pk_out": f"{network['Total'].get('packets_sent')}",
+            "load": f"{get_cpu_load()['1min']}",
+            "usr": f"{cpu.get('usr')}%",
+            "sys": f"{cpu.get('sys')}%",
+            "io_wait": f"{cpu.get('io_wait')}",
+            "disk_read":  f"{disk['total'].get('read_mb')} M",
+            "disk_write":  f"{disk['total'].get('write_mb')} M",
+            "mem_total": f"{memory.get('total')} {memory_unit}",
+            # "mem_used": f"{memory.get('percent')}%",
+            "mem_free": f"{memory.get('free')} {memory_unit}",
+            "cached": f"{memory.get('cached')} {memory_unit}",
+        }
     return data
 
 
