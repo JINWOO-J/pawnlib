@@ -6,10 +6,10 @@ import subprocess
 import re
 import socket
 from pawnlib.utils import http
-from pawnlib.typing import is_valid_ipv4
+from pawnlib.typing import is_valid_ipv4, split_every_n
 from pawnlib.config import pawn
 from typing import Callable
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 import socket
 import fcntl
@@ -262,12 +262,13 @@ def parse_proc_route():
 
 
 class SystemMonitor:
-    def __init__(self, interval=1):
+    def __init__(self, interval=1, proc_path="/proc"):
+        self.interval = interval
+        self.proc_path = proc_path
         self.instance_data_total = []
         self.prev_net_data = self.parse_net_dev()
         self.prev_cpu_data = self.parse_cpu_stat()
         self.prev_disk_stats = self.read_disk_stats()
-        self.interval = interval
 
         if self.interval < 0:
             raise ValueError("Interval must be positive number or greater than 0")
@@ -284,7 +285,7 @@ class SystemMonitor:
     #     return lines
 
     def parse_net_dev(self):
-        lines = self.read_stats_file("/proc/net/dev")
+        lines = self.read_stats_file(f"{self.proc_path}/net/dev")
         data = {}
         for line in lines[2:]:
             line = line.split()
@@ -383,7 +384,7 @@ class SystemMonitor:
 
     def parse_cpu_stat(self):
         cpu_line = ""
-        for line in self.read_stats_file("/proc/stat"):
+        for line in self.read_stats_file(f"{self.proc_path}/stat"):
             if line.startswith("cpu"):
                 cpu_line = line
                 break
@@ -392,7 +393,7 @@ class SystemMonitor:
         cpu_values = [int(value) for value in cpu_values]
         return cpu_values
 
-    def get_cpu_status(self, period=1):
+    def get_cpu_status(self, period=1, decimal=1):
         start_values = self.prev_cpu_data
         end_values = self.parse_cpu_stat()
 
@@ -404,21 +405,24 @@ class SystemMonitor:
         id_percent = 100 * diff_values[3] / total_diff
         io_wait = 100 * diff_values[4] / total_diff   # Added for iowait
         return {
-            'usr': round(us_percent, 2),
-            'sys': round(sy_percent, 2),
-            'idle': round(id_percent, 2),
-            'io_wait': round(io_wait, 2)
+            'usr': round(us_percent, decimal),
+            'sys': round(sy_percent, decimal),
+            'idle': round(id_percent, decimal),
+            'io_wait': round(io_wait, decimal)
         }
         # print(f"CPU Usage --> {us_percent:.2f}% us  :  {sy_percent:.2f}% sy  :  {id_percent:.2f}% id  :  {io_wait:.2f}% iowait")  # Edited for iowait
 
     def read_disk_stats(self):
         disk_stats = {}
-        for line in self.read_stats_file("/proc/diskstats"):
+        for line in self.read_stats_file(f"{self.proc_path}/diskstats"):
             fields = line.strip().split()
             disk_name = fields[2]
-            #disk_types = ["sd", "vd", "nvme"]
+            # print(disk_name)
+            disk_types = ["sd", "vd", "nvme"]
+
             # if disk_name.startswith('sd') or disk_name.startswith('nvme') or disk_name.startswith('vd'):
-            if not any(c.isdigit() for c in disk_name):
+            if any( disk_name.startswith(_type) for _type in disk_types):
+            # if not any(c.isdigit() for c in disk_name):
                 disk_stats[disk_name] = {
                     'read_ios': int(fields[3]),
                     'read_bytes': int(fields[5]) * 512,  # Convert to bytes
@@ -483,7 +487,7 @@ class SystemMonitor:
         return meminfo
 
     def get_memory_status(self, unit="GB"):
-        meminfo = self.read_stats_file("/proc/meminfo")
+        meminfo = self.read_stats_file(f"{self.proc_path}/meminfo")
         parsed_meminfo = self.parse_meminfo(meminfo)
 
         unit_multiplier = 1
@@ -521,6 +525,70 @@ class SystemMonitor:
         print(f"Memory Usage --> {memory_status.get('percent'):.2f}% ({memory_status.get('used'):.2f} {unit} Used "
               f"/ {memory_status.get('total'):.2f} {unit} Total)")
 
+
+def get_netstat_count(proc_path="/proc", detail=False):
+    netstate_kind = {
+        '01': 'ESTAB',
+        '02': 'SYN_SENT',
+        '03': 'SYN_RECV',
+        '04': 'FIN_WAIT1',
+        '05': 'FIN_WAIT2',
+        '06': 'TIME_WAIT',
+        '07': 'CLOSE',
+        '08': 'CLOSE_WAIT',
+        '09': 'LAST_ACK',
+        '0A': 'LISTEN',
+        '0B': 'CLOSING'
+    }
+
+    netstate_result = {
+        "COUNT": defaultdict(int),
+        # "DETAIL": defaultdict(lambda: defaultdict(int))
+    }
+    for net_key, net_value  in netstate_kind.items():
+        netstate_result["COUNT"][net_value] = 0
+
+    if detail:
+        netstate_result['DETAIL'] = defaultdict(lambda: defaultdict(int))
+
+    try:
+        with open(f'{proc_path}/net/tcp') as f:
+            lineno = 0
+            for line in f:
+                lineno += 1
+                if lineno == 1:
+                    continue
+                line_list = re.split(r'\s+', line.strip())
+                local = convert_linux_netaddr(line_list[1])
+                remote = convert_linux_netaddr(line_list[2])
+                kind = netstate_kind.get(line_list[3])
+
+                netstate_result["COUNT"][kind] += 1
+
+                if detail:
+                    local_port = local.split(":")[1]
+                    remote_port = remote.split(":")[1]
+
+                    if "TIME_WAIT" in kind:
+                        port = remote_port
+                    else:
+                        port = local_port
+
+                    netstate_result["DETAIL"][port][kind] += 1
+
+    except Exception as e:
+        print(e)
+
+    return netstate_result
+
+
+def convert_linux_netaddr(address):
+    hex_addr, hex_port = address.split(':')
+    addr_list = split_every_n(hex_addr, 2)
+    addr_list.reverse()
+    addr = ".".join(map(lambda x: str(int(x, 16)), addr_list))
+    port = str(int(hex_port, 16))
+    return "{}:{}".format(addr, port)
 
 def _line_split(line="", sep=":", d=0, data_type: Callable = str):
     data = line.split(sep)

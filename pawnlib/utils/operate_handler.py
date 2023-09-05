@@ -8,6 +8,7 @@ import atexit
 import subprocess
 import threading
 import itertools
+from io import TextIOWrapper
 from typing import Callable, List, Dict, Union
 from concurrent.futures import ThreadPoolExecutor
 
@@ -99,16 +100,15 @@ class Daemon(object):
     Usage 2: subclass the Daemon class and use func parameter
 
     :param pidfile: pid file location
-    :param func:
-    :param stdin:
-    :param stdout:
-    :param stderr:
-    :param home_dir:
-    :param umask:
-    :param verbose:
-    :param use_gevent:
-    :param use_eventlet:
-
+    :param func: function to run as daemon
+    :param stdin: standard input , The default is sys.stdin, and providing a filename will output to a file.
+    :param stdout: standard output, The default is sys.stdout, and  providing a filename will output to a file.
+    :param stderr: standard error, The default is sys.stderr, and providing a filename will output to a file.
+    :param home_dir: home directory
+    :param umask: umask
+    :param verbose: verbosity level
+    :param use_gevent: use gevent
+    :param use_eventlet: use eventlet
     Example:
 
         .. code-block:: python
@@ -140,13 +140,13 @@ class Daemon(object):
 
     """
 
-    def __init__(self, pidfile, func=None, stdin=os.devnull,
-                 stdout=os.devnull, stderr=os.devnull,
+    def __init__(self, pidfile, func=None, stdin=None,
+                 stdout=None, stderr=None,
                  home_dir='.', umask=0o22, verbose=1,
                  use_gevent: bool = False, use_eventlet: bool = False):
-        self.stdin = stdin
-        self.stdout = stdout
-        self.stderr = stderr
+        self.stdin = stdin if stdin is not None else sys.stdin
+        self.stdout = stdout if stdout is not None else sys.stdout
+        self.stderr = stderr if stderr is not None else sys.stderr
         self.pidfile = pidfile
         self.func = func
         self.home_dir = home_dir
@@ -199,19 +199,22 @@ class Daemon(object):
             # Redirect standard file descriptors
             sys.stdout.flush()
             sys.stderr.flush()
-            si = open(self.stdin, 'r')
-            so = open(self.stdout, 'a+')
+            si = open(self.stdin, 'r') if isinstance(self.stdin, str) else self.stdin
+            so = open(self.stdout, 'a+') if isinstance(self.stdout, str) else self.stdout
             if self.stderr:
                 try:
-                    se = open(self.stderr, 'a+', 0)
+                    se = open(self.stderr, 'a+') if isinstance(self.stderr, str) else self.stderr
                 except ValueError:
                     # Python 3 can't have unbuffered text I/O
                     se = open(self.stderr, 'a+', 1)
             else:
                 se = so
-            os.dup2(si.fileno(), sys.stdin.fileno())
-            os.dup2(so.fileno(), sys.stdout.fileno())
-            os.dup2(se.fileno(), sys.stderr.fileno())
+            if isinstance(si, TextIOWrapper):
+                os.dup2(si.fileno(), sys.stdin.fileno())
+            if isinstance(so, TextIOWrapper):
+                os.dup2(so.fileno(), sys.stdout.fileno())
+            if isinstance(se, TextIOWrapper):
+                os.dup2(se.fileno(), sys.stderr.fileno())
 
         def sigtermhandler(signum, frame):
             self.daemon_alive = False

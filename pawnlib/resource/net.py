@@ -66,7 +66,7 @@ def get_public_ip():
 
     """
     try:
-        public_ip = http.jequest("http://checkip.amazonaws.com").get('text', "").strip()
+        public_ip = http.jequest("http://checkip.amazonaws.com", timeout=2).get('text', "").strip()
         if is_valid_ipv4(public_ip):
             return public_ip
         else:
