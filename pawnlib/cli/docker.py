@@ -38,14 +38,14 @@ def get_arguments(parser):
         # choices=['init', 'run', 'create', 'create_or_replace', 'delete', 'start', 'stop'],
         choices=['init', 'run', 'delete', 'start', 'stop', "ls"],
         help='')
-    parser.add_argument('-s', '--unixsocket', metavar='unixsocket', help=f'unix domain socket path (default: /var/run/docker.sock)',
+    parser.add_argument('-s', '--unixsocket', metavar='unixsocket', help='unix domain socket path (default: /var/run/docker.sock)',
                         default="/var/run/docker.sock")
-    parser.add_argument('-d', '--debug', action='store_true', help=f'debug mode. ', default=False)
-    parser.add_argument('-c', '--count', metavar="container count", type=int, help=f'container count (default: 30)', default=30)
-    parser.add_argument('--max-at-once', metavar="max_at_once count", type=int, help=f'max_at_once count (default: 30)', default=30)
-    parser.add_argument('--max-per-second', metavar="max_per_second count", type=int, help=f'max_per_second count (default: 50)', default=50)
-    parser.add_argument('-n', '--name', metavar="container name", type=str, help=f'container prefix name ', default=None)
-    parser.add_argument('-i', '--image', metavar="image name", type=str, help=f'docker image name ', default=None)
+    parser.add_argument('-d', '--debug', action='store_true', help='debug mode. ', default=False)
+    parser.add_argument('-c', '--count', metavar="container count", type=int, help='container count (default: 30)', default=30)
+    parser.add_argument('--max-at-once', metavar="max_at_once count", type=int, help='max_at_once count (default: 30)', default=30)
+    parser.add_argument('--max-per-second', metavar="max_per_second count", type=int, help='max_per_second count (default: 50)', default=50)
+    parser.add_argument('-n', '--name', metavar="container name", type=str, help='container prefix name ', default=None)
+    parser.add_argument('-i', '--image', metavar="image name", type=str, help='docker image name ', default=None)
 
     # parser.add_argument('-f', '--file', type=argparse.FileType('r'), help="container source code")
     parser.add_argument('-f', '--file', type=str, help="import the container source code", default=None)
@@ -157,7 +157,7 @@ def initialize(args):
 
     pawn.set(args=args)
 
-    if is_file(args.file):
+    if args.file and is_file(args.file):
         _file = Path(args.file)
         module_name = _file.stem
         # module_name = args.file.replace(".py", "")
@@ -248,7 +248,6 @@ def main():
     parser = get_parser()
     args, unknown = parser.parse_known_args()
     args = initialize(args)
-
     pawn.console.debug(f"args={args}, unknown={unknown}")
     try:
         if args.module:

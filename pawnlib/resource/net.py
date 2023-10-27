@@ -3,8 +3,13 @@ import re
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 import socket
 import time
+import asyncio
+import requests
+from concurrent.futures import ThreadPoolExecutor
+from timeit import default_timer
 from pawnlib.utils import http
-from pawnlib.typing import is_valid_ipv4
+from pawnlib.typing import is_valid_ipv4, todaydate, shorten_text
+from pawnlib.output import PrintRichTable
 
 
 try:
@@ -78,6 +83,84 @@ def get_public_ip():
         pawn.console.debug(f"An error occurred while fetching Public IP address - {e}")
 
     return ""
+
+
+class FindFastestRegion:
+    def __init__(self, verbose=True, aws_regions=None):
+        self.results = []
+        self.verbose = verbose
+        if aws_regions:
+            self.aws_regions = aws_regions
+        else:
+            self.aws_regions = {
+                "Seoul": "ap-northeast-2",
+                "Tokyo": "ap-northeast-1",
+                "Virginia": "us-east-1",
+                "Hongkong": "ap-east-1",
+                "Singapore": "ap-southeast-1",
+                "Mumbai": "ap-south-1",
+                "Frankfurt": "eu-central-1",
+                "Ohio": "us-east-2",
+                "California": "us-west-1",
+                "US-West": "us-west-2",
+                "Ceentral":"ca-central-1",
+                "Ireland": "eu-west-1",
+                "London": "eu-west-2",
+                "Sydney": "ap-southeast-2",
+                "São Paulo": "sa-east-1",
+                "Beijing": "cn-north-1",
+            }
+
+    def run(self):
+        self.results = []
+        loop = asyncio.get_event_loop()
+        future = asyncio.ensure_future(self.find_fastest_region())
+        loop.run_until_complete(future)
+        self.sorted_results()
+        return self.results
+
+    async def find_fastest_region(self):
+        tasks = []
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            loop = asyncio.get_event_loop()
+            for region_name, region_code in self.aws_regions.items():
+                url = f'https://s3.{region_code}.amazonaws.com/ping?x=%s' % todaydate("ms")
+                tasks.append(loop.run_in_executor(executor, self.get_time, *(url, region_name)))
+            await asyncio.gather(*tasks)
+
+    def get_time(self, url, name="NULL"):
+        start_time = default_timer()
+        try:
+            response = requests.get(f'{url}', timeout=3)
+            response_text = response.text
+            response_time = round(response.elapsed.total_seconds(), 3)
+            status_code = response.status_code
+        except:
+            response_time = None
+            response_text = None
+            status_code = 999
+        elapsed = round(default_timer() - start_time, 3)
+
+        data = {
+            "region": name,
+            "time": response_time,
+            "run_time": elapsed,
+            "url": shorten_text(url, 50),
+            # "text": response_text,
+            "status_code": status_code
+        }
+        if data.get('time') and data.get("run_time") and data.get("status_code") == 200:
+            self.results.append(data)
+            if self.verbose:
+                print(data)
+        return data
+
+    def sorted_results(self, key="run_time"):
+        self.results = sorted(self.results, key=(lambda x: x.get(key)), reverse=False)
+
+    def print_results(self):
+        PrintRichTable(title="fast_region", data=self.results)
+        pawn.console.log(f"Fastest Region={self.results[0]['region']}, time={self.results[0]['run_time']} sec")
 
 
 def get_local_ip():
