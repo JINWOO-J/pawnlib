@@ -605,7 +605,8 @@ class IconRpcHelper:
         )
         return _request_payload
 
-    def governance_call(self, url=None, method=None, params={}, governance_address=None, sign=None, store_request_payload=True, is_wait=True):
+    def governance_call(self, url=None, method=None, params={}, governance_address=None,
+                        sign=None, store_request_payload=True, is_wait=True, value="0x0"):
         if governance_address:
             self.governance_address = governance_address
         else:
@@ -616,7 +617,7 @@ class IconRpcHelper:
 
         if self._can_be_signed:
             # if _request_payload['params'].get('value', None):
-            _request_payload['params']['value'] = "0x0"
+            _request_payload['params']['value'] = value
             self.sign_tx(payload=_request_payload)
             response = self.sign_send(is_wait=is_wait)
             return response
