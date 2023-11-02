@@ -9,11 +9,12 @@ import inspect
 import executing
 from contextlib import contextmanager, AbstractContextManager
 
-from pawnlib.typing import converter, date_utils, list_to_oneline_string, const, is_include_list
+from pawnlib.typing import converter, date_utils, list_to_oneline_string, const, is_include_list, remove_tags
 from pawnlib.config import pawnlib_config as pawn, global_verbose
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import Terminal256Formatter
+from rich.syntax import Syntax
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 from typing import Union, Callable
@@ -654,18 +655,90 @@ def kvPrint(key, value):
     print(bcolors.WARNING + "{:>{key_value}} ".format(str(value), key_value=key_value) + bcolors.ENDC)
 
 
-def print_json(obj, **kwargs):
+def print_json(obj, syntax=True, line_indent="", style="material",  **kwargs):
     """
-    converted to JSON and print
+    Print a JSON object with optional syntax highlighting and indentation.
 
-    :param obj:
-    :param kwargs:
-    :return:
+    :param obj: The JSON object to print.
+    :param syntax: Whether to use syntax highlighting (default: True).
+    :param line_indent: The indentation for each line (default: "").
+    :param style: Style for syntax highlighting (default: "material")
+    :param kwargs: Additional keyword arguments for json.dumps().
+
+    Example:
+
+        .. code-block:: python
+
+            data = {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            }
+
+            print_json(data)
+            # >> {
+            # >>     "name": "John",
+            # >>     "age": 30,
+            # >>     "city": "New York"
+            # >> }
+
+            print_json(data, syntax=False)
+            # >> {"name": "John", "age": 30, "city": "New York"}
+
     """
-    if isinstance(obj, dict) or isinstance(obj, list):
-        print(json.dumps(obj, **kwargs))
+    print(pretty_json(obj, syntax=syntax, line_indent=line_indent, style=style, **kwargs))
+
+
+def pretty_json(obj, syntax=True, rich_syntax=False, style="one-dark", line_indent="", **kwargs):
+    """
+      Return a prettified JSON string with optional syntax highlighting.
+
+      :param obj: JSON object to prettify
+      :param syntax: If True, apply syntax highlighting (default: True)
+      :param rich_syntax: If True, use rich library for syntax highlighting (default: False)
+      :param style: Style name for syntax highlighting (default: "one-dark")
+      :param line_indent: Custom line indentation (default: "")
+      :param kwargs: Additional keyword arguments for json.dumps
+
+      Example:
+
+          .. code-block:: python
+
+              data = {"name": "John", "age": 30, "city": "New York"}
+              print(pretty_json(data))
+              # {
+              #     "name": "John",
+              #     "age": 30,
+              #     "city": "New York"
+              # }
+
+              print(pretty_json(data, syntax=False))
+              # {"name": "John", "age": 30, "city": "New York"}
+
+      """
+
+    if syntax and isinstance(kwargs, dict):
+        kwargs.setdefault("indent", 4)
+        line_indent = " " * 4 if not line_indent else line_indent
+
+    def json_to_string(_obj):
+        if isinstance(_obj, str):
+            _obj = json.loads(_obj)
+
+        if isinstance(_obj, (dict, list)):
+            return json.dumps(_obj, **kwargs)
+        else:
+            return _obj
+
+    json_string = json_to_string(obj).strip()
+
+    if syntax:
+        if rich_syntax:
+            return Syntax(json_string, "json", line_numbers=False, theme=style)
+        else:
+            return syntax_highlight(json_string, name="json", line_indent=line_indent, style=style).strip()
     else:
-        print(obj)
+        return json_string
 
 
 def debug_logging(message, dump_message=None):
@@ -1235,6 +1308,58 @@ def print_var(data=None, title='', **kwargs):
         print(syntax_highlight(data, **kwargs))
     else:
         pawn.console.print(f"\t[white bold]{data}\n")
+
+
+def print_aligned_text(left_text, right_text, filler='.'):
+    """
+    Print left and right text aligned with filler in between.
+
+    :param left_text: The text to be aligned on the left side.
+    :param right_text: The text to be aligned on the right side.
+    :param filler: The character used to fill the space between left and right text. Default is '.'.
+
+    Example:
+
+        .. code-block:: python
+
+            print_aligned_text("Left Text", "Right Text")
+            # Left Text...........................................Right Text
+
+            print_aligned_text("Chapter 1", "Page 10", filler='*')
+            # Chapter 1********************************************Page 10
+
+    """
+    full_text = align_text(left_text, right_text, filler)
+    pawn.console.print(full_text)
+
+
+def align_text(left_text, right_text, filler='.'):
+    """
+    Align two strings with a filler character.
+
+    :param left_text: The left-side text to align.
+    :param right_text: The right-side text to align.
+    :param filler: The character used to fill the space between the two texts. (default: '.')
+
+    :return: The aligned text.
+
+    Example:
+
+        .. code-block:: python
+
+            get_aligned_text("Left", "Right")
+            # >> "Left..........................Right"
+
+            get_aligned_text("A", "B", filler='*')
+            # >> "A*****************************B"
+
+    """
+
+    removed_tags_left_text = remove_tags(left_text)
+    removed_tags_right_text = remove_tags(right_text)
+    padding = pawn.console.width - len(removed_tags_left_text) - len(removed_tags_right_text) - 2
+    full_text = f"{left_text} {filler * padding} {right_text}"
+    return full_text
 
 
 @contextmanager

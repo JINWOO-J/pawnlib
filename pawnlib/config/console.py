@@ -7,6 +7,7 @@ from typing import Any, TextIO
 import rich.console as rich_console
 from rich.ansi import AnsiDecoder
 from rich.file_proxy import FileProxy
+from datetime import datetime
 
 
 class Console(rich_console.Console):
@@ -39,17 +40,45 @@ class Console(rich_console.Console):
             if not hasattr(sys.stderr, "rich_proxied_file"):
                 sys.stderr = FileProxy(self, sys.stderr)  # type: ignore
 
-    # https://github.com/python/mypy/issues/4441
-    def print(self, *args, **kwargs) -> None:  # type: ignore
-        """Print override that respects user soft_wrap preference."""
-        # Currently rich is unable to render ANSI escapes with print so if
-        # we detect their presence, we decode them.
-        # https://github.com/willmcgugan/rich/discussions/404
+    def _decode_and_print(self, args, **kwargs):
+        """Decode ANSI escapes and print the formatted text."""
         if args and isinstance(args[0], str) and "\033" in args[0]:
             text = format(*args) + "\n\n"
             decoder = AnsiDecoder()
             args = list(decoder.decode(text))  # type: ignore
         super().print(*args, **kwargs)
+
+    def print(self, *args, **kwargs) -> None:  # type: ignore
+        """Print override that respects user soft_wrap preference."""
+        self._decode_and_print(args, **kwargs)
+
+    # def tprint(self, *args, **kwargs) -> None:
+    #     print("*" * 100)
+    #     print(args)
+    #     print("<<" * 100)
+    #     _date_now = datetime.now().strftime("%H:%M:%S.%f")[:-3]
+    #     timestamp = f"[pale_turquoise4][{_date_now}][/pale_turquoise4]"
+    #     args_list = list(args)
+    #     args_list[0] = f"{timestamp} {args_list[0]}"
+    #     args = tuple(args_list)
+    #     self._decode_and_print(args, **kwargs)
+
+    def tprint(self, *args, **kwargs) -> None:
+        from rich.syntax import Syntax
+        from rich.console import Console
+        _date_now = datetime.now().strftime("%H:%M:%S.%f")[:-3]
+        timestamp = f"[pale_turquoise4][{_date_now}][/pale_turquoise4]"
+        args_list = list(args)
+
+        if isinstance(args_list[0], Syntax):
+            syntax_obj = args_list[0]
+            syntax_obj.highlight_syntax = True
+            args_list[0] = syntax_obj
+            args = (timestamp,) + tuple(args_list)
+            self._decode_and_print(args, **kwargs)
+            print("*" * 100)  # 별표 줄바꿈 추가
+        else:
+            self._decode_and_print(args, **kwargs)
 
     def debug(self, message, *args, **kwargs) -> None:  # type: ignore
         if self.pawn_debug:

@@ -73,7 +73,9 @@ from .converter import (
     shorten_text,
     truncate_float,
     truncate_decimal,
-    remove_tags
+    remove_tags,
+    json_to_hexadecimal,
+    hexadecimal_to_json,
 )
 
 from .constants import (
