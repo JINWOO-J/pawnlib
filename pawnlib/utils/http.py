@@ -6,7 +6,11 @@ import ssl
 from functools import partial
 from datetime import datetime
 from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose, pconf, SimpleNamespace, Null
-from pawnlib.output import NoTraceBackException, dump, syntax_highlight, kvPrint, debug_logging, PrintRichTable, get_debug_here_info
+from pawnlib.output import (
+    NoTraceBackException,
+    dump, syntax_highlight, kvPrint, debug_logging,
+    PrintRichTable, get_debug_here_info,
+    print_json)
 from pawnlib.resource import net
 from pawnlib.typing import date_utils
 from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const, shorten_text
@@ -14,6 +18,7 @@ from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
 from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, keys_exists, sys_exit
 from pawnlib.utils.operate_handler import WaitStateLoop
+from pawnlib.output import pretty_json, align_text
 from websocket import create_connection, WebSocket, enableTrace
 try:
     from pawnlib.utils import icx_signer
@@ -413,13 +418,18 @@ class IconRpcTemplates:
 
 
 class IconRpcHelper:
-    def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=True):
+    def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=True, debug=False, required_sign_methods=None):
         self.wallet = wallet
         self.governance_address = None
         self.request_payload = None
         self.response = None
         self.network_info = network_info
         self.raise_on_failure = raise_on_failure
+        self.debug = debug
+        if required_sign_methods and isinstance(required_sign_methods, list):
+            self.required_sign_methods = required_sign_methods
+        else:
+            self.required_sign_methods = ['set', 'register', "unregister", "claim", "vote", "apply", "remove", "cancel", "acceptScore", "reject"]
 
         if not url and self.network_info:
             url = self.network_info.network_api
@@ -428,14 +438,13 @@ class IconRpcHelper:
         self.debug_url = append_suffix(url, "/api/v3d")
         self.signed_tx = {}
         self._parent_method = ""
-        self._can_be_signed = False
+        self._can_be_signed = None
         self.on_error = False
         self.initialize()
         self._use_global_reqeust_payload = False
 
     def initialize(self):
         # self._set_governance_address()
-
         if self.network_info:
             pawn.console.debug(self.network_info)
         else:
@@ -514,11 +523,6 @@ class IconRpcHelper:
         if store_request_payload:
             self.request_payload = copy.deepcopy(_request_payload)
 
-        # self.response = jequest(
-        #     url=_url,
-        #     payload=_request_payload,
-        #     method="post"
-        # )
         self.response = CallHttp(
             url=_url,
             method=http_method,
@@ -526,18 +530,6 @@ class IconRpcHelper:
             payload=_request_payload,
             raise_on_failure=_raise_on_failure,
         ).run().response.as_dict()
-        # pawn.console.log(self.response)
-        # self.response = CallHttp(
-        #     url=_url,
-        #     method="post",
-        #     timeout=1000,
-        #     payload=_request_payload,
-        #     raise_on_failure=_raise_on_failure,
-        # ).run()
-
-        # pawn.console.log(self.response.response)
-        # pawn.console.log(self.response.response.as_dict())
-        # exit()
 
         if print_error and self.response.get('status_code') != 200:
             if self.response.get('json') and self.response['json'].get('error'):
@@ -574,11 +566,11 @@ class IconRpcHelper:
         )
 
     def _is_signable_governance_method(self, method):
-        if self.network_info.platform == "havah" and method:
-            required_sign_methods = ['set', 'register']
-            for required_sign_method in required_sign_methods:
+        # if self.network_info.platform == "havah" or self.network_info.platform == "icon" and method:
+        if method:
+            for required_sign_method in self.required_sign_methods:
                 if method.startswith(required_sign_method):
-                    pawn.console.debug(f"{method}, It will be signed with the following. required_sign_methods={required_sign_methods}")
+                    pawn.console.debug(f"{method}, It will be signed with the following. required_sign_methods={self.required_sign_methods}")
                     return True
         return False
 
@@ -586,7 +578,6 @@ class IconRpcHelper:
 
         if self._can_be_signed is None:
             self._can_be_signed = self._is_signable_governance_method(method)
-            # pawn.console.log(f"[red] can_be_signed = {self._can_be_signed}")
 
         if self._can_be_signed:
             parent_method = "icx_sendTransaction"
@@ -606,19 +597,21 @@ class IconRpcHelper:
         return _request_payload
 
     def governance_call(self, url=None, method=None, params={}, governance_address=None,
-                        sign=None, store_request_payload=True, is_wait=True, value="0x0"):
+                        sign=None, store_request_payload=True, is_wait=True, value="0x0", step_limit=None):
         if governance_address:
             self.governance_address = governance_address
         else:
             self._set_governance_address(method=method)
 
-        self._can_be_signed = sign
+        if sign is not None:
+            self._can_be_signed = sign
+        pawn.console.debug(f"Does the method require a signature? _can_be_signed={self._can_be_signed}")
         _request_payload = self._make_governance_payload(method, params)
 
         if self._can_be_signed:
             # if _request_payload['params'].get('value', None):
             _request_payload['params']['value'] = value
-            self.sign_tx(payload=_request_payload)
+            self.sign_tx(payload=_request_payload, step_limit=step_limit)
             response = self.sign_send(is_wait=is_wait)
             return response
         else:
@@ -761,7 +754,7 @@ class IconRpcHelper:
             return response
         return response.get('text')
 
-    def get_tx_wait(self, url=None, tx_hash=None, is_compact=False):
+    def get_tx_wait(self, url=None, tx_hash=None, is_compact=True):
         if not tx_hash and isinstance(self.response, dict):
             if keys_exists(self.response, 'json', 'result', 'txHash'):
                 tx_hash = self.response['json']['result']['txHash']
@@ -772,13 +765,13 @@ class IconRpcHelper:
             pawn.console.log(f"[red] Not found tx_hash='{tx_hash}'")
             return
         tx_status_result = True
-        pawn.console.log(f"Check a transaction by {tx_hash}")
+        # pawn.console.log(f"Check a transaction by {tx_hash}")
         with pawn.console.status("[magenta] Wait for transaction to be generated.") as status:
             count = 0
             while True:
                 resp = self.get_tx(url=url, tx_hash=tx_hash)
                 exit_loop = False
-                prefix_text = f"[bold cyan][Wait TX][{count}][/bold cyan] "
+                prefix_text = f"[cyan][Wait TX][{count}][/cyan] Check a transaction by [i cyan]{tx_hash}[/i cyan] "
                 if resp.get('error'):
                     exit_msg = ""
                     if "InvalidParams" in resp['error'].get('message'):
@@ -791,31 +784,33 @@ class IconRpcHelper:
                         resp['result']['logsBloom'] = int(resp['result']['logsBloom'], 16)
 
                     if resp['result'].get('failure'):
-                        _resp_status = "[FAIL]"
+                        _resp_status = "[red][FAIL][/red]"
                         tx_status_result = False
                     else:
-                        _resp_status = "[OK]"
+                        _resp_status = "[green][OK][/green]"
 
                     exit_loop = True
-                    text = f"{prefix_text}[red]{_resp_status}[/red] {json.dumps(resp['result'])}"
+                    # text = f"{prefix_text}[red]{_resp_status}[/red] {json.dumps(resp['result'])}"
+                    text = align_text(prefix_text, _resp_status, ".")
                 else:
                     text = resp
                 status.update(
-                    status=f"[bold red]{text}",
+                    status=text,
                     spinner_style="yellow",
                 )
                 if exit_loop:
-                    final_result = f"[bold green][white] {text}"
+                    final_result = f"[bold green][white]{text}"
                     if is_compact:
-                        final_result = shorten_text(final_result, width=150)
-
-                    pawn.console.log(final_result)
+                        final_result = shorten_text(final_result, width=162)
+                    # if self.debug:
+                    pawn.console.tprint(final_result)
+                    if self.debug or pawn.get('PAWN_DEBUG'):
+                        print_json(resp['result'])
                     break
                 count += 1
                 time.sleep(1)
 
             if not tx_status_result and tx_hash:
-                print("*" * 10)
                 self.get_debug_trace(tx_hash)
         return resp
 
@@ -839,7 +834,7 @@ class IconRpcHelper:
         else:
             _tx = self.request_payload
             self._use_global_reqeust_payload = True
-            pawn.console.debug(f"[red]_use_global_reqeust_payload={self._use_global_reqeust_payload}")
+            # pawn.console.debug(f"[red]_use_global_reqeust_payload={self._use_global_reqeust_payload}")
         return _tx
 
     def _force_fill_from_address(self, tx=None):
@@ -877,15 +872,17 @@ class IconRpcHelper:
             self.request_payload = _tx
         return _tx
 
-    def auto_fill_step_limit(self, tx=None):
+    def auto_fill_step_limit(self, tx=None, step_limit=None):
         _tx = self.parse_tx_var(tx)
         if isinstance(_tx, dict) and _tx.get('params'):
-            if not _tx['params'].get('stepLimit'):
+            if step_limit:
+                _tx['params']['stepLimit'] = step_limit
+            elif not _tx['params'].get('stepLimit'):
                 _tx['params']['stepLimit'] = self.get_step_limit()
         else:
             self.exit_on_failure(f"Invalid payload => {_tx}")
 
-    def sign_tx(self, wallet=None, payload=None, is_balance=True):
+    def sign_tx(self, wallet=None, payload=None, is_balance=True, step_limit=None):
         self.request_payload = {}
         self.signed_tx = {}
         if wallet:
@@ -909,7 +906,7 @@ class IconRpcHelper:
             if not _balance or _balance == 0:
                 return self.exit_on_failure(f"Insufficient Balance = {_balance} {symbol}")
         self.auto_fill_parameter(is_force_from_addr=True)
-        self.auto_fill_step_limit()
+        self.auto_fill_step_limit(step_limit=step_limit)
 
         singer = icx_signer.IcxSigner(data=private_key)
         self.signed_tx = singer.sign_tx(self.request_payload)
@@ -1058,8 +1055,7 @@ class SuccessCriteria:
             try:
                 self._set_string_valid_type()
                 self.result = get_operator_truth(self.target, self.operator, self.expected)
-                pawn.console.debug(f"get_operator_truth({self.target}, {self.operator}, {self.expected}) = {self.result}")
-
+                pawn.console.debug(f"get_operator_truth(target={self.target}, {self.operator}, expected={self.expected}) = {self.result}")
             except:
                 self.result = False
 
@@ -1077,7 +1073,7 @@ class SuccessCriteria:
                 _modified_value = getattr(self, var_name)
                 _debug_message += f"{var_name} = {_modified_value} ({type(_modified_value)}) , "
 
-        pawn.console.debug(_debug_message)
+        # pawn.console.debug(_debug_message)
 
     def __str__(self):
         return "<SuccessCriteria %s>" % self.__dict__
@@ -1236,7 +1232,10 @@ class CallHttp:
                 _payload_string = json.dumps(self.payload)
             except Exception as e:
                 _payload_string = self.payload
-            pawn.console.debug(f"[TRY] url={self.url}, method={self.method.upper()}, payload={_payload_string}, kwargs={self.kwargs}")
+            pawn.console.debug(f"[TRY] url={self.url}, method={self.method.upper()}, kwargs={self.kwargs}")
+            if pawn.get("PAWN_DEBUG"):
+                print_json(_payload_string)
+
             func = getattr(requests, self.method)
             if self.method == "get":
                 self.response = func(self.url, verify=False, timeout=self.timeout, **self.kwargs)
@@ -1291,7 +1290,7 @@ class CallHttp:
                 self.success_criteria = [self.success_criteria]
 
             for criteria in self.success_criteria:
-                pawn.console.debug(f"Compare Criteria => {type(criteria)} {criteria}")
+                # pawn.console.debug(f"Compare Criteria => {type(criteria)} {criteria}")
                 if isinstance(criteria, list):
                     _criteria = copy.deepcopy(criteria)
                     _criteria.append(_response_dict)
@@ -1299,7 +1298,7 @@ class CallHttp:
                 elif isinstance(criteria, dict):
                     criteria['target'] = _response_dict
                     self._success_results.append(SuccessResponse(**criteria))
-            pawn.console.debug(self._success_results)
+            # pawn.console.debug(self._success_results)
 
     @staticmethod
     def _find_operator(string):

@@ -16,6 +16,7 @@ from rich.traceback import install as rich_traceback_install
 import copy
 from types import SimpleNamespace
 from functools import partial
+from rich import inspect as rich_inspect
 import collections
 import re
 
@@ -289,6 +290,16 @@ class PawnlibConfig(metaclass=Singleton):
 
         globals()[self.global_name] = {}
         self._init_console(force_init=True)
+
+    @staticmethod
+    def inspect(*args, **kwargs):
+        """
+        Inspect function which can produce a report on any Python object, such as class, instance, or builtin.
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        return rich_inspect(*args, **kwargs)
 
     def _log_formatter(self, dt):
 

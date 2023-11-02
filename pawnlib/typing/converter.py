@@ -3,6 +3,7 @@ import os
 import binascii
 import re
 import heapq
+import json
 from termcolor import cprint
 import decimal
 import math
@@ -2461,3 +2462,54 @@ def remove_tags(text,
         tag_pattern = r'\[(?:/?' + case_pattern + '+)\]'
     cleaned_text = re.sub(tag_pattern, '', text)
     return cleaned_text
+
+
+def json_to_hexadecimal(json_value):
+    """
+    Encode a JSON value to a hexadecimal string.
+
+    :param json_value: The JSON value to be encoded.
+    :return: A hexadecimal string representation of the input JSON value.
+
+    Example:
+
+        .. code-block:: python
+
+            json_value = {"name": "Alice", "age": 30}
+            json_to_hexadecimal(json_value)
+            # >> '0x7b226e616d65223a2022416c696365222c2022616765223a2033307d'
+
+            json_value = [1, 2, 3, 4, 5]
+            json_to_hexadecimal(json_value)
+            # >> '0x5b312c20322c20332c20342c20355d'
+
+    """
+    json_string = json.dumps(json_value)
+    json_bytes = json_string.encode('utf-8')
+    hexadecimal_string = json_bytes.hex()
+    return "0x" + hexadecimal_string
+
+
+def hexadecimal_to_json(hexadecimal_string):
+    """
+    Decode a hexadecimal string to a JSON object.
+
+    :param hexadecimal_string: A hexadecimal string to be decoded.
+    :return: A JSON object decoded from the hexadecimal string.
+
+    Example:
+
+        .. code-block:: python
+
+            decoded_json = hexadecimal_to_json("0x7b2268656c6c6f223a2022776f726c64227d")
+            # >> {"hello": "world"}
+
+            decoded_json = hexadecimal_to_json("7b2268656c6c6f223a2022776f726c64227d")
+            # >> {"hello": "world"}
+
+    """
+    if hexadecimal_string.startswith("0x"):
+        hexadecimal_string = hexadecimal_string[2:]
+    hexadecimal_bytes = bytes.fromhex(hexadecimal_string)
+    json_string = hexadecimal_bytes.decode('utf-8')
+    return json.loads(json_string)
