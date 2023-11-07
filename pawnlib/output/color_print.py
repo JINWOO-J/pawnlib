@@ -1058,41 +1058,41 @@ class ProgressTime(Progress):
 
 def print_syntax(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=True, **kwargs):
     """
-    Print syntax highlighted data.
+    Print the syntax of the data.
 
-    :param data: Data to be highlighted.
-    :param name: Name of the syntax highlighting style. Default is "json".
-    :param indent: Number of spaces for indentation. Default is 4.
-    :param style: Style of the syntax highlighting. Default is "material".
-    :param oneline_list: Whether to print list in one line. Default is True.
-    :param line_indent: Indentation for each line. Default is ''.
-    :param rich: Whether to use rich library for printing. Default is True.
-    :param kwargs: Additional parameters.
+    :param data: The data to print.
+    :param name: The name of the syntax. Default is "json".
+    :param indent: The number of spaces for indentation. Default is 4.
+    :param style: The style of the syntax. Default is "material".
+    :param oneline_list: Whether to print the list in one line. Default is True.
+    :param line_indent: The indentation for each line. Default is ''.
+    :param rich: Whether to use rich for printing. Default is True.
+    :param kwargs: Other keyword arguments.
 
     Example:
 
         .. code-block:: python
 
-            data = {
-                "name": "John",
-                "age": 30,
-                "city": "New York"
-            }
-
-            print_syntax(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=True)
+            data = {"name": "John", "age": 30, "city": "New York"}
+            print_syntax(data)
             # >> {
             # >>     "name": "John",
             # >>     "age": 30,
             # >>     "city": "New York"
             # >> }
 
+            print_syntax(data, name="xml", style="monokai", rich=False)
+            # >> <name>John</name>
+            # >> <age>30</age>
+            # >> <city>New York</city>
+
     """
     if rich:
         _syntax = syntax_highlight(data, name=name, style=style, rich=True, **kwargs)
         rprint(_syntax)
     else:
-        syntax = syntax_highlight(data, name, indent, style, oneline_list, line_indent)
-        print(syntax)
+        print(syntax_highlight(data, name, indent, style, oneline_list, line_indent))
+
 
 
 def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, **kwargs):
@@ -1182,12 +1182,44 @@ def get_debug_here_info():
     }
 
 
-def retrieve_name(var):
+def get_variable_name_list(var=None):
+    """
+    Retrieve the name of var.
+
+    :param var: variable to get name from
+    :return: name of var
+
+    Example:
+
+        .. code-block:: python
+
+            a = 5
+            get_variable_name_list(a)
+            # >> ['a']
+
+    """
     callers_local_vars = inspect.currentframe().f_back.f_locals.items()
     return [var_name for var_name, var_val in callers_local_vars if var_val is var]
 
 
-def retrieve_name_ex(var):
+def get_variable_name(var=None):
+    """
+    Retrieve the name of the variable.
+
+    :param var: variable to get the name from, defaults to None
+    :type var: Any, optional
+    :return: name of the variable
+    :rtype: str
+
+    Example:
+
+        .. code-block:: python
+
+            a = 10
+            get_variable_name(a)
+            # >> 'a'
+
+    """
     stacks = inspect.stack()
     try:
         func = stacks[0].function
@@ -1206,11 +1238,19 @@ def dict_clean(data):
 
     This function iterates over the items in the dictionary. If the value is an instance of CaseInsensitiveDict, it converts it to a regular dictionary. If the value is None, it converts it to an empty string.
 
-    Args:
-        data (dict): The dictionary to clean.
+    :param data: The dictionary to clean.
+    :type data: dict
+    :return: The cleaned dictionary.
+    :rtype: dict
 
-    Returns:
-        dict: The cleaned dictionary.
+    Example:
+
+        .. code-block:: python
+
+            data = {"key1": "value1", "key2": None, "key3": CaseInsensitiveDict({"subkey": "subvalue"})}
+            dict_clean(data)
+            # >> {"key1": "value1", "key2": "", "key3": {"subkey": "subvalue"}}
+
     """
     result = {}
     for key, value in data.items():
@@ -1228,13 +1268,20 @@ def list_clean(data):
 
     This function iterates over the items in the list. If the value is None, it converts it to an empty string.
 
-    Args:
-        data (list): The list to clean.
+    :param data: The list to clean.
+    :type data: list
+    :return: The cleaned list.
+    :rtype: list
 
-    Returns:
-        list: The cleaned list.
+    Example:
+
+        .. code-block:: python
+
+            data = [None, 'hello', None, 'world']
+            list_clean(data)
+            # >> ['', 'hello', '', 'world']
+
     """
-
     result = []
     for value in data:
         if value is None:
@@ -1249,13 +1296,24 @@ def data_clean(data):
 
     This function checks the type of the data. If the data is a dictionary, it cleans it using the dict_clean function. If the data is a list, it cleans it using the list_clean function.
 
-    Args:
-        data (Any): The data to clean.
+    :param data: The data to clean.
+    :type data: Any
+    :return: The cleaned data.
+    :rtype: Any
 
-    Returns:
-        Any: The cleaned data.
+    Example:
+
+        .. code-block:: python
+
+            data = {'name': ' John ', 'age': ' 25 '}
+            clean_data = data_clean(data)
+            # >> {'name': 'John', 'age': '25'}
+
+            data = [' John ', ' 25 ']
+            clean_data = data_clean(data)
+            # >> ['John', '25']
+
     """
-
     if isinstance(data, dict):
         return dict(dict_clean(data))
     elif isinstance(data, list):
