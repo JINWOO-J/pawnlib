@@ -24,7 +24,7 @@ def check_file_overwrite(filename, answer=None) -> None:
 
         .. code-block:: python
 
-            touch sdsd
+            # touch sdsd
 
             from pawnlib.output import file
             file.check_file_overwrite(filename="sdsd")

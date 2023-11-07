@@ -19,6 +19,25 @@ import errno
 
 
 def hex_mask_to_cidr(hex_mask):
+    """
+    Converts a hexadecimal mask to a CIDR value.
+
+    :param hex_mask: The hexadecimal mask to convert.
+    :return: The CIDR value of the mask.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import server
+
+            server.hex_mask_to_cidr("FFFF")
+            # >> 16
+
+            server.hex_mask_to_cidr("FF00")
+            # >> 8
+
+    """
     try:
         # Convert hexadecimal mask to integer
         mask_int = int(hex_mask, 16)
@@ -45,7 +64,8 @@ def get_interface_names():
 
         .. code-block:: python
 
-            check.get_interface_names()
+            from pawnlib.resource import server
+            server.get_interface_names()
             # >> ['lo', 'enp0s31f6', 'wlp0s20f3']
     """
     if platform.system() == 'Linux':
@@ -69,8 +89,8 @@ def get_ip_addresses(interface):
     Example:
 
         .. code-block:: python
-
-            ip_addresses = get_ip_addresses('eth0')
+            from pawnlib.resource import server
+            server.ip_addresses = get_ip_addresses('eth0')
             # >> ['192.168.0.1', '192.168.0.2']
 
     """
@@ -107,8 +127,8 @@ def get_ip_and_netmask(interface):
     Example:
 
         .. code-block:: python
-
-            ip_info = get_ip_and_netmask('eth0')
+            from pawnlib.resource import server
+            server.ip_info = get_ip_and_netmask('eth0')
             print(ip_info)
             # >> ['192.168.0.2', '255.255.255.0']
 
@@ -163,11 +183,11 @@ def subnet_mask_to_decimal(subnet_mask):
     Example:
 
         .. code-block:: python
-
-            check.subnet_mask_to_decimal(24)
+            from pawnlib.resource import server
+            server.subnet_mask_to_decimal(24)
             # >> '255.255.255.0'
 
-            check.subnet_mask_to_decimal(16)
+            server.subnet_mask_to_decimal(16)
             # >> '255.255.0.0'
 
     """
@@ -191,7 +211,9 @@ def get_interface_ips(ignore_interfaces=None, detail=True, is_sort=True):
 
         .. code-block:: python
 
-            check.get_interface_ips()
+            from pawnlib.resource import server
+
+            server.get_interface_ips()
             # >> [('lo', '127.0.0.1 / 8'), ('wlan0', '192.168.0.10 / 24, G/W: 192.168.0.1')]
 
     """
@@ -201,7 +223,7 @@ def get_interface_ips(ignore_interfaces=None, detail=True, is_sort=True):
         ignore_interfaces = []
 
     interface_names = get_interface_names()
-    default_route, default_interface = parse_proc_route()
+    default_route, default_interface = get_default_route_and_interface()
 
     for interface_name in interface_names:
         if interface_name in ignore_interfaces:
@@ -226,39 +248,109 @@ def get_interface_ips(ignore_interfaces=None, detail=True, is_sort=True):
 
 
 def get_interface_ips_dict(ignore_interfaces=[]):
+    """
+    Get the IP addresses of all interfaces in a dictionary format.
+
+    :param ignore_interfaces: list of interfaces to be ignored
+    :return: dictionary with interface names as keys and their IP addresses as values
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import server
+
+            server.get_interface_ips_dict(ignore_interfaces=['lo', 'eth0'])
+            # >> {'wlan0': '192.168.1.100'}
+
+    """
     interface_dict = {}
     for interface, ipaddr in get_interface_ips(ignore_interfaces=ignore_interfaces):
         interface_dict[interface] = ipaddr
     return interface_dict
 
 
-def parse_proc_route():
+def get_default_route_and_interface():
+    """
+    Parse the route of the process based on the platform.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import server
+
+            get_default_route_and_interface()
+            # If Linux:
+            # >> ('192.168.1.1', 'eth0')
+            # If MacOS:
+            # >> ('192.168.1.1', 'en0')
+            # If other platform:
+            # >> ("Unsupported platform.", None)
+
+    """
     try:
         if platform.system() == 'Linux':
-            with open('/proc/net/route', 'r') as route_file:
-                for line in route_file.readlines()[1:]:
-                    parts = line.strip().split()
-                    if len(parts) >= 11 and parts[1] == '00000000':
-                        default_interface = parts[0]
-                        default_route = '.'.join([str(int(parts[2][i:i+2], 16)) for i in range(6, -1, -2)])
-                        return default_route, default_interface
-
+            return get_default_route_and_interface_linux()
         elif platform.system() == 'Darwin':
-            # Run the "netstat -rn" command on macOS
-            route_output = subprocess.check_output(['netstat', '-rn']).decode('utf-8')
-
-            for line in route_output.splitlines():
-                if 'default' in line:
-                    parts = re.split(r'\s+', line.strip())
-                    default_route = parts[1]
-                    default_interface = parts[3]
-                    if is_valid_ipv4(default_route):
-                        return default_route, default_interface
+            return get_default_route_and_interface_macos()
+        else:
+            print("Unsupported platform.")
             return None, None
-
     except FileNotFoundError:
         print("Error: /proc/net/route file not found.")
         return None, None
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return None, None
+
+
+def get_default_route_and_interface_linux():
+    """
+    Parse the Linux route.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import server
+
+            server.get_default_route_and_interface_linux()
+            # >> ('192.168.1.1', 'eth0')
+
+    """
+    with open('/proc/net/route', 'r') as route_file:
+        for line in route_file.readlines()[1:]:
+            parts = line.strip().split()
+            if len(parts) >= 11 and parts[1] == '00000000':
+                default_interface = parts[0]
+                default_route = '.'.join([str(int(parts[2][i:i+2], 16)) for i in range(6, -1, -2)])
+                return default_route, default_interface
+
+
+def get_default_route_and_interface_macos():
+    """
+    Parse the Linux route.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.resource import server
+
+            server.get_default_route_and_interface_macos()
+            # >> ('192.168.1.1', 'eth0')
+
+    """
+    route_output = subprocess.check_output(['netstat', '-rn']).decode('utf-8')
+    for line in route_output.splitlines():
+        if 'default' in line:
+            parts = re.split(r'\s+', line.strip())
+            default_route = parts[1]
+            default_interface = parts[3]
+            if is_valid_ipv4(default_route):
+                return default_route, default_interface
+    return None, None
 
 
 class SystemMonitor:
@@ -559,8 +651,8 @@ def get_netstat_count(proc_path="/proc", detail=False):
                 if lineno == 1:
                     continue
                 line_list = re.split(r'\s+', line.strip())
-                local = convert_linux_netaddr(line_list[1])
-                remote = convert_linux_netaddr(line_list[2])
+                local = convert_hex_to_ip_port(line_list[1])
+                remote = convert_hex_to_ip_port(line_list[2])
                 kind = netstate_kind.get(line_list[3])
 
                 netstate_result["COUNT"][kind] += 1
@@ -582,13 +674,14 @@ def get_netstat_count(proc_path="/proc", detail=False):
     return netstate_result
 
 
-def convert_linux_netaddr(address):
+def convert_hex_to_ip_port(address):
     hex_addr, hex_port = address.split(':')
-    addr_list = split_every_n(hex_addr, 2)
+    addr_list = [hex_addr[i:i+2] for i in range(0, len(hex_addr), 2)]
     addr_list.reverse()
-    addr = ".".join(map(lambda x: str(int(x, 16)), addr_list))
+    addr = ".".join(str(int(x, 16)) for x in addr_list)
     port = str(int(hex_port, 16))
     return "{}:{}".format(addr, port)
+
 
 def _line_split(line="", sep=":", d=0, data_type: Callable = str):
     data = line.split(sep)
@@ -823,14 +916,11 @@ def get_mem_info(unit="GB"):
     Read in the /proc/meminfo and return a dictionary of the memory and swap
     usage for all processes.
     """
+    units = {"KB": 1, "MB": 1024, "GB": 1024 * 1024}
+    if unit not in units:
+        raise ValueError(f"Invalid unit. Expected one of: {list(units.keys())}")
 
-    if unit == "MB":
-        convert_unit = 1024
-    elif unit == "GB":
-        convert_unit = 1024 * 1024
-    else:
-        convert_unit = 1
-        unit = "KB"
+    convert_unit = units[unit]
 
     data = {'mem_total': 0, 'mem_used': 0, 'mem_free': 0,
             'swap_total': 0, 'swap_used': 0, 'swap_free': 0,
@@ -841,8 +931,6 @@ def get_mem_info(unit="GB"):
     else:
         with open('/proc/meminfo', 'r') as fh:
             lines = fh.read()
-            fh.close()
-
             for line in lines.split('\n'):
                 fields = line.split(None, 2)
                 if fields[0] == 'MemTotal:':
@@ -855,17 +943,22 @@ def get_mem_info(unit="GB"):
                     data['cached'] = int(fields[1], 10)
                 elif fields[0] == 'SwapTotal:':
                     data['swap_total'] = int(fields[1], 10)
-                elif fields[0] == 'SwapFree:':
+                elif fields[0] == 'SwapFree:': \
                     data['swap_free'] = int(fields[1], 10)
-                    break
+                break
             data['mem_used'] = data['mem_total'] - data['mem_free']
             data['swap_used'] = data['swap_total'] - data['swap_free']
 
-    for k, v in data.items():
-        if isinstance(v, int) or isinstance(v, float):
-            data[k] = round(v / convert_unit, 2)
+    data = convert_values_to_unit(data, convert_unit)
     data['unit'] = unit
 
+    return data
+
+
+def convert_values_to_unit(data, convert_unit):
+    for k, v in data.items():
+        if isinstance(v, (int, float)):
+            data[k] = round(v / convert_unit, 2)
     return data
 
 
@@ -939,7 +1032,6 @@ def aws_data_crawl(url, d, timeout):
 
         else:
             r = http.jequest(new_url, timeout=timeout)
-            # pawn.console.log(r)
             if r.get('json'):
                 d[l] = r.get('json')
             else:
