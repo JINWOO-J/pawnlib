@@ -37,6 +37,10 @@ def hex_mask_to_cidr(hex_mask):
             server.hex_mask_to_cidr("FF00")
             # >> 8
 
+
+
+
+
     """
     try:
         # Convert hexadecimal mask to integer

@@ -70,7 +70,7 @@ PrintRichTable(
     columns_options=dict(
         address=dict(
             style="magenta",
-            sdsds="sdsd"
+            # sdsds="sdsd"
         )
     ),
 )
@@ -109,4 +109,14 @@ PrintRichTable(
 )
 
 
+list_data = ["aaaaaaaaaa", "aaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
 
+
+PrintRichTable(
+    title="RichTable List with description",
+    data=list_data,
+    with_idx=True,
+    call_value_func=add_comma,
+    show_lines=True,
+    # columns=["address"]
+)
