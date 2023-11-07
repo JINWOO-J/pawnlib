@@ -2425,6 +2425,29 @@ def truncate_decimal(number, digits: int = 2) -> decimal.Decimal:
     return round(new_number, digits)
 
 
+def remove_zero(int_value):
+    """
+    Remove zero from the end of a float number if it's an integer.
+
+    :param int_value: The value to remove zero from.
+    :return: The value without trailing zero if it's a float number and is an integer, otherwise the original value.
+
+    Example:
+
+        .. code-block:: python
+
+            remove_zero(5.0)
+            # >> 5
+
+            remove_zero(5.5)
+            # >> 5.5
+
+    """
+    if isinstance(int_value, float) and int(int_value) == int_value:
+        return int(int_value)
+    return int_value
+
+
 def remove_tags(text,
                 case_sensitive: Literal["lower", "upper", "both"] = "lower",
                 tag_style: Literal["angle", "square"] = "square") -> str:

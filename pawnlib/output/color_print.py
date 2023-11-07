@@ -334,6 +334,8 @@ class PrintRichTable:
                     row_dict[column] = value
                     line_row.append(value)
                 self.rows.append(line_row)
+            else:
+                self.rows.append([f"{self.row_count}", f"{item}"])
             self.row_count += 1
 
         for col in self.columns:
@@ -342,7 +344,10 @@ class PrintRichTable:
     def _extract_columns(self):
         # if self.table_data and len(self.columns) == 0 and isinstance(self.table_data[0], dict):
         if self.table_data and len(self.columns) == 0:
-            self.columns = list(self.table_data[0].keys())
+            try:
+                self.columns = list(self.table_data[0].keys())
+            except Exception as e:
+                self.columns = ["value"]
         if self.with_idx:
             self.columns.insert(0, "idx")
         if callable(self.call_desc_func):
