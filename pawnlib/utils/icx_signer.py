@@ -316,34 +316,33 @@ def exit_on_failure(raise_on_failure, exception):
 
 
 def load_wallet_key(file_or_object=None, password=None, raise_on_failure=True, use_namespace=False):
-    if isinstance(password, dict) or isinstance(password, list) or isinstance(password, tuple):
+    if isinstance(password, (dict, list, tuple)):
         raise ValueError(f"Wrong password type => {password} ({type(password)})")
-    pawn.console.log(f"[red]Load wallet ")
+
     _keystore_params = dict()
 
     if isinstance(file_or_object, dict):
-        pawn.console.debug(f"Load wallet from keystore file - JSON dict")
+        pawn.console.debug("Loading wallet from keystore file - JSON dict")
         _keystore_params = dict(
             file=file_or_object,
             password=password,
         )
     elif is_file(file_or_object):
         try:
-            pawn.console.debug(f"Load wallet from keystore file : {file_or_object}")
+            pawn.console.debug(f"Loading wallet from keystore file : {file_or_object}")
             _keystore_params = dict(
                 file=open_json(file_or_object),
                 password=password,
             )
         except ValueError as e:
             pawn.console.log(f"[bold red] Open File - {e}")
-
     elif is_private_key(file_or_object):
-        pawn.console.debug("Load wallet from Private Key")
+        pawn.console.debug("Loading wallet from a Private Key")
         _keystore_params = dict(
             private_key_hex=file_or_object,
         )
     else:
-        pawn.console.debug("Load wallet from JSON")
+        pawn.console.debug("Loading wallet from JSON data")
         try:
             file_json = json.loads(file_or_object)
             _keystore_params = dict(
@@ -351,7 +350,7 @@ def load_wallet_key(file_or_object=None, password=None, raise_on_failure=True, u
                 password=password,
             )
         except Exception as e:
-            pawn.console.log(f"[bold red] Load json - {e}")
+            pawn.console.log(f"[bold red] Failed to load JSON data - {e}")
 
     if _keystore_params:
         try:

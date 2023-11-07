@@ -16,7 +16,7 @@ from pawnlib.typing import date_utils
 from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const, shorten_text
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
-from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, keys_exists, sys_exit
+from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit
 from pawnlib.utils.operate_handler import WaitStateLoop
 from pawnlib.output import pretty_json, align_text
 from websocket import create_connection, WebSocket, enableTrace

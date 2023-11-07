@@ -309,6 +309,7 @@ class PawnlibConfig(metaclass=Singleton):
             return dt.strftime(self.log_time_format)
 
     def _init_console(self, force_init=True):
+
         _console_options = dict(
             pawn_debug=self.debug,
             redirect=self.debug,  # <-- not supported by rich.console.Console
@@ -318,6 +319,7 @@ class PawnlibConfig(metaclass=Singleton):
             # log_time_format="[%Y-%m-%d %H:%M:%S.%f]"
             log_time_format=lambda dt: f"[{dt.strftime('%H:%M:%S,%f')[:-3]}]"
         )
+        # print(self.console_options)
         if not self._loaded.get('console'):
             # There are visible problems with InquirerPy.
             _console_options['redirect'] = False
@@ -478,6 +480,10 @@ class PawnlibConfig(metaclass=Singleton):
                 "type": dict,
                 "default": {}
             },
+            "LINE": {
+              "type": self.str2bool,
+              "default": True,
+            },
             "PATH": {
                 "type": str,
                 "default": Path(os.path.join(os.getcwd()))
@@ -493,10 +499,10 @@ class PawnlibConfig(metaclass=Singleton):
             environment_name = f"{self.env_prefix}_{environment}"
             environment_value = os.getenv(environment_name)
             filled_environment_value = ""
-
             if default_structure.get(environment):
                 required_type = default_structure[environment].get("type", None)
-
+                if required_type is None:
+                    self.console.log(f"[red]{environment_name} type is None. Required type")
                 if environment_value in [None, 0, ""]:
                     filled_environment_value = default_structure[environment].get("default")
                 elif required_type:
@@ -507,7 +513,7 @@ class PawnlibConfig(metaclass=Singleton):
             }
             self.set(**{environment_name: filled_environment_value})
             if isinstance(self.verbose, int) and self.verbose >= 3:
-                self.console.debug(f"{environment_name}={filled_environment_value}")
+                self.console.debug(f"{environment_name}={filled_environment_value} (env={environment_value})")
 
     def make_config(self, dictionary: Optional[dict] = None, **kwargs) -> None:
         """Creates a global configuration that can be accessed anywhere during runtime.
@@ -611,12 +617,14 @@ class PawnlibConfig(metaclass=Singleton):
                         rich_traceback_install(show_locals=True, width=160)
                         if self.app_logger:
                             set_debug_logger(self.app_logger)
-                        # if self.error_logger:
-                        #     set_debug_logger(self.error_logger)
-                        # from pawnlib import logger
-                        # logger.propagate = 0
-                        # logger.addHandler(self.app_logger)
-
+                elif p_key == f"{self.env_prefix}_LINE":
+                    _hide_log_path = {"log_path": p_value}
+                    if isinstance(self.console_options, dict):
+                        self.console_options.update(**_hide_log_path)
+                    else:
+                        self.console_options = _hide_log_path
+                    self._init_console()
+                    # self._loaded['console'] = True
                 elif p_key == f"{self.env_prefix}_CONSOLE":
                     _enforce_set_value(source_key=f'{self.env_prefix}_TIME_FORMAT', target_key='log_time_format', target_dict=p_value)
                     self.console_options = p_value
