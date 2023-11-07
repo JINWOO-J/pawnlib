@@ -14,7 +14,6 @@ import requests
 disable_ssl_warnings()
 icx_signer.compressed = False
 
-# private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90819"
 private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90810"
 pawn.console.log(private_key)
 

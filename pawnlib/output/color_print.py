@@ -17,10 +17,12 @@ from pygments.formatters import Terminal256Formatter
 from rich.syntax import Syntax
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
+from rich import print as rprint
 from typing import Union, Callable
 from datetime import datetime
 import textwrap
 from requests.structures import CaseInsensitiveDict
+
 
 _ATTRIBUTES = dict(
     list(zip([
@@ -1054,7 +1056,46 @@ class ProgressTime(Progress):
         )
 
 
-def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent=''):
+def print_syntax(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=True, **kwargs):
+    """
+    Print syntax highlighted data.
+
+    :param data: Data to be highlighted.
+    :param name: Name of the syntax highlighting style. Default is "json".
+    :param indent: Number of spaces for indentation. Default is 4.
+    :param style: Style of the syntax highlighting. Default is "material".
+    :param oneline_list: Whether to print list in one line. Default is True.
+    :param line_indent: Indentation for each line. Default is ''.
+    :param rich: Whether to use rich library for printing. Default is True.
+    :param kwargs: Additional parameters.
+
+    Example:
+
+        .. code-block:: python
+
+            data = {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            }
+
+            print_syntax(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=True)
+            # >> {
+            # >>     "name": "John",
+            # >>     "age": 30,
+            # >>     "city": "New York"
+            # >> }
+
+    """
+    if rich:
+        _syntax = syntax_highlight(data, name=name, style=style, rich=True, **kwargs)
+        rprint(_syntax)
+    else:
+        syntax = syntax_highlight(data, name, indent, style, oneline_list, line_indent)
+        print(syntax)
+
+
+def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, **kwargs):
     """
     Syntax highlighting function
 
@@ -1064,6 +1105,7 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
     :param style:
     :param oneline_list:
     :param line_indent:
+    :param rich:
     :return:
 
     Example:
@@ -1093,10 +1135,13 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
     if line_indent:
         code_data = textwrap.indent(code_data, line_indent)
 
-    return highlight(
-        code=code_data,
-        lexer=get_lexer_by_name(name),
-        formatter=Terminal256Formatter(style=style))
+    if rich:
+        return Syntax(code_data, name, theme=style, **kwargs)
+    else:
+        return highlight(
+            code=code_data,
+            lexer=get_lexer_by_name(name),
+            formatter=Terminal256Formatter(style=style))
 
 
 def print_here():

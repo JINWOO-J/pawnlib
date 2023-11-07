@@ -10,7 +10,7 @@ from pawnlib.utils import icx_signer, http
 disable_ssl_warnings()
 icx_signer.compressed = False
 
-private_key = "89d1d2860bec9163e3473adc14d8e7d4938a6003074f61b6bf97a7faa21cd570"
+private_key = "cc2878b9759074a89bfe6c9ab7ab9eea9f21888018ba3fc07f9f815c6837ff36"
 pawn.console.log(private_key)
 
 network_info = NetworkInfo(nid="0x53", network_api="http://100.91.150.17:9000", platform="icon")

@@ -8,6 +8,7 @@ import rich.console as rich_console
 from rich.ansi import AnsiDecoder
 from rich.file_proxy import FileProxy
 from datetime import datetime
+from rich.syntax import Syntax
 
 
 class Console(rich_console.Console):
@@ -51,21 +52,9 @@ class Console(rich_console.Console):
     def print(self, *args, **kwargs) -> None:  # type: ignore
         """Print override that respects user soft_wrap preference."""
         self._decode_and_print(args, **kwargs)
-
-    # def tprint(self, *args, **kwargs) -> None:
-    #     print("*" * 100)
-    #     print(args)
-    #     print("<<" * 100)
-    #     _date_now = datetime.now().strftime("%H:%M:%S.%f")[:-3]
-    #     timestamp = f"[pale_turquoise4][{_date_now}][/pale_turquoise4]"
-    #     args_list = list(args)
-    #     args_list[0] = f"{timestamp} {args_list[0]}"
-    #     args = tuple(args_list)
-    #     self._decode_and_print(args, **kwargs)
+        # super().print(*args, **kwargs)
 
     def tprint(self, *args, **kwargs) -> None:
-        from rich.syntax import Syntax
-        from rich.console import Console
         _date_now = datetime.now().strftime("%H:%M:%S.%f")[:-3]
         timestamp = f"[pale_turquoise4][{_date_now}][/pale_turquoise4]"
         args_list = list(args)
@@ -76,7 +65,6 @@ class Console(rich_console.Console):
             args_list[0] = syntax_obj
             args = (timestamp,) + tuple(args_list)
             self._decode_and_print(args, **kwargs)
-            print("*" * 100)  # 별표 줄바꿈 추가
         else:
             self._decode_and_print(args, **kwargs)
 
