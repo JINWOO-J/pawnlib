@@ -155,6 +155,9 @@ class PrintRichTable:
     :param with_idx: Print the row count.
     :param call_value_func: The row value must be a string. If you want to perform other tasks, please add the function name.
     :param call_desc_func: Invoke a function that describes the value.
+    :param display_output: Determines whether to print output (default: True)
+    :param justify: Alignment value of the console. (default: left)
+
 
     Example:
 
@@ -216,6 +219,8 @@ class PrintRichTable:
             call_value_func=str,
             call_desc_func=None,
             columns_options=None,
+            display_output=True,
+            justify="left",
             **kwargs
     ) -> None:
 
@@ -236,6 +241,8 @@ class PrintRichTable:
         self.with_idx = with_idx
         self.call_value_func = call_value_func
         self.call_desc_func = call_desc_func
+        self.display_output = display_output
+        self.console_justify = justify
 
         _default_columns_option = dict(
             key=dict(
@@ -368,11 +375,13 @@ class PrintRichTable:
         for row in self.rows:
             self.table.add_row(*row)
 
-        if self.table.columns:
-            pawn.console.print(self.table)
+        if self.display_output:
+            if self.table.columns:
+                pawn.console.print(self.table, justify=self.console_justify)
+            else:
+                pawn.console.print(f"{self.title} \n  [i]No data ... [/i]")
         else:
-            pawn.console.print(f"{self.title} \n  [i]No data ... [/i]")
-
+            return self.table
 
 class TablePrinter(object):
     "Print a list of dicts as a table"
