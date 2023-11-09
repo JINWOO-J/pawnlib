@@ -2349,26 +2349,82 @@ def upper_case_to_camel_case(s):
     return lower_case_to_camel_case(s.lower())
 
 
-def shorten_text(text="", width=None, placeholder='[...]'):
+def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False):
     """
     Shortens a text string to the specified width and placeholders.
 
     :param text: text to shorten
     :param width: maximum width of the string
     :param placeholder: placeholder string of the text
+    :param shorten_middle: True if the text is to be shortened in the middle
     :return:
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import truncate_float
+
+            shorten_text("Hello, world!", width=5, placeholder='...')
+            # >> "He...d!"
+
+            shorten_text("Hello, world!", width=5, placeholder='...', shorten_middle=True)
+            # >> "H...d!"
+
     """
+
     _text = str(text)
     if not width or not text:
         return text
 
-    total_length = len(_text) - len(placeholder)
-    max_length = total_length - 1
+    if shorten_middle and width == 1:
+        return f"{_text[0]}{placeholder}"
+
+    total_length = len(_text)
+    max_length = total_length - len(placeholder)
 
     if _text and max_length >= width:
-        return f"{_text[0:width]} {placeholder}"
+        if shorten_middle:
+            half_width = width // 2
+            return f"{_text[:half_width]}{placeholder}{_text[-half_width:]}"
+        else:
+            return f"{_text[:width]} {placeholder}"
     return text
 
+
+# def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False):
+#     """
+#     Shortens a text string to the specified width and placeholders.
+#
+#     :param text: text to shorten
+#     :param width: maximum width of the string
+#     :param placeholder: placeholder string of the text
+#     :param shorten_middle: True if the text is to be shortened in the middle
+#     :return:
+#
+#     Example:
+#
+#         .. code-block:: python
+#
+#             shorten_text("Hello World", width=5, placeholder='...')
+#             # >> "He..."
+#
+#             shorten_text("Hello World", width=10, placeholder='...', shorten_middle=True)
+#             # >> "Hel...rld"
+#
+#     """
+#     _text = str(text)
+#     if not width or not text:
+#         return text
+#
+#     if width <= len(placeholder):
+#         return placeholder
+#
+#     if shorten_middle:
+#         half_width = width // 2
+#         return f"{_text[:half_width]}{placeholder}{_text[-half_width:width]}"
+#     else:
+#         return f"{_text[:width]}{placeholder}"
 
 def truncate_float(number, digits=2) -> float:
     """
