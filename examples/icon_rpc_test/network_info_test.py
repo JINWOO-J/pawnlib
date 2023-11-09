@@ -31,6 +31,7 @@ network_info_args = [
     },
 ]
 
+pawn.console.rule("Valid Network information")
 for network_dict in network_info_args:
     info = NetworkInfo(
         network_name=network_dict.get('network_name'),
@@ -41,6 +42,23 @@ for network_dict in network_info_args:
     pawn.console.log(f"{info.platform}, {info.network_name}, {info} , valid={info.valid_network}")
 
 
+pawn.console.rule("Invalid Network information")
 for network_name in ["vega", "veganet", "sdsd"]:
-    network_info = NetworkInfo(network_name=network_name, platform="havah")
-    pawn.console.log(f"{network_name} , {network_info}")
+    try:
+        network_info = NetworkInfo(network_name=network_name, platform="havah")
+        pawn.console.log(f"network_name='{network_name}' , {network_info}")
+    except Exception as e:
+        pawn.console.log(f"[red][FAIL] network_name='{network_name}' , {e}")
+
+
+pawn.console.rule("Custom Network information")
+
+custom_info = NetworkInfo(
+    network_name="JinwooNet",
+    network_api="http://localhost:9000",
+    platform="icon",
+)
+
+pawn.console.log(f"({type(custom_info)}){custom_info}")
+pawn.console.log(f"({type(custom_info.to_dict())}){custom_info.to_dict()}")
+
