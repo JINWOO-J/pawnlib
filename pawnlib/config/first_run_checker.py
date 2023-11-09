@@ -138,14 +138,15 @@ class FirstRunChecker:
         self.key = "default"
         self.debug = debug
 
-        self.check_python_version()
+        self._is_check_python_version = False
         self.data = self.load_data()
 
-    @staticmethod
-    def check_python_version():
-        if sys.version_info.major != 3 or sys.version_info.minor != 7:
-            current_version = f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-            print(f"Warning: This function can only be used with Python 3.7. Your current version is {current_version}")
+    def check_python_version(self):
+        if not self._is_check_python_version:
+            if sys.version_info.major != 3 or sys.version_info.minor != 7:
+                current_version = f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+                print(f"Warning: This function can only be used with Python 3.7. Your current version is {current_version}")
+                self._is_check_python_version = True
 
     def load_data(self):
         if os.path.exists(self.file_path):
@@ -172,6 +173,8 @@ class FirstRunChecker:
         return not self.data.get(self.key, False)
 
     def one_time_run(self, key=None):
+        self.check_python_version()
+
         if key:
             self.key = key
         else:
