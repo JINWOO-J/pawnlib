@@ -16,9 +16,10 @@ from pawnlib.typing import date_utils
 from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const, shorten_text
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
-from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit
+from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit, is_hex
 from pawnlib.utils.operate_handler import WaitStateLoop
-from pawnlib.output import pretty_json, align_text
+from pawnlib.output import pretty_json, align_text, get_file_extension, is_directory, is_file
+from pawnlib.utils.in_memory_zip import gen_deploy_data_content
 from websocket import create_connection, WebSocket, enableTrace
 try:
     from pawnlib.utils import icx_signer
@@ -38,6 +39,7 @@ import operator as _operator
 import time
 from dataclasses import dataclass, InitVar, field
 import requests
+from rich.prompt import Prompt, Confirm
 
 
 ALLOWS_HTTP_METHOD = ["get", "post", "patch", "delete", "head", "put", "connect", "options", "trace", "patch"]
@@ -217,9 +219,7 @@ class NetworkInfo:
             self._initialize()
 
     def is_set_static_values(self):
-        for static_value in self.static_values:
-            if getattr(self, static_value, None):
-                return True
+        return any(getattr(self, static_value, None) for static_value in self.static_values)
 
     def _get_network_info(self, network_name="", platform=""):
         if network_name:
@@ -245,9 +245,6 @@ class NetworkInfo:
                 raise ValueError(f"Allowed network_name in '{self.platform}' - values {list(_network_info.keys())}")
             self.network_info = self._platform_info[self.platform]['network_info'].get(self.network_name)
 
-        else:
-            _network_info = {}
-
         self.symbol = self._platform_info[self.platform].get('symbol')
 
         if self.network_info:
@@ -255,16 +252,24 @@ class NetworkInfo:
             self.network_info['symbol'] = self.symbol
             self.network_info['network_name'] = self.network_name
             self.network_info['platform'] = self.platform
+        else:
+            self.network_info = self._extract_network_info()
+
+        if not self.network_info.get('endpoint') and self.network_info.get('network_api'):
+            self.network_info['endpoint'] = append_suffix(self.network_info['network_api'], "/api/v3")
 
     def _initialize(self, network_name="", platform=""):
         self._get_network_info(network_name, platform)
-        if self.network_info:
-            this_data = self.network_info
+        if self.network_info and self.valid_network:
+            self._set_attributes()
 
-            if this_data.get("network", None) is None:
-                setattr(self, "network", self.network_name)
-            for key, value in this_data.items():
-                object.__setattr__(self, key, this_data.get(key))
+    def _set_attributes(self):
+        this_data = self.network_info
+
+        if this_data.get("network", None) is None:
+            setattr(self, "network", self.network_name)
+        for key, value in this_data.items():
+            object.__setattr__(self, key, this_data.get(key))
 
     def set_network(self, network_name=None, platform="icon"):
         if network_name:
@@ -286,23 +291,23 @@ class NetworkInfo:
     def tuple(self) -> tuple:
         return tuple(self.network_info.keys())
 
-    def to_dict(self, network_name=None):
+    def to_dict(self):
         if self.network_info:
             return self.network_info
-
         return self.network_info
 
+    def _extract_network_info(self):
+        _static_network_info = {
+            key: value for key, value in copy.deepcopy(self.__dict__).items()
+            if key and value and key not in ['_platform_info', 'static_values', 'network_info']
+        }
+        return _static_network_info
+
     def _parse_network_info_string(self):
-        if self.network_info and isinstance(self.network_info, dict):
-            network_info_str = f"network_info={self.network_info}"
-        else:
-            self_dict = copy.deepcopy(self.__dict__)
-            del self_dict['_platform_info']
-            network_info_str = self_dict
-        return network_info_str
+        return self.network_info if self.network_info else self._extract_network_info()
 
     def __repr__(self):
-        return f"<{self.platform.upper()} {self.__class__.__name__}> {self._parse_network_info_string()}"
+        return f"<{self.platform.upper()} {self.__class__.__name__}> network_info={self._parse_network_info_string()}"
 
     def __str__(self):
         return f"<{self.platform.upper()} {self.__class__.__name__}> {self._parse_network_info_string()}"
@@ -442,6 +447,7 @@ class IconRpcHelper:
         self.on_error = False
         self.initialize()
         self._use_global_reqeust_payload = False
+        self.global_reqeust_payload = {}
 
     def initialize(self):
         # self._set_governance_address()
@@ -574,7 +580,7 @@ class IconRpcHelper:
                     return True
         return False
 
-    def _make_governance_payload(self, method, params):
+    def create_governance_payload(self, method, params):
 
         if self._can_be_signed is None:
             self._can_be_signed = self._is_signable_governance_method(method)
@@ -606,7 +612,7 @@ class IconRpcHelper:
         if sign is not None:
             self._can_be_signed = sign
         pawn.console.debug(f"Does the method require a signature? _can_be_signed={self._can_be_signed}")
-        _request_payload = self._make_governance_payload(method, params)
+        _request_payload = self.create_governance_payload(method, params)
 
         if self._can_be_signed:
             # if _request_payload['params'].get('value', None):
@@ -622,6 +628,48 @@ class IconRpcHelper:
                 store_request_payload=store_request_payload,
             )
             return response.get('result', {})
+
+    def create_deploy_payload(self, src="", params={}, governance_address=None):
+        self.governance_address = governance_address if governance_address else const.CHAIN_SCORE_ADDRESS
+        file_extension_mapping = {
+            "jar": "java"
+        }
+        _file_extension = get_file_extension(src) if is_file(src) else None
+        _file_type = file_extension_mapping.get(_file_extension, "python")
+
+        if not _file_extension:
+            self.exit_on_failure(f"Invalid SCORE source - '{src}'", force_exit=True)
+            return
+
+        _content = gen_deploy_data_content(src)
+        _request_payload = self._convert_valid_payload_format(
+            method="icx_sendTransaction",
+            params={
+                "to": self.governance_address,
+                "dataType": "deploy",
+                "data": {
+                    "contentType": f"application/{_file_type}",
+                    "content": f'0x{_content.hex()}',
+                    "params": params,
+                },
+            },
+        )
+        self.global_reqeust_payload = _request_payload
+        return _request_payload
+
+    def deploy_score(self, src="", params={}, step_limit=None, governance_address=None, is_wait=True, is_confirm_send=False):
+        payload = self.create_deploy_payload(src, params, governance_address)
+        self.sign_tx(payload=payload, step_limit=step_limit)
+
+        if is_confirm_send:
+            print_json(self.signed_tx)
+            is_send = Confirm.ask("Do you want to send the [bold red]deploy[/bold red] transaction?", default=False)
+        else:
+            is_send = True
+
+        if is_send:
+            response = self.sign_send(is_wait=is_wait)
+            return response
 
     def get_step_price(self, ):
         response = self.governance_call(method="getStepPrice", governance_address=const.CHAIN_SCORE_ADDRESS, sign=False, store_request_payload=False)
@@ -876,13 +924,17 @@ class IconRpcHelper:
         _tx = self.parse_tx_var(tx)
         if isinstance(_tx, dict) and _tx.get('params'):
             if step_limit:
+                if not is_hex(step_limit):
+                    pawn.console.debug(f"Converting step limit to hex {step_limit}=>{hex(int(step_limit))}")
+                    step_limit = hex(int(step_limit))
+
                 _tx['params']['stepLimit'] = step_limit
             elif not _tx['params'].get('stepLimit'):
                 _tx['params']['stepLimit'] = self.get_step_limit()
         else:
             self.exit_on_failure(f"Invalid payload => {_tx}")
 
-    def sign_tx(self, wallet=None, payload=None, is_balance=True, step_limit=None):
+    def sign_tx(self, wallet=None, payload=None, check_balance=True, step_limit=None):
         self.request_payload = {}
         self.signed_tx = {}
         if wallet:
@@ -891,11 +943,15 @@ class IconRpcHelper:
         if not self.wallet or not isinstance(self.wallet, dict):
             self.exit_on_failure(f"[red] Not defined wallet => {self.wallet}")
 
+        if not payload and self.global_reqeust_payload:
+            pawn.console.debug("Use global_reqeust_payload")
+            payload = self.global_reqeust_payload
+
         self.request_payload = self._convert_valid_payload_format(payload=payload)
         private_key = self.wallet.get('private_key')
         address = self.wallet.get('address')
 
-        if is_balance:
+        if check_balance:
             _balance = self.get_balance()
             if self.network_info:
                 symbol = self.network_info.symbol
@@ -904,7 +960,7 @@ class IconRpcHelper:
             pawn.console.log(f"<{address}>'s Balance = {_balance} {symbol}")
 
             if not _balance or _balance == 0:
-                return self.exit_on_failure(f"Insufficient Balance = {_balance} {symbol}")
+                return self.exit_on_failure(f"<{address}> Out of Balance = {_balance} {symbol}")
         self.auto_fill_parameter(is_force_from_addr=True)
         self.auto_fill_step_limit(step_limit=step_limit)
 
@@ -914,14 +970,17 @@ class IconRpcHelper:
         if address != singer.get_hx_address():
             raise ValueError(f'Invalid address {address} != {singer.get_hx_address()}')
 
+        self.global_reqeust_payload = {}
         return self.signed_tx
 
-    def exit_on_failure(self, exception):
+    def exit_on_failure(self, exception, force_exit=False):
         self.on_error = True
         if self.raise_on_failure:
             raise NoTraceBackException(exception)
         else:
             pawn.console.log(f"[red][FAIL][/red] Stopped {get_debug_here_info().get('function_name')}(), {exception}")
+            if force_exit:
+                sys_exit()
         return exception
 
     def sign_send(self, is_wait=True, is_compact=False):

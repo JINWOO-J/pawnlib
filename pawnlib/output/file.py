@@ -89,6 +89,30 @@ def get_file_path(filename) -> dict:
     }
 
 
+def get_file_extension(file_path):
+    """
+    Get the file extension from a file path.
+
+    :param file_path: The path of the file.
+    :return: The extension of the file.
+
+    Example:
+
+        .. code-block:: python
+
+            utils.get_file_extension("/home/user/document.txt")
+            # >> 'txt'
+
+            utils.get_file_extension("/home/user/.hiddenfile")
+            # >> ''
+
+            utils.get_file_extension("/home/user/.hiddenfile.txt")
+            # >> 'txt'
+    """
+    _, file_extension = os.path.splitext(file_path)
+    return file_extension[1:]  # Remove the leading "."
+
+
 def get_parent_path(run_path=__file__) -> str:
     """
     Returns the parent path
@@ -201,6 +225,27 @@ def is_file(filename: str) -> bool:
             return False
     else:
         return os.path.exists(os.path.expanduser(filename))
+
+
+def is_directory(path):
+    """
+    Check if the given path is a directory.
+
+    :param path: The path to check.
+    :return: True if the path is a directory, False otherwise.
+
+    Example:
+
+        .. code-block:: python
+
+            check.is_directory("/home/user")
+            # >> True
+
+            check.is_directory("/home/user/myfile.txt")
+            # >> False
+
+    """
+    return os.path.isdir(path)
 
 
 def is_json(json_file: str) -> bool:

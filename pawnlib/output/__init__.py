@@ -1,11 +1,13 @@
 from .file import (
     check_file_overwrite,
     get_file_path,
+    get_file_extension,
     get_parent_path,
     get_abs_path,
     get_real_path,
     is_binary_file,
     is_file,
+    is_directory,
     is_json,
     open_json,
     open_file,
