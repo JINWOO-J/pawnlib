@@ -113,6 +113,40 @@ def get_file_extension(file_path):
     return file_extension[1:]  # Remove the leading "."
 
 
+def get_file_list(path="./", pattern="*", recursive=False):
+    """
+    Get the list of files in the specified directory that match the given pattern.
+
+    :param path: The path of the directory to search. Default is current directory.
+    :param pattern: The pattern to match. Default is "*", which matches all files.
+    :param recursive: Whether to search subdirectories recursively. Default is False.
+
+    :return: A list of file paths that match the pattern.
+
+    Example:
+
+        .. code-block:: python
+
+            get_file_list(directory_path="./", pattern="*.py", recursive=True)
+            # >> ['./main.py', './utils/helper.py']
+
+            get_file_list(directory_path="./", pattern="*.txt", recursive=False)
+            # >> ['./README.txt']
+
+    """
+    try:
+        if recursive:
+            search_pattern = os.path.join(path, '**', pattern)
+        else:
+            search_pattern = os.path.join(path, pattern)
+        files = glob.glob(search_pattern, recursive=recursive)
+        return files
+
+    except OSError:
+        print("Error reading directory '{}'.".format(path))
+        return None
+
+
 def get_parent_path(run_path=__file__) -> str:
     """
     Returns the parent path
