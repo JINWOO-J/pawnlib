@@ -539,8 +539,8 @@ class IconRpcHelper:
 
         if print_error and self.response.get('status_code') != 200:
             if self.response.get('json') and self.response['json'].get('error'):
-                pawn.console.log(f"[red][ERROR] status_code={self.response['status_code']}, error={self.response['json']['error']}")
                 pawn.console.log(f"[red][ERROR][/red] payload={_request_payload}")
+                pawn.console.log(f"[red][ERROR] status_code={self.response['status_code']}, error={self.response['json']['error']}")
             elif self.response.get('status_code') == 999:
                 pawn.console.log(f"[red][ERROR][/red] {self.response.get('error')}")
                 # self.exit_on_failure(f"[red][ERROR][/red] {self.response.get('error')}")
