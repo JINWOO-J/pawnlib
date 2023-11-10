@@ -2,8 +2,6 @@ from io import BytesIO
 from os import path, walk
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from iconsdk.exception import ZipException
-
 
 def gen_deploy_data_content(_path: str) -> bytes:
     """Generate bytes of zip data of SCORE.
@@ -15,8 +13,8 @@ def gen_deploy_data_content(_path: str) -> bytes:
     try:
         memory_zip = InMemoryZip()
         memory_zip.zip_in_memory(_path)
-    except ZipException:
-        raise ZipException(f"Can't zip SCORE contents")
+    except Exception as e:
+        raise ValueError(f"Can't zip SCORE contents - {e}")
     else:
         return memory_zip.data
 

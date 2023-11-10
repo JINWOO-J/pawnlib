@@ -3,6 +3,7 @@ import os
 import operator as _operator
 from pawnlib.config import pawnlib_config as pawn, pconf
 from pawnlib.typing import is_hex, is_int, is_float, FlatDict, Namespace, sys_exit, is_valid_token_address, is_valid_private_key
+from pawnlib.output.file import get_file_list
 from InquirerPy import prompt, inquirer, get_style
 from InquirerPy.validator import NumberValidator
 from prompt_toolkit.validation import ValidationError, Validator, DynamicValidator
@@ -838,6 +839,39 @@ def is_data_args_namespace():
         return True
     else:
         return False
+
+
+def select_file_prompt(path: str = "./", pattern: str = "*", message: str = "Select a file: ",
+                       recursive: bool = False, **kwargs):
+    """
+    Prompts the user to select a file from a given directory.
+
+    :param path: The directory to list files from. Default is current directory.
+    :param pattern: The pattern to match files. Default is all files.
+    :param message: The message to display to the user. Default is "Select a file: ".
+    :param recursive: Whether to recursively search directories. Default is False.
+    :param kwargs: Additional keyword arguments.
+
+    :return: The selected file.
+
+    Example:
+
+        .. code-block:: python
+
+            select_file_prompt(path="./my_directory", pattern="*.txt", message="Select a text file: ", recursive=True)
+            # User is prompted with a list of .txt files in 'my_directory' and any subdirectories.
+            # Returns the file selected by the user.
+
+    """
+    file_list = get_file_list(path=path, pattern=pattern, recursive=recursive)
+    return PromptWithArgument(
+        message=message,
+        choices=file_list,
+        instruction=f"[{len(file_list)} files available]",
+        max_height="40%",
+        default="",
+        **kwargs
+    ).fuzzy()
 
 
 def parse_list(value):
