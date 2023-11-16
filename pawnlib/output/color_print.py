@@ -9,7 +9,7 @@ import inspect
 import executing
 from contextlib import contextmanager, AbstractContextManager
 
-from pawnlib.typing import converter, date_utils, list_to_oneline_string, const, is_include_list, remove_tags
+from pawnlib.typing import converter, date_utils, list_to_oneline_string, const, is_include_list, remove_tags, remove_ascii_color_codes
 from pawnlib.config import pawnlib_config as pawn, global_verbose
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -1450,32 +1450,31 @@ def print_aligned_text(left_text, right_text, filler='.'):
     pawn.console.print(full_text)
 
 
-def align_text(left_text, right_text, filler='.'):
+def align_text(left_text: str = '', right_text: str = '', filler: str = '.', offset: int = 2):
     """
-    Align two strings with a filler character.
+    Aligns text to the left and right with a filler in between.
 
-    :param left_text: The left-side text to align.
-    :param right_text: The right-side text to align.
-    :param filler: The character used to fill the space between the two texts. (default: '.')
-
-    :return: The aligned text.
+    :param left_text: The text to align to the left.
+    :param right_text: The text to align to the right.
+    :param filler: The character to use as filler between the left and right text.
+    :param offset: The number of spaces to offset the right text from the right edge.
 
     Example:
 
         .. code-block:: python
 
-            get_aligned_text("Left", "Right")
-            # >> "Left..........................Right"
+            align_text('Hello', 'World', filler='-', offset=3)
+            # >> 'Hello ---------------------------- World'
 
-            get_aligned_text("A", "B", filler='*')
-            # >> "A*****************************B"
+            align_text('Left', 'Right', filler='*', offset=5)
+            # >> 'Left ************************** Right'
 
     """
-
-    removed_tags_left_text = remove_tags(left_text)
-    removed_tags_right_text = remove_tags(right_text)
-    padding = pawn.console.width - len(removed_tags_left_text) - len(removed_tags_right_text) - 2
-    full_text = f"{left_text} {filler * padding} {right_text}"
+    cleaned_left_text = remove_ascii_color_codes(left_text)
+    cleaned_right_text = remove_ascii_color_codes(right_text)
+    padding_length = pawn.console.width - len(cleaned_left_text) - len(cleaned_right_text) - offset
+    padding = filler * padding_length
+    full_text = f"{left_text} {padding} {right_text}"
     return full_text
 
 

@@ -75,6 +75,7 @@ from .converter import (
     truncate_decimal,
     remove_zero,
     remove_tags,
+    remove_ascii_color_codes,
     json_to_hexadecimal,
     hexadecimal_to_json,
 )

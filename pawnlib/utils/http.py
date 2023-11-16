@@ -526,6 +526,8 @@ class IconRpcHelper:
         _url = append_http(append_api_v3(_url))
         _request_payload = self._convert_valid_payload_format(payload=payload, method=method, params=params)
 
+        self.on_error = False
+
         if store_request_payload:
             self.request_payload = copy.deepcopy(_request_payload)
 
@@ -786,6 +788,9 @@ class IconRpcHelper:
                 store_request_payload=False,
             )
             _balance = response.get('result')
+            if self.response.get('error'):
+                self.exit_on_failure(self.response.get('error'))
+                return 0
             return hex_to_number(_balance, is_comma=is_comma, is_tint=True)
         else:
             return self.exit_on_failure(f"Invalid token address - {address}")
@@ -812,7 +817,7 @@ class IconRpcHelper:
         if not tx_hash:
             pawn.console.log(f"[red] Not found tx_hash='{tx_hash}'")
             return
-        tx_status_result = True
+        self.on_error = False
         # pawn.console.log(f"Check a transaction by {tx_hash}")
         with pawn.console.status("[magenta] Wait for transaction to be generated.") as status:
             count = 0
@@ -833,7 +838,7 @@ class IconRpcHelper:
 
                     if resp['result'].get('failure'):
                         _resp_status = "[red][FAIL][/red]"
-                        tx_status_result = False
+                        self.on_error = True
                     else:
                         _resp_status = "[green][OK][/green]"
 
@@ -858,7 +863,7 @@ class IconRpcHelper:
                 count += 1
                 time.sleep(1)
 
-            if not tx_status_result and tx_hash:
+            if  self.on_error and tx_hash:
                 self.get_debug_trace(tx_hash)
         return resp
 
