@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import common
 from pawnlib.config import pawnlib_config as pawn
-from pawnlib.output import dump, syntax_highlight, print_var, pretty_json, print_json, print_aligned_text, align_text
+from pawnlib.output import dump, syntax_highlight, print_var, pretty_json, print_json, print_aligned_text, align_text, get_bcolors
 from pygments.styles import get_all_styles
 from rich.columns import Columns
 from rich.panel import Panel
@@ -35,4 +35,8 @@ pawn.console.print(full_text)
 
 print_aligned_text(_left_text, _right_text, ".")
 
+print("----include colored")
+print_aligned_text(f"{get_bcolors('<color>', 'OKBLUE')}{_left_text}", _right_text, ".")
 
+print("----include colored & emoji")
+print_aligned_text(f"✔{get_bcolors('✔[color]   ', 'OKBLUE')} ✔ {_left_text}", _right_text, ".")

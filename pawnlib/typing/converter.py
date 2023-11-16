@@ -2543,6 +2543,26 @@ def remove_tags(text,
     return cleaned_text
 
 
+def remove_ascii_color_codes(text):
+    """
+    Remove ASCII color codes from a string.
+
+    :param text: string to remove ASCII color codes from
+    :return: string without ASCII color codes
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import remove_ascii_color_codes
+
+            remove_ascii_color_codes("\x1b[31mHello\x1b[0m")
+            # >> "Hello"
+
+    """
+    return re.sub(r'\x1b\[\d+m', '', text)
+
+
 def json_to_hexadecimal(json_value):
     """
     Encode a JSON value to a hexadecimal string.
