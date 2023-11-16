@@ -48,7 +48,7 @@ class PromptWithArgument:
             checkbox=dict(
                 enabled_symbol="✅",
                 disabled_symbol="◻️ ",
-                validate=lambda result: len(result) >= 1,
+                validate=lambda result: len(str(result)) >= 1,
                 invalid_message="should be at least 1 selection",
                 instruction="(select at least 1)",
             ),
@@ -146,7 +146,7 @@ class PromptWithArgument:
         if not self._options.get('invalid_message', None):
             self._options['invalid_message'] = "minimum 1 selection"
         if not self._options.get('validate', None):
-            self._options['validate'] = lambda result: len(result) >= 1
+            self._options['validate'] = lambda result: len(str(result)) >= 1
 
         self._options['message'] = f"{category} {self._options.get('message', 'undefined message')}"
 
@@ -489,6 +489,44 @@ class MinMaxValidator(CompareValidator):
         super().__init__(min_value=min_value, max_value=max_value, message=message, float_allowed=float_allowed, value_type="min_max")
 
 
+class HexValidator(CompareValidator):
+    def __init__(self, message: str = "Input should be a ", allow_none: bool = False, value_type: str = "Hex", value_length: int =1) -> None:
+        self.allow_none = allow_none
+        self.value_type = value_type
+        self.value_length = value_length
+        super().__init__(message=message,  value_type=value_type)
+
+    def validate(self, document) -> None:
+        """
+        Validates whether the input is a valid Hex.
+
+        :param document: The input to validate.
+        :type document: Any
+
+        :raises ValueError: If the input is not a valid private key.
+
+        Example:
+
+            .. code-block:: python
+
+                validator = HexValidator(value_type="TX hash", value_length=64)
+                validator.validate("4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d")
+                # >> None
+
+        """
+        try:
+            text = document.text
+
+            if self.allow_none and not text:
+                return
+            elif not is_hex(text):
+                self.raise_error(document, message=f"{self.value_type}. '{document.text}' is not Hex ")
+            elif not len(text) == self.value_length:
+                self.raise_error(document, message=f"{self.value_type}. Length should be {self.value_length}. len={len(text)}")
+        except ValueError:
+            self.raise_error(document)
+
+
 class PrivateKeyValidator(CompareValidator):
     """
     Validator class for private key.
@@ -598,6 +636,60 @@ class PrivateKeyOrJsonValidator(CompareValidator):
             self.raise_error(document)
 
 
+class JsonValidator(CompareValidator):
+    """
+    Validator class for  JSON.
+
+    :param message: Error message to display.
+    :param allow_none: If True, allows None as a valid input.
+    :type message: str
+    :type allow_none: bool
+
+    Example:
+
+        .. code-block:: python
+
+            validator = JsonValidator()
+            validator.validate('{"private_key": "4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d"}')
+            # >> None
+
+    """
+    def __init__(self, message: str = "Input should be a ", allow_none: bool = False) -> None:
+        self.allow_none = allow_none
+        super().__init__(message=message,  value_type="JSON Validator")
+
+    def validate(self, document) -> None:
+        """
+        Validates whether the input is a valid  JSON.
+
+        :param document: The input to validate.
+        :type document: Any
+
+        :raises ValueError: If the input is not a valid JSON.
+
+        Example:
+
+            .. code-block:: python
+
+                validator = JsonValidator()
+                validator.validate('{"private_key": "4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d"}')
+                # >> None
+
+        """
+        try:
+            text = document.text
+
+            if self.allow_none and not text:
+                return
+            elif not is_hex(text):
+                try:
+                    json.loads(text)
+                except Exception as e:
+                    self.raise_error(document, message=f"Invalid JSON: {e}" )
+        except ValueError:
+            self.raise_error(document)
+
+
 def check_valid_private_length(text):
     """
     Check if the length of a private key is valid.
@@ -663,6 +755,24 @@ def get_operator_truth(inp, relate, cut):
 
 
 def prompt_with_keyboard_interrupt(*args, **kwargs):
+    """
+    Handle keyboard interrupt with prompt.
+
+    :param args:
+    :param kwargs:
+    :return:
+
+    Example:
+
+        .. code-block:: python
+
+            prompt_with_keyboard_interrupt({'name': 'test'}, {})
+            # >> {'test': 'value'}
+
+            prompt_with_keyboard_interrupt([{'name': 'test'}], {})
+            # >> 'value'
+
+    """
     answer = prompt(*args, **kwargs)
     if not answer:
         raise KeyboardInterrupt
@@ -676,6 +786,24 @@ def prompt_with_keyboard_interrupt(*args, **kwargs):
 
 
 def inq_prompt(*args, **kwargs):
+    """
+    Prompt the user for input, return the name field or the first field of the answer.
+
+    :param args: arguments to be passed to the prompt function
+    :param kwargs: keyword arguments to be passed to the prompt function
+    :return: the 'name' field of the answer, or the first field if 'name' does not exist
+
+    Example:
+
+        .. code-block:: python
+
+            inq_prompt(question="What's your name?")
+            # >> "John Doe"
+
+            inq_prompt(questions=[{"type": "input", "name": "username", "message": "Enter your username"}], style={'input': 'green'})
+            # >> "johndoe"
+
+    """
     if args:
         answer = prompt(*args)
     else:
@@ -692,6 +820,38 @@ def inq_prompt(*args, **kwargs):
 def simple_input_prompt(
         name="", default="", type="input", choices=None,
         instruction=None, long_instruction=None, validate=None, filter=None, min_length=1, max_length=1000):
+    """
+     A simple input prompt function.
+
+     :param name: The name of the input prompt.
+     :param default: The default value for the input prompt.
+     :param type: The type of the input prompt.
+     :param choices: The choices for the input prompt.
+     :param instruction: The instruction for the input prompt.
+     :param long_instruction: The long instruction for the input prompt.
+     :param validate: The validation for the input prompt.
+     :param filter: The filter for the input prompt.
+     :param min_length: The minimum length for the input prompt.
+     :param max_length: The maximum length for the input prompt.
+     :return: The input prompt.
+
+     Example:
+
+         .. code-block:: python
+
+             simple_input_prompt(
+                 name="Your Name", default="John Doe", type="input", choices=None,
+                 instruction="Please enter your name.", long_instruction="Your name will be used for personalization purposes.",
+                 validate=None, filter=None, min_length=1, max_length=1000)
+             # >> 'John Doe'
+
+             simple_input_prompt(
+                 name="Your Age", default="25", type="input", choices=None,
+                 instruction="Please enter your age.", long_instruction="Your age will be used for age verification purposes.",
+                 validate=None, filter=None, min_length=1, max_length=3)
+             # >> '25'
+
+     """
 
     if not name:
         raise ValueError("Required name for simple_input_prompt()" )
@@ -754,6 +914,25 @@ def simple_input_prompt(
 
 
 def change_select_pattern(items):
+    """
+    Change the select pattern of items.
+
+    :param items: The items to change the select pattern.
+    :return: The items with changed select pattern.
+
+    Example:
+
+        .. code-block:: python
+
+            items = {'1': 'One', '2': 'Two', '3': 'Three'}
+            change_select_pattern(items)
+            # >> [{'name': ' 0) 1 (One)', 'value': '1'}, {'name': ' 1) 2 (Two)', 'value': '2'}, {'name': ' 2) 3 (Three)', 'value': '3'}]
+
+            items = [1, 2, 3]
+            change_select_pattern(items)
+            # >> [1, 2, 3]
+
+    """
     result = []
     count = 0
     if isinstance(items, dict) or isinstance(items, FlatDict):
@@ -791,7 +970,7 @@ def fuzzy_prompt(**kwargs):
         kwargs['invalid_message'] = "minimum 1 selection"
 
     if not kwargs.get('validate', None):
-        kwargs['validate'] = lambda result: len(result) > 1
+        kwargs['validate'] = lambda result: len(str(result)) > 1
     answer = inquirer.fuzzy(**kwargs).execute()
     return answer
 
@@ -943,3 +1122,34 @@ def get_environment(key, default="", func: Callable = ""):
         return parse_list(env_value)
 
     return env_value
+
+
+def json_input_prompt(default={}, message="Edit JSON",):
+    """
+    Prompts the user to edit a JSON file.
+
+    :param default: default JSON to be edited, default is an empty dictionary.
+    :param message: message to be displayed while editing, default is "transaction".
+
+    Example:
+
+        .. code-block:: python
+
+            default_json = {"key": "value"}
+            message = "Edit JSON"
+            json_input_prompt(default=default_json, message=message)
+
+    """
+    if default and isinstance(default, dict):
+        _default_json = json.dumps(default, indent=4)
+    else:
+        _default_json = str(default)
+
+    json_text = inq_prompt(
+        type="input",
+        message=f"{message} :",
+        default=_default_json,
+        long_instruction=f"Move the arrows to edit the {message}",
+        validate=JsonValidator()
+    )
+    return json.loads(json_text)
