@@ -2542,6 +2542,33 @@ def remove_tags(text,
     cleaned_text = re.sub(tag_pattern, '', text)
     return cleaned_text
 
+def remove_tags(text,
+                case_sensitive: Literal["lower", "upper", "both"] = "lower",
+                tag_style: Literal["angle", "square"] = "square") -> str:
+    """
+    Remove specific tags from given text based on case sensitivity and tag style options.
+
+    :param text: The input text from which tags need to be removed.
+    :param case_sensitive: The case sensitivity option for tags, default is "lower". Available options are "lower", "upper", and "both".
+    :param tag_style: The tag style to be removed, default is "square". Available options are "angle" and "square".
+    :return: The cleaned text after specific tags have been removed.
+    """
+
+    if case_sensitive == "lower":
+        case_pattern = r'[a-z\s]'
+    elif case_sensitive == "upper":
+        case_pattern = r'[A-Z\s]'
+    else:
+        case_pattern = r'[A-Za-z\s]'
+
+    if tag_style == "angle":
+        tag_pattern = r'<(/?' + case_pattern + '+)>'
+    else:
+        tag_pattern = r'\[(?:/?' + case_pattern + '+)\]'
+
+    cleaned_text = re.sub(tag_pattern, '', text)
+    return cleaned_text
+
 
 def remove_ascii_color_codes(text):
     """

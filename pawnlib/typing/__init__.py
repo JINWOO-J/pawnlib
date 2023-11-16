@@ -11,6 +11,7 @@ from .check import (
     is_valid_url,
     is_valid_private_key,
     is_valid_token_address,
+    is_valid_tx_hash,
     guess_type,
     return_guess_type,
     sys_exit,
