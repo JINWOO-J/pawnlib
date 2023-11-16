@@ -1124,7 +1124,7 @@ def get_environment(key, default="", func: Callable = ""):
     return env_value
 
 
-def json_input_prompt(default={}, message="Edit JSON",):
+def json_input_prompt(default={}, message="Edit Transaction JSON"):
     """
     Prompts the user to edit a JSON file.
 
@@ -1148,8 +1148,8 @@ def json_input_prompt(default={}, message="Edit JSON",):
     json_text = inq_prompt(
         type="input",
         message=f"{message} :",
-        default=_default_json,
-        long_instruction=f"Move the arrows to edit the {message}",
-        validate=JsonValidator()
+        default=f"\n{_default_json}",
+        long_instruction=f"Move the arrows to edit the {str(message).lower()}",
+        validate=JsonValidator(),
     )
     return json.loads(json_text)
