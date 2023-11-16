@@ -25,6 +25,7 @@ from pawnlib.typing import (
     guess_type,
     is_valid_token_address,
     is_valid_private_key,
+    is_valid_tx_hash,
     random_token_address,
     random_private_key,
     remove_tags,
@@ -217,6 +218,11 @@ class TestTyping(unittest.TestCase):
         self.assertEqual(is_valid_ipv4("255.400.255.256"), False)
         self.assertEqual(is_valid_ipv4("255.255.400.256"), False)
         self.assertEqual(is_valid_ipv4("255.255.255.400"), False)
+
+    def test_check_valid_tx_hash(self,):
+        self.assertEqual(is_valid_tx_hash("0x7d72d5cb43a016e55f076470a5c2ada9215cc228881f8bdf3038d650b09c030e"), True)
+        self.assertEqual(is_valid_tx_hash("0x7d72d5cb43a016e55f076470a5c2ada9215cc228881f8bdf3038d650b09c030e11"), False)
+        self.assertEqual(is_valid_tx_hash({"sdsd": "sdsds"}), False)
 
     def test_guess_type(self):
         assert guess_type("") == None

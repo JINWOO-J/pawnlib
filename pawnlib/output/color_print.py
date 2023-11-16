@@ -1472,6 +1472,10 @@ def align_text(left_text: str = '', right_text: str = '', filler: str = '.', off
     """
     cleaned_left_text = remove_ascii_color_codes(left_text)
     cleaned_right_text = remove_ascii_color_codes(right_text)
+
+    cleaned_left_text = remove_tags(cleaned_left_text, case_sensitive='lower')
+    cleaned_right_text = remove_tags(cleaned_right_text, case_sensitive='lower')
+
     padding_length = pawn.console.width - len(cleaned_left_text) - len(cleaned_right_text) - offset
     padding = filler * padding_length
     full_text = f"{left_text} {padding} {right_text}"

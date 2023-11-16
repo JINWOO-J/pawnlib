@@ -40,3 +40,6 @@ print_aligned_text(f"{get_bcolors('<color>', 'OKBLUE')}{_left_text}", _right_tex
 
 print("----include colored & emoji")
 print_aligned_text(f"✔{get_bcolors('✔[color]   ', 'OKBLUE')} ✔ {_left_text}", _right_text, ".")
+
+print("----include rich colored & emoji")
+print_aligned_text(f"[red]OK[/red] {_left_text}", _right_text, ".")

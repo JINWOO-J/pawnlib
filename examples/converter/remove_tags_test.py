@@ -10,6 +10,10 @@ tags = [
     "[bold] dssd [/bold]",
     "[bold red] dssd [/bold red]",
     "[BOLD red] dssd [/BOLD red]",
+    "[BOLD] dssd [/BOLD]",
 ]
-for tag in tags:
-    print(f"input={tag}, result={remove_tags(tag, case_sensitive='both')}")
+
+for case_sensitive in ['both', "lower", 'upper']:
+    pawn.console.rule(f'Remove tags -> case_sensitive = {case_sensitive}')
+    for tag in tags:
+        print(f"input={tag:>50}, result= {remove_tags(tag, case_sensitive=case_sensitive)}")

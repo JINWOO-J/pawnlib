@@ -363,6 +363,35 @@ def is_valid_token_address(text=None, prefix="hx"):
     return False
 
 
+def is_valid_tx_hash(text=None):
+    """
+    Validates the txHash
+
+    :param text: A string of txHash text.
+    :type text: str
+    :return: A boolean value indicating whether the txHash is valid or not.
+    :rtype: bool
+
+    Example:
+
+        .. code-block:: python
+
+            is_valid_tx_hash("0x1234567890123456789012345678901234567890123456789012345678901234")
+            # >> True
+
+            is_valid_tx_hash("0x12345678901234567890123456789012345678901234567890123456789012345")
+            # >> False
+
+    """
+    tx_hash_length = 64
+    if text and is_hex(text):
+        if text.startswith("0x"):
+            text = text[2:]
+        if len(text) == tx_hash_length:
+            return True
+    return False
+
+
 def list_depth(l):
     """
     Returns the depth count of a list.

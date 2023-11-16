@@ -17,14 +17,14 @@ icx_signer.compressed = False
 private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90810"
 pawn.console.log(private_key)
 
-network_info = NetworkInfo(network_name="icontest", network_api="http://100.91.150.17:9000", nid="0x53")
+network_info = NetworkInfo(network_name="icontest", network_api="http://20.20.1.122:9000", nid="0x53")
 dump(network_info.to_dict())
 
 
 icon_rpc = IconRpcHelper(
     network_info=network_info,
     wallet=icx_signer.load_wallet_key(private_key),
-    raise_on_failure=True,
+    raise_on_failure=False,
 )
 
 pawn.console.rule("Sequential execution - create_deploy_payload, sign_tx, sign_send")
@@ -33,7 +33,11 @@ icon_rpc.create_deploy_payload(
     src="SCORE/hello-world/build/libs/hello-world-0.1.0-optimized.jar",
     params={"name": "jinwoo"},
 )
-icon_rpc.sign_tx()
+
+icon_rpc.get_tx_wait(tx_hash="0xebfd783936f8d41c864d17d1c9e0edd97a9726e185a67daadcc636a20b3ecb80")
+
+# exit()
+# icon_rpc.sign_tx()
 response = icon_rpc.sign_send()
 
 pawn.console.log(f"[OK] score_address = {response['result'].get('scoreAddress')}")

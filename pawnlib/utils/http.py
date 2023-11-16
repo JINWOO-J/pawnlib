@@ -16,7 +16,7 @@ from pawnlib.typing import date_utils
 from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const, shorten_text
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
-from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit, is_hex
+from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit, is_hex, is_valid_tx_hash
 from pawnlib.utils.operate_handler import WaitStateLoop
 from pawnlib.output import pretty_json, align_text, get_file_extension, is_directory, is_file
 from pawnlib.utils.in_memory_zip import gen_deploy_data_content
@@ -449,6 +449,10 @@ class IconRpcHelper:
         self._use_global_reqeust_payload = False
         self.global_reqeust_payload = {}
 
+        self.default = {
+            "stepLimit": hex(200000)
+        }
+
     def initialize(self):
         # self._set_governance_address()
         if self.network_info:
@@ -456,15 +460,22 @@ class IconRpcHelper:
         else:
             pawn.console.debug("Not found network_info")
 
+        self.initialize_wallet()
+
+    def initialize_wallet(self):
+        if self.wallet and not isinstance(self.wallet, dict):
+            pawn.console.debug("Loading wallet from icx_signer.load_wallet_key()")
+            self.wallet = icx_signer.load_wallet_key(self.wallet)
+
     def _set_governance_address(self, method=None):
         if self.network_info and not self.governance_address:
             if self.network_info.platform == "havah":
                 if method and method.startswith("get"):
                     self.governance_address = const.CHAIN_SCORE_ADDRESS
-                else:
-                    self.governance_address = const.GOVERNANCE_ADDRESS
+                # else:
+                #     self.governance_address = const.GOVERNANCE_ADDRESS
             else:
-                self.governance_address = f"cx{'0' * 39}1"
+                self.governance_address = const.GOVERNANCE_ADDRESS
 
     def _decorator_enforce_kwargs(func):
         def from_kwargs(self, *args, **kwargs):
@@ -509,6 +520,7 @@ class IconRpcHelper:
                  params: dict = {},
                  payload: dict = {},
                  print_error=False,
+                 reset_error=True,
                  raise_on_failure=False,
                  store_request_payload=True,
                  http_method: Literal["get", "post", "patch", "delete"] = 'post',
@@ -526,7 +538,8 @@ class IconRpcHelper:
         _url = append_http(append_api_v3(_url))
         _request_payload = self._convert_valid_payload_format(payload=payload, method=method, params=params)
 
-        self.on_error = False
+        if reset_error:
+            self.on_error = False
 
         if store_request_payload:
             self.request_payload = copy.deepcopy(_request_payload)
@@ -540,6 +553,7 @@ class IconRpcHelper:
         ).run().response.as_dict()
 
         if print_error and self.response.get('status_code') != 200:
+            self.on_error = True
             if self.response.get('json') and self.response['json'].get('error'):
                 pawn.console.log(f"[red][ERROR][/red] payload={_request_payload}")
                 pawn.console.log(f"[red][ERROR] status_code={self.response['status_code']}, error={self.response['json']['error']}")
@@ -703,12 +717,14 @@ class IconRpcHelper:
             )
             res_json = res
             if res_json.get('error'):
-                pawn.console.debug(f"[red] An error occurred while running debug_estimateStep, {res_json['error'].get('message')}")
-                sys.exit(-1)
+                # pawn.console.debug(f"[red] An error occurred while running debug_estimateStep, {res_json['error'].get('message')}")
+                # sys.exit(-1)
+                self.exit_on_failure(f"[red] An error occurred while running debug_estimateStep, {res_json['error'].get('message')}")
+
             return res.get('result')
 
         else:
-            raise ValueError(f"TX is not dict. tx => {_tx}")
+            self.exit_on_failure(f"TX is not dict. tx => {_tx}")
 
     def get_step_limit(self, url=None, tx=None, step_kind="apiCall"):
         if tx:
@@ -736,7 +752,9 @@ class IconRpcHelper:
             pawn.console.debug(f"step_limit => {hex_to_number(step_limit, debug=True)}")
             return step_limit
         else:
-            pawn.console.log("[red]An error occurred while running get_step_limit")
+            _default_step_limit = self.default.get("stepLimit")
+            pawn.console.log(f"[red][FAIL][/red] An error occurred while running get_step_limit(). set default : {_default_step_limit}")
+            return _default_step_limit
 
     @staticmethod
     def _guess_step_kind(tx=None):
@@ -795,7 +813,12 @@ class IconRpcHelper:
         else:
             return self.exit_on_failure(f"Invalid token address - {address}")
 
-    def get_tx(self, url=None, tx_hash=None, return_key=None):
+    def get_tx(self,  tx_hash=None, url=None,  return_key=None):
+        if not tx_hash:
+            tx_hash = self._get_tx_hash
+        if not is_valid_tx_hash(tx_hash):
+            self.exit_on_failure(f"Invalid tx_hash - {tx_hash}")
+
         response = self.rpc_call(
             url=url,
             method="icx_getTransactionResult",
@@ -807,44 +830,19 @@ class IconRpcHelper:
             return response
         return response.get('text')
 
-    def get_tx_wait(self, url=None, tx_hash=None, is_compact=True):
-        if not tx_hash and isinstance(self.response, dict):
-            if keys_exists(self.response, 'json', 'result', 'txHash'):
-                tx_hash = self.response['json']['result']['txHash']
-            elif keys_exists(self.response, 'json', 'result'):
-                tx_hash = self.response['json']['result']
-
+    def get_tx_wait(self,  tx_hash=None, url=None,  is_compact=True):
+        tx_hash = self._get_tx_hash(tx_hash)
         if not tx_hash:
-            pawn.console.log(f"[red] Not found tx_hash='{tx_hash}'")
             return
         self.on_error = False
-        # pawn.console.log(f"Check a transaction by {tx_hash}")
+        count = 0
         with pawn.console.status("[magenta] Wait for transaction to be generated.") as status:
-            count = 0
             while True:
-                resp = self.get_tx(url=url, tx_hash=tx_hash)
-                exit_loop = False
-                prefix_text = f"[cyan][Wait TX][{count}][/cyan] Check a transaction by [i cyan]{tx_hash}[/i cyan] "
+                resp = self._check_transaction(url, tx_hash)
                 if resp.get('error'):
-                    exit_msg = ""
-                    if "InvalidParams" in resp['error'].get('message'):
-                        exit_loop = True
-                        exit_msg = "[red][FAIL][/red]"
-                    text = f"{prefix_text}{exit_msg}[white] {resp['error']['message']}"
-
+                    text, exit_loop = self._handle_error_response(resp, count, tx_hash)
                 elif resp.get('result'):
-                    if resp['result'].get('logsBloom'):
-                        resp['result']['logsBloom'] = int(resp['result']['logsBloom'], 16)
-
-                    if resp['result'].get('failure'):
-                        _resp_status = "[red][FAIL][/red]"
-                        self.on_error = True
-                    else:
-                        _resp_status = "[green][OK][/green]"
-
-                    exit_loop = True
-                    # text = f"{prefix_text}[red]{_resp_status}[/red] {json.dumps(resp['result'])}"
-                    text = align_text(prefix_text, _resp_status, ".")
+                    text, exit_loop = self._handle_success_response(resp, count, tx_hash)
                 else:
                     text = resp
                 status.update(
@@ -852,27 +850,70 @@ class IconRpcHelper:
                     spinner_style="yellow",
                 )
                 if exit_loop:
-                    final_result = f"[bold green][white]{text}"
-                    if is_compact:
-                        final_result = shorten_text(final_result, width=162)
-                    # if self.debug:
-                    pawn.console.tprint(final_result)
-                    if self.debug or pawn.get('PAWN_DEBUG'):
-                        print_json(resp['result'])
+                    self._print_final_result(text, is_compact, resp)
                     break
                 count += 1
                 time.sleep(1)
-
-            if  self.on_error and tx_hash:
-                self.get_debug_trace(tx_hash)
+            if self.on_error and tx_hash:
+                self.get_debug_trace(tx_hash, reset_error=False)
         return resp
 
-    def get_debug_trace(self, tx_hash, print_table=True):
+    def _get_tx_hash(self, tx_hash):
+        if not tx_hash and isinstance(self.response, dict):
+            if keys_exists(self.response, 'json', 'result', 'txHash'):
+                tx_hash = self.response['json']['result']['txHash']
+            elif keys_exists(self.response, 'json', 'result'):
+                tx_hash = self.response['json']['result']
+        if not tx_hash:
+            pawn.console.log(f"[red] Not found tx_hash='{tx_hash}'")
+        return tx_hash
+
+    def _check_transaction(self, url, tx_hash):
+        return self.get_tx(url=url, tx_hash=tx_hash)
+
+    def _handle_error_response(self, resp, count, tx_hash):
+        exit_loop = False
+        exit_msg = ""
+        prefix_text = f"[cyan][Wait TX][{count}][/cyan] Check a transaction by [i cyan]{tx_hash}[/i cyan] "
+        _error_message = resp['error'].get('message')
+        exit_error_messages = ["InvalidParams", "NotFound: E1005:not found tx id"]
+
+        if any(error_message in _error_message for error_message in exit_error_messages):
+            exit_loop = True
+            exit_msg = "[red][FAIL][/red]"
+            self.on_error = True
+        text = f"{prefix_text}{exit_msg}[white] '{_error_message}'"
+        return text, exit_loop
+
+    def _handle_success_response(self, resp, count, tx_hash):
+        if resp['result'].get('logsBloom'):
+            resp['result']['logsBloom'] = int(resp['result']['logsBloom'], 16)
+        if resp['result'].get('failure'):
+            _resp_status = "[red][FAIL][/red]"
+            self.on_error = True
+        else:
+            _resp_status = "[green][OK][/green]"
+            self.on_error = False
+        exit_loop = True
+        prefix_text = f"[cyan][Wait TX][{count}][/cyan] Check a transaction by [i cyan]{tx_hash}[/i cyan] "
+        text = align_text(prefix_text, _resp_status, ".")
+        return text, exit_loop
+
+    def _print_final_result(self, text, is_compact, resp):
+        final_result = f"[bold green][white]{text}"
+        if is_compact:
+            final_result = shorten_text(final_result, width=205)
+        pawn.console.tprint(final_result)
+        if self.debug or pawn.get('PAWN_DEBUG'):
+            print_json(resp['result'])
+
+    def get_debug_trace(self, tx_hash, print_table=True, reset_error=True):
         response = self.rpc_call(
             url=self.debug_url,
             method="debug_getTrace",
             params={"txHash": tx_hash},
             store_request_payload=False,
+            reset_error=reset_error,
         )
         if isinstance(response, dict) and keys_exists(response, "result", "logs") and print_table:
             PrintRichTable(f"debug_getTrace={tx_hash}", data=response['result']['logs'])
@@ -973,7 +1014,7 @@ class IconRpcHelper:
         self.signed_tx = singer.sign_tx(self.request_payload)
 
         if address != singer.get_hx_address():
-            raise ValueError(f'Invalid address {address} != {singer.get_hx_address()}')
+            self.exit_on_failure(f'Invalid address {address} != {singer.get_hx_address()}')
 
         self.global_reqeust_payload = {}
         return self.signed_tx
