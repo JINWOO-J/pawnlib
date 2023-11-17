@@ -120,3 +120,17 @@ PrintRichTable(
     show_lines=True,
     # columns=["address"]
 )
+
+
+PrintRichTable(
+    title="RichTable List with description - align",
+    data=list_data,
+    with_idx=True,
+    call_value_func=add_comma,
+    show_lines=True,
+    columns_options={
+        "value": {
+            "justify": "left",
+        }
+    }
+)

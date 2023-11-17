@@ -810,6 +810,8 @@ def inq_prompt(*args, **kwargs):
         style = None
         if kwargs.get('style'):
             style = kwargs.pop('style')
+        if not kwargs.get('type'):
+            kwargs['type'] = "input"
         answer = prompt(questions=kwargs, style=style)
     if answer.get('name'):
         return answer['name']
