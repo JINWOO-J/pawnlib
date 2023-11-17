@@ -450,7 +450,7 @@ class IconRpcHelper:
         self.global_reqeust_payload = {}
 
         self.default = {
-            "stepLimit": hex(200000)
+            "stepLimit": hex(2500000)
         }
 
     def initialize(self):
@@ -719,7 +719,7 @@ class IconRpcHelper:
             if res_json.get('error'):
                 # pawn.console.debug(f"[red] An error occurred while running debug_estimateStep, {res_json['error'].get('message')}")
                 # sys.exit(-1)
-                self.exit_on_failure(f"[red] An error occurred while running debug_estimateStep, {res_json['error'].get('message')}")
+                self.exit_on_failure(f"An error occurred while running debug_estimateStep, {res_json['error'].get('message')}")
 
             return res.get('result')
 
