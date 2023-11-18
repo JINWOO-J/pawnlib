@@ -12,7 +12,7 @@ from pawnlib.typing import converter
 from rich.prompt import Confirm
 
 
-def check_file_overwrite(filename, answer=None) -> None:
+def check_file_overwrite(filename, answer=None) -> bool:
     """
     Checks the existence of a file.
 
@@ -33,21 +33,21 @@ def check_file_overwrite(filename, answer=None) -> None:
 
 
     """
-    exist_file = False
-    if filename and is_file(filename):
-        color_print.cprint(f"File already exists => {filename}", "green")
-        exist_file = True
+    if not filename:
+        return False
 
-    if exist_file:
+    if is_file(filename):
+        color_print.cprint(f"File already exists => {filename}", "green")
         if answer is None:
             answer = Confirm.ask(prompt=f"Overwrite already existing '{filename}' file?", default=False)
 
         if answer:
-            color_print.cprint(f"Remove the existing file => {filename}", "green")
+            color_print.cprint(f"Removing the existing file => {filename}", "green")
             os.remove(filename)
         else:
-            color_print.cprint("Stopped", "red")
-            sys.exit(127)
+            color_print.cprint("Operation stopped.", "red")
+            sys.exit(1)
+    return True
 
 
 def get_file_path(filename) -> dict:
@@ -436,6 +436,39 @@ def write_json(filename: str, data: Union[dict, list], option: str = 'w', permit
         return "write_json() can not write to json"
 
 
+def represent_ordereddict(dumper, data):
+    """
+    Represents an OrderedDict for YAML.
+
+    :param dumper: A YAML dumper instance.
+    :param data: An OrderedDict instance.
+
+    Example:
+
+        .. code-block:: python
+
+            import yaml
+            from collections import OrderedDict
+
+            data = OrderedDict()
+            data['key1'] = 'value1'
+            data['key2'] = 'value2'
+
+            yaml.add_representer(OrderedDict, represent_ordereddict)
+            print(yaml.dump(data))
+
+            # >> "key1: value1\nkey2: value2\n"
+
+    """
+    value = []
+    node = yaml.nodes.MappingNode("tag:yaml.org,2002:map", value)
+    for key, val in data.items():
+        node_key = dumper.represent_data(key)
+        node_val = dumper.represent_data(val)
+        value.append((node_key, node_val))
+    return node
+
+
 def write_yaml(filename: str, data: Union[dict, list], option: str = 'w', permit: str = '664'):
     """
     Write YAML data to a file.
@@ -454,6 +487,7 @@ def write_yaml(filename: str, data: Union[dict, list], option: str = 'w', permit
 
     :return: A string indicating the success or failure of the write operation.
     """
+    yaml.add_representer(dict, represent_ordereddict)
 
     with open(filename, option) as outfile:
         yaml.dump(data, outfile)
@@ -462,3 +496,5 @@ def write_yaml(filename: str, data: Union[dict, list], option: str = 'w', permit
         return "Write json file -> %s, %s" % (filename, converter.get_size(filename))
     else:
         return "write_json() can not write to json"
+
+

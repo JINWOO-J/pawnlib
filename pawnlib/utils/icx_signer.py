@@ -16,6 +16,8 @@ import glob
 from eth_keyfile import create_keyfile_json, extract_key_from_keyfile, decode_keyfile_json
 from copy import deepcopy
 from typing import Optional
+from InquirerPy import inquirer
+from InquirerPy.validator import PathValidator
 
 """
 secp256k1 library should be used only in this module.
@@ -110,7 +112,7 @@ class WalletCli:
                 ],
                 long_instruction="\nUse the up/down keys to select",
                 type="list",
-                max_height="40%",
+                max_height="60%",
                 default="",
                 argument="load_type",
                 # verbose=True
@@ -121,6 +123,20 @@ class WalletCli:
         _password = ""
 
         if load_type == "file":
+            self._args.base_dir = inquirer.filepath(
+                message="Enter the default directory where the keystore file is located:",
+                default=self._args.base_dir,
+                validate=PathValidator(is_dir=True, message="Input is not a directory"),
+                only_directories=True,
+            ).execute()
+
+            # src_path = inquirer.filepath(
+            #     message="Enter keystore file to sign:",
+            #     default=self._args.base_dir,
+            #     validate=PathValidator(is_file=True, message="Input is not a file"),
+            #     only_files=True,
+            # ).execute()
+
             regex_file = f"{self._args.base_dir}/*.json"
             json_file_list = glob.glob(regex_file)
             if len(json_file_list) <= 0:
