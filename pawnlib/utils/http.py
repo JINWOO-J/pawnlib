@@ -27,6 +27,7 @@ except ImportError:
     pass
 
 from typing import Any, Dict, Iterator, Tuple, Union, Callable, Type
+from collections import OrderedDict
 
 try:
     from typing import Literal
@@ -151,9 +152,9 @@ class AllowsKey(StrEnum):
 
 @dataclass
 class NetworkInfo:
-    network_name: InitVar[str] = "mainnet"
-    platform: InitVar[str] = "icon"
-    force: InitVar[bool] = False
+    network_name: str = "mainnet"
+    platform: str = "icon"
+    force: bool = False
     network_api: str = ""
     planet_api: str = ""
     nid: str = ""
@@ -162,7 +163,7 @@ class NetworkInfo:
     symbol: str = ""
     valid_network: bool = False
 
-    def __post_init__(self, network_name="", platform="icon", force=False):
+    def __post_init__(self):
 
         self._platform_info = {
             "icon": {
@@ -176,9 +177,9 @@ class NetworkInfo:
                         "network_api": "https://lisbon.net.solidwallet.io",
                         "nid": "0x2"
                     },
-                    "sejong": {
-                        "network_api": "https://sejong.net.solidwallet.io",
-                        "nid": "0x53"
+                    "techteam": {
+                        "network_api": "https://techteam.net.solidwallet.io",
+                        "nid": "0xa"
                     },
                     "cdnet": {
                         "network_api": "http://20.20.1.122:9000",
@@ -211,14 +212,17 @@ class NetworkInfo:
                 }
             }
         }
-        self.network_name = network_name
-        self.platform = platform
+        # self.network_name = network_name
+        # self.platform = platform
         self.network_info = {}
         self.static_values = ["nid", "network_api", "endpoint"]
-        if not force:
+        if not self.force:
             self._initialize()
 
     def is_set_static_values(self):
+        # missing_static_values = [static_value for static_value in self.static_values if not getattr(self, static_value, None)]
+        # if missing_static_values:
+        #     pawn.console.debug(f"[red]Missing static values: {missing_static_values}")
         return any(getattr(self, static_value, None) for static_value in self.static_values)
 
     def _get_network_info(self, network_name="", platform=""):
@@ -226,7 +230,6 @@ class NetworkInfo:
             self.network_name = network_name
         if platform:
             self.platform = platform
-
         self.network_name = self.network_name.lower()
         self.platform = self.platform.lower()
 
@@ -238,7 +241,6 @@ class NetworkInfo:
 
         if not self._platform_info.get(self.platform):
             raise ValueError(f"Allowed platform - values {list(self._platform_info.keys())}")
-
         if not self.is_set_static_values():
             _network_info = self._platform_info[self.platform].get('network_info')
             if isinstance(_network_info, dict) and not _network_info.get(self.network_name):
@@ -272,14 +274,33 @@ class NetworkInfo:
             object.__setattr__(self, key, this_data.get(key))
 
     def set_network(self, network_name=None, platform="icon"):
-        if network_name:
+        if network_name and platform:
+            self._initialize_static_values()
             self._initialize(network_name=network_name, platform=platform)
+
+    def _initialize_static_values(self):
+        for static_value in self.static_values:
+            setattr(self, static_value, None)
 
     def list(self) -> list:
         return list(self.network_info.keys())
 
     def get_platform_list(self) -> list:
         return list(self._platform_info.keys())
+
+    def get_platform_info(self) -> dict:
+        return self._platform_info
+
+    def update_platform_info(self, data={}) -> dict:
+        self._platform_info.update(data)
+        return self._platform_info
+
+    def add_network(self, platform, network_name, network_api, nid):
+        if platform in self._platform_info:
+            self._platform_info[platform]["network_info"][network_name.lower()] = {
+                "network_api": network_api,
+                "nid": nid
+            }
 
     def get_network_list(self, platform="") -> list:
         if platform:
@@ -326,6 +347,10 @@ class IconRpcTemplates:
             "icx_getBlockByHeight": {"params": {"height": ""}},
             "icx_getBlockByHash": {"params": {"hash": ""}},
             "icx_getScoreApi": {"params": {"address": ""}},
+            "icx_getScoreStatus": {"params": {"address": ""}},
+            "debug_getTrace": {"params": {"txHash": ""}},
+            "debug_estimateStep": {"params": {}},
+            "icx_getNetworkInfo": {},
             "icx_call": {"params": ""},
             "icx_sendTransaction": {
                 "params": {
@@ -359,6 +384,9 @@ class IconRpcTemplates:
         self._method = method
         self._params = {}
         self.get_rpc()
+
+    def update_template(self, new_template):
+        self.templates.update(**new_template)
 
     def get_category(self):
         return list(self.templates.keys())
@@ -395,27 +423,25 @@ class IconRpcTemplates:
         if method:
             self._method = method
 
-        # if self._category:
-        #     _template = self.templates.get(self._category)
-        # else:
-        #     _template = self.templates.values()
         _template = self.load_template()
+        if self._method and _template:
+            _arguments = _template.get(method, {})
+            if not isinstance(_arguments, dict):
+                raise ValueError(f"[Template Error] Syntax Error -> category={self._category}, method={self._method}")
 
-        if self._method:
-            if _template:
-                _arguments = _template.get(method, {})
-                if not isinstance(_arguments, dict):
-                    raise ValueError(f"[Template Error] Syntax Error -> category={self._category}, method={self._method}")
+            if not self._method:
+                raise ValueError(f"[Template Error] Required method ->  category={self._category}, method={self._method}")
 
-                if not self._method:
-                    raise ValueError(f"[Template Error] Required method ->  category={self._category}, method={self._method}")
+            if _arguments.get('method'):
+                self.return_rpc = json_rpc(**_arguments)
+            else:
                 self._method = _arguments.get('method', self._method)
                 self._params = _arguments.get('params', {})
                 self.return_rpc = json_rpc(method=self._method, params=self._params)
 
-                # pawn.console.log(f"-- return_rpc {self.return_rpc}")
+            # pawn.console.log(f"-- return_rpc {self.return_rpc}")
 
-                return self.return_rpc
+            return self.return_rpc
         return {}
 
     def get_required_params(self):
@@ -448,6 +474,7 @@ class IconRpcHelper:
         self.initialize()
         self._use_global_reqeust_payload = False
         self.global_reqeust_payload = {}
+        self.score_api = {}
 
         self.default = {
             "stepLimit": hex(2500000)
@@ -793,6 +820,63 @@ class IconRpcHelper:
             fee = f"{fee} {self.network_info.symbol}"
 
         return fee
+
+    def get_score_api(self, address="", url=None):
+        if not is_valid_token_address(address, prefix="cx"):
+            return self.exit_on_failure(f"Invalid token address - {address}")
+
+        response = self.rpc_call(
+            url=url,
+            method="icx_getScoreApi",
+            params={"address": address},
+            store_request_payload=False,
+        )
+
+        error = self.response.get('error')
+        if error:
+            self.exit_on_failure(error)
+            return 0
+
+        return response.get('result')
+
+    @staticmethod
+    def name_to_params(list_data):
+        return {data.get('name'): "" for data in list_data}
+
+    def _convert_score_api_to_params(self, data=[], address=""):
+        result = {}
+        for _input in data:
+            if _input.get('type') != "function":
+                continue
+
+            method = "icx_call" if _input.get('readonly') == "0x1" else "icx_sendTransaction"
+            score_method = _input.get('name')
+
+            result[score_method] = dict(
+                method=method,
+                params=dict(
+                    dataType="call",
+                    to=address,
+                    data=dict(
+                        method=score_method,
+                        params=self.name_to_params(_input.get('inputs'))
+                    )
+                )
+            )
+
+            if method == "icx_sendTransaction":
+                result[score_method]['params']['value'] = "0x0"
+            # pawn.console.log(f"{_input.get('type')} {score_method} , {_input.get('inputs')}, {_input.get('readonly')}")
+        return result
+
+    def get_governance_api(self, url=None):
+        self.score_api = {}
+        for address in [const.GOVERNANCE_ADDRESS, const.CHAIN_SCORE_ADDRESS]:
+            _api_result = self.get_score_api(address=address, url=url)
+            if _api_result:
+                self.score_api[address] = self._convert_score_api_to_params(_api_result, address=address)
+
+        return self.score_api
 
     def get_balance(self, url=None, address=None, is_comma=False):
         if not address and self.wallet:
