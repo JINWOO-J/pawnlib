@@ -16,7 +16,7 @@ from pawnlib.input import PromptWithArgument
 __description__ = "This command can read and write to the wallet."
 
 if not icx_signer_loaded:
-    pawn.console.log("[red]Required packages - secp256k1, eth_keyfile ")
+    pawn.console.log("[red]Required packages - coincurve, eth_keyfile ")
 
 
 def get_parser():
@@ -38,7 +38,9 @@ def get_arguments(parser):
     parser.add_argument('-k', '--keystore', metavar='keystore', help='keystore filename or keystore text')
     parser.add_argument('-p', '--password', metavar='password', help='keystore\'s password')
     parser.add_argument('-l', '--load-type', metavar='load_type', help='load type (file or text)', choices=["file", "text"])
+    parser.add_argument('-ns', '--no-store', action='store_true', help='Do not save as a file.', default=False)
     parser.add_argument('--base-dir', metavar='base_dir', help='base directory', default=os.getcwd())
+
     return parser
 
 
@@ -96,16 +98,11 @@ def main():
     wallet_cli = icx_signer.WalletCli(args=pconf().data.args)
 
     if args.sub_command == "load":
-        # load_wallet()
         wallet_cli.load()
 
     elif args.sub_command == "create":
-        wallet_cli.create()
-
-
-# def main():
-    # main_program()
-    # run_with_keyboard_interrupt(main_program)
+        is_store_file = False  if args.no_store else True
+        wallet_cli.create(is_store_file=is_store_file)
 
 
 if __name__ == '__main__':

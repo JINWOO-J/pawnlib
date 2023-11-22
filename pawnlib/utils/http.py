@@ -499,8 +499,6 @@ class IconRpcHelper:
             if self.network_info.platform == "havah":
                 if method and method.startswith("get"):
                     self.governance_address = const.CHAIN_SCORE_ADDRESS
-                # else:
-                #     self.governance_address = const.GOVERNANCE_ADDRESS
             else:
                 self.governance_address = const.GOVERNANCE_ADDRESS
 
@@ -579,17 +577,22 @@ class IconRpcHelper:
             raise_on_failure=_raise_on_failure,
         ).run().response.as_dict()
 
-        if print_error and self.response.get('status_code') != 200:
+        if self.response.get('status_code') != 200:
             self.on_error = True
+            self.print_error_message(print_error)
+
+        return self.response.get('json')
+
+    def print_error_message(self, print_error=True):
+        if print_error:
             if self.response.get('json') and self.response['json'].get('error'):
-                pawn.console.log(f"[red][ERROR][/red] payload={_request_payload}")
+                pawn.console.log(f"[red][ERROR][/red] payload={self.request_payload}")
                 pawn.console.log(f"[red][ERROR] status_code={self.response['status_code']}, error={self.response['json']['error']}")
             elif self.response.get('status_code') == 999:
                 pawn.console.log(f"[red][ERROR][/red] {self.response.get('error')}")
                 # self.exit_on_failure(f"[red][ERROR][/red] {self.response.get('error')}")
             else:
                 pawn.console.log(f"[red][ERROR][/red] status_code={self.response.get('status_code')}, text={self.response.get('text')}")
-        return self.response.get('json')
 
     def print_response(self, hex_to_int=False):
         if self.response.get('status_code') != 200:

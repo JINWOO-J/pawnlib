@@ -1,60 +1,39 @@
 #!/usr/bin/env python3
+import time
+
 import common
-from pawnlib.utils import icx_raw_singer, icx_signer
-import codecs
+from pawnlib.config import pawnlib_config as pawn, pconf, NestedNamespace
+from pawnlib.utils.http import jequest, disable_ssl_warnings, icon_rpc_call, IconRpcHelper, NetworkInfo
+# from pawnlib.utils.icon import rpc_call
+from pawnlib.output import dump
+from pawnlib.typing.converter import convert_dict_hex_to_int, hex_to_number
+from pawnlib.typing import is_include_list, random_private_key
+from pawnlib.utils import icx_signer, http, icx_signer_org
+from pawnlib import output
+from pawnlib.input import PromptWithArgument, PrivateKeyValidator, StringCompareValidator, PrivateKeyOrJsonValidator
+import json
+import glob
+import sys
+
+# private_key = random_private_key()
+private_key = "6572c6f2641b2ad1335b918e49db0309cc123602064c7f30de8fa48b55e08667"
+
+wallet = icx_signer.load_wallet_key(
+    private_key
+)
+pawn.console.log(wallet)
+
+
+wallet2= icx_signer_org.load_wallet_key(
+    private_key
+)
+
+pawn.console.log(wallet2)
+# wallet = icx_signer.WalletCli()
+# print(wallet)
 
 
 
-wallet = icx_raw_singer.KeyWallet.create()
-
-# Get the private key, public key, and wallet address
-# private_key = wallet.private_key
-# public_key = wallet.public_key
-private_key = wallet.get_private_key()
-public_key = wallet.get_public_key()
-
-
-address = wallet.address
-
-# Print the private key, public key, and wallet address
-print("Private Key:", private_key)
-print("Public Key:", public_key)
-print("Wallet Address:", address)
-
-res = icx_signer._parse_keystore_key(private_key_hex=private_key)
-
-print(res)
-
-
-# Verify the address calculation
-calculated_address = wallet.get_address()
-assert address == calculated_address, "Address calculation is incorrect"
-
-# Verify the public key calculation
-calculated_public_key = wallet.get_public_key()
-assert public_key == calculated_public_key, "Public key calculation is incorrect"
-
+pawn.console.log(icx_signer.generate_keys())
+pawn.console.log(icx_signer_org.generate_keys())
 #
-#
-# def test_key_wallet():
-#     # 새로운 KeyWallet 생성
-#     wallet = KeyWallet.create()
-#
-#     # 개인 키, 공개 키, 지갑 주소 출력
-#     private_key = wallet.private_key.hex()
-#     public_key = codecs.encode(wallet.public_key_to_bytes(), 'hex').decode()
-#     address = wallet.address
-#
-#     print("개인 키:", private_key)
-#     print("공개 키:", public_key)
-#     print("지갑 주소:", address)
-#
-#     # 주소 계산 검증
-#     calculated_address = wallet.get_address()
-#     assert address == calculated_address, "주소 계산이 올바르지 않음"
-#
-#     # 공개 키 계산 검증
-#     calculated_public_key = wallet.get_public_key()
-#     assert wallet.public_key_to_bytes() == calculated_public_key, "공개 키 계산이 올바르지 않음"
-#
-#     print("테스트 성공)

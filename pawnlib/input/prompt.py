@@ -190,7 +190,6 @@ class PromptWithArgument:
 
             # if self.argument_value == self._arg_missing_word:
             #     self.argument_value = ""
-
             if not self.argument_value or self.argument_value == "" or self.argument_value == self._arg_missing_word:
                 result = func(self, *args, **kwargs)
                 if self.argument_value != self._arg_missing_word:
@@ -202,7 +201,6 @@ class PromptWithArgument:
                         _argument_value = f"{len(self.argument_value)*'*'}"
                     else:
                         _argument_value = self.argument_value
-
                     pawn.console.debug(f"Skipped [yellow]{self._options.get('name','')}[/yellow]"
                                      f"prompt cause args value exists. --{self.argument_real_name}={_argument_value}")
                 self._check_force_validation(name=self.argument_real_name, value=self.argument_value)
@@ -254,6 +252,7 @@ class PromptWithArgument:
             self._set_style(style_type="prompt")
             if self._options.get('style'):
                 style = self._options.pop('style')
+            pawn.console.log(f"self._options={self._options},  style={style}")
             answer = prompt(questions=self._options, style=style, style_override=False)
             if answer.get('name'):
                 return answer['name']

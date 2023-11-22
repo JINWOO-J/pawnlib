@@ -1,6 +1,6 @@
 
 --build-arg BASE_IMAGE=python:3.9.13-slim-buster  
---build-arg BUILD_DATE=2023-11-18T15:08:37UTC  
+--build-arg BUILD_DATE=2023-11-22T08:35:34UTC  
 --build-arg DOCKER_BUILD_OPTION=--no-cache --rm=true  
 --build-arg ECHO_OPTION=  
 --build-arg GIT_USER=JINWOO-J  
@@ -11,4 +11,4 @@
 --build-arg REPO_HUB=jinwoo  
 --build-arg SED_OPTION=''  
 --build-arg UNAME_S=Darwin  
---build-arg VERSION=1.0.59  
+--build-arg VERSION=1.0.61  

@@ -9,7 +9,7 @@ import inspect
 import executing
 from contextlib import contextmanager, AbstractContextManager
 
-from pawnlib.typing import converter, date_utils, list_to_oneline_string, const, is_include_list, remove_tags, remove_ascii_color_codes
+from pawnlib.typing import converter, date_utils, list_to_oneline_string, const, is_include_list, remove_tags, remove_ascii_color_codes,timestamp_to_string, is_hex
 from pawnlib.config import pawnlib_config as pawn, global_verbose
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -615,6 +615,76 @@ def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _
                   f"{bcolors.HEADER} {str(type(obj)):>20}{bcolors.ENDC}" \
                   f"{bcolors.DARK_GREY} len={len(str(obj))}{bcolors.ENDC}"
         print(bcolors.WARNING + '%s%s' % (def_spacing + nested_level * spacing, obj) + bcolors.ENDC)
+
+
+# def dump(obj, nested_level=1, output=sys.stdout, hex_to_int=False, debug=True, _last_key=None, is_compact=False):
+#     """
+#     Print a variable for debugging.
+#
+#     :param obj:
+#     :param nested_level:
+#     :param output:
+#     :param hex_to_int:
+#     :param debug:
+#     :param _last_key:
+#     :param is_compact:
+#     :return:
+#     """
+#     if isinstance(obj, (dict, list)):
+#         _print_iterable(obj, nested_level, output, hex_to_int, debug, _last_key, is_compact)
+#     else:
+#         _print_value(obj, '   ' * nested_level, _last_key, hex_to_int, debug)
+#
+#
+# def _print_iterable(obj, nested_level, output, hex_to_int, debug, _last_key, is_compact):
+#     spacing = '   ' * nested_level
+#     print(f"{spacing}{'{' if isinstance(obj, dict) else '['}", end=("" if is_compact and isinstance(obj, list) else "\n"))
+#     for k, v in (obj.items() if isinstance(obj, dict) else enumerate(obj)):
+#         if isinstance(obj, dict):
+#             print(f"{spacing}   {bcolors.OKGREEN}{k}: {bcolors.ENDC}", end="")
+#         if isinstance(v, (dict, list)):
+#             dump(v, nested_level + 1, output, hex_to_int, debug, _last_key=(k if isinstance(obj, dict) else _last_key), is_compact=is_compact)
+#         else:
+#             _print_value(v, spacing + '   ', (k if isinstance(obj, dict) else _last_key), hex_to_int, debug)
+#         if is_compact and isinstance(obj, list):
+#             print(", ", end="")
+#     print(f"{' ' if is_compact and isinstance(obj, list) else spacing}{'}' if isinstance(obj, dict) else ']'}", end=("" if is_compact and isinstance(obj, list) else "\n"), file=output)
+#
+#
+# def _print_value(v, spacing, _last_key, hex_to_int, debug):
+#     output_value = _process_value(v, _last_key, hex_to_int)
+#     if debug:
+#         output_value += f" {bcolors.HEADER} {str(type(v)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(v))}{bcolors.ENDC}"
+#     print(f"{bcolors.WARNING}{spacing}{output_value}{bcolors.ENDC}")
+#
+#
+# def _process_value(value, _last_key=None, hex_to_int=False):
+#     _convert_based_key_dict = {
+#         "time_stamp": timestamp_to_string
+#     }
+#
+#     if hex_to_int and is_hex(value) and _last_key is not None:
+#         return f"'{value}' {_process_hex(value, _last_key)}"
+#     elif _convert_based_key_dict.get(_last_key):
+#         _function = _convert_based_key_dict.get(_last_key)
+#         return f"{get_colorful_object(value)}\t{_function(value)} (from {_last_key})"
+#     else:
+#         return get_colorful_object(value)
+#
+#
+# def _process_hex(obj, _last_key):
+#     format_number = lambda n: n if n % 1 else int(n)
+#     if _last_key == "timestamp":
+#         t_value = round(int(obj, 16) / 1_000_000)
+#         converted_date = datetime.fromtimestamp(format_number(t_value)).strftime('%Y-%m-%d %H:%M:%S')
+#         return f" {bcolors.ITALIC}{bcolors.LIGHT_GREY}{converted_date} (from {_last_key}){bcolors.ENDC}"
+#     elif isinstance(obj, str) and len(obj) < 60:
+#         TINT = 1 if len(obj) < 14 else 10 ** 18
+#         TINT_STR = "" if len(obj) < 14 else f"(from TINT) {_last_key}"
+#         converted_float = format_number(round(int(obj, 16) / TINT, 4))
+#         return f" {bcolors.ITALIC}{bcolors.LIGHT_GREY}{converted_float:,} {TINT_STR}{bcolors.ENDC}"
+#     else:
+#         return ""
 
 
 def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, **kwargs):
