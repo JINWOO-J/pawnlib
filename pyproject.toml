@@ -62,7 +62,7 @@ brotli = [
 
 wallet = [
     "eth_keyfile>=0.6.1",
-    "secp256k1==0.14.0",
+    "coincurve~=18.0.0",
     "rich>=10,<14",
 ]
 
@@ -72,7 +72,7 @@ docker = [
 
 full = [
     "eth_keyfile>=0.6.1",
-    "secp256k1==0.14.0",
+    "coincurve~=18.0.0",
     "rich>=10,<14",
     "aiodocker~=0.21.0",
 ]

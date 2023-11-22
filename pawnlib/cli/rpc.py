@@ -280,7 +280,7 @@ class RpcCommand:
     def load_config_file(self):
         if is_file(self.config_file):
             self.config_data = open_yaml_file(self.config_file)
-            pawn.console.log(f"Loaded configuration len={len(self.config_data)}")
+            pawn.console.log(f"Loaded configuration from '{self.config_file}' len={len(self.config_data)}")
             pawn.console.log(self.config_data)
 
     def run(self):

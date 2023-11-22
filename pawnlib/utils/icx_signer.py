@@ -4,8 +4,8 @@ import time
 import hashlib
 import base64
 from os import path
-from secp256k1 import PrivateKey, PublicKey
-from pawnlib.typing import check, date_utils, random_private_key, Namespace, fill_required_data_arguments
+from coincurve import PrivateKey, PublicKey
+from pawnlib.typing import check, date_utils, random_private_key, Namespace, fill_required_data_arguments, is_hex, sys_exit
 from pawnlib.config import pawnlib_config as pawn
 from pawnlib.output import is_file, is_json, open_json, check_file_overwrite, NoTraceBackException
 from pawnlib.config import pawn, pconf, NestedNamespace
@@ -19,9 +19,6 @@ from typing import Optional
 from InquirerPy import inquirer
 from InquirerPy.validator import PathValidator
 
-"""
-secp256k1 library should be used only in this module.
-"""
 compressed = False
 
 translator = str.maketrans({
@@ -170,10 +167,14 @@ class WalletCli:
                 except ValueError:
                     pawn.console.log(f"[red]Invalid JSON file - {keystore}")
                 _required_password = True
-            elif is_private_key(keystore):
-                pawn.console.log("Found Private key")
-                keystore_json = keystore
-                _required_password = False
+            elif is_hex(keystore):
+                if is_private_key(keystore):
+                    pawn.console.log("Found Private key")
+                    keystore_json = keystore
+                    _required_password = False
+                else:
+                    pawn.console.log(f"[red]Invalid Private key len={len(keystore)}")
+                    exit()
             else:
                 try:
                     keystore_json = json.loads(keystore)
@@ -204,8 +205,7 @@ class WalletCli:
 
         return self._wallet
 
-    def create(self):
-
+    def create(self, is_store_file=True):
         PromptWithArgument(
             message="Enter your private key (default: empty is random)",
             type="input",
@@ -227,31 +227,30 @@ class WalletCli:
         if not self._args.private_key:
             self._args.private_key = random_private_key()
 
-        wallet = load_wallet_key(self._args.private_key, password=self._args.password)
-        _wallet_address = wallet.get('address')
+        self._wallet = load_wallet_key(self._args.private_key, password=self._args.password)
         self.print_wallet()
 
-        default_filename = f"{wallet.get('address')}_{date_utils.todaydate('ms_text')}.json"
-        PromptWithArgument(
-            message="Enter the name of JSON file to be saved.",
-            default=default_filename,
-            argument="keystore",
-            invalid_message="Requires at least one character.",
-            validate=lambda result: len(result) >= 1,
-        ).prompt()
-        check_file_overwrite(filename=self._args.keystore)
-
-        try:
-            wallet = generate_wallet(
-                file_path=self._args.keystore,
-                password=self._args.password,
-                overwrite=False,
-                private_key=self._args.private_key,
-                expected_address=_wallet_address,
-            )
-            pawn.console.log(f"Generate Wallet - {wallet.get_hx_address()} to '{self._args.keystore}'")
-        except Exception as e:
-            pawn.console.log(f"[red][ERROR] Generate wallet - {e}")
+        if is_store_file:
+            default_filename = f"{self._wallet.get('address')}_{date_utils.todaydate('ms_text')}.json"
+            PromptWithArgument(
+                message="Enter the name of JSON file to be saved.",
+                default=default_filename,
+                argument="keystore",
+                invalid_message="Requires at least one character.",
+                validate=lambda result: len(result) >= 1,
+            ).prompt()
+            if check_file_overwrite(filename=self._args.keystore):
+                try:
+                    wallet = generate_wallet(
+                        file_path=self._args.keystore,
+                        password=self._args.password,
+                        overwrite=False,
+                        private_key=self._args.private_key,
+                        expected_address=self._wallet.get('address'),
+                    )
+                    pawn.console.log(f"Generate Wallet - {wallet.get_hx_address()} to '{self._args.keystore}'")
+                except Exception as e:
+                    pawn.console.log(f"[red][ERROR] Generate wallet - {e}")
 
     def print_wallet(self):
         if self._wallet:
@@ -299,17 +298,16 @@ def _parse_keystore_key(file=None, password=None, private_key_hex=None, use_name
                 e = "Wrong password"
             raise ValueError(e)
 
-    wallet = PrivateKey(private_key)
-    public_key_long: bytes = wallet.pubkey.serialize(compressed=False)
-    public_key: bytes = wallet.pubkey.serialize(compressed=True)
-    address = f"hx{get_address(pubkey_bytes=public_key_long).hex()}"
-    pawn.console.debug(f"address={address}")
+    _private_key = PrivateKey(private_key)
+    _public_key_long: bytes = _private_key.public_key.format(compressed=False)
+    _public_key: bytes = _private_key.public_key.format(compressed=True)
+    address = f"hx{get_address(pubkey_bytes=_public_key_long).hex()}"
     wallet_dict = {
         # "private_key": "0x" + private_key.hex(),
         "private_key": private_key.hex(),
         "address": address,
-        "public_key": public_key.hex(),
-        "public_key_long": public_key_long.hex()
+        "public_key": _public_key.hex(),
+        "public_key_long": _public_key_long.hex()
     }
     pawn.console.debug(wallet_dict)
     if use_namespace:
@@ -378,15 +376,14 @@ def load_wallet_key(file_or_object=None, password=None, raise_on_failure=True, u
 
 
 def generate_keys():
-    """generate privkey and pubkey pair.
+    """generate privkey and pubkey pair using coincurve.
 
     Returns:
         tuple: privkey(bytes, 32), pubkey(bytes, 65)
     """
     privkey = PrivateKey()
-
-    privkey_bytes = privkey.private_key
-    pubkey_bytes = privkey.pubkey.serialize(False)
+    privkey_bytes = privkey.secret
+    pubkey_bytes = privkey.public_key.format(compressed=False)
 
     return privkey_bytes, pubkey_bytes
 
@@ -429,24 +426,18 @@ def recover_signature(msg_hash, signature_bytes, recovery_id):
 
     Returns:
         pubkey(PublicKey):
-        signature(object):
+        signature(bytes):
     """
-    pubkey = PublicKey(None, False)
+    recoverable_signature = signature_bytes + bytes([recovery_id])
+    public_key = PublicKey.from_signature_and_message(recoverable_signature, msg_hash, hasher=None)
 
-    recoverable_signature = pubkey.ecdsa_recoverable_deserialize( \
-        signature_bytes, recovery_id)
+    signature = PublicKey.from_signature_and_message(recoverable_signature, msg_hash, hasher=None).format()
 
-    public_key = pubkey.ecdsa_recover( \
-        msg_hash, recoverable_signature, raw=True)
-    pubkey.public_key = public_key
-
-    signature = pubkey.ecdsa_recoverable_convert(recoverable_signature)
-
-    return pubkey, signature
+    return public_key, signature
 
 
 class IcxSigner(object):
-    """Digital Signing  using secp256k1
+    """Digital Signing  using coincurve
     """
 
     def __init__(self, data=None, raw=True):
@@ -461,7 +452,7 @@ class IcxSigner(object):
         if data:
             self._check_private_key(data)
 
-        self.__privkey = PrivateKey(self._private_key_bytes, raw)
+        self.__privkey = PrivateKey(self._private_key_bytes)
 
     def _check_private_key(self, private_key=None):
 
@@ -484,7 +475,7 @@ class IcxSigner(object):
         Args:
             data(bytes): private key data
         """
-        self.__privkey.set_raw_privkey(data)
+        self.__privkey = PrivateKey(data)
 
     def get_privkey_bytes(self):
         """Get private key data in bytes.
@@ -492,10 +483,10 @@ class IcxSigner(object):
         Returns:
             bytes: private key data (32 bytes)
         """
-        return self.__privkey.private_key
+        return self.__privkey.secret
 
     def get_pubkey_bytes(self):
-        return self.__privkey.pubkey.serialize(compressed=compressed)
+        return self.__privkey.public_key.format(compressed=compressed)
 
     def get_address(self) -> bytes:
         """Create an address with pubkey.
@@ -519,10 +510,11 @@ class IcxSigner(object):
 
     def sign_tx(self, tx=None):
         if isinstance(tx, dict) and tx.get('params'):
-            # tx_hash_bytes = get_tx_hash("icx_sendTransaction", tx['params'])
-            tx_hash_bytes = get_tx_hash( params=tx['params'])
-            signature_bytes, recovery_id = self.sign_recoverable(tx_hash_bytes)
-            signature_bytes_big = bytes(bytearray(signature_bytes) + recovery_id.to_bytes(1, 'big'))
+            tx_hash_bytes = get_tx_hash(params=tx['params'])
+            signature_bytes = self.sign_recoverable(tx_hash_bytes)
+            signature = signature_bytes[:64]
+            recovery_id = signature_bytes[64:]
+            signature_bytes_big = signature + recovery_id
             tx['params']['signature'] = base64.b64encode(signature_bytes_big).decode()
         return tx
 
@@ -536,8 +528,8 @@ class IcxSigner(object):
             bytes: signature bytes
         """
         privkey = self.__privkey
-        signature = privkey.ecdsa_sign(msg_hash, raw=True)
-        return privkey.ecdsa_serialize(signature)
+        signature = privkey.sign(msg_hash, hasher=None)
+        return signature
 
     def store(self, file_path: str, password: str, overwrite: bool = False, expected_address: str = None):
         try:
@@ -581,9 +573,8 @@ class IcxSigner(object):
                 int: recovery id
         """
         privkey = self.__privkey
-        recoverable_signature = privkey.ecdsa_sign_recoverable(msg_hash, raw=True)
-        return privkey.ecdsa_recoverable_serialize(recoverable_signature)
-
+        signature_bytes = privkey.sign_recoverable(msg_hash, hasher=None)
+        return signature_bytes
     @staticmethod
     def from_bytes(data):
         return IcxSigner(data, raw=True)
@@ -594,21 +585,18 @@ class IcxSigner(object):
 
 
 class IcxSignVerifier(object):
-    """Digial signature verification
+    """Digital signature verification
     """
 
-    def __init__(self, data, raw=True):
+    def __init__(self, data):
         """
-        Refer to https://github.com/ludbb/secp256k1-py api documents.
-
         Args:
             data(bytes): 65 bytes data which PublicKey.serialize() returns
-            raw(bool): if False, it is assumed that pubkey has gone through PublicKey.deserialize already, otherwise it must be specified as bytes.
 
         Returns:
             None
         """
-        self.__pubkey = PublicKey(data, raw)
+        self.__pubkey = PublicKey(data)
 
     def get_address(self):
         """Create an address with pubkey.
@@ -617,7 +605,7 @@ class IcxSignVerifier(object):
         Returns:
             str: address represented in hexadecimal string starting with '0x'
         """
-        pubkey_bytes = self.__pubkey.serialize(compressed=compressed)
+        pubkey_bytes = self.__pubkey.format(compressed=compressed)
         return get_address(pubkey_bytes)
 
     def verify(self, msg_hash, signature_bytes):
@@ -631,22 +619,18 @@ class IcxSignVerifier(object):
         Returns:
             bool: the result of signature verification
         """
-        pubkey = self.__pubkey
-
-        signature = pubkey.ecdsa_deserialize(signature_bytes)
-        return pubkey.ecdsa_verify(msg_hash, signature, True)
+        return self.__pubkey.verify(signature_bytes, msg_hash)
 
     @staticmethod
     def from_bytes(data):
         """
         Args:
             data(bytes): bytes data which PublicKey.serialize() returns
-            raw(bool): if False, it is assumed that pubkey has gone through PublicKey.deserialize already, otherwise it must be specified as bytes.
 
         Returns:
             None
         """
-        return IcxSignVerifier(data, True)
+        return IcxSignVerifier(data)
 
 
 def get_timestamp_us():
@@ -674,19 +658,17 @@ def get_string_decimal(value, place):
         value(int)
         place : 10의 몇 제곱을 나눌지 입력받음
     """
-    strValue = str(value)
+    str_value = str(value)
     if value >= 10 ** place:
-        strInt = strValue[:len(strValue) - place]
-        strDecimal = strValue[len(strValue) - place:]
-        result = f'{strInt}.{strDecimal}'
+        str_int = str_value[:-place]
+        str_decimal = str_value[-place:]
+        result = f'{str_int}.{str_decimal}'
         return result
-
     else:
-        zero = "0."
-        valPoint = len(strValue)  # valPoint : 몇자릿수인지 계산
-        pointDifference = place - valPoint
-        strZero = "0" * pointDifference
-        result = f'{zero}{strZero}{value}'
+        zero_prefix = "0."
+        value_digits = len(str_value)  # value_digits : 몇자릿수인지 계산
+        zero_padding = "0" * (place - value_digits)
+        result = f'{zero_prefix}{zero_padding}{value}'
         return result
 
 
@@ -701,24 +683,7 @@ def sha3_256(data):
     """
     return hashlib.sha3_256(data).digest()
 
-
-# def get_tx_hash(method, params):
-#     """Create tx_hash from params object.
 #
-#     Args:
-#         params(dict): the value of 'params' key in jsonrpc
-#
-#     Returns:
-#         bytes: sha3_256 hash value
-#         :param params:
-#         :param method:
-#     """
-#     # tx_phrase = get_tx_phrase(method, params)
-#     tx_phrase = serialize(params)
-#
-#     pawn.console.debug(f"serialize tx={tx_phrase}")
-#     return sha3_256(tx_phrase.encode())
-
 def get_tx_hash(params=None):
     """Create tx_hash from params object.
 

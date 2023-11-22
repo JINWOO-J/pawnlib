@@ -16,13 +16,20 @@ icx_signer.compressed = False
 
 private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90810"
 pawn.console.log(private_key)
+network_info = NetworkInfo(network_name="cdnet")
+
+wallet = icx_signer.load_wallet_key(private_key)
+
+singer = icx_signer.IcxSigner(data=private_key)
+singer_org = icx_signer.IcxSigner(data=private_key)
+
 icon_rpc = IconRpcHelper(
-    network_info=NetworkInfo(network_name="cdnet"),
-    wallet=icx_signer.load_wallet_key(private_key),
+    network_info=network_info,
+    wallet=wallet,
     raise_on_failure=True,
 )
-exit()
 
+pawn.console.log(network_info)
 payload = generator.json_rpc(
     method="icx_sendTransaction",
     params={
