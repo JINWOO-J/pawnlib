@@ -79,6 +79,7 @@ from .converter import (
     remove_ascii_color_codes,
     json_to_hexadecimal,
     hexadecimal_to_json,
+    format_hex,
 )
 
 from .constants import (
