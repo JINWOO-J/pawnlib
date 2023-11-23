@@ -323,7 +323,7 @@ def open_json(filename: str):
             return json.loads(json_file.read())
     except Exception as e:
         pawn.error_logger.error(f"[ERROR] Can't open the json -> '{filename}' / {e}") if pawn.error_logger else False
-        raise
+        raise ValueError(f"Error: Failed to parse JSON  in file . <'{filename}'>\n{e}")
 
 
 def open_file(filename: str):
@@ -345,7 +345,7 @@ def open_file(filename: str):
             return file_handler.read()
     except Exception as e:
         pawn.error_logger.error(f"[ERROR] Can't open the file -> '{filename}' / {e}") if pawn.error_logger else False
-        raise
+        raise ValueError(f"Error: An error occurred while reading the file. <'{filename}'>\n{e}")
 
 
 def open_yaml_file(filename: str):
@@ -362,8 +362,14 @@ def open_yaml_file(filename: str):
             yaml_data = open_yaml_file("data.yaml")
             # >> {'name': 'John', 'age': 30, 'city': 'New York'}
     """
-    read_yaml = open_file(filename)
-    return yaml.load(read_yaml, Loader=yaml.FullLoader)
+    try:
+        with open(filename, 'r') as file:
+            yaml_data = yaml.load(file, Loader=yaml.FullLoader)
+            return yaml_data
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Error: The file '{filename}' was not found.")
+    except yaml.YAMLError as e:
+        raise ValueError(f"Error: Failed to parse YAML in file '{filename}'. {e}")
 
 
 def write_file(filename: str, data: Any, option: str = 'w', permit: str = '664'):

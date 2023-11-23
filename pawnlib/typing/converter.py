@@ -2639,3 +2639,12 @@ def hexadecimal_to_json(hexadecimal_string):
     hexadecimal_bytes = bytes.fromhex(hexadecimal_string)
     json_string = hexadecimal_bytes.decode('utf-8')
     return json.loads(json_string)
+
+
+def format_hex(input_str):
+    if input_str.startswith('0x'):
+        return input_str
+    elif input_str.startswith('0'):
+        return '0x' + input_str[1:]
+    else:
+        return '0x' + input_str

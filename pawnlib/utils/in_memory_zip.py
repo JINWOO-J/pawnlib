@@ -1,7 +1,8 @@
 from io import BytesIO
 from os import path, walk
 from zipfile import ZipFile, ZIP_DEFLATED
-
+import json
+from pawnlib.config import pawn
 
 def gen_deploy_data_content(_path: str) -> bytes:
     """Generate bytes of zip data of SCORE.
@@ -17,6 +18,27 @@ def gen_deploy_data_content(_path: str) -> bytes:
         raise ValueError(f"Can't zip SCORE contents - {e}")
     else:
         return memory_zip.data
+
+
+def read_file_from_zip(zip_file_name, target_file_name):
+    with open(zip_file_name, 'rb') as file:
+        zip_data = file.read()
+
+    zip_buffer = BytesIO(zip_data)
+    with ZipFile(zip_buffer, 'r') as zip_ref:
+        pawn.console.debug("Contents of", zip_file_name + ":", zip_ref.namelist())
+        if target_file_name in zip_ref.namelist():
+            with zip_ref.open(target_file_name) as target_file:
+                file_contents = target_file.read()
+                pawn.console.debug(f"Contents of {target_file_name}:", file_contents.decode('utf-8'))
+                return file_contents.decode('utf-8')
+        else:
+            pawn.console.debug(f"{target_file_name} not found in the zip file.")
+        return ""
+
+def read_genesis_dict_from_zip(zip_file_name: str = "") -> dict:
+    genesis_dict = json.loads(read_file_from_zip(zip_file_name, "genesis.json"))
+    return genesis_dict
 
 
 class InMemoryZip:
@@ -66,7 +88,7 @@ class InMemoryZip:
                                 continue
                             full_path = path.join(root, file)
                             zf.write(full_path)
-        except ZipException:
-            raise ZipException
+        except Exception as e:
+            raise ValueError(f"InMemoryZip Error: {e}")
 
 

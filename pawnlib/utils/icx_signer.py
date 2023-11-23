@@ -5,10 +5,10 @@ import hashlib
 import base64
 from os import path
 from coincurve import PrivateKey, PublicKey
-from pawnlib.typing import check, date_utils, random_private_key, Namespace, fill_required_data_arguments, is_hex, sys_exit
+from pawnlib.typing import check, date_utils, random_private_key, fill_required_data_arguments, is_hex, format_hex
 from pawnlib.config import pawnlib_config as pawn
 from pawnlib.output import is_file, is_json, open_json, check_file_overwrite, NoTraceBackException
-from pawnlib.config import pawn, pconf, NestedNamespace
+from pawnlib.config import pawn,  NestedNamespace
 from pawnlib.input import PromptWithArgument, PrivateKeyValidator, StringCompareValidator, PrivateKeyOrJsonValidator
 import json
 import glob
