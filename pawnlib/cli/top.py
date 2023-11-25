@@ -131,14 +131,7 @@ def main():
     pawn.set(
         PAWN_CONFIG_FILE=config_file,
         PAWN_PATH=args.base_dir,
-        PAWN_LOGGER=dict(
-            log_level="INFO",
-            stdout_level="INFO",
-            log_path=f"{args.base_dir}/logs",
-            stdout=stdout,
-            use_hook_exception=True,
-            show_path=False, #hide line numbers
-        ),
+
         PAWN_CONSOLE=dict(
             redirect=True,
             record=True,
@@ -160,7 +153,11 @@ def main():
             PAWN_LOGGER=dict(
                 log_level="DEBUG",
                 stdout_level="DEBUG",
-            )
+                # log_path=f"{args.base_dir}/logs",
+                stdout=stdout,
+                use_hook_exception=True,
+                show_path=False, #hide line numbers
+            ),
         )
     print_banner()
     lines = []

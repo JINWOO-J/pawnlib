@@ -48,7 +48,7 @@ dependencies = [
     "Pygments>=2.14.0",
     "inquirerpy==0.3.4",
     "httpx~=0.24.0",
-    "websocket-client~=0.59.0",
+    "websocket-client>=0.59.0",
     "tabulate>=0.8.7"
 ]
 dynamic = ["readme", "version"]
