@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
+from pawnlib.config import pawnlib_config as pawn
+try:
+    import eth_keys
+except Exception  as e:
+    pawn.console.log("[red]Exception[/red] Required  'eth_keys' module. 'pip3 install eth_keys'" )
+
 import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
-from pawnlib.config import pawnlib_config as pawn
-from pawnlib.utils import genesis
-from pawnlib.utils import in_memory_zip
+
+from pawnlib.utils.genesis  import genesis_generator, create_cid
+from pawnlib.utils.in_memory_zip import read_genesis_dict_from_zip
 from pawnlib.output import is_file, print_json, open_json
 from pawnlib.typing import get_size
-
 
 __description__ = "Genesis Tool"
 
@@ -54,13 +59,13 @@ def main():
     if args.command == "gen":
         genesis_file = f"{args.base_dir}/{args.input_genesis}"
         json_dict = open_json(genesis_file)
-        cid = genesis.genesis_generator(genesis_json_or_dict=json_dict, base_dir=args.base_dir, genesis_filename=args.output_file)
+        cid = genesis_generator(genesis_json_or_dict=json_dict, base_dir=args.base_dir, genesis_filename=args.output_file)
         pawn.console.log(f"CID = {cid}")
 
     elif args.command == "info" and is_file(args.genesis_zip_file):
-            genesis_json = in_memory_zip.read_genesis_dict_from_zip(args.genesis_zip_file)
+            genesis_json = read_genesis_dict_from_zip(args.genesis_zip_file)
             print_json(genesis_json)
-            cid = genesis.create_cid(genesis_json)
+            cid = create_cid(genesis_json)
             nid = genesis_json.get('nid')
             pawn.console.log(f"FileName  = {args.genesis_zip_file} ({get_size(args.genesis_zip_file)})")
             pawn.console.log(f"CID       = {cid} ({int(cid, 16)})")

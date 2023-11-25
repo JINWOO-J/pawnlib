@@ -107,27 +107,6 @@ def print_banner():
     print(banner)
 
 
-# def initialize_arguments():
-#     parser = get_parser()
-#     args, unknown = parser.parse_known_args()
-#     args.subparser_name = "rpc"
-#     pawn.set(
-#         PAWN_DEBUG=args.debug,
-#         data=dict(
-#             args=args
-#         )
-#     )
-#     print_banner()
-#     fetch_environments_to_args()
-#     pawn.console.log(args)
-#
-#
-#     if args.platform not in PLATFORM_LIST:
-#         raise ValueError(f'not supported platform, allowed = {PLATFORM_LIST}')
-#
-#     return args
-
-
 def fill_sign_params_from_args(payload: dict):
     args = pconf().data.args
     args_list = ["to", "stepLimit", "nid", "value", "nonce"]

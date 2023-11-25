@@ -48,6 +48,7 @@ def main():
     args, unknown = parser.parse_known_args()
     config_file = args.config_file
 
+    pawn.console.debug(args)
     is_hide_line_number = args.verbose > 2
     stdout = not args.quiet
 
