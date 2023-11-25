@@ -5,10 +5,10 @@ from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
 import os
 import json
-from pawnlib.typing import str2bool, StackList, remove_tags
+from pawnlib.typing import str2bool, StackList, remove_tags, dict_to_line
 from pawnlib.output import write_json
 from rich.tree import Tree
-from pawnlib.resource import get_interface_ips, get_public_ip, get_hostname, get_platform_info, get_rlimit_nofile, get_mem_info, get_ip_and_netmask
+from pawnlib.resource import get_interface_ips, get_public_ip, get_hostname, get_platform_info, get_rlimit_nofile, get_mem_info, get_location
 
 __description__ = "This command displays server resource information."
 
@@ -102,7 +102,13 @@ def main():
 
     network_tree = Tree("[bold]🛜 Network Interface[/bold]")
     result['network']['public_ip'] = get_public_ip()
-    network_tree.add(f"[bold] Public IP[/bold]: {result['network']['public_ip']}")
+    public_ip_tree= network_tree.add(f"[bold] Public IP[/bold]: {result['network']['public_ip']}")
+
+    if result['network']['public_ip']:
+        _location = get_location(result['network']['public_ip'])
+        if _location:
+            public_ip_tree.add(f"[bold] Region : {_location.get('region')}, Timezone={_location.get('timezone')}")
+            public_ip_tree.add(f"[bold] ASN : {dict_to_line(_location.get('asn'), end_separator=', ')}")
 
     local_tree = network_tree.add("[bold] Local IP[/bold]")
 

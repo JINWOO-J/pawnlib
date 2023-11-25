@@ -363,3 +363,21 @@ def wait_for_port_open(host: str = "", port: int = 0, timeout: float = 3.0, prot
             status.update(f"{message} {count}")
             count += 1
             time.sleep(1)
+
+
+def get_location(ipaddress=""):
+    try:
+        response = requests.get(
+        f"https://ipinfo.io/widget/demo/{ipaddress}",
+            headers={
+                'referer': 'https://ipinfo.io/',
+                'content-type': 'application/json',
+            },
+            timeout=2,
+        )
+        return response.json().get('data')
+    except Exception as e:
+        pawn.console.debug(f"Error getting location - {e}")
+        return {}
+
+
