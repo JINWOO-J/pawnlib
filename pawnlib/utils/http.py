@@ -594,20 +594,20 @@ class IconRpcHelper:
             else:
                 pawn.console.log(f"[red][ERROR][/red] status_code={self.response.get('status_code')}, text={self.response.get('text')}")
 
-    def print_response(self, hex_to_int=False):
+    def print_response(self, hex_to_int=False, message=""):
         if self.response.get('status_code') != 200:
             style = "red"
         else:
             style = "rule.line"
-        pawn.console.rule(f"<Response {self.response.get('status_code')}>", align='right', style=style, characters="═")
+        pawn.console.rule(f"<Response {self.response.get('status_code')}> {message}", align='right', style=style, characters="═")
         if self.response.get('json'):
             dump(self.response.get('json'), hex_to_int=hex_to_int)
         else:
             print(syntax_highlight(self.response.get('text'), name='html'))
 
-    def print_request(self):
+    def print_request(self, message=""):
         pawn.console.print("")
-        pawn.console.rule(f"<Request> {self.url}", align='left')
+        pawn.console.rule(f"<Request> {self.url} {message}", align='left')
         pawn.console.print("")
         print(syntax_highlight(self.request_payload, line_indent='   '))
 
@@ -902,7 +902,7 @@ class IconRpcHelper:
 
     def get_tx(self,  tx_hash=None, url=None,  return_key=None):
         if not tx_hash:
-            tx_hash = self._get_tx_hash
+            tx_hash = self._get_tx_hash(tx_hash)
         if not is_valid_tx_hash(tx_hash):
             self.exit_on_failure(f"Invalid tx_hash - {tx_hash}")
 
@@ -947,13 +947,19 @@ class IconRpcHelper:
 
     def _get_tx_hash(self, tx_hash):
         if not tx_hash and isinstance(self.response, dict):
+            pawn.console.debug(f"tx_hash not found. It will be found in the self.response")
             if keys_exists(self.response, 'json', 'result', 'txHash'):
                 tx_hash = self.response['json']['result']['txHash']
             elif keys_exists(self.response, 'json', 'result'):
                 tx_hash = self.response['json']['result']
         if not tx_hash:
             pawn.console.log(f"[red] Not found tx_hash='{tx_hash}'")
-        return tx_hash
+
+        if  is_valid_tx_hash(tx_hash):
+            return tx_hash
+        else:
+            pawn.console.log(f"[red] Invalid tx_hash value = {tx_hash}")
+        return ""
 
     def _check_transaction(self, url, tx_hash):
         return self.get_tx(url=url, tx_hash=tx_hash)
@@ -989,7 +995,7 @@ class IconRpcHelper:
     def _print_final_result(self, text, is_compact, resp):
         final_result = f"[bold green][white]{text}"
         if is_compact:
-            final_result = shorten_text(final_result, width=205)
+            final_result = shorten_text(final_result, width=pawn.console.width, use_tags=True)
         pawn.console.tprint(final_result)
         if self.debug or pawn.get('PAWN_DEBUG'):
             print_json(resp['result'])
