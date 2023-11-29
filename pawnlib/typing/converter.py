@@ -2349,7 +2349,7 @@ def upper_case_to_camel_case(s):
     return lower_case_to_camel_case(s.lower())
 
 
-def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False):
+def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False, use_tags=False):
     """
     Shortens a text string to the specified width and placeholders.
 
@@ -2357,6 +2357,7 @@ def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False)
     :param width: maximum width of the string
     :param placeholder: placeholder string of the text
     :param shorten_middle: True if the text is to be shortened in the middle
+    :param use_tags: True if ASCII and tags need to be removed from text
     :return:
 
     Example:
@@ -2373,7 +2374,13 @@ def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False)
 
     """
 
-    _text = str(text)
+    _origin_text = str(text)
+
+    if use_tags:
+        _text = remove_ascii_and_tags(text)
+    else:
+        _text = str(text)
+
     if not width or not text:
         return text
 
@@ -2383,14 +2390,18 @@ def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False)
     total_length = len(_text)
     max_length = total_length - len(placeholder)
 
-    if _text and max_length >= width:
+    if _origin_text and max_length >= width:
         if shorten_middle:
             half_width = width // 2
-            return f"{_text[:half_width]}{placeholder}{_text[-half_width:]}"
+            return f"{_origin_text[:half_width]}{placeholder}{_origin_text[-half_width:]}"
         else:
-            return f"{_text[:width]} {placeholder}"
+            return f"{_origin_text[:width]} {placeholder}"
     return text
 
+def remove_ascii_and_tags(text: str = "", case_sensitive: Literal["lower", "upper", "both"] = "lower"):
+    text = remove_ascii_color_codes(text)
+    text = remove_tags(text, case_sensitive=case_sensitive)
+    return text
 
 # def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False):
 #     """

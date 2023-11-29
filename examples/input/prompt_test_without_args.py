@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import common
-from pawnlib.config.globalconfig import pawn, pconf
+from pawnlib.config.globalconfig import pawn, pconf, Null
 from pawnlib.output import dump, classdump
 from pawnlib.input.prompt import PromptWithArgument, PrivateKeyValidator
 from pawnlib.typing.generator import random_private_key
@@ -14,7 +14,7 @@ def main():
         default=random_private_key(),
         type="input",
         validate=PrivateKeyValidator(allow_none=True),
-        filter=lambda result: result[2:] if result.startswith("0x") else result
+        filter=lambda result: result[2:] if result.startswith("0x") else result,
     ).prompt()
 
     pawn.console.log(_private_key)

@@ -850,17 +850,6 @@ class PawnlibConfig(metaclass=Singleton):
         else:
             return {}
 
-    # def ns(self):
-    #     return self.data
-    #
-    # def data_to_namespace(self):
-    #
-    #     g = globals()
-    #     if self.global_name in g:
-    #         return self.data
-    #
-    #     return self.data
-
 
 def _list_duplicates(seq):
     seen = set()

@@ -414,32 +414,33 @@ class SystemMonitor:
 
         interface_data = OrderedDict({})
         for iface in curr_net_data:
-            prev_received = self.prev_net_data[iface]['received']
-            prev_sent = self.prev_net_data[iface]['sent']
-            prev_packets_recv = self.prev_net_data[iface]['packets_recv']
-            prev_packets_sent = self.prev_net_data[iface]['packets_sent']
+            if self.prev_net_data.get(iface):
+                prev_received = self.prev_net_data[iface]['received']
+                prev_sent = self.prev_net_data[iface]['sent']
+                prev_packets_recv = self.prev_net_data[iface]['packets_recv']
+                prev_packets_sent = self.prev_net_data[iface]['packets_sent']
 
-            curr_received = curr_net_data[iface]['received']
-            curr_sent = curr_net_data[iface]['sent']
-            curr_packets_recv = curr_net_data[iface]['packets_recv']
-            curr_packets_sent = curr_net_data[iface]['packets_sent']
+                curr_received = curr_net_data[iface]['received']
+                curr_sent = curr_net_data[iface]['sent']
+                curr_packets_recv = curr_net_data[iface]['packets_recv']
+                curr_packets_sent = curr_net_data[iface]['packets_sent']
 
-            diff_received = (curr_received - prev_received) * 8 / 1_000_000 / self.interval  # Bytes to Megabits
-            diff_sent = (curr_sent - prev_sent) * 8 / 1_000_000 / self.interval  # Bytes to Megabits
-            diff_packets_recv = curr_packets_recv - prev_packets_recv
-            diff_packets_sent = curr_packets_sent - prev_packets_sent
+                diff_received = (curr_received - prev_received) * 8 / 1_000_000 / self.interval  # Bytes to Megabits
+                diff_sent = (curr_sent - prev_sent) * 8 / 1_000_000 / self.interval  # Bytes to Megabits
+                diff_packets_recv = curr_packets_recv - prev_packets_recv
+                diff_packets_sent = curr_packets_sent - prev_packets_sent
 
-            total_received += diff_received
-            total_sent += diff_sent
-            total_packets_recv += diff_packets_recv
-            total_packets_sent += diff_packets_sent
+                total_received += diff_received
+                total_sent += diff_sent
+                total_packets_recv += diff_packets_recv
+                total_packets_sent += diff_packets_sent
 
-            interface_data[iface] = {
-                "recv": diff_received,
-                "sent": diff_sent,
-                "packets_recv": diff_packets_recv,
-                "packets_sent": diff_packets_sent,
-            }
+                interface_data[iface] = {
+                    "recv": diff_received,
+                    "sent": diff_sent,
+                    "packets_recv": diff_packets_recv,
+                    "packets_sent": diff_packets_sent,
+                }
 
             # pawn.console.log(f"{iface:<9}: {diff_received:.2f} Mb/s In, {diff_sent:.2f} Mb/s Out, "
             #                  f"{diff_packets_recv} Packets In, {diff_packets_sent} Packets Out")

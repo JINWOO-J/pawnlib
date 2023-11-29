@@ -17,7 +17,8 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
-
+# from pawnlib.config.globalconfig import Null
+# pawn.console.debug = Null
 class PromptWithArgument:
     def __init__(self, argument="", min_length=1, max_length=1000, verbose=1,  **kwargs):
         self.argument = argument
@@ -112,7 +113,7 @@ class PromptWithArgument:
             self._args = pconf().data.args
         except Exception as e:
             self._args = None
-            pawn.console.debug(f"[yellow] Error parsing - {e}")
+            # pawn.console.debug(f"[yellow] Error parsing - {e}")
 
         try:
             category = f"[{self._args.subparser_name.upper()}]"
@@ -171,12 +172,16 @@ class PromptWithArgument:
                     del self._options[param]
 
     def _push_argument(self, result="", target_args=None):
+        # if not target_args:
+        #     target_args = pconf().data.args
+        # setattr(target_args, self.argument, result)
         try:
             if not target_args:
                 target_args = pconf().data.args
             setattr(target_args, self.argument, result)
         except:
-            pawn.console.debug(f"args not found, {target_args}, {self.argument}, {result}")
+            pass
+            # pawn.console.debug(f"args not found, {target_args}, {self.argument}, {result}")
 
     def _skip_if_value_in_args(self):
         if self.argument_value:
@@ -201,8 +206,8 @@ class PromptWithArgument:
                         _argument_value = f"{len(self.argument_value)*'*'}"
                     else:
                         _argument_value = self.argument_value
-                    pawn.console.debug(f"Skipped [yellow]{self._options.get('name','')}[/yellow]"
-                                     f"prompt cause args value exists. --{self.argument_real_name}={_argument_value}")
+                    # pawn.console.debug(f"Skipped [yellow]{self._options.get('name','')}[/yellow]"
+                    #                  f"prompt cause args value exists. --{self.argument_real_name}={_argument_value}")
                 self._check_force_validation(name=self.argument_real_name, value=self.argument_value)
                 result = self._check_force_filtering(name=self.argument_real_name, value=self.argument_value)
             return result
@@ -223,7 +228,7 @@ class PromptWithArgument:
         try:
             _filtering = self._options.get('filter')
             if _filtering:
-                pawn.console.debug(f"force filtering name={name} value={value} return={_filtering(value)}")
+                # pawn.console.debug(f"force filtering name={name} value={value} return={_filtering(value)}")
                 return _filtering(value)
         except ValidationError as e:
             sys_exit(f"[bold]Failed to filtering : {e}")
@@ -239,7 +244,7 @@ class PromptWithArgument:
             # self._push_argument(result=input_value)
             return input_value
         else:
-            pawn.console.debug(f"Skipped prompt, {self.argument_name}={self.argument_value}")
+            # pawn.console.debug(f"Skipped prompt, {self.argument_name}={self.argument_value}")
             return False
 
     @_common_executes_decorator
@@ -252,7 +257,6 @@ class PromptWithArgument:
             self._set_style(style_type="prompt")
             if self._options.get('style'):
                 style = self._options.pop('style')
-            pawn.console.log(f"self._options={self._options},  style={style}")
             answer = prompt(questions=self._options, style=style, style_override=False)
             if answer.get('name'):
                 return answer['name']
@@ -993,8 +997,8 @@ def fuzzy_prompt_to_argument(**kwargs):
             response_value = fuzzy_prompt(**kwargs)
             setattr(_pconf.data.args, argument, response_value)
             return response_value
-        else:
-            pawn.console.debug("")
+        # else:
+        #     pawn.console.debug("")
     else:
         raise ValueError(f"Required argument, {kwargs}")
 

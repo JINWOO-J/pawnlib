@@ -618,20 +618,13 @@ def keys_exists(element, *keys):
             # >> False
 
     """
-    not_defined = "__NOT_DEFINED__"
-    next_element = ""
-    for index, key in enumerate(keys):
-        if next_element:
-            _element = next_element
-        else:
-            _element = copy.deepcopy(element)
-        if isinstance(_element, dict):
-            if _element.get(key, not_defined) != not_defined:
-                next_element = _element.pop(key, not_defined)
-            else:
-                return False
-        else:
+    _element = element
+    for key in keys:
+        try:
+            _element = _element[key]
+        except (KeyError, TypeError):
             return False
+
     return True
 
 
