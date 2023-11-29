@@ -11,12 +11,13 @@ from pawnlib.utils import icx_signer, http
 import json
 import requests
 
+
 disable_ssl_warnings()
-icx_signer.compressed = False
+# icx_signer.compressed = False
 
 private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90810"
 pawn.console.log(private_key)
-network_info = NetworkInfo(network_name="cdnet")
+network_info = NetworkInfo(network_name="cdnet", network_api="http://100.107.31.101:9000")
 
 wallet = icx_signer.load_wallet_key(private_key)
 

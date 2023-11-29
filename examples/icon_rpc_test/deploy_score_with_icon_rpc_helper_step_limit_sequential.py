@@ -23,18 +23,30 @@ dump(network_info.to_dict())
 
 icon_rpc = IconRpcHelper(
     network_info=network_info,
-    wallet=private_key,
+    wallet=icx_signer.load_wallet_key(private_key),
     raise_on_failure=False,
 )
 
 pawn.console.rule("Sequential execution - create_deploy_payload, sign_tx, sign_send")
 
-pawn.console.rule("deploy_score")
-
-response = icon_rpc.deploy_score(
+pawn.console.rule("1. Create deploy payload")
+payload = icon_rpc.create_deploy_payload(
     src="SCORE/hello-world/build/libs/hello-world-0.1.0-optimized.jar",
     params={"name": "jinwoo"},
-    is_confirm_send=False,
 )
-pawn.console.log(f"[OK] score_address = {response['result'].get('scoreAddress')}")
-print_json(icon_rpc.signed_tx)
+print_json(payload)
+
+pawn.console.rule("2. Calculate Fee")
+pawn.console.log(f"Fee = {icon_rpc.get_fee(payload, symbol=True)}")
+
+pawn.console.rule("3. Sign the Transaction")
+signed_payload = icon_rpc.sign_tx(payload=payload)
+icon_rpc.print_request()
+
+pawn.console.rule("4. Send the Transaction")
+icon_rpc.rpc_call(payload=signed_payload)
+icon_rpc.print_response()
+
+pawn.console.rule("5. Wait the Transaction")
+icon_rpc.get_tx_wait()
+icon_rpc.print_response()

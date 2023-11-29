@@ -808,20 +808,21 @@ class IconRpcHelper:
         _tx = self.parse_tx_var(tx)
         if keys_exists(_tx, "params", "stepLimit"):
             del _tx['params']['stepLimit']
+        if keys_exists(_tx, "params", "signature"):
+            del _tx['params']['signature']
         estimate_step = self.get_estimate_step(tx=_tx)
         step_kind = self._guess_step_kind(tx)
         pawn.console.debug(f"_guess_step_kind = {step_kind}")
         step_cost = self.get_step_cost(step_kind)
         step_price = self.get_step_price()
         step_limit = hex(hex_to_number(estimate_step) + hex_to_number(step_cost))
-
         fee = hex_to_number(estimate_step) * hex_to_number(step_price) / const.TINT
-        pawn.console.debug(f"[red] fee = (estimate_step + step_cost) * step_price = {fee}")
-        pawn.console.debug(f"[red] fee = ({estimate_step} + {step_cost}) * {step_price} = {fee}")
 
         if symbol:
             fee = f"{fee} {self.network_info.symbol}"
-
+        pawn.console.debug(f"fee = (estimate_step + step_cost) * step_price = {fee}")
+        pawn.console.debug(f"fee = ({estimate_step} + {step_cost}) * {step_price} = {fee}")
+        pawn.console.debug(f"step_limit = {step_limit}")
         return fee
 
     def get_score_api(self, address="", url=None):
@@ -1024,23 +1025,17 @@ class IconRpcHelper:
             # pawn.console.debug(f"[red]_use_global_reqeust_payload={self._use_global_reqeust_payload}")
         return _tx
 
-    def _force_fill_from_address(self, tx=None):
-        _tx = self.parse_tx_var(tx)
-        if not isinstance(_tx, dict):
-            pawn.console.debug(f"tx is not dict, tx={tx}, _tx={_tx}, request_payload = {self.request_payload}")
-            exit()
-
+    def _force_fill_from_address(self):
         if self.wallet and self.wallet.get('address'):
-            _tx['params']['from'] = self.wallet.get('address')
+            return self.wallet.get('address')
         else:
             self.exit_on_failure(exception="Not found 'from address'. Not defined wallet")
-        return _tx
 
     def auto_fill_parameter(self, tx=None, is_force_from_addr=False):
         _tx = self.parse_tx_var(tx)
         if isinstance(_tx, dict) and _tx.get('params'):
             if not _tx['params'].get('from') or is_force_from_addr:
-                self._force_fill_from_address()
+                _tx['params']['from'] = self._force_fill_from_address()
             if not _tx['params'].get('nonce'):
                 _tx['params']['nonce'] = "0x1"
 
