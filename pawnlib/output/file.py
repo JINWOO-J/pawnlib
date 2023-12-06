@@ -304,6 +304,28 @@ def is_json(json_file: str) -> bool:
     return True
 
 
+def is_json_file(json_file: str) -> bool:
+    """
+    Validate the JSON.
+
+    :param json_file: (str) Name of the JSON file to validate.
+    :return: (bool) True if the JSON is valid, False otherwise.
+
+    Example:
+
+        .. code-block:: python
+
+            is_json('example.json')
+            # >> True
+    """
+    try:
+        with open(json_file, 'r', encoding="utf-8-sig") as j:
+            json.loads(j.read())
+    except ValueError:
+        return False
+    return True
+
+
 def open_json(filename: str):
     """
     Read the JSON file.

@@ -9,6 +9,7 @@ from .file import (
     is_file,
     is_directory,
     is_json,
+    is_json_file,
     open_json,
     open_file,
     open_yaml_file,

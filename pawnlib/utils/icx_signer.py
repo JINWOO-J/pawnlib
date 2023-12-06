@@ -7,7 +7,7 @@ from os import path
 from coincurve import PrivateKey, PublicKey
 from pawnlib.typing import check, date_utils, random_private_key, fill_required_data_arguments, is_hex, format_hex
 from pawnlib.config import pawnlib_config as pawn
-from pawnlib.output import is_file, is_json, open_json, check_file_overwrite, NoTraceBackException
+from pawnlib.output import is_file, is_json_file, open_json, check_file_overwrite, NoTraceBackException
 from pawnlib.config import pawn,  NestedNamespace
 from pawnlib.input import PromptWithArgument, PrivateKeyValidator, StringCompareValidator, PrivateKeyOrJsonValidator
 import json
@@ -70,7 +70,7 @@ def guess_wallet_type(data):
     if isinstance(data, str) and len(data) == 66 or len(data) == 64:
         pawn.console.log("Wallet type is PrivateKey")
         return "private_key"
-    elif is_json(data):
+    elif is_json_file(data):
         pawn.console.log("Wallet type is JSON")
         return "json"
     else:
@@ -160,7 +160,7 @@ class WalletCli:
 
         if _keystore:
             keystore = str(_keystore).strip()
-            if is_file(keystore) and is_json(keystore):
+            if is_file(keystore) and is_json_file(keystore):
                 pawn.console.debug(f"Found Keystore JSON file - {keystore}")
                 try:
                     keystore_json = open_json(keystore)

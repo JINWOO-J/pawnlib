@@ -22,6 +22,8 @@ def is_json(s) -> bool:
             check.is_json('{"name": "John", "age": 30, "city": "New York",}')
             # >> False
     """
+    if not (isinstance(s, str) and (s.startswith('{') or s.startswith('['))):
+        return False
     try:
         json.loads(s)
     except ValueError:

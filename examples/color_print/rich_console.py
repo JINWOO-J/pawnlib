@@ -27,6 +27,7 @@ pawn.set(
 pawn.console.log("disabled log_path")
 
 pawn.set(
+
     PAWN_CONSOLE=dict(
         log_path=True
     ),
