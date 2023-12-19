@@ -986,19 +986,20 @@ def fuzzy_prompt_to_argument(**kwargs):
     if kwargs.get("argument"):
         argument = kwargs.pop("argument")
         _argument_name = argument.replace("_", "-")
-        _argument_value = pawn.data.args.__dict__.get(_argument_name, _arg_missing_word)
-
+        _argument_value = pawn.data.args.__dict__.get(argument, _arg_missing_word)
         if _arg_missing_word == _argument_value:
-            raise ValueError(f"Can not find argument in args. {argument}")
-        _default_value = kwargs.get('default')
+            raise ValueError(f"\n\n\nCould not find the argument in args."
+                             f" argument:'{argument}' , "
+                             f"_argument_name: '{_argument_name}',"
+                             f" _argument_value: '{_argument_value}'"
+                             )
+        _default_value = kwargs.get('default','')
 
         kwargs['instruction'] = kwargs.get('instruction', "") + f"( --{_argument_name} {_default_value})"
         if not _argument_value and argument:
             response_value = fuzzy_prompt(**kwargs)
             setattr(_pconf.data.args, argument, response_value)
             return response_value
-        # else:
-        #     pawn.console.debug("")
     else:
         raise ValueError(f"Required argument, {kwargs}")
 

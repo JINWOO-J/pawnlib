@@ -308,6 +308,7 @@ class NetworkInfo:
 
         if self._platform_info.get(self.platform):
             return list(self._platform_info[self.platform]['network_info'].keys())
+        return []
 
     def tuple(self) -> tuple:
         return tuple(self.network_info.keys())

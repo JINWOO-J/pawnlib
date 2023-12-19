@@ -5,7 +5,8 @@ from pawnlib.__version__ import __version__ as _version
 from pawnlib.output.color_print import *
 from pawnlib.output import write_yaml, is_file, open_yaml_file
 from pawnlib.config import pawnlib_config as pawn, pconf
-from pawnlib.utils import IconRpcHelper, IconRpcTemplates, NetworkInfo, icx_signer
+from pawnlib.typing import sys_exit, is_valid_url, json_rpc, is_json
+from pawnlib.utils import IconRpcHelper, IconRpcTemplates, NetworkInfo, icx_signer, CallHttp
 
 from InquirerPy import prompt
 from pawnlib.utils import disable_ssl_warnings
@@ -35,8 +36,6 @@ def get_arguments(parser):
     parser.add_argument('--txhash', metavar='txhash', help='txhash')
     parser.add_argument('--value', metavar='amount', type=float, help=f'icx amount to transfer. unit: icx. ex) 1.0. default:0.001',
                         default=0.001)
-    parser.add_argument('--fee', metavar='amount', type=float,
-                        help='transfer fee. default: 0.01', default=0.001)
     parser.add_argument('--pk', metavar='private_key',
                         help=f'hexa string. default: None', default=None)
     parser.add_argument('--debug', action='store_true', help=f'debug mode. True/False')
@@ -56,13 +55,16 @@ def get_arguments(parser):
     # parser.add_argument('--increase-count', metavar='increase_count', type=int, help=f'increase count number', default=1)
     # parser.add_argument('-r', '--rnd_icx', metavar='rnd_icx', help=f'rnd_icx', default="no")
 
-    parser.add_argument('-m', '--method', metavar='method', help='method for JSON-RPC', default="")
+    parser.add_argument('-m', '--rpc-method', metavar='method', help='method for JSON-RPC', default="")
+    parser.add_argument('--params', metavar='params', help='params for JSON-RPC', default="{}")
+    parser.add_argument('-x', '--http-method', metavar='method', help='method for HTTP', default="post")
     parser.add_argument('--platform', type=lambda s : s.lower(), metavar='platform', help='platform name of network name',
                         # choices=PLATFORM_LIST,
                         # default="havah"
                         )
 
     parser.add_argument('--network', metavar='network_name', help='network name', default="")
+
     parser.add_argument('--fill-each-prompt',  action='store_true', help='fill each prompt', default=False)
     parser.add_argument('--base-dir', metavar='base_dir', help='base directory', default=os.getcwd())
     # parser.add_argument('--load-type', metavar='network_name', help='network name', default="")
@@ -137,6 +139,7 @@ class RpcCommand:
 
         self.config_file = "config.yaml"
         self.config_data = {}
+        self.is_supported_platform = False
 
     def initialize_arguments(self):
         parser = get_parser()
@@ -158,22 +161,25 @@ class RpcCommand:
         self.network_info.update_platform_info(self.config_data)
 
     def set_network_info(self):
+        platform_list = self.network_info.get_platform_list() + ["etc"]
         PromptWithArgument(
             message="Select Platform ?",
-            choices=self.network_info.get_platform_list(),
+            choices=platform_list,
             type="list",
             argument="platform",
         ).prompt()
 
-        PromptWithArgument(
-            message="Select Network ?",
-            choices=self.network_info.get_network_list(platform=self.args.platform),
-            type="list",
-            argument="network",
-            default="vega"
-        ).prompt()
-
-        self.network_info.set_network(platform=self.args.platform, network_name=self.args.network)
+        network_list = self.network_info.get_network_list(platform=self.args.platform)
+        if network_list:
+            PromptWithArgument(
+                message="Select Network ?",
+                choices=network_list,
+                type="list",
+                argument="network",
+                default="vega"
+            ).prompt()
+            self.network_info.set_network(platform=self.args.platform, network_name=self.args.network)
+            self.is_supported_platform = True
         pawn.console.log(self.network_info)
 
     def generate_tx_payload(self):
@@ -262,6 +268,23 @@ class RpcCommand:
             pawn.console.log(f"Loaded configuration from '{self.config_file}' len={len(self.config_data)}")
             pawn.console.log(self.config_data)
 
+    def call_raw_rpc(self):
+        pawn.console.log(f"is_valid_url=> {is_valid_url(self.args.url)}")
+        if not self.args.url or not is_valid_url(self.args.url):
+            sys_exit(f"Required valid url -> {self.args.url}")
+
+        if not is_json(self.args.params):
+            sys_exit(f"Required invalid params-> {self.args.params}")
+
+        call_http = CallHttp(
+            url=self.args.url,
+            method=self.args.http_method,
+            payload=json_rpc(method=self.args.rpc_method, params=json.loads(self.args.params)),
+            headers={"Content-Type": "application/json"}
+        )
+        res = call_http.run()
+        dump(res.response.json, hex_to_int=True)
+
     def run(self):
         self.initialize_arguments()
         if self.args.command == "config":
@@ -269,7 +292,11 @@ class RpcCommand:
             return
 
         self.set_network_info()
-        self.generate_tx_payload()
+        if self.is_supported_platform:
+            self.generate_tx_payload()
+        else:
+            pawn.console.log(f"Unsupported platform={self.args.platform}, network_name={self.args.network}")
+            self.call_raw_rpc()
 
 
 def main():
