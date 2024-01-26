@@ -14,9 +14,15 @@ import os
 
 __description__ = 'This is a tool to measure RTT on HTTP/S requests.'
 
+class CustomArgumentParser(argparse.ArgumentParser):
+    def error(self, message):
+        self.print_help()
+        sys_exit(message, 2)
+
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='httping')
+    # parser = argparse.ArgumentParser(description='httping')
+    parser = CustomArgumentParser(description='httping')
     parser = get_arguments(parser)
     return parser
 
@@ -195,7 +201,7 @@ def validate_task_exit_on_failure(tasks):
             pawn.console.log(f"Invalid url: name={task.section_name}, url={task.url}")
 
     if not is_least_one_url:
-        sys_exit("Requires at least one valid URL. The URL argument must be in the first position.")
+        pconf().args_parser.error("Requires at least one valid URL. The URL argument must be in the first position.")
 
 
 def main():
@@ -223,6 +229,7 @@ def main():
             record=True,
             log_path=is_hide_line_number, # hide line number on the right side
         ),
+        args_parser=parser,
         app_name=app_name,
         args=args,
         try_pass=False,

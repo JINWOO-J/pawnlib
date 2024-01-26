@@ -15,7 +15,7 @@ icx_signer.compressed = False
 private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90819"
 pawn.console.log(private_key)
 
-network_info = NetworkInfo(nid="0x8361", network_api="http://20.20.5.116:9000", platform="havah")
+network_info = NetworkInfo(network_name="vega",  platform="havah")
 pawn.console.log(f"{network_info}")
 pawn.console.log(f"nid = {network_info.nid}, network_api = {network_info.network_api}")
 wallet = icx_signer.load_wallet_key(

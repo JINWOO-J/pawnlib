@@ -21,10 +21,10 @@ def get_parser():
 
 def get_arguments(parser):
     parser.add_argument('url', help='url')
-    parser.add_argument('-c', '--command', type=str, help='command', default=None, choices=["start", "stop", "restart", None])
+    parser.add_argument('-c', '--command', type=str, help='command', default=None, choices=["diff", "transfer", None])
     parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level', default=0)
     parser.add_argument('-b', '--blockheight', type=int, help='position of blockheight to start. ', default=0)
-    parser.add_argument('-d', '--diff', type=int, help='diff timestamp ', default=2)
+    parser.add_argument('-d', '--diff', type=int, help='diff timestamp ', default=3)
     parser.add_argument('-t', '--target', type=str, nargs='+', help='Monitoring target (block|tx)',
                         default=["block", "tx"], choices=["block", "tx"])
     parser.add_argument('--stack-limit', type=int, help='Stack limit count for notify', default=3)
@@ -62,8 +62,7 @@ def main():
         blockheight=args.blockheight,
         monitoring_target=args.target,
         verbose=args.verbose,
-        sec_thresholds=args.diff
-
+        sec_thresholds=args.diff,
     ).run()
 
 
