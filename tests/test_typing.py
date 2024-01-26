@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import unittest
+
+import pawnlib.config.console
+
 try:
     import common
 except:
@@ -29,6 +32,7 @@ from pawnlib.typing import (
     random_token_address,
     random_private_key,
     remove_tags,
+    is_valid_url,
 )
 
 import datetime
@@ -208,6 +212,23 @@ class TestTyping(unittest.TestCase):
         self.assertEqual(list_depth(depth_1_list), 1)
         self.assertEqual(list_depth(depth_2_list), 2)
         self.assertEqual(list_depth(depth_5_list), 5)
+
+    def test_check_is_valid_url(self):
+
+        url_list = [
+            ("http://20.20.1.122", True, True),
+            ("http://20.20.1.122:9000", True, True),
+            ("http://test.com", True, True),
+            ("http://test", False, True),
+            ("http://test", True, False),
+            ("http://google.com", True, True),
+            ("https://google.com", True, True),
+            ("google.com", True, True),
+        ]
+
+        for url, expected_value, strict  in url_list:
+
+            self.assertEqual(is_valid_url(url, strict=strict), expected_value)
 
     def test_check_valid_ipv4(self,):
         self.assertEqual(is_valid_ipv4("127.0.0.1"), True)

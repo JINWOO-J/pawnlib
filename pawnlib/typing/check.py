@@ -271,11 +271,12 @@ def is_valid_ipv6(ip):
     return pattern.match(ip) is not None
 
 
-def is_valid_url(url):
+def is_valid_url(url, strict=True):
     """
     Check if the given url is valid.
 
     :param url: (str) url to check
+    :param strict: If False, URLs without a TLD (e.g., "http://example") are considered valid. Defaults to True.
     :return: (bool) True if valid, False otherwise
 
     Example:
@@ -298,17 +299,43 @@ def is_valid_url(url):
     if not url:
         return False
 
-    if "http://" not in url and "https://" not in url:
-        url = f"http://{url}"
+    if url and not (url.startswith("http://") or url.startswith("https://")):
+            url = f"http://{url}"
 
-    regex = re.compile(
-        r'^https?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
-        r'localhost|'  # localhost...
-        r'(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}\b)' # ...or ip
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)',
-        re.IGNORECASE)
+    # regex = re.compile(
+    #     r'^https?://'  # http:// or https://
+    #     r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+    #     r'localhost|'  # localhost...
+    #     r'(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}\b)' # ...or ip
+    #     r'(?::\d+)?'  # optional port
+    #     r'(?:/?|[/?]\S+)',
+    #     re.IGNORECASE)
+
+
+    if strict:
+        # Standard regex pattern requiring a TLD
+        regex_pattern = (
+            r'^https?://'
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain
+            r'localhost|'  # localhost
+            r'(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}\b)'  # IP 
+            r'(?::\d+)?'  # optional port
+            r'(?:/?|[/?]\S+)'  # optional path
+            )
+
+    else:
+        # Regex pattern that allows URLs without a TLD
+        print("without TLD")
+        regex_pattern = (
+            r'^https?://'  # http://  or https://
+            r'(?:[A-Z0-9]+(?:[A-Z0-9-]*[A-Z0-9])?\.)?'  #  domain
+            r'(?:[A-Z0-9]+(?:[A-Z0-9-]*[A-Z0-9]))'  # parse 
+            r'(?:\.[A-Z]{2,6})?'  # TLD (선택사항)
+            r'(?::\d+)?'  # optional port
+            r'(?:/?|[/?]\S+)?$'  # optional path
+            )
+
+    regex = re.compile(regex_pattern, re.IGNORECASE)
 
     return bool(regex.search(url))
 

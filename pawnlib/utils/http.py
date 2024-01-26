@@ -1164,8 +1164,10 @@ def append_http(url):
     :param url:
     :return:
     """
+    if not url:
+        return url
 
-    if "http://" not in url and "https://" not in url:
+    if not (url.startswith("http://") or url.startswith("https://")):
         url = f"http://{url}"
     return url
 
@@ -1178,12 +1180,16 @@ def append_ws(url):
     :param url:
     :return:
     """
-    if "https://" in url:
-        url = url.replace("https://", "wss://")
-    elif "http://" in url:
-        url = url.replace("http://", "ws://")
-    elif "ws://" not in url and "wss://" not in url:
+    if not url:
+        return url  # 또는 오류 처리, 예: raise ValueError("URL cannot be empty")
+
+    if url.startswith("https://"):
+        url = url.replace("https://", "wss://", 1)
+    elif url.startswith("http://"):
+        url = url.replace("http://", "ws://", 1)
+    elif not (url.startswith("ws://") or url.startswith("wss://")):
         url = f"ws://{url}"
+
     return url
 
 
@@ -1763,12 +1769,38 @@ class GoloopWebsocket(CallWebsocket):
         }
         return json.dumps(send_data)
 
+    @staticmethod
+    def _multiple_keys_exists(dict_items, *keys):
+        for key in keys:
+            if not keys_exists(dict_items, key):
+                return False
+        return True
+    def parse_transfer_tx(self, confirmed_transaction_list=[]):
+        if isinstance(confirmed_transaction_list, list):
+            for transaction in confirmed_transaction_list:
+                _from = shorten_text(transaction.get('to'), width=None, shorten_middle=True)
+                _to = shorten_text(transaction.get('from'), width=None, shorten_middle=True)
+                _value = transaction.get('value')
+                if _from and _to  and _value:
+                # if self._multiple_keys_exists(transaction, "to", "from"):
+                    _value = int(_value, 16) / const.TINT
+                    if _value >0:
+                        pawn.console.log(f"[TRANSFER] {_from} 👉 {_to} 💰 {_value}")
+                        # pawn.console.log(transaction)
+                    # else:
+                    #     pawn.console.log(transaction)
+
     def parse_blockheight(self, response=None):
         response_json = json.loads(response)
         self.compare_diff_time = {}
 
         if response_json and response_json.get('hash'):
             hash_result = self.get_block_hash(response_json.get('hash'))
+            confirmed_transaction_list = hash_result.get('confirmed_transaction_list')
+            if confirmed_transaction_list:
+                self.parse_transfer_tx(confirmed_transaction_list)
+
+
             self.blockheight_now = hash_result.get("height")
             pawn.set(LAST_EXECUTE_POINT=self.blockheight_now)
             self.block_timestamp = hash_result.get("time_stamp")
