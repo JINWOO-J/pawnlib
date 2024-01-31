@@ -92,6 +92,7 @@ class FirstRunChecker:
     Example:
 
         .. code-block:: python
+
             from pawnlib.config import FirstRunChecker, one_time_run
             checker = FirstRunChecker(file_path=".first_run.json", debug=True)
             if checker.is_first_run():

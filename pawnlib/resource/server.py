@@ -93,6 +93,7 @@ def get_ip_addresses(interface):
     Example:
 
         .. code-block:: python
+
             from pawnlib.resource import server
             server.ip_addresses = get_ip_addresses('eth0')
             # >> ['192.168.0.1', '192.168.0.2']
@@ -131,6 +132,7 @@ def get_ip_and_netmask(interface):
     Example:
 
         .. code-block:: python
+
             from pawnlib.resource import server
             server.ip_info = get_ip_and_netmask('eth0')
             print(ip_info)
@@ -187,6 +189,7 @@ def subnet_mask_to_decimal(subnet_mask):
     Example:
 
         .. code-block:: python
+
             from pawnlib.resource import server
             server.subnet_mask_to_decimal(24)
             # >> '255.255.255.0'
