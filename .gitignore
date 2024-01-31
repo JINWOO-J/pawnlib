@@ -7,6 +7,10 @@ examples/logging/logs/*
 examples/color_print/logs/*
 default_app.py
 
+.idea/
+*.iml
+*.iws
+*.ipr
 .vscode/launch.json
 ### Python template
 

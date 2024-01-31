@@ -39,3 +39,4 @@ httpx~=0.24.0
 websocket-client~=0.59.0
 hatchling
 hatch-fancy-pypi-readme
+pandoc~=2.3

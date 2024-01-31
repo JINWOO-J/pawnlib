@@ -6,9 +6,7 @@
 Welcome to pawnlib's documentation!
 ===================================
 
-#######
-Latest version: |version|
-#######
+# Latest version: |version|
 
 .. meta::
    :description lang=en: Pawnlib is a versatile Python library that simplifies the process of creating and managing pawn structures in your applications, offering a wide range of features and utilities to enhance your development workflow.
