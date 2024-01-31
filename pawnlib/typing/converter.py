@@ -60,6 +60,13 @@ class StackList:
             self.data.pop(0)
         self.data.append(item)
 
+    def check_and_push(self, item):
+        if self.data and self.data[-1] == item:
+            return False
+
+        self.push(item)
+        return True
+
     def median(self):
         return statistics.median(self.data)
 
@@ -421,7 +428,21 @@ class FlatDict(MutableMapping):
         super(FlatDict, self).__init__()
         self._values = dict_class()
         self._delimiter = delimiter
-        self.update(value)
+        # self.update(value)
+        self._initialize_from_value(value)
+
+    def _initialize_from_value(self, value):
+        if isinstance(value, list):
+            for i, v in enumerate(value):
+                if isinstance(v, dict):
+                    for k, val in v.items():
+                        self.__setitem__(f'{i}{self._delimiter}{k}', val)
+                else:
+                    self.__setitem__(str(i), v)
+        elif isinstance(value, dict):
+            self.update(value)
+        else:
+            raise TypeError("Unsupported type for FlatDict initialization")
 
     def __contains__(self, key):
         """Check to see if the key exists, checking for both delimited and
@@ -518,17 +539,24 @@ class FlatDict(MutableMapping):
         """
         if isinstance(value, self._COERCE) and not isinstance(value, FlatDict):
             value = self.__class__(value, self._delimiter)
+        elif isinstance(value, list):
+            self._process_list(key, value)
+            return
         if self._has_delimiter(key):
             pk, ck = key.split(self._delimiter, 1)
             if pk not in self._values:
                 self._values[pk] = self.__class__({ck: value}, self._delimiter)
                 return
             elif not isinstance(self._values[pk], FlatDict):
-                raise TypeError(
-                    'Assignment to invalid type for key {}'.format(pk))
+                raise TypeError('Assignment to invalid type for key {}'.format(pk))
             self._values[pk][ck] = value
         else:
             self._values[key] = value
+
+    def _process_list(self, key_prefix, list_value):
+        for i, item in enumerate(list_value):
+            new_key = f"{key_prefix}{self._delimiter}{i}"
+            self.__setitem__(new_key, item)
 
     def __str__(self):
         """Return the string value of the instance.
@@ -541,21 +569,16 @@ class FlatDict(MutableMapping):
         """Return the :class:`~flatdict.FlatDict` as a :class:`dict`
         :rtype: dict
         """
-        out = dict({})
-        for key in self.keys():
-            if self._has_delimiter(key):
-                pk, ck = key.split(self._delimiter, 1)
-                if self._has_delimiter(ck):
-                    ck = ck.split(self._delimiter, 1)[0]
-                if isinstance(self._values[pk], FlatDict) and pk not in out:
-                    out[pk] = {}
-                if isinstance(self._values[pk][ck], FlatDict):
-                    out[pk][ck] = self._values[pk][ck].as_dict()
-                else:
-                    out[pk][ck] = self._values[pk][ck]
+        def unpack(parent_key, parent_value):
+            """재귀적으로 중첩된 딕셔너리를 풀어내는 함수"""
+            if isinstance(parent_value, FlatDict):
+                for key, value in parent_value.items():
+                    full_key = f"{parent_key}{self._delimiter}{key}" if parent_key else key
+                    yield from unpack(parent_key=full_key, parent_value=value)
             else:
-                out[key] = self._values[key]
-        return out
+                yield parent_key, parent_value
+
+        return dict(item for key, value in self._values.items() for item in unpack(key, value))
 
     def clear(self):
         """Remove all items from the flat dictionary."""

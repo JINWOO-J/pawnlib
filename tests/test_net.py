@@ -34,11 +34,10 @@ class TestNetworkUtils(unittest.TestCase):
             text="checking port"
         ).run()
 
-        self.assertEqual(True, True)
 
     def test_wait_for2(self):
         res = wait_for_port_open(self.interface, self.port)
-        self.assertEqual(res, True)
+        self.assertTrue(res)
 
     def test_wait_for3(self):
         with pawn.console.status("[bold green]Working on tasks...") as status:

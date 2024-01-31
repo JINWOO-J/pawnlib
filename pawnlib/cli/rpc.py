@@ -55,7 +55,7 @@ def get_arguments(parser):
     # parser.add_argument('--increase-count', metavar='increase_count', type=int, help=f'increase count number', default=1)
     # parser.add_argument('-r', '--rnd_icx', metavar='rnd_icx', help=f'rnd_icx', default="no")
 
-    parser.add_argument('-m', '--rpc-method', metavar='method', help='method for JSON-RPC', default="")
+    parser.add_argument('-m', '--method', metavar='method', help='method for JSON-RPC', default="")
     parser.add_argument('--params', metavar='params', help='params for JSON-RPC', default="{}")
     parser.add_argument('-x', '--http-method', metavar='method', help='method for HTTP', default="post")
     parser.add_argument('--platform', type=lambda s : s.lower(), metavar='platform', help='platform name of network name',
@@ -279,7 +279,7 @@ class RpcCommand:
         call_http = CallHttp(
             url=self.args.url,
             method=self.args.http_method,
-            payload=json_rpc(method=self.args.rpc_method, params=json.loads(self.args.params)),
+            payload=json_rpc(method=self.args.method, params=json.loads(self.args.params)),
             headers={"Content-Type": "application/json"}
         )
         res = call_http.run()

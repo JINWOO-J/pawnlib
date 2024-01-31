@@ -133,12 +133,12 @@ class TestTyping(unittest.TestCase):
     def test_str2bool_true_ok(self, name=None, function=None, param=None, expected_value=None):
         true_list = ("yes", "true", "t", "1", "True", "TRUE")
         for true_string in true_list:
-            self.assertEqual(str2bool(true_string), True)
+            self.assertTrue(str2bool(true_string))
 
     def test_str2bool_false_ok(self, name=None, function=None, param=None, expected_value=None):
         false_list = ("false", "FFF", "false", False, 0)
         for false_string in false_list:
-            self.assertEqual(str2bool(false_string), False)
+            self.assertFalse(str2bool(false_string))
 
     def test_flatten_list(self, name=None, function=None, param=None, expected_value=None):
         complex_list = ["1_depth`", ["2_depth-1", "2_depth-2", "2_depth-3", "2_depth-dup", ["3_depth", "2_depth-dup"]]]
@@ -231,19 +231,19 @@ class TestTyping(unittest.TestCase):
             self.assertEqual(is_valid_url(url, strict=strict), expected_value)
 
     def test_check_valid_ipv4(self,):
-        self.assertEqual(is_valid_ipv4("127.0.0.1"), True)
-        self.assertEqual(is_valid_ipv4("255.255.255.255"), True)
-        self.assertEqual(is_valid_ipv4("192.255.255.255"), True)
-        self.assertEqual(is_valid_ipv4("255.255.255.256"), False)
-        self.assertEqual(is_valid_ipv4("400.255.255.256"), False)
-        self.assertEqual(is_valid_ipv4("255.400.255.256"), False)
-        self.assertEqual(is_valid_ipv4("255.255.400.256"), False)
-        self.assertEqual(is_valid_ipv4("255.255.255.400"), False)
+        self.assertTrue(is_valid_ipv4("127.0.0.1"))
+        self.assertTrue(is_valid_ipv4("255.255.255.255"))
+        self.assertTrue(is_valid_ipv4("192.255.255.255"))
+        self.assertFalse(is_valid_ipv4("255.255.255.256"))
+        self.assertFalse(is_valid_ipv4("400.255.255.256"))
+        self.assertFalse(is_valid_ipv4("255.400.255.256"))
+        self.assertFalse(is_valid_ipv4("255.255.400.256"))
+        self.assertFalse(is_valid_ipv4("255.255.255.400"))
 
     def test_check_valid_tx_hash(self,):
-        self.assertEqual(is_valid_tx_hash("0x7d72d5cb43a016e55f076470a5c2ada9215cc228881f8bdf3038d650b09c030e"), True)
-        self.assertEqual(is_valid_tx_hash("0x7d72d5cb43a016e55f076470a5c2ada9215cc228881f8bdf3038d650b09c030e11"), False)
-        self.assertEqual(is_valid_tx_hash({"sdsd": "sdsds"}), False)
+        self.assertTrue(is_valid_tx_hash("0x7d72d5cb43a016e55f076470a5c2ada9215cc228881f8bdf3038d650b09c030e"))
+        self.assertFalse(is_valid_tx_hash("0x7d72d5cb43a016e55f076470a5c2ada9215cc228881f8bdf3038d650b09c030e11"))
+        self.assertFalse(is_valid_tx_hash({"sdsd": "sdsds"}))
 
     def test_guess_type(self):
         assert guess_type("") == None
@@ -263,14 +263,14 @@ class TestTyping(unittest.TestCase):
         assert guess_type("1.2sss") == str
 
     def test_is_valid_private_key(self):
-        self.assertEqual(is_valid_private_key(random_private_key()), True)
-        self.assertEqual(is_valid_private_key(f"0x{random_private_key()}"), True)
-        self.assertEqual(is_valid_private_key(f"{random_private_key()[:-3]}"), False)
+        self.assertTrue(is_valid_private_key(random_private_key()))
+        self.assertTrue(is_valid_private_key(f"0x{random_private_key()}"))
+        self.assertFalse(is_valid_private_key(f"{random_private_key()[:-3]}"))
 
     def test_is_valid_token_address(self):
         token_address = random_token_address()
-        self.assertEqual(is_valid_token_address(token_address), True)
-        self.assertEqual(is_valid_token_address(token_address[:-3]), False)
+        self.assertTrue(is_valid_token_address(token_address))
+        self.assertFalse(is_valid_token_address(token_address[:-3]))
 
     @parameterized.expand([
         ("valid tag", remove_tags, dict(text="<b>Hello</b>", tag_style="angle"),  "Hello"),

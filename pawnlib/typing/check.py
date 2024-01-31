@@ -325,7 +325,6 @@ def is_valid_url(url, strict=True):
 
     else:
         # Regex pattern that allows URLs without a TLD
-        print("without TLD")
         regex_pattern = (
             r'^https?://'  # http://  or https://
             r'(?:[A-Z0-9]+(?:[A-Z0-9-]*[A-Z0-9])?\.)?'  #  domain
