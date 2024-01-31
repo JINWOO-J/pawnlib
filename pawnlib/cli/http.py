@@ -3,16 +3,57 @@ import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
-import json
-import copy
-from pawnlib.typing import str2bool, StackList, is_json, is_valid_url, sys_exit, Null
-from pawnlib.utils.http import CallHttp, disable_ssl_warnings
+from pawnlib.typing import str2bool, StackList, ErrorCounter,  is_json, is_valid_url, sys_exit, Null, remove_tags, FlatDict
+from pawnlib.utils.http import CallHttp, disable_ssl_warnings, ALLOW_OPERATOR
 from pawnlib.utils import ThreadPoolRunner, send_slack
-from pawnlib.output import get_script_path, dump, debug_print, print_var
-from pawnlib.typing import remove_tags
+from pawnlib.output import bcolors, print_json, is_file
+from dataclasses import dataclass, field
+import copy
 import os
+import json
+from typing import List, Dict, Union, Type, get_type_hints, Any
+import re
 
 __description__ = 'This is a tool to measure RTT on HTTP/S requests.'
+
+
+class SuccessCriteria:
+    @staticmethod
+    def from_string(criteria_string: str) -> List[str]:
+        return re.split(r'\s+(?=[a-zA-Z_]+)', criteria_string)
+
+
+@dataclass
+class AppConfig:
+    url: str = ""
+    config_file: str = "config.ini"
+    verbose: int = 1
+    quiet: int = 0
+    interval: float = 1.0
+    method: str = "GET"
+    timeout: float = 10.0
+    base_dir: str = field(default_factory=lambda: os.getcwd())
+    success: List[str] = field(default_factory=lambda: ["status_code==200"])
+    logical_operator: str = "and"
+    ignore_ssl: bool = True
+
+    data: dict = field(default_factory=dict)
+    headers: dict = field(default_factory=dict)
+    workers: int = 10
+    stack_limit: int = 5
+
+    section_name: str = "default"
+    total_count: int = 0
+    error_stack_count: int = 0
+    fail_count: int = 0
+    response_time: List[int] = field(default_factory=lambda: StackList())
+
+    dynamic_increase_stack_limit: bool = True
+    slack_url: str = ""
+    # blockheight_key: str = ""
+    blockheight_key: Union[str, None] = None
+    blockheight_stack: List[int] = field(default_factory=lambda: StackList())
+
 
 class CustomArgumentParser(argparse.ArgumentParser):
     def error(self, message):
@@ -20,78 +61,296 @@ class CustomArgumentParser(argparse.ArgumentParser):
         sys_exit(message, 2)
 
 
+def convert_type(value, to_type):
+    """주어진 값을 to_type 타입으로 변환합니다."""
+    if to_type == bool:
+        return str2bool(value)  # 이전에 정의한 str2bool 함수 사용
+    elif to_type == list or to_type == List:
+        if not isinstance(value, list):
+            value = [value]
+        return json.loads(value)
+    elif to_type == dict or to_type == Dict:
+        return json.loads(value)
+    else:
+        return to_type(value)
+
+# def convert_value(value: any, target_type: Type) -> any:
+#     if hasattr(target_type, '__origin__'):
+#         value = value.replace("'", "\"")
+#         if target_type.__origin__ == list:
+#             if isinstance(value, str):
+#                 try:
+#                     parsed_list = json.loads(value)
+#                     if not isinstance(parsed_list, list):
+#                         raise ValueError("JSON is not a list")
+#                 except json.JSONDecodeError:
+#                     # operators_regex = '(' + '|'.join(map(re.escape, ALLOW_OPERATOR)) + ')'
+#                     # parsed_list = re.split(r'\s+(?={})'.format(operators_regex), value)
+#                     parsed_list = re.split(r'\s+(?=[a-zA-Z_]+)', value)
+#             else:
+#                 parsed_list = [value]  # Use the list as is
+#             # Check the item type of the list (e.g., for List[str], the item type is str)
+#             item_type = target_type.__args__[0]
+#             # Convert each item in the list to the appropriate type
+#             return [convert_value(item, item_type) for item in parsed_list]
+#         elif target_type.__origin__ == dict:
+#             # If the value is a string, try parsing as JSON to a dict
+#             if isinstance(value, str):
+#                 try:
+#                     parsed_dict = json.loads(value)
+#                     if not isinstance(parsed_dict, dict):
+#                         raise ValueError("JSON is not a dict")
+#                 except json.JSONDecodeError:
+#                     return {}  # Return an empty dict if parsing fails
+#             elif isinstance(value, dict):
+#                 parsed_dict = value  # Use the dict as is
+#             else:
+#                 return {}  # Return an empty dict for non-dict, non-str values
+#             key_type, value_type = target_type.__args__
+#             return {convert_value(k, key_type): convert_value(v, value_type) for k, v in parsed_dict.items()}
+#         else:
+#             return value
+#
+#     else:
+#         if target_type is dict and isinstance(value, str):
+#             try:
+#                 value = json.loads(value)
+#             except Exception as e:
+#                 pawn.console.log(f"[red] {e}")
+#             return value
+#
+#         if isinstance(value, str) or not isinstance(value, target_type):
+#             return target_type(value)
+#         else:
+#             return value  # Return the value as is if it's already the correct type
+
+
+def convert_value(value: Any, target_type: Type) -> Any:
+    # 문자열 값에 대한 전처리: 단일 따옴표를 이중 따옴표로 변환
+    if isinstance(value, str):
+        value = value.replace("'", "\"")
+
+    # 타입이 제네릭 타입인 경우 (예: List, Dict)
+    if hasattr(target_type, '__origin__'):
+        if target_type.__origin__ == list:
+            return _convert_to_list(value, target_type.__args__[0])
+        elif target_type.__origin__ == dict:
+            return _convert_to_dict(value, *target_type.__args__)
+        else:
+            return value  # 기타 제네릭 타입에 대한 처리
+
+    # 기본 타입 (예: int, str)에 대한 처리
+    elif isinstance(value, str) or not isinstance(value, target_type):
+        return target_type(value)
+    else:
+        return value  # 이미 올바른 타입일 경우
+
+def _convert_to_list(value: Any, item_type: Type) -> list:
+    if isinstance(value, str):
+        try:
+            parsed_list = json.loads(value)
+        except json.JSONDecodeError:
+            parsed_list = re.split(r'\s+(?=[a-zA-Z_]+)', value)
+    else:
+        parsed_list = [value] if not isinstance(value, list) else value
+
+    return [convert_value(item, item_type) for item in parsed_list]
+
+def _convert_to_dict(value: Any, key_type: Type, value_type: Type) -> dict:
+    if isinstance(value, str):
+        try:
+            parsed_dict = json.loads(value)
+        except json.JSONDecodeError:
+            return {}  # JSON 파싱 실패 시 빈 사전 반환
+    elif isinstance(value, dict):
+        parsed_dict = value
+    else:
+        return {}  # 문자열이나 사전이 아닌 값에 대한 처리
+
+    return {convert_value(k, key_type): convert_value(v, value_type) for k, v in parsed_dict.items()}
+
+
+
+class ColoredHelpFormatter(argparse.RawDescriptionHelpFormatter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_epilog = kwargs.get('epilog', '')
+
+    def _format_action(self, action):
+        parts = super()._format_action(action).split('\n', 1)
+        # 인자 이름은 녹색으로 설정
+        parts[0] = bcolors.WHITE + parts[0] + bcolors.RESET
+        # 설명(두 번째 줄 이상)은 파란색으로 설정, 설명이 존재하는 경우에만
+        if len(parts) > 1:
+            parts[1] = bcolors.WHITE + parts[1] + bcolors.RESET
+        return '\n'.join(parts)
+
+    def format_help(self):
+        help_text = super().format_help()
+        # epilog 부분에만 색상 적용
+        if self._original_epilog:
+            colored_epilog = bcolors.OKBLUE + self._original_epilog + bcolors.RESET
+            help_text = help_text.replace(self._original_epilog, colored_epilog)
+        return help_text
+
+
 def get_parser():
-    # parser = argparse.ArgumentParser(description='httping')
-    parser = CustomArgumentParser(description='httping')
+
+    script_name = "pawns"
+    http_config_example = """
+    [default]
+    success = status_code==200
+    slack_url = 
+    interval = 3
+    method = get
+    ; data = sdsd
+    data = {"sdsd": "sd222sd"}
+    
+    [post]
+    url = http://httpbin.org/post
+    method = post
+    
+    [http_200_ok]
+    url = http://httpbin.org/status/200
+    success = status_code==200
+    
+    [http_300_ok_and_2ms_time]
+    url = http://httpbin.org/status/400
+    success = ['status_code==300', 'response_time<0.02']
+        
+    [http_400_ok]
+    url = http://httpbin.org/status/400
+    success = ["status_code==400"]
+    """
+    parser = CustomArgumentParser(
+        description='httping',
+        epilog=(
+            f"This script provides various options to check the HTTP status of URLs. \n\n"
+            f"Usage examples:\n"
+            f"  1. Basic usage:  \n\t{script_name} http https://example.com\n\n"
+            f"  2. Verbose mode: \n\t{script_name} http https://example.com -v\n\n"
+            f"  3. Using custom headers and POST method: \n\t{script_name} http https://example.com -m POST --headers '{{\"Content-Type\": \"application/json\"}}' --data '{{\"param\": \"value\"}}'\n\n"
+            f"  4. Ignoring SSL verification and setting a custom timeout: \n\t{script_name} http https://example.com --ignore-ssl True --timeout 5\n\n"
+            f"  5. Checking with specific success criteria and logical operator: \n\t{script_name} http https://example.com --success 'status_code==200' 'response_time<2' --logical-operator and\n\n"
+            f"  6. Running with a custom config file and interval: \n\t{script_name} http https://example.com -c http_config.ini -i 3\n"            
+            f" \n    http_config.ini "
+            f"{http_config_example}\n\n"
+            f"  7. Setting maximum workers and stack limit: \n\t{script_name} http https://example.com -w 5 --stack-limit 10\n\n"
+            f"  8. Dry run without actual HTTP request: \n\t{script_name} http https://example.com --dry-run\n\n"
+            f"  9. Sending notifications to a Slack URL on failure: \n\t{script_name} http https://example.com --slack-url 'https://hooks.slack.com/services/...'\n\n\n"
+
+            f" 10. Checking blockheight increase: \n\t{script_name} http http://test-node-01:26657/status --blockheight-key \"result.sync_info.latest_block_height\" -i 5\n"
+            
+            f"For more details, use the -h or --help flag."
+        ),
+        formatter_class=ColoredHelpFormatter
+    )
     parser = get_arguments(parser)
     return parser
 
 
 def get_arguments(parser):
-    parser.add_argument('url', help='url', type=str, nargs='?', default="")
-    parser.add_argument('-c', '--config-file', type=str, help='config', default="config.ini")
-    parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level (default: %(default)s)', default=1)
-    parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
-    parser.add_argument('-i', '--interval', type=float, help='interval sleep time seconds. (default: %(default)s)', default=1)
-    parser.add_argument('-m', '--method', type=lambda s : s.upper(), help='method. (default: %(default)s)', default="get")
-    parser.add_argument('-t', '--timeout', type=float, help='timeout seconds (default: %(default)s)', default=10)
-    parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
-    parser.add_argument('--success', nargs='+', help='success criteria. (default: %(default)s)', default=['status_code==200'])
+    parser.add_argument('url', help='URL to be checked', type=str, nargs='?', default="")
+
+    parser.add_argument('-c', '--config-file', type=str, help='Path to the configuration file. Defaults to "config.ini".', default="config.ini")
+    parser.add_argument('-v', '--verbose', action='count', help='Enables verbose mode. Higher values increase verbosity level. Default is 1.', default=1)
+
+    parser.add_argument('-q', '--quiet', action='count', help='Enables quiet mode. Suppresses all messages. Default is 0.', default=0)
+    parser.add_argument('-i', '--interval', type=float, help='Interval time in seconds between checks. Default is 1 second.', default=1)
+    parser.add_argument('-m', '--method', type=lambda s: s.upper(), help='HTTP method to use (e.g., GET, POST). Default is "GET".', default="get")
+    parser.add_argument('-t', '--timeout', type=float, help='Timeout in seconds for each HTTP request. Default is 10 seconds.', default=10)
+    parser.add_argument('-b', '--base-dir', type=str, help='Base directory for httping operations. Default is the current working directory.', default=os.getcwd())
+    parser.add_argument('--success', nargs='+', help='Criteria for success. Can specify multiple criteria. Default is ["status_code==200"].', default=['status_code==200'])
     parser.add_argument('--logical-operator',
                         type=str,
-                        help='logical operator for checking success condition (default: %(default)s)',
+                        help='Logical operator for evaluating success criteria. Choices are "and", "or". Default is "and".',
                         choices=["and", "or"],
                         default="and"
                         )
-    parser.add_argument('--ignore-ssl', type=str2bool, help='ignore ssl certificate (default: %(default)s)', default=True)
-    parser.add_argument('-d', '--data', type=json.loads, help="data parameter", default={})
-    parser.add_argument('--headers', type=json.loads, help="header parameter", default={})
-    parser.add_argument('-w', '--workers', type=int, help="max worker process (default: %(default)s)", default=10)
-    parser.add_argument('--stack-limit', type=int, help="error stack limit (default: %(default)s)", default=3)
-    parser.add_argument('--dynamic-increase-stack-limit', type=str2bool, help="error stack limit (default: %(default)s)", default=1)
-    parser.add_argument('--slack-url', type=str, help="Slack URL", default="")
+    parser.add_argument('--ignore-ssl', type=str2bool, help='Ignores SSL certificate validation if set to True. Default is True.', default=True)
+    parser.add_argument('-d', '--data', type=json.loads, help="Data to be sent in the HTTP request body. Expected in JSON format. Default is an empty dictionary.", default={})
+    parser.add_argument('--headers', type=json.loads, help="HTTP headers to be sent with the request. Expected in JSON format. Default is an empty dictionary.", default={})
+    parser.add_argument('-w', '--workers', type=int, help="Maximum number of worker processes. Default is 10.", default=10)
+    parser.add_argument('--stack-limit', type=int, help="Error stack limit. Default is 5.", default=5)
+    parser.add_argument('--dynamic-increase-stack-limit', type=str2bool, help="Dynamically increases the error stack limit if set to True. Default is True.", default=1)
+    parser.add_argument('--slack-url', type=str, help="URL for sending notifications to Slack. Optional.", default="")
+    parser.add_argument('--log-level', type=lambda s: s.upper(), help="Log level.", default="info")
+
+    parser.add_argument('-bk', '--blockheight-key', type=str, help="JSON key to extract the blockheight information, e.g., 'result.sync_info.latest_block_height'. "
+                                                            "The script will check if the blockheight at this path is increasing.", default="")
+    parser.add_argument('--dry-run', action='store_true', help="Executes a dry run without making actual HTTP requests. Default is False.", default=False)
     return parser
 
 
-def check_url_process(args):
-    if not args.url:
+def check_url_process(config):
+    if not config.url:
         return
 
     check_url = CallHttp(
-        url=args.url,
-        method=args.method,
-        timeout=args.timeout * 1000,
-        data=args.data,
-        headers=args.headers,
-        success_criteria=args.success,
-        success_operator=args.logical_operator,
-        ignore_ssl=args.ignore_ssl,
+        url=config.url,
+        method=config.method,
+        timeout=config.timeout * 1000,
+        data=config.data,
+        headers=config.headers,
+        success_criteria=config.success,
+        success_operator=config.logical_operator,
+        ignore_ssl=config.ignore_ssl,
     ).run()
-    args.total_count += 1
+    config.total_count += 1
 
-    if args.verbose == 0:
+    parsed_response = ""
+
+    if config.verbose == 0:
         check_url.response.text = ""
 
     response_time = check_url.response.elapsed
-    args.response_time.push(response_time)
-    avg_response_time = f"{int(args.response_time.mean())}"
-    max_response_time = f"{int(args.response_time.max())}"
-    min_response_time = f"{int(args.response_time.min())}"
+
+    config.response_time.push(response_time)
+    avg_response_time = f"{int(config.response_time.mean())}"
+    max_response_time = f"{int(config.response_time.max())}"
+    min_response_time = f"{int(config.response_time.min())}"
     status_code = check_url.response.status_code
 
-    if args.fail_count > 0:
-        count_msg = f'CER:{args.error_stack_count}/[red]ER:{args.fail_count}[/red]/SQ:{args.total_count}'
+    if config.fail_count > 0:
+        count_msg = f'CER:{config.error_stack_count}/[red]ER:{config.fail_count}[/red]/SQ:{config.total_count}'
     else:
-        count_msg = f'CER:{args.error_stack_count}/ER:{args.fail_count}/SQ:{args.total_count}'
+        count_msg = f'CER:{config.error_stack_count}/ER:{config.fail_count}/SQ:{config.total_count}'
 
-    message = f"<{count_msg}> name={args.section_name}, url={args.url}, " \
+    if config.blockheight_key and isinstance(check_url.response.json, dict):
+        flat_json = FlatDict(check_url.response.json)
+        blockheight_key = config.blockheight_key
+        last_blockheight = flat_json.get(blockheight_key)
+
+        if last_blockheight is not None:
+            last_blockheight = int(last_blockheight)
+            check_block_result = config.blockheight_stack.check_and_push(last_blockheight)
+
+            if not check_block_result:
+                handle_failure_on_check_url(config, f"Blockheight '{blockheight_key}' did not increase => {last_blockheight}", check_url)
+
+            parsed_response = f"{blockheight_key.split('.')[-1]}={last_blockheight}, "
+        else:
+            handle_failure_on_check_url(config, f"Blockheight key '{blockheight_key}' not found in JSON response", check_url)
+    else:
+        handle_failure_on_check_url(config, f"Invalid blockheight key or JSON response structure, "
+                                            f"blockheight_key={config.blockheight_key} "
+                                            f"response={type(check_url.response.json)}", check_url)
+
+    # message = f"<{count_msg}> name={args.section_name}, url={args.url}, {parsed_response}" \
+
+    if len(pconf().tasks) > 1:
+        _name_string = f"name={config.section_name}, "
+    else:
+        _name_string = ""
+
+    message = f"<{count_msg}> {_name_string}url='{config.url}', {parsed_response}" \
               f"status={status_code}, {response_time:>4}ms " \
               f"(avg: {avg_response_time}, max: {max_response_time}, min: {min_response_time})"
 
-    if args.verbose > 0:
+    if pconf().args.verbose > 0:
         if status_code != 999:
-            if args.verbose > 2:
-                detail = f" 📄[i]{check_url.response}, criteria: {args.success}, operator: {args.logical_operator}[/i]"
+            if pconf().args.verbose > 2:
+                detail = f" 📄[i]{check_url.response}, criteria: {config.success}, operator: {config.logical_operator}[/i]"
             else:
                 detail = ""
             message = f"{message}{detail}"
@@ -100,8 +359,17 @@ def check_url_process(args):
 
     if check_url.is_success():
         pawn.app_logger.info(remove_tags(f"[ OK ] {message}"))
+        print_response_if_verbose(check_url)
     else:
-        handle_failure_on_check_url(args, message, check_url)
+        handle_failure_on_check_url(config, message, check_url)
+        print_response_if_verbose(check_url)
+
+
+def print_response_if_verbose(check_url):
+    if (pconf().args.verbose > 3 or pconf().args.dry_run)  and hasattr(check_url, "response"):
+        check_url.response.json = FlatDict(check_url.response.json).as_dict()
+        check_url.print_http_response()
+        # print_json(FlatDict(check_url.response.json).as_dict())
 
 
 def handle_failure_on_check_url(args, message, check_url):
@@ -115,7 +383,7 @@ def handle_failure_on_check_url(args, message, check_url):
 
         if args.dynamic_increase_stack_limit:
             args.stack_limit = args.stack_limit ** 2
-            _send_slack(url=args.slack_url, title=f"Error {args.url}", msg_text=args.__dict__)
+            _send_slack(url=args.slack_url, title=f"Error: {message} from {args.url}", msg_text=args.__dict__)
 
     pawn.error_logger.error(remove_tags(f"[FAIL] {message}, Error={check_url.response}"))
 
@@ -124,39 +392,57 @@ def set_default_counter(section_name="default"):
     args = copy.deepcopy(pconf().args)
     args.section_name = section_name
     args.response_time = StackList()
+    args.blockheight_stack = StackList()
     args.error_stack_count = 0
     args.total_count = 0
     args.fail_count = 0
     return args
 
 
-def generate_task_from_config():
-    tasks = []
+def apply_config_values(config_instance, section_name, section_value):
+    """섹션 값들을 AppConfig 인스턴스에 적용합니다."""
+    type_hints = get_type_hints(AppConfig)
+
+    if section_name:
+        setattr(config_instance, "section_name", section_name)
+
+    for conf_key, conf_value in section_value.items():
+        if conf_key in type_hints:
+            # 필드 타입에 맞게 값을 변환
+            converted_value = convert_value(conf_value, type_hints[conf_key])
+            pawn.console.debug(f"conf_value={conf_value}, type_hints={type_hints[conf_key]}, converted_value={converted_value}")
+            pawn.console.debug(f"Update argument from {config_instance}, <{section_name}> {conf_key}={conf_value} <ignore args={getattr(pconf().args, conf_key, None)}>")
+            setattr(config_instance, conf_key, converted_value)
+    return config_instance
+
+
+def load_and_verify_config():
     pconfig = pconf().PAWN_CONFIG
     config_file = pconf().PAWN_CONFIG_FILE
     pconf_dict = pconfig.as_dict()
-    if pconf_dict:
+
+    if is_file(config_file):
         pawn.console.log(f"Found config file={config_file}")
+        if not pconf_dict:
+            sys_exit("Invalid config file. Exiting...")
+
+    return pconf_dict
+
+
+def generate_task_from_config():
+    tasks = []
+    pconf_dict = load_and_verify_config()
+    if pconf_dict:
         for section_name, section_value in pconf_dict.items():
+            config_instance = AppConfig()
             pawn.console.debug(f"section_name={section_name}, value={section_value}")
-            args = set_default_counter(section_name)
-
-            for conf_key, conf_value in section_value.items():
-                if getattr(args, conf_key, "__NOT_DEFINED__") != "__NOT_DEFINED__":
-                    if is_json(conf_value):
-                        conf_value = json.loads(conf_value)
-                    if section_name == "default":
-                        setattr(pconf().args, conf_key, conf_value)
-                    pawn.console.debug(f"Update argument from {config_file}, <{section_name}> {conf_key}={conf_value} <ignore args={getattr(args, conf_key, None)}>")
-                    setattr(args, conf_key, conf_value)
-
-            pawn.console.debug(args)
-            if args.url != "http":
-                tasks.append(args)
+            # args = set_default_counter(section_name)
+            _config_instance = apply_config_values(config_instance, section_name, section_value)
+            if _config_instance.url and _config_instance.url != "http":
+                tasks.append(_config_instance)
 
     if not tasks:
-        args = set_default_counter()
-        tasks = [args]
+        tasks = [set_default_counter()]
 
     validate_task_exit_on_failure(tasks)
     return tasks
@@ -195,7 +481,8 @@ def validate_task_exit_on_failure(tasks):
         sys_exit("Task not found")
     is_least_one_url = False
     for task in tasks:
-        if is_valid_url(task.url):
+        # if is_valid_url(task.url, strict=False) and task.url != "http":
+        if task.url and task.url != "http":
             is_least_one_url = True
         else:
             pawn.console.log(f"Invalid url: name={task.section_name}, url={task.url}")
@@ -208,6 +495,7 @@ def main():
     app_name = 'httping'
     parser = get_parser()
     args, unknown = parser.parse_known_args()
+    pawn.console.debug(f"args={args}, unknown={unknown}")
     config_file = args.config_file
 
     is_hide_line_number = args.verbose > 1
@@ -217,8 +505,8 @@ def main():
         PAWN_CONFIG_FILE=config_file,
         PAWN_PATH=args.base_dir,
         PAWN_LOGGER=dict(
-            log_level="INFO",
-            stdout_level="INFO",
+            log_level=args.log_level,
+            stdout_level=args.log_level,
             log_path=f"{args.base_dir}/logs",
             stdout=stdout,
             use_hook_exception=True,
@@ -253,6 +541,8 @@ def main():
     if args.ignore_ssl:
         disable_ssl_warnings()
     tasks = generate_task_from_config()
+    pawn.set(tasks=tasks)
+
     # if args.slack_url:
     #     res = _send_slack(url=args.slack_url, msg_text=tasks)
     #     pawn.console.log(res)
@@ -261,15 +551,20 @@ def main():
     # exit()
     pawn.console.log(f"Start httping ... url_count={len(tasks)}")
     pawn.console.log("If you want to see more logs, use the [yellow]-v[/yellow] option")
-    pawn.console.log(tasks)
+    pawn.console.log(f"tasks={tasks}")
 
-    ThreadPoolRunner(
-        func=check_url_process,
-        tasks=tasks,
-        max_workers=args.workers,
-        verbose=args.verbose,
-        sleep=args.interval
-    ).forever_run()
+    # pawn.console.log(tasks)
+    if args.dry_run:
+        for task in tasks:
+            check_url_process(task)
+    else:
+        ThreadPoolRunner(
+            func=check_url_process,
+            tasks=tasks,
+            max_workers=args.workers,
+            verbose=args.verbose,
+            sleep=args.interval
+        ).forever_run()
 
 
 if __name__ == '__main__':

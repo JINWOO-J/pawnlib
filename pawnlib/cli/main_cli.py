@@ -53,8 +53,8 @@ def get_submodule_names():
 
 def run_module(module_name=None):
     module = importlib.import_module(f"pawnlib.cli.{module_name}")
+    pawn.console.debug(f"Load a pawnlib.cli.{module_name}")
     module.main()
-    pawn.console.debug(f"load a {module_name}")
     return module
 
 
@@ -131,8 +131,10 @@ def get_args():
 
 
 def cleanup_args():
-    if len(sys.argv) > 2 and "-" not in sys.argv[2]:
-        pawn.console.debug(f"Remove argument -> {sys.argv[1]}")
+    # if len(sys.argv) > 2 and "-" not in sys.argv[2]:
+    # if len(sys.argv) > 2 and not sys.argv[2].startswith("-"):
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        pawn.console.debug(f"Remove argument {sys.argv} -> {sys.argv[1]}")
         del sys.argv[1]
 
 
@@ -148,10 +150,9 @@ def main():
     except Exception as e:
         pawn.console.debug(f"[red]Exception while parsing an argument = {e}")
         # sys_exit("Stopped CLI")
-    pawn.console.debug(f"args={args}, command={command}, parser={parser}")
+    pawn.console.debug(f"command={command}, parser={parser}, args={args}")
 
     if command:
-        pawn.console.debug(f"command = {command}, PAWN_DEBUG={pawn.get('PAWN_DEBUG')}")
         try:
             # run_with_keyboard_interrupt(run_module, command)
             run_module(command)

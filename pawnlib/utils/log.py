@@ -7,6 +7,7 @@ import traceback
 import datetime
 from pawnlib.config.globalconfig import pawnlib_config
 from rich.logging import RichHandler
+from rich.text import Text
 from typing import Callable
 
 try:
@@ -303,14 +304,11 @@ class AppLogger:
                 level=self.stdout_level,
                 format="%(message)s",
                 handlers=[
-                    RichHandler(
+                    TightLevelRichHandler(
                         rich_tracebacks=True,
                         log_time_format=log_time_formatter,
                         markup=self.markup,
                         **self.kwargs
-                        # show_path=False,
-                        # log_time_format=lambda dt: f"[{dt.strftime('%Y-%m-%d %H:%M:%S,%f')[:-3]}]",
-                        # log_time_format=lambda dt:Text.from_markup(f"[red]{dt.ctime()}")
                     )
                 ]
             )
@@ -363,3 +361,23 @@ class AppLogger:
     def handle_exception(self, exc_type, exc_value, exc_traceback):
         if self.use_hook_exception and self._error_logger:
             self._error_logger.error("Unexpected exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+class TightLevelRichHandler(RichHandler):
+    def get_level_text(self, record) -> Text:
+        """Get the level name from the record.
+
+        Args:
+            record (LogRecord): LogRecord instance.
+
+        Returns:
+            Text: A tuple of the style and level name.
+        """
+        display_level_count = 3
+        level_name = record.levelname
+
+        short_level_name = record.levelname[0:display_level_count]
+
+        level_text = Text.styled(
+            short_level_name.ljust(display_level_count), f"logging.level.{level_name.lower()}"
+        )
+        return level_text

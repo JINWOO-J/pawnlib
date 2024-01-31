@@ -9,7 +9,7 @@ from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose, 
 from pawnlib.output import (
     NoTraceBackException,
     dump, syntax_highlight, kvPrint, debug_logging,
-    PrintRichTable, get_debug_here_info,
+    PrintRichTable, get_debug_here_info, print_syntax,
     print_json)
 from pawnlib.resource import net
 from pawnlib.typing import date_utils
@@ -50,15 +50,16 @@ ALLOW_OPERATOR = ["!=", "==", ">=", "<=", ">", "<", "include", "exclude"]
 class _ResponseWithElapsed(requests.models.Response):
     success = False
     error = None
+    status_code_with_message = None
 
     def __init__(self):
         super().__init__()
 
     def __repr__(self):
-        return f"<Response [{self.status_code}], {self.elapsed}ms, succ={self.success}>"
+        return f"<Response [{HTTPStatus(self.status_code)}], {self.elapsed}ms, succ={self.success}>"
 
     def __str__(self):
-        return f"<Response [{self.status_code}], {self.elapsed}ms, succ={self.success}>"
+        return f"<Response [{HTTPStatus(self.status_code)}], {self.elapsed}ms, succ={self.success}>"
 
     def as_dict(self):
 
@@ -68,7 +69,7 @@ class _ResponseWithElapsed(requests.models.Response):
             except:
                 pass
 
-        if self.__dict__.get('result') and isinstance(self.__dict__.get('result'), dict):
+        if self.__dict__.get('result') and isinstance(self.__dict__.get('result'), (dict, list)):
             self.__dict__['json'] = self.__dict__['result']
             self.__dict__['text'] = json.dumps(self.__dict__['result'])
 
@@ -87,6 +88,82 @@ requests.models.Response.success = _ResponseWithElapsed.success
 requests.models.Response.as_dict = _ResponseWithElapsed.as_dict
 
 
+class HTTPStatus:
+    STATUS_CODES = {
+        100: "Continue",
+        101: "Switching Protocols",
+        102: "Processing",
+        200: "OK",
+        201: "Created",
+        202: "Accepted",
+        203: "Non-Authoritative Information",
+        204: "No Content",
+        205: "Reset Content",
+        206: "Partial Content",
+        207: "Multi-Status",
+        208: "Already Reported",
+        226: "IM Used",
+        300: "Multiple Choices",
+        301: "Moved Permanently",
+        302: "Found",
+        303: "See Other",
+        304: "Not Modified",
+        305: "Use Proxy",
+        307: "Temporary Redirect",
+        308: "Permanent Redirect",
+        400: "Bad Request",
+        401: "Unauthorized",
+        402: "Payment Required",
+        403: "Forbidden",
+        404: "Not Found",
+        405: "Method Not Allowed",
+        406: "Not Acceptable",
+        407: "Proxy Authentication Required",
+        408: "Request Timeout",
+        409: "Conflict",
+        410: "Gone",
+        411: "Length Required",
+        412: "Precondition Failed",
+        413: "Payload Too Large",
+        414: "URI Too Long",
+        415: "Unsupported Media Type",
+        416: "Range Not Satisfiable",
+        417: "Expectation Failed",
+        418: "I'm a teapot",
+        421: "Misdirected Request",
+        422: "Unprocessable Entity",
+        423: "Locked",
+        424: "Failed Dependency",
+        425: "Too Early",
+        426: "Upgrade Required",
+        428: "Precondition Required",
+        429: "Too Many Requests",
+        431: "Request Header Fields Too Large",
+        451: "Unavailable For Legal Reasons",
+        500: "Internal Server Error",
+        501: "Not Implemented",
+        502: "Bad Gateway",
+        503: "Service Unavailable",
+        504: "Gateway Timeout",
+        505: "HTTP Version Not Supported",
+        506: "Variant Also Negotiates",
+        507: "Insufficient Storage",
+        508: "Loop Detected",
+        510: "Not Extended",
+        511: "Network Authentication Required",
+        # 추가적인 상태 코드는 여기에 포함시킬 수 있습니다.
+    }
+
+    def __init__(self, code):
+        self.code = code
+
+    def get_description(self):
+        return f"{self.code} {self.STATUS_CODES.get(self.code, 'Unknown Status')}"
+
+    def __repr__(self):
+        return f"{self.code} {self.STATUS_CODES.get(self.code, 'Unknown Status')}"
+
+
 class HttpResponse:
     def __init__(self, status_code=999, response=None, error=None, elapsed=None, success=False):
         self.status_code = status_code
@@ -94,9 +171,13 @@ class HttpResponse:
         self.error = error
         self.elapsed = elapsed
         self.success = success
-        self.text = None
+        self.response_time = elapsed
+        self.reason = ""
+        self.result = ""
+        self.text = ""
+        self.json = {}
 
-        if getattr(response, "text", None):
+        if getattr(response, "text", ""):
             self.response = response.text
 
         if self.response and self.response.json:
@@ -148,6 +229,7 @@ class AllowsKey(StrEnum):
     r_headers = auto()
     result = auto()
     elapsed = auto()
+    response_time= auto()
 
 
 @dataclass
@@ -1308,9 +1390,11 @@ class SuccessResponse(SuccessCriteria):
         super().__init__(target=_selected_flatten_target, operator=operator, expected=expected)
 
         if not _selected_flatten_target:
-            pawn.console.debug(f"[red]<Error>[/red] '{self.target_key}' is not attribute in {list(self.target.keys())}")
-            pawn.console.debug(
-                f"[red]<Error>[/red] '{self.target_key}' not found. \n Did you mean {guess_key(self.target_key, self.target.keys())} ?")
+            pawn.console.log(f"[red]<SuccessCriteria Error>[/red] '{self.target_key}' is not attribute in {list(self.target.keys())}")
+            pawn.console.log(
+                f"[red]<SuccessCriteria Error>[/red] '{self.target_key}' not found. \n "
+                f"Did you mean {guess_key(self.target_key, self.target.keys())} ?")
+
             self.result = False
 
 
@@ -1422,18 +1506,37 @@ class CallHttp:
     def get_response(self) -> HttpResponse:
         return self.response
 
+    def print_http_response(self, response=None):
+        if not response:
+            response = self.response
+
+        pawn.console.log(f"Response from '{self.method.upper()}' '{self.url}' 👉 {response}  ({type(response)})")
+        if not response:
+            style = "red"
+        else:
+            style = "rule.line"
+
+        status_code_with_message = HTTPStatus(response)
+        pawn.console.rule(f"<Response {status_code_with_message}> ", align='right', style=style, characters="═")
+        if response.json:
+            print_json(response.json)
+        else:
+            print_syntax(response.text, name="html", style="one-dark")
+
     def fetch_response(self):
         (json_response, data, http_version, r_headers, error) = ({}, {}, None, None, None)
         if self.method not in ("get", "post", "patch", "delete"):
             pawn.error_logger.error(f"unsupported method='{self.method}', url='{self.url}' ") if pawn.error_logger else False
             return self.exit_on_failure(f"Unsupported method={self.method}, url={self.url}")
         try:
+
             try:
                 _payload_string = json.dumps(self.payload)
             except Exception as e:
                 _payload_string = self.payload
+
             pawn.console.debug(f"[TRY] url={self.url}, method={self.method.upper()}, kwargs={self.kwargs}")
-            if pawn.get("PAWN_DEBUG"):
+            if pawn.get("PAWN_DEBUG") and self.payload:
                 print_json(_payload_string)
 
             func = getattr(requests, self.method)
@@ -1441,6 +1544,7 @@ class CallHttp:
                 self.response = func(self.url, verify=False, timeout=self.timeout, **self.kwargs)
             else:
                 self.response = func(self.url, json=self.payload, verify=False, timeout=self.timeout, **self.kwargs)
+
         except Exception as e:
             return self.exit_on_failure(e)
 
@@ -1454,7 +1558,7 @@ class CallHttp:
             else:
                 _elapsed = 0
         self.response.elapsed = _elapsed
-
+        self.response.response_time = _elapsed
         if getattr(self.response, 'raw', None):
             self.response.http_version = self.response.raw.version
         else:
@@ -1494,11 +1598,13 @@ class CallHttp:
                 if isinstance(criteria, list):
                     _criteria = copy.deepcopy(criteria)
                     _criteria.append(_response_dict)
+                    if pconf().PAWN_DEBUG:
+                        pawn.console.log(_criteria)
                     self._success_results.append(SuccessResponse(*_criteria))
                 elif isinstance(criteria, dict):
                     criteria['target'] = _response_dict
                     self._success_results.append(SuccessResponse(**criteria))
-            # pawn.console.debug(self._success_results)
+            # pawn.console.log(self._success_results)
 
     @staticmethod
     def _find_operator(string):
@@ -1542,7 +1648,7 @@ class CallHttp:
     def _convert_criteria(self, argument):
         for operator in ALLOW_OPERATOR:
             if operator in argument:
-                result = argument.split(operator)
+                result = [element.strip() for element in argument.split(operator)]
                 if any(word in result[0] for word in ALLOW_OPERATOR + ['=']):
                     pawn.console.log(f"[red]Invalid operator - '{argument}', {result}")
                     raise ValueError(f"Invalid operator - '{argument}', {result}")
