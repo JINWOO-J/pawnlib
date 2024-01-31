@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.utils.log &mdash; Pawnlib v1.0.20</title>
+  <title>pawnlib.utils.log &mdash; Pawnlib v1.0.84</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.20
+                1.0.84
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -94,6 +94,7 @@
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span>
 <span class="kn">from</span> <span class="nn">rich.logging</span> <span class="kn">import</span> <span class="n">RichHandler</span>
+<span class="kn">from</span> <span class="nn">rich.text</span> <span class="kn">import</span> <span class="n">Text</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 
 <span class="k">try</span><span class="p">:</span>
@@ -390,14 +391,11 @@
                 <span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stdout_level</span><span class="p">,</span>
                 <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">handlers</span><span class="o">=</span><span class="p">[</span>
-                    <span class="n">RichHandler</span><span class="p">(</span>
+                    <span class="n">TightLevelRichHandler</span><span class="p">(</span>
                         <span class="n">rich_tracebacks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="n">log_time_format</span><span class="o">=</span><span class="n">log_time_formatter</span><span class="p">,</span>
                         <span class="n">markup</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">markup</span><span class="p">,</span>
                         <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span>
-                        <span class="c1"># show_path=False,</span>
-                        <span class="c1"># log_time_format=lambda dt: f&quot;[{dt.strftime(&#39;%Y-%m-%d %H:%M:%S,%f&#39;)[:-3]}]&quot;,</span>
-                        <span class="c1"># log_time_format=lambda dt:Text.from_markup(f&quot;[red]{dt.ctime()}&quot;)</span>
                     <span class="p">)</span>
                 <span class="p">]</span>
             <span class="p">)</span>
@@ -450,6 +448,26 @@
 <div class="viewcode-block" id="AppLogger.handle_exception"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.handle_exception">[docs]</a>    <span class="k">def</span> <span class="nf">handle_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hook_exception</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unexpected exception&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">))</span></div></div>
+
+<div class="viewcode-block" id="TightLevelRichHandler"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.TightLevelRichHandler">[docs]</a><span class="k">class</span> <span class="nc">TightLevelRichHandler</span><span class="p">(</span><span class="n">RichHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="TightLevelRichHandler.get_level_text"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.TightLevelRichHandler.get_level_text">[docs]</a>    <span class="k">def</span> <span class="nf">get_level_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the level name from the record.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            record (LogRecord): LogRecord instance.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Text: A tuple of the style and level name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">display_level_count</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">level_name</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">levelname</span>
+
+        <span class="n">short_level_name</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">levelname</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">display_level_count</span><span class="p">]</span>
+
+        <span class="n">level_text</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">styled</span><span class="p">(</span>
+            <span class="n">short_level_name</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">display_level_count</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;logging.level.</span><span class="si">{</span><span class="n">level_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">level_text</span></div></div>
 </pre></div>
 
            </div>

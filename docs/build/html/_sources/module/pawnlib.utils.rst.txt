@@ -70,3 +70,28 @@ pawnlib.utils.icx_signer module
    :undoc-members:
    :show-inheritance:
 
+
+pawnlib.utils.genesis module
+-------------------------------------
+
+.. code-block:: python
+
+    from pawnlib.utils import genesis
+
+.. automodule:: pawnlib.utils.genesis
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+pawnlib.utils.in_memory_zip module
+-------------------------------------
+
+.. code-block:: python
+
+    from pawnlib.utils import in_memory_zip
+
+.. automodule:: pawnlib.utils.in_memory_zip
+   :members:
+   :undoc-members:
+   :show-inheritance:
