@@ -114,6 +114,7 @@ upload:
 
 
 pandoc:
+	echo "Convert README.md to README.md.rst using Pandoc and place it in docs/source/"
 	pandoc -s README.md -t rst -o docs/source/README.md.rst
 
 
