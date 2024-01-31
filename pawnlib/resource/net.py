@@ -10,12 +10,14 @@ from timeit import default_timer
 from pawnlib.utils import http
 from pawnlib.typing import is_valid_ipv4, todaydate, shorten_text
 from pawnlib.output import PrintRichTable
+# from rich.progress import  Progress
+from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn, TaskProgressColumn
 
 
 try:
-    from typing import Literal
+    from typing import Literal, Tuple, List
 except ImportError:
-    from typing_extensions import Literal
+    from typing_extensions import Literal, Tuple, List
 
 prev_getaddrinfo = socket.getaddrinfo
 
@@ -162,6 +164,117 @@ class FindFastestRegion:
         PrintRichTable(title="fast_region", data=self.results)
         pawn.console.log(f"Fastest Region={self.results[0]['region']}, time={self.results[0]['run_time']} sec")
 
+
+class AsyncPortScanner:
+    """
+    Asynchronous Port Scanner class.
+
+    :param ip_range: Tuple of start and end IP addresses to scan.
+    :param port_range: Tuple of start and end ports to scan. Default is all ports (0, 65535).
+    :param max_concurrency: Maximum number of concurrent scans. Default is 30.
+
+    Example:
+
+        .. code-block:: python
+
+            scanner = AsyncPortScanner(("192.168.0.1", "192.168.0.255"), (1, 1024), 50)
+            asyncio.run(scanner.scan_all())
+    """
+
+    def __init__(self, ip_range: Tuple[str, str], port_range: Tuple[int, int] = (0, 65535), max_concurrency: int = 30):
+        self.start_ip, self.end_ip = ip_range
+        self.start_port, self.end_port = port_range
+        self.scan_results = {}
+        self.semaphore = asyncio.Semaphore(max_concurrency)
+
+    async def scan_port(self, ip: str, port: int) -> bool:
+        async with self.semaphore:
+            pawn.console.debug(f"Scanning {ip}:{port} - Acquired semaphore")
+            try:
+                await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=1)
+                # pawn.console.debug(f"Connection successful: {ip}:{port}")
+                return ip, port, True
+            except asyncio.TimeoutError:
+                # pawn.console.debug(f"Timeout: {ip}:{port}")
+                return ip, port, False
+            except Exception as e:
+                # pawn.console.debug(f"Error scanning {ip}:{port} - {e}")
+                return ip, port, False
+            # finally:
+            #     pawn.console.debug(f"Releasing semaphore: {ip}:{port}")
+
+    async def scan(self, progress: Progress):
+        tasks = []
+        start_ip_int = self.ip_to_int(self.start_ip)
+        end_ip_int = self.ip_to_int(self.end_ip)
+        total_ips = end_ip_int - start_ip_int + 1
+        total_tasks = total_ips * (self.end_port - self.start_port + 1)
+        task_id = progress.add_task("[cyan]Scanning...", total=total_tasks)
+
+        for ip_int in range(start_ip_int, end_ip_int + 1):
+            ip = self.int_to_ip(ip_int)
+            for port in range(self.start_port, self.end_port + 1):
+                tasks.append(self.wrap_scan(ip, port, progress, task_id))
+
+        results = await asyncio.gather(*tasks)
+        self._process_results(results)
+
+    async def wrap_scan(self, ip, port, progress, task_id):
+        async with self.semaphore:
+            result = await self.scan_port(ip, port)
+            progress.update(task_id, advance=1)
+            return result
+
+    def _generate_ips(self) -> List[str]:
+        start_int = self.ip_to_int(self.start_ip)
+        end_int = self.ip_to_int(self.end_ip)
+        return [self.int_to_ip(ip_int) for ip_int in range(start_int, end_int + 1)]
+
+    @staticmethod
+    def ip_to_int(ip: str) -> int:
+        return sum([int(octet) << (8 * i) for i, octet in enumerate(reversed(ip.split('.')))])
+
+    @staticmethod
+    def int_to_ip(ip_int: int) -> str:
+        return '.'.join(str((ip_int >> (8 * i)) & 0xFF) for i in reversed(range(4)))
+
+    def _process_results(self, results: List[Tuple[str, int, bool]]):
+        for ip, port, is_open in results:
+            if ip not in self.scan_results:
+                self.scan_results[ip] = {"open": [], "closed": []}
+
+            if is_open:
+                self.scan_results[ip]["open"].append(port)
+            else:
+                self.scan_results[ip]["closed"].append(port)
+            # status = "open" if is_open else "closed"
+            # print(f"{ip}:{port} [{status}]")
+
+    def get_results(self):
+        return self.scan_results
+
+    def print_scan_results(self, view="all"):
+        for ipaddr, result in self.scan_results.items():
+            is_data = False
+            for is_open, port in result.items():
+                if view == "all" or view == is_open and port:
+                    pawn.console.print(f"\t \[{is_open}] {port}")
+                    is_data = True
+
+            if is_data:
+                pawn.console.print(ipaddr)
+
+
+    def run_scan(self):
+        with Progress(
+                TextColumn("[bold blue]{task.description}", justify="right"),
+                BarColumn(bar_width=None),
+                TextColumn("{task.completed}/{task.total} • [progress.percentage]{task.percentage:>3.0f}%"),
+                "•",
+                TimeRemainingColumn(),
+                transient=True  # Hide the progress bar when done
+        ) as progress:
+            asyncio.get_event_loop().run_until_complete(self.scan(progress))
 
 def get_local_ip():
     """
@@ -329,7 +442,7 @@ def listen_socket(host, port):
     return sock
 
 
-def wait_for_port_open(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Literal["tcp", "udp"] = "tcp") -> bool:
+def wait_for_port_open(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Literal["tcp", "udp"] = "tcp", sleep: float =1) -> bool:
     """
 
     Wait for a port to open. Useful when writing scripts which need to wait for a server to be available.
@@ -338,6 +451,7 @@ def wait_for_port_open(host: str = "", port: int = 0, timeout: float = 3.0, prot
     :param port: port
     :param timeout: timeout seconds (float)
     :param protocol: tcp or udp
+    :param sleep: sleep fime seconds (float)
     :return:
 
     Example:
@@ -362,7 +476,7 @@ def wait_for_port_open(host: str = "", port: int = 0, timeout: float = 3.0, prot
                 return True
             status.update(f"{message} {count}")
             count += 1
-            time.sleep(1)
+            time.sleep(sleep)
 
 
 def get_location(ipaddress=""):

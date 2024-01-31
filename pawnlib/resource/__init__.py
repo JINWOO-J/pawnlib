@@ -6,6 +6,7 @@ from .net import (
     check_port,
     listen_socket,
     wait_for_port_open,
+    AsyncPortScanner,
     get_location,
 )
 
