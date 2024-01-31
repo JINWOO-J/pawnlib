@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib package &mdash; Pawnlib v1.0.21</title>
+  <title>pawnlib package &mdash; Pawnlib v1.0.85</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -36,7 +36,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.21
+                1.0.85
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -148,6 +148,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.config.html#pawnlib.config.globalconfig.Singleton"><code class="docutils literal notranslate"><span class="pre">Singleton</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig"><code class="docutils literal notranslate"><span class="pre">PawnlibConfig</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.__init__"><code class="docutils literal notranslate"><span class="pre">PawnlibConfig.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.inspect"><code class="docutils literal notranslate"><span class="pre">PawnlibConfig.inspect()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.get_path"><code class="docutils literal notranslate"><span class="pre">PawnlibConfig.get_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.pawnlib_path"><code class="docutils literal notranslate"><span class="pre">PawnlibConfig.pawnlib_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.get_python_version"><code class="docutils literal notranslate"><span class="pre">PawnlibConfig.get_python_version()</span></code></a></li>
@@ -185,6 +186,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.bcolors.CYAN"><code class="docutils literal notranslate"><span class="pre">bcolors.CYAN</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.bcolors.WARNING"><code class="docutils literal notranslate"><span class="pre">bcolors.WARNING</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.bcolors.FAIL"><code class="docutils literal notranslate"><span class="pre">bcolors.FAIL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.bcolors.RESET"><code class="docutils literal notranslate"><span class="pre">bcolors.RESET</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.bcolors.ENDC"><code class="docutils literal notranslate"><span class="pre">bcolors.ENDC</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.bcolors.BOLD"><code class="docutils literal notranslate"><span class="pre">bcolors.BOLD</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.bcolors.ITALIC"><code class="docutils literal notranslate"><span class="pre">bcolors.ITALIC</span></code></a></li>
@@ -209,6 +211,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.classdump"><code class="docutils literal notranslate"><span class="pre">classdump()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.kvPrint"><code class="docutils literal notranslate"><span class="pre">kvPrint()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.print_json"><code class="docutils literal notranslate"><span class="pre">print_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.pretty_json"><code class="docutils literal notranslate"><span class="pre">pretty_json()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.debug_logging"><code class="docutils literal notranslate"><span class="pre">debug_logging()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.print_progress_bar"><code class="docutils literal notranslate"><span class="pre">print_progress_bar()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.json_compact_dumps"><code class="docutils literal notranslate"><span class="pre">json_compact_dumps()</span></code></a></li>
@@ -218,12 +221,13 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.ProgressTime"><code class="docutils literal notranslate"><span class="pre">ProgressTime</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.print_syntax"><code class="docutils literal notranslate"><span class="pre">print_syntax()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.syntax_highlight"><code class="docutils literal notranslate"><span class="pre">syntax_highlight()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.print_here"><code class="docutils literal notranslate"><span class="pre">print_here()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.print_frames"><code class="docutils literal notranslate"><span class="pre">print_frames()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.get_debug_here_info"><code class="docutils literal notranslate"><span class="pre">get_debug_here_info()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.retrieve_name"><code class="docutils literal notranslate"><span class="pre">retrieve_name()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.retrieve_name_ex"><code class="docutils literal notranslate"><span class="pre">retrieve_name_ex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.get_variable_name_list"><code class="docutils literal notranslate"><span class="pre">get_variable_name_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.get_variable_name"><code class="docutils literal notranslate"><span class="pre">get_variable_name()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.dict_clean"><code class="docutils literal notranslate"><span class="pre">dict_clean()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.list_clean"><code class="docutils literal notranslate"><span class="pre">list_clean()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.data_clean"><code class="docutils literal notranslate"><span class="pre">data_clean()</span></code></a></li>
@@ -231,6 +235,8 @@
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.get_var_name"><code class="docutils literal notranslate"><span class="pre">get_var_name()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.get_data_length"><code class="docutils literal notranslate"><span class="pre">get_data_length()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.print_var"><code class="docutils literal notranslate"><span class="pre">print_var()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.print_aligned_text"><code class="docutils literal notranslate"><span class="pre">print_aligned_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.align_text"><code class="docutils literal notranslate"><span class="pre">align_text()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.disable_exception_traceback"><code class="docutils literal notranslate"><span class="pre">disable_exception_traceback()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.color_print.NoTraceBackException"><code class="docutils literal notranslate"><span class="pre">NoTraceBackException</span></code></a></li>
 </ul>
@@ -238,18 +244,23 @@
 <li class="toctree-l2"><a class="reference internal" href="pawnlib.output.html#pawnlib-output-file-module">pawnlib.output.file module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.check_file_overwrite"><code class="docutils literal notranslate"><span class="pre">check_file_overwrite()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.get_file_path"><code class="docutils literal notranslate"><span class="pre">get_file_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.get_file_extension"><code class="docutils literal notranslate"><span class="pre">get_file_extension()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.get_file_list"><code class="docutils literal notranslate"><span class="pre">get_file_list()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.get_parent_path"><code class="docutils literal notranslate"><span class="pre">get_parent_path()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.get_script_path"><code class="docutils literal notranslate"><span class="pre">get_script_path()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.get_real_path"><code class="docutils literal notranslate"><span class="pre">get_real_path()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.get_abs_path"><code class="docutils literal notranslate"><span class="pre">get_abs_path()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.is_binary_file"><code class="docutils literal notranslate"><span class="pre">is_binary_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.is_file"><code class="docutils literal notranslate"><span class="pre">is_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.is_directory"><code class="docutils literal notranslate"><span class="pre">is_directory()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.is_json"><code class="docutils literal notranslate"><span class="pre">is_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.is_json_file"><code class="docutils literal notranslate"><span class="pre">is_json_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.open_json"><code class="docutils literal notranslate"><span class="pre">open_json()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.open_file"><code class="docutils literal notranslate"><span class="pre">open_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.open_yaml_file"><code class="docutils literal notranslate"><span class="pre">open_yaml_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.write_file"><code class="docutils literal notranslate"><span class="pre">write_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.write_json"><code class="docutils literal notranslate"><span class="pre">write_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.represent_ordereddict"><code class="docutils literal notranslate"><span class="pre">represent_ordereddict()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.output.html#pawnlib.output.file.write_yaml"><code class="docutils literal notranslate"><span class="pre">write_yaml()</span></code></a></li>
 </ul>
 </li>
@@ -269,6 +280,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.check.is_valid_url"><code class="docutils literal notranslate"><span class="pre">is_valid_url()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.check.is_valid_private_key"><code class="docutils literal notranslate"><span class="pre">is_valid_private_key()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.check.is_valid_token_address"><code class="docutils literal notranslate"><span class="pre">is_valid_token_address()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.check.is_valid_tx_hash"><code class="docutils literal notranslate"><span class="pre">is_valid_tx_hash()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.check.list_depth"><code class="docutils literal notranslate"><span class="pre">list_depth()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.check.guess_type"><code class="docutils literal notranslate"><span class="pre">guess_type()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.check.return_guess_type"><code class="docutils literal notranslate"><span class="pre">return_guess_type()</span></code></a></li>
@@ -281,6 +293,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pawnlib.typing.html#pawnlib-typing-converter-module">pawnlib.typing.converter module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.StackList"><code class="docutils literal notranslate"><span class="pre">StackList</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.StackList.push"><code class="docutils literal notranslate"><span class="pre">StackList.push()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.StackList.check_and_push"><code class="docutils literal notranslate"><span class="pre">StackList.check_and_push()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.StackList.median"><code class="docutils literal notranslate"><span class="pre">StackList.median()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.StackList.mean"><code class="docutils literal notranslate"><span class="pre">StackList.mean()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.StackList.max"><code class="docutils literal notranslate"><span class="pre">StackList.max()</span></code></a></li>
@@ -299,6 +312,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.MedianFinder"><code class="docutils literal notranslate"><span class="pre">MedianFinder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.MedianFinder.__init__"><code class="docutils literal notranslate"><span class="pre">MedianFinder.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.MedianFinder.add_number"><code class="docutils literal notranslate"><span class="pre">MedianFinder.add_number()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.MedianFinder.median"><code class="docutils literal notranslate"><span class="pre">MedianFinder.median()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.MedianFinder.mean"><code class="docutils literal notranslate"><span class="pre">MedianFinder.mean()</span></code></a></li>
@@ -365,19 +379,28 @@
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.append_suffix"><code class="docutils literal notranslate"><span class="pre">append_suffix()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.append_prefix"><code class="docutils literal notranslate"><span class="pre">append_prefix()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.camel_case_to_space_case"><code class="docutils literal notranslate"><span class="pre">camel_case_to_space_case()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.camelcase_to_underscore"><code class="docutils literal notranslate"><span class="pre">camelcase_to_underscore()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.lower_case"><code class="docutils literal notranslate"><span class="pre">lower_case()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.upper_case"><code class="docutils literal notranslate"><span class="pre">upper_case()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.snake_case"><code class="docutils literal notranslate"><span class="pre">snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.camel_case_to_lower_case"><code class="docutils literal notranslate"><span class="pre">camel_case_to_lower_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.lower_case_to_camel_case"><code class="docutils literal notranslate"><span class="pre">lower_case_to_camel_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.camel_case_to_upper_case"><code class="docutils literal notranslate"><span class="pre">camel_case_to_upper_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.upper_case_to_camel_case"><code class="docutils literal notranslate"><span class="pre">upper_case_to_camel_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.shorten_text"><code class="docutils literal notranslate"><span class="pre">shorten_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.remove_ascii_and_tags"><code class="docutils literal notranslate"><span class="pre">remove_ascii_and_tags()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.truncate_float"><code class="docutils literal notranslate"><span class="pre">truncate_float()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.truncate_decimal"><code class="docutils literal notranslate"><span class="pre">truncate_decimal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.remove_zero"><code class="docutils literal notranslate"><span class="pre">remove_zero()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.remove_tags"><code class="docutils literal notranslate"><span class="pre">remove_tags()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.remove_ascii_color_codes"><code class="docutils literal notranslate"><span class="pre">remove_ascii_color_codes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.json_to_hexadecimal"><code class="docutils literal notranslate"><span class="pre">json_to_hexadecimal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.hexadecimal_to_json"><code class="docutils literal notranslate"><span class="pre">hexadecimal_to_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.format_hex"><code class="docutils literal notranslate"><span class="pre">format_hex()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pawnlib.typing.html#pawnlib-typing-date-utils-module">pawnlib.typing.date_utils module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator"><code class="docutils literal notranslate"><span class="pre">TimeCalculator</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.__init__"><code class="docutils literal notranslate"><span class="pre">TimeCalculator.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.calculate"><code class="docutils literal notranslate"><span class="pre">TimeCalculator.calculate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_strings"><code class="docutils literal notranslate"><span class="pre">TimeCalculator.to_strings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_minutes"><code class="docutils literal notranslate"><span class="pre">TimeCalculator.to_minutes()</span></code></a></li>
@@ -490,6 +513,11 @@
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.utils.html">pawnlib.utils package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pawnlib.utils.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pawnlib.utils.html#pawnlib-utils-http-module">pawnlib.utils.http module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.HTTPStatus"><code class="docutils literal notranslate"><span class="pre">HTTPStatus</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.HTTPStatus.STATUS_CODES"><code class="docutils literal notranslate"><span class="pre">HTTPStatus.STATUS_CODES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.HTTPStatus.get_description"><code class="docutils literal notranslate"><span class="pre">HTTPStatus.get_description()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.HttpResponse"><code class="docutils literal notranslate"><span class="pre">HttpResponse</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.HttpResponse.as_dict"><code class="docutils literal notranslate"><span class="pre">HttpResponse.as_dict()</span></code></a></li>
 </ul>
@@ -512,6 +540,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.AllowsKey.r_headers"><code class="docutils literal notranslate"><span class="pre">AllowsKey.r_headers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.AllowsKey.result"><code class="docutils literal notranslate"><span class="pre">AllowsKey.result</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.AllowsKey.elapsed"><code class="docutils literal notranslate"><span class="pre">AllowsKey.elapsed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.AllowsKey.response_time"><code class="docutils literal notranslate"><span class="pre">AllowsKey.response_time</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.NetworkInfo"><code class="docutils literal notranslate"><span class="pre">NetworkInfo</span></code></a><ul>
@@ -529,6 +558,9 @@
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.NetworkInfo.set_network"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.set_network()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.NetworkInfo.list"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.list()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.NetworkInfo.get_platform_list"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.get_platform_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.NetworkInfo.get_platform_info"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.get_platform_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.NetworkInfo.update_platform_info"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.update_platform_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.NetworkInfo.add_network"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.add_network()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.NetworkInfo.get_network_list"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.get_network_list()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.NetworkInfo.tuple"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.tuple()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.NetworkInfo.to_dict"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.to_dict()</span></code></a></li>
@@ -537,6 +569,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.requires_sign_method"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates.requires_sign_method</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.templates"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates.templates</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.update_template"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates.update_template()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.get_category"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates.get_category()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.get_methods"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates.get_methods()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.create_rpc"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates.create_rpc()</span></code></a></li>
@@ -548,16 +581,24 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.initialize"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.initialize_wallet"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.initialize_wallet()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.rpc_call"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.rpc_call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.print_error_message"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.print_error_message()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.print_response"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.print_response()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.print_request"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.print_request()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.make_params"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.make_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.create_governance_payload"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.create_governance_payload()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.governance_call"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.governance_call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.create_deploy_payload"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.create_deploy_payload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.deploy_score"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.deploy_score()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_step_price"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_step_price()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_step_cost"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_step_cost()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_estimate_step"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_estimate_step()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_step_limit"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_step_limit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_fee"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_fee()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_score_api"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_score_api()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.name_to_params"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.name_to_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_governance_api"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_governance_api()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_balance"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_balance()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_tx"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_tx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_tx_wait"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_tx_wait()</span></code></a></li>
@@ -591,6 +632,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.CallHttp.exit_on_failure"><code class="docutils literal notranslate"><span class="pre">CallHttp.exit_on_failure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.CallHttp.run"><code class="docutils literal notranslate"><span class="pre">CallHttp.run()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.CallHttp.get_response"><code class="docutils literal notranslate"><span class="pre">CallHttp.get_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.CallHttp.print_http_response"><code class="docutils literal notranslate"><span class="pre">CallHttp.print_http_response()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.CallHttp.fetch_response"><code class="docutils literal notranslate"><span class="pre">CallHttp.fetch_response()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.CallHttp.fetch_criteria"><code class="docutils literal notranslate"><span class="pre">CallHttp.fetch_criteria()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.CallHttp.is_success"><code class="docutils literal notranslate"><span class="pre">CallHttp.is_success()</span></code></a></li>
@@ -610,6 +652,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.request_blockheight_callback"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.request_blockheight_callback()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.parse_transfer_tx"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.parse_transfer_tx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.parse_blockheight"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.parse_blockheight()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.output_format"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.output_format()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.get_last_blockheight"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.get_last_blockheight()</span></code></a></li>
@@ -642,6 +685,10 @@
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.log.AppLogger.get_logger"><code class="docutils literal notranslate"><span class="pre">AppLogger.get_logger()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.log.AppLogger.set_global"><code class="docutils literal notranslate"><span class="pre">AppLogger.set_global()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.log.AppLogger.handle_exception"><code class="docutils literal notranslate"><span class="pre">AppLogger.handle_exception()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.log.TightLevelRichHandler"><code class="docutils literal notranslate"><span class="pre">TightLevelRichHandler</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.log.TightLevelRichHandler.get_level_text"><code class="docutils literal notranslate"><span class="pre">TightLevelRichHandler.get_level_text()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -745,6 +792,38 @@
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.icx_signer.sign_recoverable"><code class="docutils literal notranslate"><span class="pre">sign_recoverable()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.icx_signer.serialize"><code class="docutils literal notranslate"><span class="pre">serialize()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.icx_signer.generate_message"><code class="docutils literal notranslate"><span class="pre">generate_message()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pawnlib.utils.html#pawnlib-utils-genesis-module">pawnlib.utils.genesis module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.make_temp_dir"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.make_temp_dir()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.initialize"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.run"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.log_initialization_info"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.log_initialization_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.parse_and_write_genesis_json"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.parse_and_write_genesis_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.write_genesis_zip"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.write_genesis_zip()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.extract_content_pattern"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.extract_content_pattern()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.make_score_zip"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.make_score_zip()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.make_zip_or_copy_file"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.make_zip_or_copy_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.make_zip_without"><code class="docutils literal notranslate"><span class="pre">make_zip_without()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.calculate_hash"><code class="docutils literal notranslate"><span class="pre">calculate_hash()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.create_cid"><code class="docutils literal notranslate"><span class="pre">create_cid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.create_cid_from_genesis_file"><code class="docutils literal notranslate"><span class="pre">create_cid_from_genesis_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.create_cid_from_genesis_zip"><code class="docutils literal notranslate"><span class="pre">create_cid_from_genesis_zip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.genesis.genesis_generator"><code class="docutils literal notranslate"><span class="pre">genesis_generator()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pawnlib.utils.html#pawnlib-utils-in-memory-zip-module">pawnlib.utils.in_memory_zip module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.in_memory_zip.gen_deploy_data_content"><code class="docutils literal notranslate"><span class="pre">gen_deploy_data_content()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.in_memory_zip.read_file_from_zip"><code class="docutils literal notranslate"><span class="pre">read_file_from_zip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.in_memory_zip.read_genesis_dict_from_zip"><code class="docutils literal notranslate"><span class="pre">read_genesis_dict_from_zip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.in_memory_zip.InMemoryZip"><code class="docutils literal notranslate"><span class="pre">InMemoryZip</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.in_memory_zip.InMemoryZip.data"><code class="docutils literal notranslate"><span class="pre">InMemoryZip.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.in_memory_zip.InMemoryZip.zip_in_memory"><code class="docutils literal notranslate"><span class="pre">InMemoryZip.zip_in_memory()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

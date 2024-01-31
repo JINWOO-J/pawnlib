@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.typing.check &mdash; Pawnlib v1.0.21</title>
+  <title>pawnlib.typing.check &mdash; Pawnlib v1.0.84</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.21
+                1.0.84
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -94,11 +94,23 @@
 
 <div class="viewcode-block" id="is_json"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_json">[docs]</a><span class="k">def</span> <span class="nf">is_json</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Check if a string is valid JSON</span>
-<span class="sd">    :param s:</span>
-<span class="sd">    :return:</span>
+<span class="sd">    Check if a string is valid JSON.</span>
 
+<span class="sd">    :param s: a string to check if it is valid JSON.</span>
+<span class="sd">    :return: True if the string is valid JSON, False otherwise.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            check.is_json(&#39;{&quot;name&quot;: &quot;John&quot;, &quot;age&quot;: 30, &quot;city&quot;: &quot;New York&quot;}&#39;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_json(&#39;{&quot;name&quot;: &quot;John&quot;, &quot;age&quot;: 30, &quot;city&quot;: &quot;New York&quot;,}&#39;)</span>
+<span class="sd">            # &gt;&gt; False</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">))):</span>
+        <span class="k">return</span> <span class="kc">False</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -110,30 +122,61 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if a value is float</span>
 
-<span class="sd">    :param s:</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param s: A value to check if it is a float</span>
+<span class="sd">    :type s: Any</span>
+<span class="sd">    :return: True if the value is a float, False otherwise</span>
+<span class="sd">    :rtype: bool</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            check.is_float(3.14)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_float(&quot;3.14&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_float(&quot;hello&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">True</span></div>
 
 
 <div class="viewcode-block" id="is_int"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_int">[docs]</a><span class="k">def</span> <span class="nf">is_int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Check if a value is integer</span>
+<span class="sd">    Check if a value is integer.</span>
 
-<span class="sd">    :param s:</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param s: A value to check.</span>
+<span class="sd">    :type s: Any</span>
+<span class="sd">    :return: True if the value is an integer, False otherwise.</span>
+<span class="sd">    :rtype: bool</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            check.is_int(1)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_int(1.0)</span>
+<span class="sd">            # &gt;&gt; False</span>
+
+<span class="sd">            check.is_int(&quot;2&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_int(&quot;2.0&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">True</span></div>
 
@@ -142,8 +185,19 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if a value is hexadecimal</span>
 
-<span class="sd">    :param s:</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param s: string to check</span>
+<span class="sd">    :return: True if s is hexadecimal, False otherwise</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            check.is_hex(&quot;1a&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_hex(&quot;g&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
@@ -164,8 +218,20 @@
 <span class="sd">    :param keyword:str: Check if the value:str parameter matches the keyword</span>
 <span class="sd">    :param value:str: Check if the keyword is in the value</span>
 <span class="sd">    :return: True if the keyword is a regex and matches</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            check.is_regex_keyword(&quot;/hello/&quot;, &quot;hello world&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_regex_keyword(&quot;(hello)+&quot;, &quot;hello world&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_regex_keyword(&quot;hello&quot;, &quot;world&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keyword</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
@@ -218,8 +284,21 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates IPv4 addresses.</span>
 
-<span class="sd">    :param ip:</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param ip: (str) IPv4 address to validate.</span>
+<span class="sd">    :return: (bool) True if valid IPv4 address, False otherwise.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            check.is_valid_ipv4(&quot;192.168.0.1&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_valid_ipv4(&quot;255.255.255.0&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_valid_ipv4(&quot;300.168.0.1&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
@@ -233,8 +312,21 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates IPv6 addresses.</span>
 
-<span class="sd">    :param ip:</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param ip: A string representing an IPv6 address.</span>
+<span class="sd">    :return: True if the given string is a valid IPv6 address, False otherwise.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            check.is_valid_ipv6(&quot;2001:0db8:85a3:0000:0000:8a2e:0370:7334&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_valid_ipv6(&quot;2001:0db8:85a3::8a2e:0370:7334&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_valid_ipv6(&quot;2001:0db8:85a3:0:0:8a2e:0370:7334:1234&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
@@ -266,26 +358,92 @@
     <span class="k">return</span> <span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="is_valid_url"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_valid_url">[docs]</a><span class="k">def</span> <span class="nf">is_valid_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
-    <span class="k">if</span> <span class="s2">&quot;http://&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">url</span> <span class="ow">and</span> <span class="s2">&quot;https://&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span>
+<div class="viewcode-block" id="is_valid_url"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_valid_url">[docs]</a><span class="k">def</span> <span class="nf">is_valid_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the given url is valid.</span>
 
-    <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s1">&#39;^https?://&#39;</span>  <span class="c1"># http:// or https://</span>
-        <span class="sa">r</span><span class="s1">&#39;(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|&#39;</span>  <span class="c1"># domain...</span>
-        <span class="sa">r</span><span class="s1">&#39;localhost|&#39;</span>  <span class="c1"># localhost...</span>
-        <span class="sa">r</span><span class="s1">&#39;\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})&#39;</span> <span class="c1"># ...or ip</span>
-        <span class="sa">r</span><span class="s1">&#39;(?::\d+)?&#39;</span>  <span class="c1"># optional port</span>
-        <span class="sa">r</span><span class="s1">&#39;(?:/?|[/?]\S+)$&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></div>
+<span class="sd">    :param url: (str) url to check</span>
+<span class="sd">    :param strict: If False, URLs without a TLD (e.g., &quot;http://example&quot;) are considered valid. Defaults to True.</span>
+<span class="sd">    :return: (bool) True if valid, False otherwise</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            check.is_valid_url(&quot;google.com&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_valid_url(&quot;http://google.com&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_valid_url(&quot;https://www.google.com/search?q=python&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check.is_valid_url(&quot;ftp://example.com&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">url</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http://&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;https://&quot;</span><span class="p">)):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># regex = re.compile(</span>
+    <span class="c1">#     r&#39;^https?://&#39;  # http:// or https://</span>
+    <span class="c1">#     r&#39;(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|&#39;  # domain...</span>
+    <span class="c1">#     r&#39;localhost|&#39;  # localhost...</span>
+    <span class="c1">#     r&#39;(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}\b)&#39; # ...or ip</span>
+    <span class="c1">#     r&#39;(?::\d+)?&#39;  # optional port</span>
+    <span class="c1">#     r&#39;(?:/?|[/?]\S+)&#39;,</span>
+    <span class="c1">#     re.IGNORECASE)</span>
+
+
+    <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
+        <span class="c1"># Standard regex pattern requiring a TLD</span>
+        <span class="n">regex_pattern</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;^https?://&#39;</span>
+            <span class="sa">r</span><span class="s1">&#39;(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|&#39;</span>  <span class="c1"># domain</span>
+            <span class="sa">r</span><span class="s1">&#39;localhost|&#39;</span>  <span class="c1"># localhost</span>
+            <span class="sa">r</span><span class="s1">&#39;(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))</span><span class="si">{3}</span><span class="s1">\b)&#39;</span>  <span class="c1"># IP </span>
+            <span class="sa">r</span><span class="s1">&#39;(?::\d+)?&#39;</span>  <span class="c1"># optional port</span>
+            <span class="sa">r</span><span class="s1">&#39;(?:/?|[/?]\S+)&#39;</span>  <span class="c1"># optional path</span>
+            <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Regex pattern that allows URLs without a TLD</span>
+        <span class="n">regex_pattern</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;^https?://&#39;</span>  <span class="c1"># http://  or https://</span>
+            <span class="sa">r</span><span class="s1">&#39;(?:[A-Z0-9]+(?:[A-Z0-9-]*[A-Z0-9])?\.)?&#39;</span>  <span class="c1">#  domain</span>
+            <span class="sa">r</span><span class="s1">&#39;(?:[A-Z0-9]+(?:[A-Z0-9-]*[A-Z0-9]))&#39;</span>  <span class="c1"># parse </span>
+            <span class="sa">r</span><span class="s1">&#39;(?:\.[A-Z]{2,6})?&#39;</span>  <span class="c1"># TLD (선택사항)</span>
+            <span class="sa">r</span><span class="s1">&#39;(?::\d+)?&#39;</span>  <span class="c1"># optional port</span>
+            <span class="sa">r</span><span class="s1">&#39;(?:/?|[/?]\S+)?$&#39;</span>  <span class="c1"># optional path</span>
+            <span class="p">)</span>
+
+    <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regex_pattern</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">url</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="is_valid_private_key"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_valid_private_key">[docs]</a><span class="k">def</span> <span class="nf">is_valid_private_key</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates the Private Key</span>
 
-<span class="sd">    :param text: private key text</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param text: A string of private key text.</span>
+<span class="sd">    :type text: str</span>
+<span class="sd">    :return: A boolean value indicating whether the private key is valid or not.</span>
+<span class="sd">    :rtype: bool</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            is_valid_private_key(&quot;0x1234567890123456789012345678901234567890123456789012345678901234&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            is_valid_private_key(&quot;0x12345678901234567890123456789012345678901234567890123456789012345&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">private_length</span> <span class="o">=</span> <span class="mi">64</span>
@@ -299,26 +457,77 @@
 
 <div class="viewcode-block" id="is_valid_token_address"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_valid_token_address">[docs]</a><span class="k">def</span> <span class="nf">is_valid_token_address</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;hx&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Validates the token address</span>
-<span class="sd">    :param text:</span>
-<span class="sd">    :param prefix:</span>
-<span class="sd">    :return:</span>
+<span class="sd">    Validates the token address.</span>
+
+<span class="sd">    :param text: A string representing the token address to be validated.</span>
+<span class="sd">    :param prefix: A string representing the prefix of the token address. Default value is &quot;hx&quot;.</span>
+<span class="sd">    :return: A boolean value indicating whether the token address is valid or not.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            is_valid_token_address(&quot;hx1234567890123456789012345678901234567890&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            is_valid_token_address(&quot;tx1234567890123456789012345678901234567890&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">text</span> <span class="ow">and</span> <span class="n">prefix</span> \
             <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">==</span> <span class="mi">42</span> \
-            <span class="ow">and</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>\
+            <span class="ow">and</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> \
             <span class="ow">and</span> <span class="n">is_hex</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="mi">2</span><span class="p">:]):</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="kc">False</span></div>
 
 
+<div class="viewcode-block" id="is_valid_tx_hash"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_valid_tx_hash">[docs]</a><span class="k">def</span> <span class="nf">is_valid_tx_hash</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validates the txHash</span>
+
+<span class="sd">    :param text: A string of txHash text.</span>
+<span class="sd">    :type text: str</span>
+<span class="sd">    :return: A boolean value indicating whether the txHash is valid or not.</span>
+<span class="sd">    :rtype: bool</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            is_valid_tx_hash(&quot;0x1234567890123456789012345678901234567890123456789012345678901234&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            is_valid_tx_hash(&quot;0x12345678901234567890123456789012345678901234567890123456789012345&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tx_hash_length</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="k">if</span> <span class="n">text</span> <span class="ow">and</span> <span class="n">is_hex</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;0x&quot;</span><span class="p">):</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">==</span> <span class="n">tx_hash_length</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
 <div class="viewcode-block" id="list_depth"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.list_depth">[docs]</a><span class="k">def</span> <span class="nf">list_depth</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    returns depth count of list</span>
+<span class="sd">    Returns the depth count of a list.</span>
 
-<span class="sd">    :param l: list</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param l: A list.</span>
+<span class="sd">    :return: An integer representing the depth count of the list.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            list_depth([1, 2, 3])</span>
+<span class="sd">            # &gt;&gt; 1</span>
+
+<span class="sd">            list_depth([1, [2, 3], [4, [5, 6]]])</span>
+<span class="sd">            # &gt;&gt; 3</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">list_depth</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">l</span><span class="p">)</span>
@@ -364,10 +573,25 @@
 
 <span class="k">def</span> <span class="nf">_str2bool</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    this function get the boolean type</span>
+<span class="sd">    This function returns boolean type of given string.</span>
 
-<span class="sd">    :param v:</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param v: A string to be converted to boolean type.</span>
+<span class="sd">    :type v: str</span>
+<span class="sd">    :return: Boolean value of given string.</span>
+<span class="sd">    :rtype: bool</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            &gt;&gt;&gt; _str2bool(&#39;True&#39;)</span>
+<span class="sd">            True</span>
+<span class="sd">            &gt;&gt;&gt; _str2bool(&#39;false&#39;)</span>
+<span class="sd">            False</span>
+<span class="sd">            &gt;&gt;&gt; _str2bool(&#39;1&#39;)</span>
+<span class="sd">            True</span>
+<span class="sd">            &gt;&gt;&gt; _str2bool(None)</span>
+<span class="sd">            False</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
@@ -386,11 +610,22 @@
 
 <div class="viewcode-block" id="return_guess_type"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.return_guess_type">[docs]</a><span class="k">def</span> <span class="nf">return_guess_type</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-
 <span class="sd">    This function returns the result of :func:`guess_type` and :func:`_strbool`</span>
 
-<span class="sd">    :param value:</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param value: A value to guess the type of.</span>
+<span class="sd">    :type value: any</span>
+<span class="sd">    :return: The guessed type of the input value.</span>
+<span class="sd">    :rtype: any</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            return_guess_type(&quot;True&quot;)</span>
+<span class="sd">            # &gt;&gt; &lt;class &#39;bool&#39;&gt;</span>
+
+<span class="sd">            return_guess_type(&quot;2.2&quot;)</span>
+<span class="sd">            # &gt;&gt; &lt;class &#39;float&#39;&gt;</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">guessed_type</span> <span class="o">=</span> <span class="n">guess_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -408,11 +643,23 @@
 
 <div class="viewcode-block" id="sys_exit"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.sys_exit">[docs]</a><span class="k">def</span> <span class="nf">sys_exit</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function executes the sys.exit() method</span>
+<span class="sd">    This function executes the sys.exit() method.</span>
 
-<span class="sd">    :param message: print message</span>
-<span class="sd">    :param return_code: exit code</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param message: A message to be printed before exiting. (default=&quot;&quot;)</span>
+<span class="sd">    :type message: str</span>
+<span class="sd">    :param return_code: An exit code to be returned. (default=-1)</span>
+<span class="sd">    :type return_code: int</span>
+<span class="sd">    :return: None</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Example 1: Exit with default return code and message</span>
+<span class="sd">            sys_exit()</span>
+
+<span class="sd">            # Example 2: Exit with custom return code and message</span>
+<span class="sd">            sys_exit(&quot;An error occurred!&quot;, 1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
@@ -422,13 +669,26 @@
 
 <div class="viewcode-block" id="is_include_list"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_include_list">[docs]</a><span class="k">def</span> <span class="nf">is_include_list</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_list</span><span class="o">=</span><span class="p">[],</span> <span class="n">ignore_case</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    check if target string exists in list</span>
+<span class="sd">    Check if target string exists in list.</span>
 
-<span class="sd">    :param target: target string</span>
-<span class="sd">    :param include_list: List of strings to check</span>
-<span class="sd">    :param ignore_case: ignore case sensitive</span>
+<span class="sd">    :param target: Target string to check.</span>
+<span class="sd">    :type target: str</span>
+<span class="sd">    :param include_list: List of strings to check.</span>
+<span class="sd">    :type include_list: list</span>
+<span class="sd">    :param ignore_case: If True, ignore case sensitive. Default is True.</span>
+<span class="sd">    :type ignore_case: bool</span>
 
-<span class="sd">    :return:</span>
+<span class="sd">    :return: Return True if target string exists in include_list, else False.</span>
+<span class="sd">    :rtype: bool</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            result = is_include_list(&quot;hello world&quot;, [&quot;hello&quot;, &quot;world&quot;])</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            result = is_include_list(&quot;hello world&quot;, [&quot;hello&quot;, &quot;world&quot;], ignore_case=False)</span>
+<span class="sd">            # &gt;&gt; False</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">target</span> <span class="ow">and</span> <span class="n">include_list</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">include_key</span> <span class="ow">in</span> <span class="n">include_list</span><span class="p">:</span>
@@ -477,20 +737,13 @@
 <span class="sd">            # &gt;&gt; False</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">not_defined</span> <span class="o">=</span> <span class="s2">&quot;__NOT_DEFINED__&quot;</span>
-    <span class="n">next_element</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">keys</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">next_element</span><span class="p">:</span>
-            <span class="n">_element</span> <span class="o">=</span> <span class="n">next_element</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">_element</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_element</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">_element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">not_defined</span><span class="p">)</span> <span class="o">!=</span> <span class="n">not_defined</span><span class="p">:</span>
-                <span class="n">next_element</span> <span class="o">=</span> <span class="n">_element</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">not_defined</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">else</span><span class="p">:</span>
+    <span class="n">_element</span> <span class="o">=</span> <span class="n">element</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_element</span> <span class="o">=</span> <span class="n">_element</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
+
     <span class="k">return</span> <span class="kc">True</span></div>
 
 

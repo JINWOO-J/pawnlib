@@ -2,9 +2,17 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta content="Pawnlib is a versatile Python library that simplifies the process of creating and managing pawn structures in your applications, offering a wide range of features and utilities to enhance your development workflow." lang="en" name="description" xml:lang="en" />
+<meta content="Pawnlib est une bibliothèque Python polyvalente qui simplifie le processus de création et de gestion des structures de prêt sur gage dans vos applications, offrant une large gamme de fonctionnalités et d'utilitaires pour améliorer votre flux de travail de développement." lang="fr" name="description" xml:lang="fr" />
+<meta content="pawnlib, python, pawn structure, development, python library" name="keywords" />
+<meta content="en_US" property="og:locale" />
+<meta content="Pawnlib - Simplify Pawn Structure Management in Python" property="og:title" />
+<meta content="Simplify the creation and management of pawn structures in Python with Pawnlib, a versatile library offering a wide range of features and utilities." property="og:description" />
+<meta content="website" property="og:type" />
+<meta content="https://pawnlib.readthedocs.io" property="og:url" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to pawnlib’s documentation! &mdash; Pawnlib v1.0.21</title>
+  <title>Welcome to pawnlib’s documentation! &mdash; Pawnlib v1.0.85</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
@@ -37,7 +45,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.21
+                1.0.85
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -89,7 +97,7 @@
   <section id="welcome-to-pawnlib-s-documentation">
 <h1>Welcome to pawnlib’s documentation!<a class="headerlink" href="#welcome-to-pawnlib-s-documentation" title="Permalink to this heading"></a></h1>
 <section id="latest-version-version">
-<h2>Latest version: 1.0.21<a class="headerlink" href="#latest-version-version" title="Permalink to this heading"></a></h2>
+<h2>Latest version: 1.0.85<a class="headerlink" href="#latest-version-version" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
@@ -146,11 +154,285 @@
 <li class="toctree-l2"><a class="reference internal" href="module/pawnlib.utils.html#pawnlib-utils-notify-module">pawnlib.utils.notify module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/pawnlib.utils.html#pawnlib-utils-operate-handler-module">pawnlib.utils.operate_handler module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/pawnlib.utils.html#pawnlib-utils-icx-signer-module">pawnlib.utils.icx_signer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/pawnlib.utils.html#pawnlib-utils-genesis-module">pawnlib.utils.genesis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/pawnlib.utils.html#pawnlib-utils-in-memory-zip-module">pawnlib.utils.in_memory_zip module</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </section>
+</section>
+<section id="pawnlib">
+<h1>♟️ Pawnlib<a class="headerlink" href="#pawnlib" title="Permalink to this heading"></a></h1>
+<p>A collection of libraries that can be used like pawns on a chessboard.
+Pawnlib is a collection of libraries for IaC.</p>
+<p>utils, globals vars, logging, http, network, pretty printing, resource,
+converter …</p>
+<p><a class="reference external" href="https://github.com/JINWOO-J/pawnlib/actions/workflows/docker-push.yml"><img alt="Build Docker Images" src="https://github.com/JINWOO-J/pawnlib/actions/workflows/docker-push.yml/badge.svg" /></a> <a class="reference external" href="https://github.com/JINWOO-J/pawnlib/actions/workflows/docs-publish.yml"><img alt="Docs" src="https://github.com/JINWOO-J/pawnlib/actions/workflows/docs-publish.yml/badge.svg" /></a> <a class="reference external" href="https://github.com/JINWOO-J/pawnlib/actions/workflows/pages/pages-build-deployment"><img alt="pages-build-deployment" src="https://github.com/JINWOO-J/pawnlib/actions/workflows/pages/pages-build-deployment/badge.svg" /></a></p>
+<p><a class="reference external" href="https://badge.fury.io/py/pawnlib"><img alt="PyPI version" src="https://badge.fury.io/py/pawnlib.svg" /></a></p>
+<ul class="simple">
+<li><p><strong>Installing pawnlib</strong></p></li>
+</ul>
+<p>pawnlib is available on PyPI:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">pawnlib</span>
+</pre></div>
+</div>
+<p>pawnlib with wallet is available on PyPI:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">pawnlib</span><span class="p">[</span><span class="n">wallet</span><span class="p">]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Global Config</strong></p></li>
+</ul>
+<p>You can use the global config.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
+<span class="kn">from</span> <span class="nn">pawnlib.output</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">current_path</span> <span class="o">=</span> <span class="n">get_script_path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="n">log_time_format</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S.</span><span class="si">%f</span><span class="s1">&#39;</span>
+    <span class="n">app_name</span> <span class="o">=</span> <span class="s2">&quot;default_app&quot;</span>
+    <span class="n">stdout</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">PAWN_PATH</span><span class="o">=</span><span class="n">current_path</span><span class="p">,</span>
+        <span class="n">PAWN_TIME_FORMAT</span><span class="o">=</span><span class="n">log_time_format</span><span class="p">,</span>
+        <span class="n">PAWN_LOGGER</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+            <span class="n">stdout_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+            <span class="n">log_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">current_path</span><span class="si">}</span><span class="s2">/logs&quot;</span><span class="p">,</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span>
+            <span class="n">use_hook_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">PAWN_CONSOLE</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">redirect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">log_time_format</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;%Y-%m-%d %H:%M:%S.%f&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">PAWN_DEBUG</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># Don&#39;t use production, because it&#39;s not stored exception log.</span>
+        <span class="n">PAWN_VERBOSE</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">app_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span>
+        <span class="n">app_data</span><span class="o">=</span><span class="p">{},</span>
+    <span class="p">)</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;START APP&quot;</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pawn</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>app builder</strong></p></li>
+</ul>
+<p>You can create a simple application based on pawnlib with the command
+below.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pawns<span class="w"> </span>init
+<span class="o">[</span><span class="m">10</span>:35:21,837<span class="o">]</span><span class="w"> </span>main_cli<span class="w"> </span>wrapper<span class="w">                                                                                               </span>main_cli.py:117
+<span class="o">[</span><span class="m">10</span>:35:21,840<span class="o">]</span><span class="w"> </span><span class="nv">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Namespace<span class="o">(</span><span class="nv">proxy</span><span class="o">=</span>None,<span class="w"> </span><span class="nv">init</span><span class="o">=</span>Namespace<span class="o">(</span><span class="nv">command</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="o">))</span>,<span class="w"> </span><span class="nb">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>init<span class="w">                                   </span>main_cli.py:119
+
+--------------------------------------------------
+
+
+___.<span class="w">         </span>.__.__<span class="w">       </span>.___
+<span class="se">\_</span><span class="w"> </span><span class="p">|</span>__<span class="w">  </span>__<span class="w"> </span>__<span class="p">|</span>__<span class="p">|</span><span class="w">  </span><span class="p">|</span><span class="w">    </span>__<span class="p">|</span><span class="w"> </span>_/___________
+<span class="w"> </span><span class="p">|</span><span class="w"> </span>__<span class="w"> </span><span class="se">\|</span><span class="w">  </span><span class="p">|</span><span class="w">  </span><span class="se">\ </span><span class="w"> </span><span class="p">|</span><span class="w">  </span><span class="p">|</span><span class="w">   </span>/<span class="w"> </span>__<span class="w"> </span><span class="p">|</span>/<span class="w"> </span>__<span class="w"> </span><span class="se">\_</span><span class="w">  </span>__<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\_\ \ </span><span class="w"> </span><span class="p">|</span><span class="w">  </span>/<span class="w">  </span><span class="p">|</span><span class="w">  </span><span class="p">|</span>__/<span class="w"> </span>/_/<span class="w"> </span><span class="se">\ </span><span class="w"> </span>___/<span class="p">|</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="se">\/</span>
+<span class="w"> </span><span class="p">|</span>___<span class="w">  </span>/____/<span class="p">|</span>__<span class="p">|</span>____/<span class="se">\_</span>___<span class="w"> </span><span class="p">|</span><span class="se">\_</span>__<span class="w">  </span>&gt;__<span class="p">|</span>
+<span class="w">     </span><span class="se">\/</span><span class="w">                    </span><span class="se">\/</span><span class="w">    </span><span class="se">\/</span>
+
+<span class="w"> </span>-<span class="w"> </span>Description<span class="w"> </span>:<span class="w"> </span>Initialize<span class="w"> </span>Python<span class="w"> </span>Development<span class="w"> </span>Environment
+<span class="w"> </span>-<span class="w"> </span>Version<span class="w">     </span>:<span class="w"> </span><span class="m">0</span>.0.28
+<span class="w"> </span>-<span class="w"> </span>Author<span class="w">      </span>:<span class="w"> </span>jinwoo
+
+
+--------------------------------------------------
+
+<span class="nv">PWD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/Users/jinwoo/work/python_prj/pawnlib
+
+
+What<span class="s1">&#39;s your python3 app name? (default_app):</span>
+<span class="s1">What&#39;</span>s<span class="w"> </span>your<span class="w"> </span>name?<span class="w"> </span><span class="o">(</span>jinwoo<span class="o">)</span>:
+Please<span class="w"> </span>explain<span class="w"> </span>this<span class="w"> </span>script.<span class="w"> </span><span class="o">(</span>This<span class="w"> </span>is<span class="w"> </span>script<span class="o">)</span>:
+Project<span class="w"> </span><span class="nv">directory</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>/Users/jinwoo/work/python_prj/pawnlib<span class="w"> </span>?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span><span class="w"> </span><span class="o">(</span>y<span class="o">)</span>:
+Do<span class="w"> </span>you<span class="w"> </span>want<span class="w"> </span>to<span class="w"> </span>logger?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span><span class="w"> </span><span class="o">(</span>y<span class="o">)</span>:
+Do<span class="w"> </span>you<span class="w"> </span>want<span class="w"> </span>to<span class="w"> </span>daemon?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span><span class="w"> </span><span class="o">(</span>n<span class="o">)</span>:
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>simple reflector proxy</strong></p></li>
+</ul>
+<p>Simple Python HTTP Server which reflects the client HTTP request header
+in server logs to see the header fields forwarded by web servers.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pawns<span class="w"> </span>proxy<span class="w"> </span>-l<span class="w"> </span><span class="m">8080</span><span class="w"> </span>-f<span class="w"> </span><span class="m">127</span>.0.0.1:8200
+<span class="o">[</span><span class="m">10</span>:34:33,898<span class="o">]</span><span class="w"> </span>main_cli<span class="w"> </span>wrapper<span class="w">                                                                                               </span>main_cli.py:117
+<span class="o">[</span><span class="m">10</span>:34:33,902<span class="o">]</span><span class="w"> </span><span class="nv">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Namespace<span class="o">(</span><span class="nv">proxy</span><span class="o">=</span>Namespace<span class="o">(</span><span class="nv">listen</span><span class="o">=</span><span class="s1">&#39;8080&#39;</span>,<span class="w"> </span><span class="nv">forward</span><span class="o">=</span><span class="s1">&#39;127.0.0.1:8200&#39;</span>,<span class="w"> </span><span class="nv">buffer_size</span><span class="o">=</span><span class="m">4096</span>,<span class="w"> </span><span class="nv">delay</span><span class="o">=</span><span class="m">0</span>.0001,<span class="w">      </span>main_cli.py:119
+<span class="w">               </span><span class="nv">timeout</span><span class="o">=</span><span class="m">3</span><span class="o">)</span>,<span class="w"> </span><span class="nv">init</span><span class="o">=</span>None<span class="o">)</span>,<span class="w"> </span><span class="nb">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>proxy
+
+--------------------------------------------------
+
+
+
+_____________<span class="w">  </span>_______<span class="w">  </span>______.__.
+<span class="se">\_</span>___<span class="w"> </span><span class="se">\_</span><span class="w">  </span>__<span class="w"> </span><span class="se">\/</span><span class="w">  </span>_<span class="w"> </span><span class="se">\ </span><span class="w"> </span><span class="se">\/</span><span class="w">  </span>&lt;<span class="w">   </span><span class="p">|</span><span class="w">  </span><span class="p">|</span>
+<span class="p">|</span><span class="w">  </span><span class="p">|</span>_&gt;<span class="w"> </span>&gt;<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="se">\(</span><span class="w">  </span>&lt;_&gt;<span class="w"> </span>&gt;<span class="w">    </span>&lt;<span class="w"> </span><span class="se">\_</span>__<span class="w">  </span><span class="p">|</span>
+<span class="p">|</span><span class="w">   </span>__/<span class="p">|</span>__<span class="p">|</span><span class="w">   </span><span class="se">\_</span>___/__/<span class="se">\_</span><span class="w"> </span><span class="se">\/</span><span class="w"> </span>____<span class="p">|</span>
+<span class="p">|</span>__<span class="p">|</span><span class="w">                     </span><span class="se">\/\/</span>
+<span class="w">                </span>_____.__<span class="w">                 </span>__
+_______<span class="w">   </span>_____/<span class="w"> </span>____<span class="se">\ </span><span class="w"> </span><span class="p">|</span><span class="w">   </span>____<span class="w">   </span>_____/<span class="w">  </span><span class="p">|</span>_<span class="w">  </span>___________
+<span class="se">\_</span><span class="w">  </span>__<span class="w"> </span><span class="se">\_</span>/<span class="w"> </span>__<span class="w"> </span><span class="se">\ </span><span class="w">  </span>__<span class="se">\|</span><span class="w">  </span><span class="p">|</span><span class="w"> </span>_/<span class="w"> </span>__<span class="w"> </span><span class="se">\_</span>/<span class="w"> </span>___<span class="se">\ </span><span class="w">  </span>__<span class="se">\/</span><span class="w">  </span>_<span class="w"> </span><span class="se">\_</span><span class="w">  </span>__<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span><span class="p">|</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="se">\/\ </span><span class="w"> </span>___/<span class="p">|</span><span class="w">  </span><span class="p">|</span><span class="w">  </span><span class="p">|</span><span class="w">  </span><span class="p">|</span>_<span class="se">\ </span><span class="w"> </span>___/<span class="se">\ </span><span class="w"> </span><span class="se">\_</span>__<span class="p">|</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="o">(</span><span class="w">  </span>&lt;_&gt;<span class="w"> </span><span class="o">)</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="se">\/</span>
+<span class="w"> </span><span class="p">|</span>__<span class="p">|</span><span class="w">    </span><span class="se">\_</span>__<span class="w">  </span>&gt;__<span class="p">|</span><span class="w">  </span><span class="p">|</span>____/<span class="se">\_</span>__<span class="w">  </span>&gt;<span class="se">\_</span>__<span class="w">  </span>&gt;__<span class="p">|</span><span class="w">  </span><span class="se">\_</span>___/<span class="p">|</span>__<span class="p">|</span>
+<span class="w">             </span><span class="se">\/</span><span class="w">                </span><span class="se">\/</span><span class="w">     </span><span class="se">\/</span>
+
+<span class="w"> </span>-<span class="w"> </span>Description<span class="w"> </span>:<span class="w"> </span>proxy<span class="w"> </span>reflector
+<span class="w"> </span>-<span class="w"> </span>Version<span class="w">     </span>:<span class="w"> </span><span class="m">0</span>.0.28
+<span class="w"> </span>-<span class="w"> </span>Author<span class="w">      </span>:<span class="w"> </span>jinwoo
+
+
+--------------------------------------------------
+
+<span class="o">[</span><span class="m">10</span>:34:33,904<span class="o">]</span><span class="w"> </span><span class="nv">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Namespace<span class="o">(</span><span class="nv">listen</span><span class="o">=</span><span class="s1">&#39;8080&#39;</span>,<span class="w"> </span><span class="nv">forward</span><span class="o">=</span><span class="s1">&#39;127.0.0.1:8200&#39;</span>,<span class="w"> </span><span class="nv">buffer_size</span><span class="o">=</span><span class="m">4096</span>,<span class="w"> </span><span class="nv">delay</span><span class="o">=</span><span class="m">0</span>.0001,<span class="w"> </span><span class="nv">timeout</span><span class="o">=</span><span class="m">3</span><span class="o">)</span><span class="w">              </span>proxy.py:173
+<span class="o">[</span><span class="m">10</span>:34:33,905<span class="o">]</span><span class="w"> </span>Listen<span class="w"> </span><span class="m">0</span>.0.0.0:8080<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>Forward<span class="w"> </span><span class="m">127</span>.0.0.1:8200
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>httping</strong></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">http</span></code> module offers a streamlined and efficient way to perform HTTP
+requests and handle responses.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pawns<span class="w"> </span>http
+
+--------------------------------------------------
+
+
+.__<span class="w">     </span>__<span class="w">    </span>__<span class="w">         </span>.__
+<span class="p">|</span><span class="w">  </span><span class="p">|</span>___/<span class="w">  </span><span class="p">|</span>__/<span class="w">  </span><span class="p">|</span>_______<span class="w"> </span><span class="p">|</span>__<span class="p">|</span><span class="w"> </span>____<span class="w">    </span>____
+<span class="p">|</span><span class="w">  </span><span class="p">|</span><span class="w">  </span><span class="se">\ </span><span class="w">  </span>__<span class="se">\ </span><span class="w">  </span>__<span class="se">\_</span>___<span class="w"> </span><span class="se">\|</span><span class="w">  </span><span class="p">|</span>/<span class="w">    </span><span class="se">\ </span><span class="w"> </span>/<span class="w"> </span>___<span class="se">\</span>
+<span class="p">|</span><span class="w">   </span>Y<span class="w">  </span><span class="se">\ </span><span class="w"> </span><span class="p">|</span><span class="w">  </span><span class="p">|</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="p">|</span><span class="w">  </span><span class="p">|</span>_&gt;<span class="w"> </span>&gt;<span class="w">  </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">  </span><span class="se">\/</span><span class="w"> </span>/_/<span class="w">  </span>&gt;
+<span class="p">|</span>___<span class="p">|</span><span class="w">  </span>/__<span class="p">|</span><span class="w">  </span><span class="p">|</span>__<span class="p">|</span><span class="w"> </span><span class="p">|</span><span class="w">   </span>__/<span class="p">|</span>__<span class="p">|</span>___<span class="p">|</span><span class="w">  </span>/<span class="se">\_</span>__<span class="w">  </span>/
+<span class="w">     </span><span class="se">\/</span><span class="w">           </span><span class="p">|</span>__<span class="p">|</span><span class="w">           </span><span class="se">\/</span>/_____/
+
+<span class="w"> </span>-<span class="w"> </span>Description<span class="w"> </span>:<span class="w"> </span>This<span class="w"> </span>is<span class="w"> </span>a<span class="w"> </span>tool<span class="w"> </span>to<span class="w"> </span>measure<span class="w"> </span>RTT<span class="w"> </span>on<span class="w"> </span>HTTP/S<span class="w"> </span>requests.
+<span class="w"> </span>-<span class="w"> </span>base_dir<span class="w">    </span>:<span class="w"> </span>/Users/jinwoo/work/python_prj/pawnlib
+<span class="w"> </span>-<span class="w"> </span>logs_dir<span class="w">    </span>:<span class="w"> </span>/Users/jinwoo/work/python_prj/pawnlib/logs
+
+<span class="w"> </span>-<span class="w"> </span>Version<span class="w">     </span>:<span class="w"> </span><span class="m">1</span>.0.84
+<span class="w"> </span>-<span class="w"> </span>Author<span class="w">      </span>:<span class="w"> </span>jinwoo
+
+
+--------------------------------------------------
+
+<span class="o">[</span><span class="m">11</span>:25:46,975<span class="o">]</span><span class="w"> </span>Invalid<span class="w"> </span>url:<span class="w"> </span><span class="nv">name</span><span class="o">=</span>default,<span class="w"> </span><span class="nv">url</span><span class="o">=</span>
+usage:<span class="w"> </span>local_cli.py<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-c<span class="w"> </span>CONFIG_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>-v<span class="o">]</span><span class="w"> </span><span class="o">[</span>-q<span class="o">]</span><span class="w"> </span><span class="o">[</span>-i<span class="w"> </span>INTERVAL<span class="o">]</span><span class="w"> </span><span class="o">[</span>-m<span class="w"> </span>METHOD<span class="o">]</span><span class="w"> </span><span class="o">[</span>-t<span class="w"> </span>TIMEOUT<span class="o">]</span><span class="w"> </span><span class="o">[</span>-b<span class="w"> </span>BASE_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--success<span class="w"> </span>SUCCESS<span class="w"> </span><span class="o">[</span>SUCCESS<span class="w"> </span>...<span class="o">]]</span>
+<span class="w">                    </span><span class="o">[</span>--logical-operator<span class="w"> </span><span class="o">{</span>and,or<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--ignore-ssl<span class="w"> </span>IGNORE_SSL<span class="o">]</span><span class="w"> </span><span class="o">[</span>-d<span class="w"> </span>DATA<span class="o">]</span><span class="w"> </span><span class="o">[</span>--headers<span class="w"> </span>HEADERS<span class="o">]</span><span class="w"> </span><span class="o">[</span>-w<span class="w"> </span>WORKERS<span class="o">]</span><span class="w"> </span><span class="o">[</span>--stack-limit<span class="w"> </span>STACK_LIMIT<span class="o">]</span>
+<span class="w">                    </span><span class="o">[</span>--dynamic-increase-stack-limit<span class="w"> </span>DYNAMIC_INCREASE_STACK_LIMIT<span class="o">]</span><span class="w"> </span><span class="o">[</span>--slack-url<span class="w"> </span>SLACK_URL<span class="o">]</span><span class="w"> </span><span class="o">[</span>--log-level<span class="w"> </span>LOG_LEVEL<span class="o">]</span><span class="w"> </span><span class="o">[</span>-bk<span class="w"> </span>BLOCKHEIGHT_KEY<span class="o">]</span>
+<span class="w">                    </span><span class="o">[</span>--dry-run<span class="o">]</span>
+<span class="w">                    </span><span class="o">[</span>url<span class="o">]</span>
+
+httping
+
+positional<span class="w"> </span>arguments:
+<span class="w">  </span>url<span class="w">                   </span>URL<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>checked
+
+
+optional<span class="w"> </span>arguments:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<span class="w">  </span>-c<span class="w"> </span>CONFIG_FILE,<span class="w"> </span>--config-file<span class="w"> </span>CONFIG_FILE
+<span class="w">                        </span>Path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>configuration<span class="w"> </span>file.<span class="w"> </span>Defaults<span class="w"> </span>to<span class="w"> </span><span class="s2">&quot;config.ini&quot;</span>.
+<span class="w">  </span>-v,<span class="w"> </span>--verbose<span class="w">         </span>Enables<span class="w"> </span>verbose<span class="w"> </span>mode.<span class="w"> </span>Higher<span class="w"> </span>values<span class="w"> </span>increase<span class="w"> </span>verbosity<span class="w"> </span>level.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">1</span>.
+<span class="w">  </span>-q,<span class="w"> </span>--quiet<span class="w">           </span>Enables<span class="w"> </span>quiet<span class="w"> </span>mode.<span class="w"> </span>Suppresses<span class="w"> </span>all<span class="w"> </span>messages.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">0</span>.
+<span class="w">  </span>-i<span class="w"> </span>INTERVAL,<span class="w"> </span>--interval<span class="w"> </span>INTERVAL
+<span class="w">                        </span>Interval<span class="w"> </span><span class="nb">time</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>seconds<span class="w"> </span>between<span class="w"> </span>checks.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">1</span><span class="w"> </span>second.
+<span class="w">  </span>-m<span class="w"> </span>METHOD,<span class="w"> </span>--method<span class="w"> </span>METHOD
+<span class="w">                        </span>HTTP<span class="w"> </span>method<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="o">(</span>e.g.,<span class="w"> </span>GET,<span class="w"> </span>POST<span class="o">)</span>.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;GET&quot;</span>.
+<span class="w">  </span>-t<span class="w"> </span>TIMEOUT,<span class="w"> </span>--timeout<span class="w"> </span>TIMEOUT
+<span class="w">                        </span>Timeout<span class="w"> </span><span class="k">in</span><span class="w"> </span>seconds<span class="w"> </span><span class="k">for</span><span class="w"> </span>each<span class="w"> </span>HTTP<span class="w"> </span>request.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">10</span><span class="w"> </span>seconds.
+<span class="w">  </span>-b<span class="w"> </span>BASE_DIR,<span class="w"> </span>--base-dir<span class="w"> </span>BASE_DIR
+<span class="w">                        </span>Base<span class="w"> </span>directory<span class="w"> </span><span class="k">for</span><span class="w"> </span>httping<span class="w"> </span>operations.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>the<span class="w"> </span>current<span class="w"> </span>working<span class="w"> </span>directory.
+<span class="w">  </span>--success<span class="w"> </span>SUCCESS<span class="w"> </span><span class="o">[</span>SUCCESS<span class="w"> </span>...<span class="o">]</span>
+<span class="w">                        </span>Criteria<span class="w"> </span><span class="k">for</span><span class="w"> </span>success.<span class="w"> </span>Can<span class="w"> </span>specify<span class="w"> </span>multiple<span class="w"> </span>criteria.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="o">[</span><span class="s2">&quot;status_code==200&quot;</span><span class="o">]</span>.
+<span class="w">  </span>--logical-operator<span class="w"> </span><span class="o">{</span>and,or<span class="o">}</span>
+<span class="w">                        </span>Logical<span class="w"> </span>operator<span class="w"> </span><span class="k">for</span><span class="w"> </span>evaluating<span class="w"> </span>success<span class="w"> </span>criteria.<span class="w"> </span>Choices<span class="w"> </span>are<span class="w"> </span><span class="s2">&quot;and&quot;</span>,<span class="w"> </span><span class="s2">&quot;or&quot;</span>.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;and&quot;</span>.
+<span class="w">  </span>--ignore-ssl<span class="w"> </span>IGNORE_SSL
+<span class="w">                        </span>Ignores<span class="w"> </span>SSL<span class="w"> </span>certificate<span class="w"> </span>validation<span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>True.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>True.
+<span class="w">  </span>-d<span class="w"> </span>DATA,<span class="w"> </span>--data<span class="w"> </span>DATA<span class="w">  </span>Data<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>sent<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>HTTP<span class="w"> </span>request<span class="w"> </span>body.<span class="w"> </span>Expected<span class="w"> </span><span class="k">in</span><span class="w"> </span>JSON<span class="w"> </span>format.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>an<span class="w"> </span>empty<span class="w"> </span>dictionary.
+<span class="w">  </span>--headers<span class="w"> </span>HEADERS<span class="w">     </span>HTTP<span class="w"> </span>headers<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>sent<span class="w"> </span>with<span class="w"> </span>the<span class="w"> </span>request.<span class="w"> </span>Expected<span class="w"> </span><span class="k">in</span><span class="w"> </span>JSON<span class="w"> </span>format.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>an<span class="w"> </span>empty<span class="w"> </span>dictionary.
+<span class="w">  </span>-w<span class="w"> </span>WORKERS,<span class="w"> </span>--workers<span class="w"> </span>WORKERS
+<span class="w">                        </span>Maximum<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>worker<span class="w"> </span>processes.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">10</span>.
+<span class="w">  </span>--stack-limit<span class="w"> </span>STACK_LIMIT
+<span class="w">                        </span>Error<span class="w"> </span>stack<span class="w"> </span>limit.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span><span class="m">5</span>.
+<span class="w">  </span>--dynamic-increase-stack-limit<span class="w"> </span>DYNAMIC_INCREASE_STACK_LIMIT
+<span class="w">                        </span>Dynamically<span class="w"> </span>increases<span class="w"> </span>the<span class="w"> </span>error<span class="w"> </span>stack<span class="w"> </span>limit<span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">set</span><span class="w"> </span>to<span class="w"> </span>True.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>True.
+<span class="w">  </span>--slack-url<span class="w"> </span>SLACK_URL
+<span class="w">                        </span>URL<span class="w"> </span><span class="k">for</span><span class="w"> </span>sending<span class="w"> </span>notifications<span class="w"> </span>to<span class="w"> </span>Slack.<span class="w"> </span>Optional.
+<span class="w">  </span>--log-level<span class="w"> </span>LOG_LEVEL
+<span class="w">                        </span>Log<span class="w"> </span>level.
+<span class="w">  </span>-bk<span class="w"> </span>BLOCKHEIGHT_KEY,<span class="w"> </span>--blockheight-key<span class="w"> </span>BLOCKHEIGHT_KEY
+<span class="w">                        </span>JSON<span class="w"> </span>key<span class="w"> </span>to<span class="w"> </span>extract<span class="w"> </span>the<span class="w"> </span>blockheight<span class="w"> </span>information,<span class="w"> </span>e.g.,<span class="w"> </span><span class="s1">&#39;result.sync_info.latest_block_height&#39;</span>.<span class="w"> </span>The<span class="w"> </span>script<span class="w"> </span>will<span class="w"> </span>check<span class="w"> </span><span class="k">if</span><span class="w"> </span>the<span class="w"> </span>blockheight<span class="w"> </span>at
+<span class="w">                        </span>this<span class="w"> </span>path<span class="w"> </span>is<span class="w"> </span>increasing.
+<span class="w">  </span>--dry-run<span class="w">             </span>Executes<span class="w"> </span>a<span class="w"> </span>dry<span class="w"> </span>run<span class="w"> </span>without<span class="w"> </span>making<span class="w"> </span>actual<span class="w"> </span>HTTP<span class="w"> </span>requests.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>False.
+
+This<span class="w"> </span>script<span class="w"> </span>provides<span class="w"> </span>various<span class="w"> </span>options<span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span>the<span class="w"> </span>HTTP<span class="w"> </span>status<span class="w"> </span>of<span class="w"> </span>URLs.
+
+Usage<span class="w"> </span>examples:
+<span class="w">  </span><span class="m">1</span>.<span class="w"> </span>Basic<span class="w"> </span>usage:
+<span class="w">        </span>pawns<span class="w"> </span>http<span class="w"> </span>https://example.com
+
+<span class="w">  </span><span class="m">2</span>.<span class="w"> </span>Verbose<span class="w"> </span>mode:
+<span class="w">        </span>pawns<span class="w"> </span>http<span class="w"> </span>https://example.com<span class="w"> </span>-v
+
+<span class="w">  </span><span class="m">3</span>.<span class="w"> </span>Using<span class="w"> </span>custom<span class="w"> </span>headers<span class="w"> </span>and<span class="w"> </span>POST<span class="w"> </span>method:
+<span class="w">        </span>pawns<span class="w"> </span>http<span class="w"> </span>https://example.com<span class="w"> </span>-m<span class="w"> </span>POST<span class="w"> </span>--headers<span class="w"> </span><span class="s1">&#39;{&quot;Content-Type&quot;: &quot;application/json&quot;}&#39;</span><span class="w"> </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;param&quot;: &quot;value&quot;}&#39;</span>
+
+<span class="w">  </span><span class="m">4</span>.<span class="w"> </span>Ignoring<span class="w"> </span>SSL<span class="w"> </span>verification<span class="w"> </span>and<span class="w"> </span>setting<span class="w"> </span>a<span class="w"> </span>custom<span class="w"> </span>timeout:
+<span class="w">        </span>pawns<span class="w"> </span>http<span class="w"> </span>https://example.com<span class="w"> </span>--ignore-ssl<span class="w"> </span>True<span class="w"> </span>--timeout<span class="w"> </span><span class="m">5</span>
+
+<span class="w">  </span><span class="m">5</span>.<span class="w"> </span>Checking<span class="w"> </span>with<span class="w"> </span>specific<span class="w"> </span>success<span class="w"> </span>criteria<span class="w"> </span>and<span class="w"> </span>logical<span class="w"> </span>operator:
+<span class="w">        </span>pawns<span class="w"> </span>http<span class="w"> </span>https://example.com<span class="w"> </span>--success<span class="w"> </span><span class="s1">&#39;status_code==200&#39;</span><span class="w"> </span><span class="s1">&#39;response_time&lt;2&#39;</span><span class="w"> </span>--logical-operator<span class="w"> </span>and
+
+<span class="w">  </span><span class="m">6</span>.<span class="w"> </span>Running<span class="w"> </span>with<span class="w"> </span>a<span class="w"> </span>custom<span class="w"> </span>config<span class="w"> </span>file<span class="w"> </span>and<span class="w"> </span>interval:
+<span class="w">        </span>pawns<span class="w"> </span>http<span class="w"> </span>https://example.com<span class="w"> </span>-c<span class="w"> </span>http_config.ini<span class="w"> </span>-i<span class="w"> </span><span class="m">3</span>
+
+<span class="w">    </span>http_config.ini
+<span class="w">    </span><span class="o">[</span>default<span class="o">]</span>
+<span class="w">    </span><span class="nv">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">status_code</span><span class="o">==</span><span class="m">200</span>
+<span class="w">    </span><span class="nv">slack_url</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="nv">interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>
+<span class="w">    </span><span class="nv">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>get
+<span class="w">    </span><span class="p">;</span><span class="w"> </span><span class="nv">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>sdsd
+<span class="w">    </span><span class="nv">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span><span class="s2">&quot;sdsd&quot;</span>:<span class="w"> </span><span class="s2">&quot;sd222sd&quot;</span><span class="o">}</span>
+
+<span class="w">    </span><span class="o">[</span>post<span class="o">]</span>
+<span class="w">    </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>http://httpbin.org/post
+<span class="w">    </span><span class="nv">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>post
+
+<span class="w">    </span><span class="o">[</span>http_200_ok<span class="o">]</span>
+<span class="w">    </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>http://httpbin.org/status/200
+<span class="w">    </span><span class="nv">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">status_code</span><span class="o">==</span><span class="m">200</span>
+
+<span class="w">    </span><span class="o">[</span>http_300_ok_and_2ms_time<span class="o">]</span>
+<span class="w">    </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>http://httpbin.org/status/300
+<span class="w">    </span><span class="nv">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s1">&#39;status_code==300&#39;</span>,<span class="w"> </span><span class="s1">&#39;response_time&lt;0.02&#39;</span><span class="o">]</span>
+
+<span class="w">    </span><span class="o">[</span>http_400_ok<span class="o">]</span>
+<span class="w">    </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>http://httpbin.org/status/400
+<span class="w">    </span><span class="nv">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;status_code==400&quot;</span><span class="o">]</span>
+
+
+<span class="w">  </span><span class="m">7</span>.<span class="w"> </span>Setting<span class="w"> </span>maximum<span class="w"> </span>workers<span class="w"> </span>and<span class="w"> </span>stack<span class="w"> </span>limit:
+<span class="w">        </span>pawns<span class="w"> </span>http<span class="w"> </span>https://example.com<span class="w"> </span>-w<span class="w"> </span><span class="m">5</span><span class="w"> </span>--stack-limit<span class="w"> </span><span class="m">10</span>
+
+<span class="w">  </span><span class="m">8</span>.<span class="w"> </span>Dry<span class="w"> </span>run<span class="w"> </span>without<span class="w"> </span>actual<span class="w"> </span>HTTP<span class="w"> </span>request:
+<span class="w">        </span>pawns<span class="w"> </span>http<span class="w"> </span>https://example.com<span class="w"> </span>--dry-run
+
+<span class="w">  </span><span class="m">9</span>.<span class="w"> </span>Sending<span class="w"> </span>notifications<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>Slack<span class="w"> </span>URL<span class="w"> </span>on<span class="w"> </span>failure:
+<span class="w">        </span>pawns<span class="w"> </span>http<span class="w"> </span>https://example.com<span class="w"> </span>--slack-url<span class="w"> </span><span class="s1">&#39;https://hooks.slack.com/services/...&#39;</span>
+
+<span class="w"> </span><span class="m">10</span>.<span class="w"> </span>Checking<span class="w"> </span>blockheight<span class="w"> </span>increase:
+<span class="w">        </span>pawns<span class="w"> </span>http<span class="w"> </span>http://test-node-01:26657/status<span class="w"> </span>--blockheight-key<span class="w"> </span><span class="s2">&quot;result.sync_info.latest_block_height&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="m">5</span>
+</pre></div>
+</div>
+<p>Officially supports Python 3.9+.</p>
+<p>Documentation and tutorials are available at
+<a class="reference external" href="https://pawnlib.readthedocs.io">https://pawnlib.readthedocs.io</a></p>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>

@@ -13,8 +13,8 @@ utils, globals vars, logging, http, network, pretty printing, resource, converte
 [![PyPI version](https://badge.fury.io/py/pawnlib.svg)](https://badge.fury.io/py/pawnlib)
 
 
-
 ### Installing pawnlib
+- **Installing pawnlib**
 
 pawnlib is available on PyPI:
 
@@ -30,7 +30,8 @@ pip3 install pawnlib[wallet]
 
 ```
 
-### Global Config
+## Global Config
+-  **Global Config**
 
 You can use the global config. 
 
@@ -71,6 +72,7 @@ def main():
 ```
 
 ### app builder 
+- **app builder** 
 
 You can create a simple application based on pawnlib with the command below.
 
@@ -111,6 +113,7 @@ Do you want to daemon? [y/n] (n):
 
 
 ### simple reflector proxy
+- **simple reflector proxy**
 
 Simple Python HTTP Server which reflects the client HTTP request header in server logs to see the header fields forwarded by web servers. 
 
@@ -149,8 +152,149 @@ _______   _____/ ____\  |   ____   _____/  |_  ___________
 [10:34:33,905] Listen 0.0.0.0:8080 => Forward 127.0.0.1:8200
 
 ```
+
+### httping
+- **httping**
+
+`http` module offers a streamlined and efficient way to perform HTTP requests and handle responses.
+
+```bash
+
+$ pawns http
+
+--------------------------------------------------
+
+
+.__     __    __         .__
+|  |___/  |__/  |_______ |__| ____    ____
+|  |  \   __\   __\____ \|  |/    \  / ___\
+|   Y  \  |  |  | |  |_> >  |   |  \/ /_/  >
+|___|  /__|  |__| |   __/|__|___|  /\___  /
+     \/           |__|           \//_____/
+
+ - Description : This is a tool to measure RTT on HTTP/S requests.
+ - base_dir    : /Users/jinwoo/work/python_prj/pawnlib
+ - logs_dir    : /Users/jinwoo/work/python_prj/pawnlib/logs
+
+ - Version     : 1.0.84
+ - Author      : jinwoo
+
+
+--------------------------------------------------
+
+[11:25:46,975] Invalid url: name=default, url=
+usage: local_cli.py [-h] [-c CONFIG_FILE] [-v] [-q] [-i INTERVAL] [-m METHOD] [-t TIMEOUT] [-b BASE_DIR] [--success SUCCESS [SUCCESS ...]]
+                    [--logical-operator {and,or}] [--ignore-ssl IGNORE_SSL] [-d DATA] [--headers HEADERS] [-w WORKERS] [--stack-limit STACK_LIMIT]
+                    [--dynamic-increase-stack-limit DYNAMIC_INCREASE_STACK_LIMIT] [--slack-url SLACK_URL] [--log-level LOG_LEVEL] [-bk BLOCKHEIGHT_KEY]
+                    [--dry-run]
+                    [url]
+
+httping
+
+positional arguments:
+  url                   URL to be checked
+
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CONFIG_FILE, --config-file CONFIG_FILE
+                        Path to the configuration file. Defaults to "config.ini".
+  -v, --verbose         Enables verbose mode. Higher values increase verbosity level. Default is 1.
+  -q, --quiet           Enables quiet mode. Suppresses all messages. Default is 0.
+  -i INTERVAL, --interval INTERVAL
+                        Interval time in seconds between checks. Default is 1 second.
+  -m METHOD, --method METHOD
+                        HTTP method to use (e.g., GET, POST). Default is "GET".
+  -t TIMEOUT, --timeout TIMEOUT
+                        Timeout in seconds for each HTTP request. Default is 10 seconds.
+  -b BASE_DIR, --base-dir BASE_DIR
+                        Base directory for httping operations. Default is the current working directory.
+  --success SUCCESS [SUCCESS ...]
+                        Criteria for success. Can specify multiple criteria. Default is ["status_code==200"].
+  --logical-operator {and,or}
+                        Logical operator for evaluating success criteria. Choices are "and", "or". Default is "and".
+  --ignore-ssl IGNORE_SSL
+                        Ignores SSL certificate validation if set to True. Default is True.
+  -d DATA, --data DATA  Data to be sent in the HTTP request body. Expected in JSON format. Default is an empty dictionary.
+  --headers HEADERS     HTTP headers to be sent with the request. Expected in JSON format. Default is an empty dictionary.
+  -w WORKERS, --workers WORKERS
+                        Maximum number of worker processes. Default is 10.
+  --stack-limit STACK_LIMIT
+                        Error stack limit. Default is 5.
+  --dynamic-increase-stack-limit DYNAMIC_INCREASE_STACK_LIMIT
+                        Dynamically increases the error stack limit if set to True. Default is True.
+  --slack-url SLACK_URL
+                        URL for sending notifications to Slack. Optional.
+  --log-level LOG_LEVEL
+                        Log level.
+  -bk BLOCKHEIGHT_KEY, --blockheight-key BLOCKHEIGHT_KEY
+                        JSON key to extract the blockheight information, e.g., 'result.sync_info.latest_block_height'. The script will check if the blockheight at
+                        this path is increasing.
+  --dry-run             Executes a dry run without making actual HTTP requests. Default is False.
+
+This script provides various options to check the HTTP status of URLs.
+
+Usage examples:
+  1. Basic usage:
+        pawns http https://example.com
+
+  2. Verbose mode:
+        pawns http https://example.com -v
+
+  3. Using custom headers and POST method:
+        pawns http https://example.com -m POST --headers '{"Content-Type": "application/json"}' --data '{"param": "value"}'
+
+  4. Ignoring SSL verification and setting a custom timeout:
+        pawns http https://example.com --ignore-ssl True --timeout 5
+
+  5. Checking with specific success criteria and logical operator:
+        pawns http https://example.com --success 'status_code==200' 'response_time<2' --logical-operator and
+
+  6. Running with a custom config file and interval:
+        pawns http https://example.com -c http_config.ini -i 3
+
+    http_config.ini
+    [default]
+    success = status_code==200
+    slack_url =
+    interval = 3
+    method = get
+    ; data = sdsd
+    data = {"sdsd": "sd222sd"}
+
+    [post]
+    url = http://httpbin.org/post
+    method = post
+
+    [http_200_ok]
+    url = http://httpbin.org/status/200
+    success = status_code==200
+
+    [http_300_ok_and_2ms_time]
+    url = http://httpbin.org/status/300
+    success = ['status_code==300', 'response_time<0.02']
+
+    [http_400_ok]
+    url = http://httpbin.org/status/400
+    success = ["status_code==400"]
+
+
+  7. Setting maximum workers and stack limit:
+        pawns http https://example.com -w 5 --stack-limit 10
+
+  8. Dry run without actual HTTP request:
+        pawns http https://example.com --dry-run
+
+  9. Sending notifications to a Slack URL on failure:
+        pawns http https://example.com --slack-url 'https://hooks.slack.com/services/...'
+
+ 10. Checking blockheight increase:
+        pawns http http://test-node-01:26657/status --blockheight-key "result.sync_info.latest_block_height" -i 5
+
+```
+
 Officially supports Python 3.9+.
 
 ### Documentation
 
-Documentation and tutorials are available at https://docs.jinwoo.xyz
+Documentation and tutorials are available at https://pawnlib.readthedocs.io

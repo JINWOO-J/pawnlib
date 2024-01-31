@@ -112,8 +112,13 @@ init:
 upload:
 		python3 -m twine upload dist/* --verbose
 
-gendocs:
-	@$(shell ./makeMakeDown.sh)
+
+pandoc:
+	pandoc -s README.md -t rst -o docs/source/README.md.rst
+
+
+gendocs: pandoc
+	cd docs && $(MAKE) html
 
 
 docker: make_build_args
@@ -142,4 +147,3 @@ local: build
 local_deploy: build
 	scp dist/pawnlib-$(VERSION)-py3-none-any.whl root@$(LOCAL_SERVER):/app/;
 	ssh root@$(LOCAL_SERVER) pip3 install /app/pawnlib-$(VERSION)-py3-none-any.whl --force-reinstall
-

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.typing.defines &mdash; Pawnlib v1.0.20</title>
+  <title>pawnlib.typing.defines &mdash; Pawnlib v1.0.84</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.20
+                1.0.84
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -191,6 +191,24 @@
 
 
 <div class="viewcode-block" id="fill_required_data_arguments"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.defines.fill_required_data_arguments">[docs]</a><span class="k">def</span> <span class="nf">fill_required_data_arguments</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     Fill the required data arguments.</span>
+
+<span class="sd">     :param required: A dictionary of required arguments.</span>
+<span class="sd">     :type required: dict</span>
+<span class="sd">     :return: The filled arguments.</span>
+<span class="sd">     :rtype: argparse.Namespace</span>
+
+<span class="sd">     Example:</span>
+
+<span class="sd">         .. code-block:: python</span>
+
+<span class="sd">             required = {&quot;arg1&quot;: &quot;value1&quot;, &quot;arg2&quot;: &quot;value2&quot;}</span>
+<span class="sd">             args = fill_required_data_arguments(required)</span>
+<span class="sd">             # args.arg1 == &quot;value1&quot;</span>
+<span class="sd">             # args.arg2 == &quot;value2&quot;</span>
+
+<span class="sd">     &quot;&quot;&quot;</span>
     <span class="n">none_string</span> <span class="o">=</span> <span class="s2">&quot;__NOT_DEFINED_VALUE__&quot;</span>
     <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pconf</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">args</span>
