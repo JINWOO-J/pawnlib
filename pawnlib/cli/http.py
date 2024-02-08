@@ -8,14 +8,62 @@ from pawnlib.utils.http import CallHttp, disable_ssl_warnings, ALLOW_OPERATOR
 from pawnlib.utils import ThreadPoolRunner, send_slack
 from pawnlib.output import bcolors, print_json, is_file
 from dataclasses import dataclass, field
+from pawnlib.input import ColoredHelpFormatter
 import copy
 import os
 import json
 from typing import List, Dict, Union, Type, get_type_hints, Any
 import re
 
+script_name = "pawns"
+
 __description__ = 'This is a tool to measure RTT on HTTP/S requests.'
 
+http_config_example = """
+    [default]
+    success = status_code==200
+    slack_url = 
+    interval = 3
+    method = get
+    ; data = sdsd
+    data = {"sdsd": "sd222sd"}
+    
+    [post]
+    url = http://httpbin.org/post
+    method = post
+    
+    [http_200_ok]
+    url = http://httpbin.org/status/200
+    success = status_code==200
+    
+    [http_300_ok_and_2ms_time]
+    url = http://httpbin.org/status/400
+    success = ['status_code==300', 'response_time<0.02']
+        
+    [http_400_ok]
+    url = http://httpbin.org/status/400
+    success = ["status_code==400"]
+    """
+
+__epilog__ = (
+    f"This script provides various options to check the HTTP status of URLs. \n\n"
+    f"Usage examples:\n"
+    f"  1. Basic usage:  \n\t{script_name} http https://example.com\n\n"
+    f"  2. Verbose mode: \n\t{script_name} http https://example.com -v\n\n"
+    f"  3. Using custom headers and POST method: \n\t{script_name} http https://example.com -m POST --headers '{{\"Content-Type\": \"application/json\"}}' --data '{{\"param\": \"value\"}}'\n\n"
+    f"  4. Ignoring SSL verification and setting a custom timeout: \n\t{script_name} http https://example.com --ignore-ssl True --timeout 5\n\n"
+    f"  5. Checking with specific success criteria and logical operator: \n\t{script_name} http https://example.com --success 'status_code==200' 'response_time<2' --logical-operator and\n\n"
+    f"  6. Running with a custom config file and interval: \n\t{script_name} http https://example.com -c http_config.ini -i 3\n"
+    f" \n    http_config.ini "
+    f"{http_config_example}\n\n"
+    f"  7. Setting maximum workers and stack limit: \n\t{script_name} http https://example.com -w 5 --stack-limit 10\n\n"
+    f"  8. Dry run without actual HTTP request: \n\t{script_name} http https://example.com --dry-run\n\n"
+    f"  9. Sending notifications to a Slack URL on failure: \n\t{script_name} http https://example.com --slack-url 'https://hooks.slack.com/services/...'\n\n\n"
+
+    f" 10. Checking blockheight increase: \n\t{script_name} http http://test-node-01:26657/status --blockheight-key \"result.sync_info.latest_block_height\" -i 5\n"
+
+    f"For more details, use the -h or --help flag."
+)
 
 class SuccessCriteria:
     @staticmethod
@@ -74,63 +122,11 @@ def convert_type(value, to_type):
     else:
         return to_type(value)
 
-# def convert_value(value: any, target_type: Type) -> any:
-#     if hasattr(target_type, '__origin__'):
-#         value = value.replace("'", "\"")
-#         if target_type.__origin__ == list:
-#             if isinstance(value, str):
-#                 try:
-#                     parsed_list = json.loads(value)
-#                     if not isinstance(parsed_list, list):
-#                         raise ValueError("JSON is not a list")
-#                 except json.JSONDecodeError:
-#                     # operators_regex = '(' + '|'.join(map(re.escape, ALLOW_OPERATOR)) + ')'
-#                     # parsed_list = re.split(r'\s+(?={})'.format(operators_regex), value)
-#                     parsed_list = re.split(r'\s+(?=[a-zA-Z_]+)', value)
-#             else:
-#                 parsed_list = [value]  # Use the list as is
-#             # Check the item type of the list (e.g., for List[str], the item type is str)
-#             item_type = target_type.__args__[0]
-#             # Convert each item in the list to the appropriate type
-#             return [convert_value(item, item_type) for item in parsed_list]
-#         elif target_type.__origin__ == dict:
-#             # If the value is a string, try parsing as JSON to a dict
-#             if isinstance(value, str):
-#                 try:
-#                     parsed_dict = json.loads(value)
-#                     if not isinstance(parsed_dict, dict):
-#                         raise ValueError("JSON is not a dict")
-#                 except json.JSONDecodeError:
-#                     return {}  # Return an empty dict if parsing fails
-#             elif isinstance(value, dict):
-#                 parsed_dict = value  # Use the dict as is
-#             else:
-#                 return {}  # Return an empty dict for non-dict, non-str values
-#             key_type, value_type = target_type.__args__
-#             return {convert_value(k, key_type): convert_value(v, value_type) for k, v in parsed_dict.items()}
-#         else:
-#             return value
-#
-#     else:
-#         if target_type is dict and isinstance(value, str):
-#             try:
-#                 value = json.loads(value)
-#             except Exception as e:
-#                 pawn.console.log(f"[red] {e}")
-#             return value
-#
-#         if isinstance(value, str) or not isinstance(value, target_type):
-#             return target_type(value)
-#         else:
-#             return value  # Return the value as is if it's already the correct type
-
 
 def convert_value(value: Any, target_type: Type) -> Any:
-    # 문자열 값에 대한 전처리: 단일 따옴표를 이중 따옴표로 변환
     if isinstance(value, str):
         value = value.replace("'", "\"")
 
-    # 타입이 제네릭 타입인 경우 (예: List, Dict)
     if hasattr(target_type, '__origin__'):
         if target_type.__origin__ == list:
             return _convert_to_list(value, target_type.__args__[0])
@@ -161,88 +157,20 @@ def _convert_to_dict(value: Any, key_type: Type, value_type: Type) -> dict:
         try:
             parsed_dict = json.loads(value)
         except json.JSONDecodeError:
-            return {}  # JSON 파싱 실패 시 빈 사전 반환
+            return {}
     elif isinstance(value, dict):
         parsed_dict = value
     else:
-        return {}  # 문자열이나 사전이 아닌 값에 대한 처리
+        return {}
 
     return {convert_value(k, key_type): convert_value(v, value_type) for k, v in parsed_dict.items()}
 
 
-
-class ColoredHelpFormatter(argparse.RawDescriptionHelpFormatter):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._original_epilog = kwargs.get('epilog', '')
-
-    def _format_action(self, action):
-        parts = super()._format_action(action).split('\n', 1)
-        # 인자 이름은 녹색으로 설정
-        parts[0] = bcolors.WHITE + parts[0] + bcolors.RESET
-        # 설명(두 번째 줄 이상)은 파란색으로 설정, 설명이 존재하는 경우에만
-        if len(parts) > 1:
-            parts[1] = bcolors.WHITE + parts[1] + bcolors.RESET
-        return '\n'.join(parts)
-
-    def format_help(self):
-        help_text = super().format_help()
-        # epilog 부분에만 색상 적용
-        if self._original_epilog:
-            colored_epilog = bcolors.OKBLUE + self._original_epilog + bcolors.RESET
-            help_text = help_text.replace(self._original_epilog, colored_epilog)
-        return help_text
-
-
 def get_parser():
 
-    script_name = "pawns"
-    http_config_example = """
-    [default]
-    success = status_code==200
-    slack_url = 
-    interval = 3
-    method = get
-    ; data = sdsd
-    data = {"sdsd": "sd222sd"}
-    
-    [post]
-    url = http://httpbin.org/post
-    method = post
-    
-    [http_200_ok]
-    url = http://httpbin.org/status/200
-    success = status_code==200
-    
-    [http_300_ok_and_2ms_time]
-    url = http://httpbin.org/status/400
-    success = ['status_code==300', 'response_time<0.02']
-        
-    [http_400_ok]
-    url = http://httpbin.org/status/400
-    success = ["status_code==400"]
-    """
     parser = CustomArgumentParser(
         description='httping',
-        epilog=(
-            f"This script provides various options to check the HTTP status of URLs. \n\n"
-            f"Usage examples:\n"
-            f"  1. Basic usage:  \n\t{script_name} http https://example.com\n\n"
-            f"  2. Verbose mode: \n\t{script_name} http https://example.com -v\n\n"
-            f"  3. Using custom headers and POST method: \n\t{script_name} http https://example.com -m POST --headers '{{\"Content-Type\": \"application/json\"}}' --data '{{\"param\": \"value\"}}'\n\n"
-            f"  4. Ignoring SSL verification and setting a custom timeout: \n\t{script_name} http https://example.com --ignore-ssl True --timeout 5\n\n"
-            f"  5. Checking with specific success criteria and logical operator: \n\t{script_name} http https://example.com --success 'status_code==200' 'response_time<2' --logical-operator and\n\n"
-            f"  6. Running with a custom config file and interval: \n\t{script_name} http https://example.com -c http_config.ini -i 3\n"            
-            f" \n    http_config.ini "
-            f"{http_config_example}\n\n"
-            f"  7. Setting maximum workers and stack limit: \n\t{script_name} http https://example.com -w 5 --stack-limit 10\n\n"
-            f"  8. Dry run without actual HTTP request: \n\t{script_name} http https://example.com --dry-run\n\n"
-            f"  9. Sending notifications to a Slack URL on failure: \n\t{script_name} http https://example.com --slack-url 'https://hooks.slack.com/services/...'\n\n\n"
-
-            f" 10. Checking blockheight increase: \n\t{script_name} http http://test-node-01:26657/status --blockheight-key \"result.sync_info.latest_block_height\" -i 5\n"
-            
-            f"For more details, use the -h or --help flag."
-        ),
+        epilog=__epilog__,
         formatter_class=ColoredHelpFormatter
     )
     parser = get_arguments(parser)
@@ -316,7 +244,7 @@ def check_url_process(config):
     else:
         count_msg = f'CER:{config.error_stack_count}/ER:{config.fail_count}/SQ:{config.total_count}'
 
-    if config.blockheight_key and isinstance(check_url.response.json, dict):
+    if config.blockheight_key and isinstance(check_url.response.json, (dict, list)):
         flat_json = FlatDict(check_url.response.json)
         blockheight_key = config.blockheight_key
         last_blockheight = flat_json.get(blockheight_key)
@@ -331,10 +259,10 @@ def check_url_process(config):
             parsed_response = f"{blockheight_key.split('.')[-1]}={last_blockheight}, "
         else:
             handle_failure_on_check_url(config, f"Blockheight key '{blockheight_key}' not found in JSON response", check_url)
-    else:
-        handle_failure_on_check_url(config, f"Invalid blockheight key or JSON response structure, "
-                                            f"blockheight_key={config.blockheight_key} "
-                                            f"response={type(check_url.response.json)}", check_url)
+    # else:
+    #     handle_failure_on_check_url(config, f"Invalid blockheight key or JSON response structure, "
+    #                                         f"blockheight_key={config.blockheight_key} "
+    #                                         f"response={type(check_url.response.json)}", check_url)
 
     # message = f"<{count_msg}> name={args.section_name}, url={args.url}, {parsed_response}" \
 
@@ -369,7 +297,6 @@ def print_response_if_verbose(check_url):
     if (pconf().args.verbose > 3 or pconf().args.dry_run)  and hasattr(check_url, "response"):
         check_url.response.json = FlatDict(check_url.response.json).as_dict()
         check_url.print_http_response()
-        # print_json(FlatDict(check_url.response.json).as_dict())
 
 
 def handle_failure_on_check_url(args, message, check_url):

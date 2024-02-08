@@ -78,6 +78,8 @@ class GenesisGenerator:
         if match:
             pawn.console.debug(f"[yellow]Matched[/yellow] {string} =>  {match.groups()}")
             return match.group(1), match.group(2), match.group(3)
+        else:
+            pawn.console.log(f"[red]Pattern not matched score.contentId:[/red] pattern={pattern} string={string}")
 
     def make_score_zip(self, content_id):
         template_key, template_type, template_dir = self.extract_content_pattern(content_id)

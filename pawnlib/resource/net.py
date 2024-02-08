@@ -7,11 +7,10 @@ import asyncio
 import requests
 from concurrent.futures import ThreadPoolExecutor
 from timeit import default_timer
-from pawnlib.utils import http
+from pawnlib.utils import http, timing
 from pawnlib.typing import is_valid_ipv4, todaydate, shorten_text
 from pawnlib.output import PrintRichTable
-# from rich.progress import  Progress
-from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn, TaskProgressColumn
+from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
 
 
 try:
@@ -181,17 +180,19 @@ class AsyncPortScanner:
             asyncio.run(scanner.scan_all())
     """
 
-    def __init__(self, ip_range: Tuple[str, str], port_range: Tuple[int, int] = (0, 65535), max_concurrency: int = 30):
+    def __init__(self, ip_range: Tuple[str, str], port_range: Tuple[int, int] = (0, 65535), max_concurrency: int = 30, timeout=1, batch_size=50000):
         self.start_ip, self.end_ip = ip_range
         self.start_port, self.end_port = port_range
         self.scan_results = {}
         self.semaphore = asyncio.Semaphore(max_concurrency)
+        self.timeout = timeout
+        self.batch_size = batch_size
 
     async def scan_port(self, ip: str, port: int) -> bool:
         async with self.semaphore:
             pawn.console.debug(f"Scanning {ip}:{port} - Acquired semaphore")
             try:
-                await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=1)
+                await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=self.timeout)
                 # pawn.console.debug(f"Connection successful: {ip}:{port}")
                 return ip, port, True
             except asyncio.TimeoutError:
@@ -203,32 +204,48 @@ class AsyncPortScanner:
             # finally:
             #     pawn.console.debug(f"Releasing semaphore: {ip}:{port}")
 
-    async def scan(self, progress: Progress):
-        tasks = []
+    def calculate_scan_range(self):
         start_ip_int = self.ip_to_int(self.start_ip)
         end_ip_int = self.ip_to_int(self.end_ip)
         total_ips = end_ip_int - start_ip_int + 1
-        total_tasks = total_ips * (self.end_port - self.start_port + 1)
+        total_ports = self.end_port - self.start_port + 1
+        total_tasks = total_ips * total_ports
+        return start_ip_int, end_ip_int, total_tasks
+
+    async def scan(self, progress: Progress):
+        start_ip_int, end_ip_int, total_tasks = self.calculate_scan_range()
         task_id = progress.add_task("[cyan]Scanning...", total=total_tasks)
 
+        tasks = []
         for ip_int in range(start_ip_int, end_ip_int + 1):
             ip = self.int_to_ip(ip_int)
             for port in range(self.start_port, self.end_port + 1):
                 tasks.append(self.wrap_scan(ip, port, progress, task_id))
+                if len(tasks) >= self.batch_size:
+                    pawn.console.debug(f"Processing batch of {self.batch_size} tasks")
+                    await asyncio.gather(*tasks)
+                    tasks = []
 
-        results = await asyncio.gather(*tasks)
-        self._process_results(results)
+        # 남은 태스크 처리
+        if tasks:
+            pawn.console.debug(f"Processing final batch of {len(tasks)} tasks")
+            await asyncio.gather(*tasks)
+
+        pawn.console.log("task_completed")
+        # self._process_results(results)
 
     async def wrap_scan(self, ip, port, progress, task_id):
         async with self.semaphore:
             result = await self.scan_port(ip, port)
             progress.update(task_id, advance=1)
+            self._process_results(result)
             return result
 
     def _generate_ips(self) -> List[str]:
         start_int = self.ip_to_int(self.start_ip)
         end_int = self.ip_to_int(self.end_ip)
         return [self.int_to_ip(ip_int) for ip_int in range(start_int, end_int + 1)]
+
 
     @staticmethod
     def ip_to_int(ip: str) -> int:
@@ -239,6 +256,8 @@ class AsyncPortScanner:
         return '.'.join(str((ip_int >> (8 * i)) & 0xFF) for i in reversed(range(4)))
 
     def _process_results(self, results: List[Tuple[str, int, bool]]):
+        if isinstance(results, tuple):
+            results = [results]
         for ip, port, is_open in results:
             if ip not in self.scan_results:
                 self.scan_results[ip] = {"open": [], "closed": []}
@@ -247,22 +266,22 @@ class AsyncPortScanner:
                 self.scan_results[ip]["open"].append(port)
             else:
                 self.scan_results[ip]["closed"].append(port)
-            # status = "open" if is_open else "closed"
-            # print(f"{ip}:{port} [{status}]")
 
     def get_results(self):
         return self.scan_results
 
     def print_scan_results(self, view="all"):
         for ipaddr, result in self.scan_results.items():
-            is_data = False
+            parsed_data = ""
             for is_open, port in result.items():
                 if view == "all" or view == is_open and port:
-                    pawn.console.print(f"\t \[{is_open}] {port}")
-                    is_data = True
+                    # pawn.console.print(f"\t \[{is_open}] {port}")
+                    parsed_data = f"\t \[{is_open}] {port}"
+                    # is_data = True
 
-            if is_data:
+            if parsed_data:
                 pawn.console.print(ipaddr)
+                pawn.console.print(parsed_data)
 
 
     def run_scan(self):

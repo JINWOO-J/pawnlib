@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from pawnlib.config import pawnlib_config as pawn
+from pawnlib.config import  pawn
 try:
     import eth_keys
 except Exception  as e:
@@ -13,11 +13,29 @@ from pawnlib.utils.genesis  import genesis_generator, create_cid
 from pawnlib.utils.in_memory_zip import read_genesis_dict_from_zip
 from pawnlib.output import is_file, print_json, open_json
 from pawnlib.typing import get_size
+from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
+
 
 __description__ = "Genesis Tool"
+__epilog__ = (
+    "Usage examples:\n"
+    "1. Generate a genesis file from a genesis.json file:\n"
+    "     pawns gs gen -i genesis.json -o icon_genesis.zip\n\n"
+    "2. Display information about a genesis zip file: \n"
+    "     pawns gs info genesis.zip\n\n"
+    "\n"
+    "Note: \n"
+    "  The 'gen' command generates a genesis file based on a provided genesis.json file.\n"
+    "  The 'info' command displays information from a given genesis.zip file.\n"
+)
+
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='Command Line Interface for ICX')
+    parser = CustomArgumentParser(
+        description='Command Line Interface for Genesis',
+        formatter_class=ColoredHelpFormatter,
+        epilog=__epilog__
+    )
     parser = get_arguments(parser)
     return parser
 
@@ -27,7 +45,8 @@ def get_arguments(parser=None):
     parser.add_argument(
         'command',
         help='gen, info',
-        nargs="?"
+        nargs="?",
+        choices=['gen', 'info']
     )
     parser.add_argument(
         'genesis_zip_file',
@@ -55,6 +74,10 @@ def main():
     args.subparser_name = "gs"
     print(banner)
     pawn.console.log(f"args = {args}")
+
+    if not args.command:
+        # parser.print_help()
+        parser.error("command not found")
 
     if args.command == "gen":
         genesis_file = f"{args.base_dir}/{args.input_genesis}"

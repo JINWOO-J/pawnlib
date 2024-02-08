@@ -1,15 +1,18 @@
 import json
 import os
+import re
 import operator as _operator
 from pawnlib.config import pawnlib_config as pawn, pconf
 from pawnlib.typing import is_hex, is_int, is_float, FlatDict, Namespace, sys_exit, is_valid_token_address, is_valid_private_key
 from pawnlib.output.file import get_file_list
+from pawnlib.output.color_print import bcolors
 from InquirerPy import prompt, inquirer, get_style
 from InquirerPy.validator import NumberValidator
 from prompt_toolkit.validation import ValidationError, Validator, DynamicValidator
 from prompt_toolkit.shortcuts import prompt as toolkit_prompt
 import string
 from typing import Callable
+import argparse
 all_special_characters = string.punctuation
 
 try:
@@ -1159,3 +1162,88 @@ def json_input_prompt(default={}, message="Edit Transaction JSON"):
         validate=JsonValidator(),
     )
     return json.loads(json_text)
+
+
+class NewlineHelpFormatter(argparse.HelpFormatter):
+    def _fill_text(self, text, width, indent):
+        # 각 줄을 분리하여 리스트로 생성
+        lines = text.splitlines()
+        formatted_lines = []
+        for line in lines:
+            if line.strip() == '':
+                formatted_lines.append('')
+            else:
+                indented_line = '{}{}'.format(indent, line)
+                formatted_lines.append(indented_line)
+
+        formatted_text = '\n'.join(formatted_lines)
+        return formatted_text
+
+
+class ColoredHelpFormatter(argparse.RawDescriptionHelpFormatter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_epilog = kwargs.get('epilog', '')
+        self.is_multi_line = True
+
+    def force_adjust_parts(self, parts, _sep_space):
+        combined_string = ''.join(parts)
+        # Find the position of the second space
+        second_space_pos = combined_string.find(_sep_space, combined_string.find(' ') + 1)
+
+        argument = combined_string[:second_space_pos]
+        description = f"{combined_string[second_space_pos+1:].strip()}\n"
+
+        parts = [argument, description]
+        self.is_multi_line = False
+        pawn.console.log(f"[blue]{parts}")
+        return parts
+
+
+    def _format_action(self, action):
+        formatted_action = super()._format_action(action)
+        _sep_space = " " * 3
+
+        parts = formatted_action.split('\n', 1)
+        # pawn.console.log(parts)
+        self.is_multi_line = True
+
+        # parts = self.force_adjust_parts(parts, _sep_space)
+        # pawn.console.log(parts)
+        if len(parts) == 2 and not parts[-1]:
+            parts = formatted_action.split(_sep_space, 1)
+            self.is_multi_line = False
+
+        parts[0] = bcolors.OKBLUE + parts[0] + bcolors.RESET
+        if len(parts) > 1:
+            parts[1] = bcolors.CYAN + parts[1] + bcolors.RESET
+
+        if self.is_multi_line:
+            return '\n'.join(parts)
+        else:
+            return _sep_space.join(parts)
+
+    def format_help(self):
+        help_text = bcolors.RESET + super().format_help()
+        epilog_prefix = "Usage examples:"
+
+        if epilog_prefix in help_text:
+            epilog_content_indicator = f"{epilog_prefix}\n"
+            self._original_epilog = f"{help_text.split(epilog_content_indicator, 1)[1]}"
+            epilog_prefix_title = bcolors.UNDERLINE + f"{epilog_prefix}" +bcolors.RESET
+            help_text = re.sub(rf'{epilog_prefix}(.|\n)*', f'{epilog_prefix_title}', help_text)
+
+        formatted_epilog_lines = []
+        for line in self._original_epilog.split('\n'):
+            if line.strip().startswith("pawns "):
+                formatted_epilog_lines.append(bcolors.OKBLUE + line + bcolors.RESET)
+            else:
+                formatted_epilog_lines.append(line)
+
+        formatted_epilog = '\n'.join(formatted_epilog_lines)
+        return help_text + '\n\n' + formatted_epilog
+
+class CustomArgumentParser(argparse.ArgumentParser):
+    def error(self, message):
+        self.print_help()
+        sys_exit(message, 2)

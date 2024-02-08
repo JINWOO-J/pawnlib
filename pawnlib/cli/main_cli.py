@@ -9,6 +9,7 @@ import importlib
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.utils.operate_handler import run_with_keyboard_interrupt
+from pawnlib.input.prompt import NewlineHelpFormatter, ColoredHelpFormatter, CustomArgumentParser
 from pawnlib.typing.check import sys_exit
 
 
@@ -80,6 +81,7 @@ def parse_args(parser, commands):
         command = sys.argv[1]
     else:
         command = None
+
     for c in sys.argv[1:]:
         if c in commands.choices:
             split_argv.append([c])
@@ -88,12 +90,38 @@ def parse_args(parser, commands):
     args = argparse.Namespace()
     for c in commands.choices:
         setattr(args, c, None)
+
     parser.parse_args(split_argv[0], namespace=args)  # Without command
+
     for argv in split_argv[1:]:  # Commands
         n = argparse.Namespace()
         setattr(args, argv[0], n)
         parser.parse_args(argv, namespace=n)
+
     return args, command
+
+
+# def parse_args(parser, commands):
+#     split_argv = [[]]
+#     if len(sys.argv) > 1:
+#         command = sys.argv[1]
+#     else:
+#         command = None
+#
+#     # 서브파서가 존재하는지 확인합니다.
+#     if commands.choices:
+#         # 서브파서가 있는 경우, 명령어와 관련된 인자만 분석합니다.
+#         if len(sys.argv) > 1 and sys.argv[1] in commands.choices:
+#             args = parser.parse_args()
+#         else:
+#             # 명령어가 제공되지 않았거나 잘못된 경우 도움말을 출력합니다.
+#             parser.print_help()
+#             sys.exit(1)
+#     else:
+#         # 서브파서가 없는 경우, 일반적인 방식으로 인자를 분석합니다.
+#         args = parser.parse_args()
+#
+#     return args, command
 
 
 def get_sys_argv():
@@ -103,17 +131,27 @@ def get_sys_argv():
 
 
 def load_cli_module(commands=None, module_name=""):
-    pawn.console.debug(f"Add parser => {module_name}")
+    pawn.console.debug(f"Add parser => '{module_name}'")
     module = importlib.import_module(f"pawnlib.cli.{module_name}")
     description = getattr(module, "__description__", f"{module_name} module")
-    _parser = commands.add_parser(module_name, help=f'{description}')
+    epilog = getattr(module, "__epilog__", "")
+    if isinstance(epilog, tuple):
+        epilog = "\n".join(epilog)
+    _parser = commands.add_parser(
+        module_name,
+        help=f'{description}',
+        epilog=epilog,
+        formatter_class=ColoredHelpFormatter,
+        description=description.upper(),
+    )
     module.get_arguments(_parser)
 
 
 def get_args():
     parser = argparse.ArgumentParser(
         usage=generate_banner(app_name="PAWNS", version=_version, author="jinwoo", font="graffiti"),
-        formatter_class=argparse.RawTextHelpFormatter
+        description="The pawns is designed to serve as the main command-line interface (CLI)",
+        formatter_class=ColoredHelpFormatter,
     )
     commands = parser.add_subparsers(title='sub-module')
     pawn.console.debug(f"sys_argv={get_sys_argv()}, modules={get_submodule_names()}")
@@ -131,10 +169,8 @@ def get_args():
 
 
 def cleanup_args():
-    # if len(sys.argv) > 2 and "-" not in sys.argv[2]:
-    # if len(sys.argv) > 2 and not sys.argv[2].startswith("-"):
     if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
-        pawn.console.debug(f"Remove argument {sys.argv} -> {sys.argv[1]}")
+        pawn.console.debug(f"Remove argument '{sys.argv[1]}' from {sys.argv}")
         del sys.argv[1]
 
 
@@ -144,17 +180,14 @@ def main():
     try:
         pawn.console.debug(f"<before> {sys.argv}")
         args, command, parser = get_args()
-        # pawn.console.debug(f"<after> parser {args}, {command}, {parser}")
+        pawn.console.debug(f"===== command={command}")
         cleanup_args()
-        # pawn.console.debug(f"<after> {sys.argv}")
     except Exception as e:
         pawn.console.debug(f"[red]Exception while parsing an argument = {e}")
-        # sys_exit("Stopped CLI")
     pawn.console.debug(f"command={command}, parser={parser}, args={args}")
 
     if command:
         try:
-            # run_with_keyboard_interrupt(run_module, command)
             run_module(command)
         except KeyboardInterrupt:
             pawn.console.log("[red]KeyboardInterrupt")
@@ -171,5 +204,4 @@ def main():
 
 if __name__ == '__main__':
     run_with_keyboard_interrupt(main)
-    # main()
 

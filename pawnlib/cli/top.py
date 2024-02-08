@@ -18,6 +18,27 @@ import time
 
 __description__ = "This is a tool to measure your server's resources."
 
+__epilog__ = (
+    "This tool is designed for monitoring your server's resource usage.\n"
+    "With various options, users can obtain detailed information "
+    "about different resources of the server such as network traffic, CPU usage, memory usage, etc\n"
+    "It is particularly useful for system administrators and DevOps engineers.\n\n"
+    "Usage examples:\n\n"
+    "1. Default monitoring: Execute `$ pawns top` to monitor system resources with default settings.\n"
+    "\t pawns top\n\n"
+    "2. Verbose mode: Add the `-v` option to output more detailed information.`\n"
+    "\t pawns top -v \n\n"
+    "3. Quiet mode: Use the `-q` option to suppress all messages except for logs.\n"
+    "\t pawns top -q\n\n"
+    "4. Set update interval: Use the `-i` option to set the interval for updating monitoring information in seconds.\n"
+    "\t pawns top -i 5 \n\n"
+    "5. Specify output format: Use the `-t` option to output the results in one of the formats: 'live', 'tab', 'line'.\n"
+    "\t pawns top -t live`\n\n"
+    "6. Network mode: Specify \"net\" as the `command` argument to monitor only network-related information.\n"
+    "\t pawns top net`\n\n"
+    "Each option is designed to help users monitor the state of the system according to their needs. For more detailed usage of options, check with `--help`.",
+)
+
 
 if str2bool(os.environ.get("IS_DOCKER")) and is_file("/rootfs/proc"):
     PROCFS_PATH = "/rootfs/proc"
@@ -26,20 +47,26 @@ else:
     PROCFS_PATH = "/proc"
 
 
+class CustomArgumentParser(argparse.ArgumentParser):
+    def error(self, message):
+        self.print_help()
+        # sys_exit(message, 2)
+
 def get_parser():
-    parser = argparse.ArgumentParser(description='monitor')
+    # parser = argparse.ArgumentParser(description='monitor', epilog=epilog_tuple)
+    parser = argparse.ArgumentParser(description='monitor', epilog=''.join(__epilog__))
     parser = get_arguments(parser)
     return parser
 
 
 def get_arguments(parser):
-    parser.add_argument('command', help='command', type=str, nargs='?', default="")
+    parser.add_argument('command', help='command to execute. For example, "net" retrieves network information.', type=str, nargs='?', default="resource")
     parser.add_argument('-c', '--config-file', type=str, help='config', default="config.ini")
     parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level (default: %(default)s)', default=1)
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
     parser.add_argument('-i', '--interval', type=float, help='interval sleep time seconds. (default: %(default)s)', default=1)
     parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
-    parser.add_argument('-t', '--print-type', type=str, help='printing type  %(default)s)', default="line", choices=["live", "tab", "line"])
+    parser.add_argument('-t', '--print-type', type=str, help='printing type  %(default)s)', default="line", choices=["live", "line"])
     return parser
 
 
@@ -233,6 +260,8 @@ def print_live_status(table_title="",  system_info={}, system_monitor=None):
 
 
 def get_resources_status(system_monitor={}, args=None):
+    if not args:
+        args = pconf().args
 
     if args.command == "net":
         netstat = get_netstat_count(proc_path=PROCFS_PATH)

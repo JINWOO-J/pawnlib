@@ -6,7 +6,9 @@ import argparse
 from rich.console import Console
 from rich.syntax import Syntax
 
-__description__ = "Python app builder with a template."
+
+__description_shorten__ = "Advanced Python application builder"
+__description__ = f"{__description_shorten__}: \nEasily initialize your Python development environment with customizable templates and best practices."
 
 
 def get_parser():
@@ -24,7 +26,7 @@ def main():
     banner = generate_banner(
         app_name="builder",
         author="jinwoo",
-        description="Initialize Python Development Environment",
+        description=__description_shorten__,
         font="graffiti",
         version=_version
     )
