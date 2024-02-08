@@ -4,13 +4,34 @@ from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
 import os
-import json
 from pawnlib.typing import str2bool, StackList, remove_tags, dict_to_line
 from pawnlib.output import write_json
 from rich.tree import Tree
 from pawnlib.resource import get_interface_ips, get_public_ip, get_hostname, get_platform_info, get_rlimit_nofile, get_mem_info, get_location
 
 __description__ = "This command displays server resource information."
+
+__epilog__ = (
+    "This tool provides a detailed overview of your server's system and network resources.\n\n"
+    "Usage examples:\n"
+    "  1. Display all resource information in verbose mode:\n"
+    "     pawns info -v\n"
+    "     - Displays detailed information about system and network resources.\n\n"
+
+    "  2. Run in quiet mode without displaying any output:\n"
+    "     pawns info -q\n"
+    "     - Executes the script without showing any output, useful for logging purposes.\n\n"
+
+    "  3. Specify a custom base directory and configuration file:\n"
+    "     pawns info -b /path/to/base/dir --config-file my_config.ini\n"
+    "     - Uses the specified base directory and configuration file for operations.\n\n"
+
+    "  4. Write output to a specified file in quiet mode without displaying any output:\n"
+    "     pawns info -q --output-file output.json\n"
+    "     - Writes the collected resource information to 'output.json'.\n\n"
+
+    "For more detailed command usage and options, refer to the help documentation by running 'pawns info --help'."
+)
 
 
 def get_parser():
@@ -25,21 +46,27 @@ def get_arguments(parser):
     parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level (default: %(default)s)', default=1)
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
     parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
-    parser.add_argument("--write-filename", '-w', type=str, help="write filename", default="")
+    parser.add_argument("--output-file", "-o", type=str, help="The name of the file to write the output to.", default="", )
     return parser
 
 
 def print_banner():
-    banner = generate_banner(
-        app_name=pconf().app_name,
-        author="jinwoo",
-        description=f"{__description__} \n"
-                    f" - base_dir    : {pconf().args.base_dir} \n" 
-                    f" - logs_dir    : {pconf().args.base_dir}/logs \n",
-        font="graffiti",
-        version=_version
-    )
-    print(banner)
+    if not pconf().args.quiet:
+        banner = generate_banner(
+            app_name=pconf().app_name,
+            author="jinwoo",
+            description=f"{__description__} \n"
+                        f" - base_dir    : {pconf().args.base_dir} \n" 
+                        f" - logs_dir    : {pconf().args.base_dir}/logs \n",
+            font="graffiti",
+            version=_version
+        )
+        print(banner)
+
+
+def print_unless_quiet_mode(message=""):
+    if not pconf().args.quiet:
+        pawn.console.print(message)
 
 
 def main():
@@ -97,8 +124,8 @@ def main():
     result['system']["resource_limit"] = get_rlimit_nofile()
     system_tree.add(f"Resource limit: {result['system']['resource_limit']}")
 
-    pawn.console.print(system_tree)
-    print()
+    print_unless_quiet_mode(system_tree)
+    print_unless_quiet_mode("")
 
     network_tree = Tree("[bold]🛜 Network Interface[/bold]")
     result['network']['public_ip'] = get_public_ip()
@@ -123,10 +150,10 @@ def main():
                 interface = f"[bold blue][on #050B27]{interface:<{longest_length}} [/bold blue]"
                 ipaddr = f"{ipaddr}[/on #050B27]"
             local_tree.add(f"[bold]{interface:<{longest_length+1}}[/bold]: {ipaddr}")
-        pawn.console.print(network_tree)
+        print_unless_quiet_mode(network_tree)
 
-        if args.write_filename:
-            write_res = write_json(filename=args.write_filename, data=result)
+        if args.output_file:
+            write_res = write_json(filename=args.output_file, data=result)
             pawn.console.log(write_res)
 
 

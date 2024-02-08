@@ -135,7 +135,7 @@ class bcolors:
     CYAN = '\033[96m'
     WARNING = '\033[93m'
     FAIL = '\033[91m'
-    RESET = '\033[91m'
+    RESET = '\033[0m'
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     ITALIC = '\033[1;3m'

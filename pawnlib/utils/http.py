@@ -151,7 +151,6 @@ class HTTPStatus:
         508: "Loop Detected",
         510: "Not Extended",
         511: "Network Authentication Required",
-        # 추가적인 상태 코드는 여기에 포함시킬 수 있습니다.
     }
 
     def __init__(self, code):
@@ -1510,14 +1509,18 @@ class CallHttp:
         if not response:
             response = self.response
 
-        pawn.console.log(f"Response from '{self.method.upper()}' '{self.url}' 👉 {response}  ({type(response)})")
+        if hasattr(response, "json"):
+            response_type = "json"
+        else:
+            response_type = "text"
+
+        pawn.console.log(f"Response from '{self.method.upper()}' '{self.url}' 👉 {response} ({response_type.upper()})")
         if not response:
             style = "red"
         else:
             style = "rule.line"
 
-        status_code_with_message = HTTPStatus(response)
-        pawn.console.rule(f"<Response {status_code_with_message}> ", align='right', style=style, characters="═")
+        pawn.console.rule(f"{response} ", align='right', style=style, characters="═")
         if response.json:
             print_json(response.json)
         else:

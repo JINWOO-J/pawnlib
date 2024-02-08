@@ -8,10 +8,29 @@ from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawnlib_config as pawn
 from pawnlib.utils.http import remove_http, ALLOWS_HTTP_METHOD
-from pawnlib.typing.check import is_int, is_valid_ipv4, detect_encoding
+from pawnlib.typing import str2bool, is_int, is_valid_ipv4, detect_encoding
 from collections import OrderedDict
 import re
 import ssl
+
+__description__ = "A Proxy Reflector Tool"
+__epilog__ = (
+    "This script acts as a proxy reflector, forwarding traffic between a listening address and a forwarding address.\n\n"
+    "Usage examples:\n"
+    "  1. To start proxying with default settings (listening on 0.0.0.0:8080):\n"
+    "     pawns proxy --forward ip_address:port\n"
+    "     - This forwards traffic from the default listening address to the specified forward address.\n\n"
+    "  2. To specify a listening address and port:\n"
+    "     pawns proxy --listen 127.0.0.1:9090 --forward ip_address:port\n"
+    "     - Listens on 127.0.0.1:9090 and forwards traffic to the specified forward address.\n\n"
+    "  3. To adjust buffer size and delay for socket operations:\n"
+    "     pawns proxy --listen ip_address:port --forward ip_address:port --buffer-size 5120 --delay 0.001\n"
+    "     - Uses a buffer size of 5120 bytes and a delay of 0.001 seconds for socket operations.\n\n"
+    "  4. To set a timeout for the proxy connections:\n"
+    "     pawns proxy --listen ip_address:port --forward ip_address:port --timeout 5\n"
+    "     - Sets a timeout of 5 seconds for the proxy connections.\n\n"
+    "For more detailed information on command options, use the -h or --help flag."
+)
 
 
 def get_parser():
@@ -21,8 +40,8 @@ def get_parser():
 
 
 def get_arguments(parser):
-    parser.add_argument("--listen", "-l", type=str, help="Listen  IPaddr:port", default="0.0.0.0:8080")
-    parser.add_argument("--forward", "-f", type=str, help="Forward IPaddr:port", default=None, required=True)
+    parser.add_argument("--listen", "-l", type=str, help="Listen  ip_address:port", default="0.0.0.0:8080")
+    parser.add_argument("--forward", "-f", type=str, help="Forward ip_address:port", default=None, required=True)
     parser.add_argument("--buffer-size", type=int, help="buffer size for socket", default=4096)
     parser.add_argument("--delay", type=float, help="buffer delay for socket", default=0.0001)
     parser.add_argument("--timeout", '-t', type=float, help="timeout for socket", default=3)
@@ -371,6 +390,10 @@ def main():
 
     parser = get_parser()
     args, unknown = parser.parse_known_args()
+
+    if not args.forward:
+        parser.error("forward not found")
+
 
     pawn.console.log(f"args = {args}")
 

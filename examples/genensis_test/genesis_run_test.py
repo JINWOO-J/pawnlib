@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import  common
 from pawnlib.utils.genesis import *
+from pawnlib.output import get_fi
 from pawnlib.utils import in_memory_zip
 
 def genesis_json():
@@ -62,8 +63,10 @@ def genesis_json():
         "nid":  "0x79"
     }
 
-cid = genesis_generator(genesis_json_or_dict=genesis_json())
+cid = genesis_generator(genesis_json_or_dict=genesis_json(), genesis_filename="icon_genesis.zip")
 pawn.console.log(f"cid = {cid}")
+
+
 
 res = create_cid_from_genesis_zip("icon_genesis.zip")
 pawn.console.log(f"cid = {res}, {type(res)}")

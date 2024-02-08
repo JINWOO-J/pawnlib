@@ -13,7 +13,32 @@ from pawnlib.utils import disable_ssl_warnings
 from pawnlib.input import PromptWithArgument, PrivateKeyValidator, StringCompareValidator, PrivateKeyOrJsonValidator
 
 disable_ssl_warnings()
+
 NONE_STRING = "__NOT_DEFINED_VALUE__"
+__description__ = "This tool uses JSON remote procedure calls, or RPCs, commonly used on the ICON blockchain."
+
+__epilog__ = (
+    "This utility offers a comprehensive suite for interacting with the ICON blockchain, leveraging JSON-RPC for efficient communication.\n\n"
+    "Usage examples:\n"
+    "  1. Query network information:\n"
+    "     pawns rpc --url <RPC_ENDPOINT> --method getBlockByHeight --params '{\"height\":\"0x1\"}'\n"
+    "     - Fetches block information by height.\n\n"
+
+    "  2. Send ICX transaction:\n"
+    "     pawns rpc --url <RPC_ENDPOINT> --method icx_sendTransaction --params <TRANSACTION_PARAMETERS>\n"
+    "     - Sends an ICX transaction to the network.\n\n"
+
+    "  3. Configure network settings:\n"
+    "     pawns rpc --platform icon --network mainnet\n"
+    "     - Sets the network configuration for subsequent operations.\n\n"
+    
+    "  4. Configure custom network settings:\n"
+    "     pawns rpc config \n"
+    "      -  If you want to edit network information, create config.yaml with a parameter called config and then change it.\n\n"
+    "For detailed command usage and options, refer to the help documentation by running 'pawns rpc --help'."
+)
+
+
 PLATFORM_LIST = ["icon", "havah"]
 
 
@@ -26,8 +51,9 @@ def get_parser():
 def get_arguments(parser):
     parser.add_argument(
         'command',
-        help='account, icx_sendTransaction, icx_sendTransaction_v3, get_transactionResult, icx_getBalance, icx_getTotalSupply',
-        nargs='?'
+        help='Edit network information by creating a config.yaml file.',
+        nargs='?',
+        choices=["config", ""]
     )
     parser.add_argument('--url', metavar='url', help='endpoint url default: None', default=None)
     parser.add_argument('--from', metavar='address', dest='from', help='from address. default: None', default=None)

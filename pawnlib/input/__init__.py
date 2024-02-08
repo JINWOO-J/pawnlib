@@ -18,5 +18,7 @@ from .prompt import (
     is_args_namespace,
     is_data_args_namespace,
     parse_list,
-    get_environment
+    get_environment,
+    NewlineHelpFormatter,
+    ColoredHelpFormatter,
 )

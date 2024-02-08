@@ -38,4 +38,11 @@ RUN ARCH="$(dpkg --print-architecture)" ; \
         rm -rf /var/lib/apt/lists/* ; \
     fi;
 
+#ENTRYPOINT ["/bin/bash", "-c", "if [ \"$1\" = \"bash\" ]; then exec \"$@\"; else exec pawns \"$@\"; fi", "bash"]
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+
 RUN echo 'export PS1=" \[\e[00;32m\]${NAME}: ${VERSION}\[\e[0m\]\[\e[00;37m\]@\[\e[0m\]\[\e[00;31m\]\H:\\$\[\e[0m\] "' >> /root/.bashrc

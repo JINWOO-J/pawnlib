@@ -13,7 +13,33 @@ except ImportError:
 from pawnlib.utils.operate_handler import run_with_keyboard_interrupt
 from pawnlib.input import PromptWithArgument
 
-__description__ = "This command can read and write to the wallet."
+__description__ = "A tool for managing ICON wallets. It supports creating new wallets and loading existing ones."
+
+__epilog__ = (
+    "This command-line interface offers various options for interacting with ICON wallets. "
+    "You can easily create a new wallet or load an existing one using a private key or a keystore file.\n\n"
+
+    "Usage examples:\n"
+    "  1. Create a new wallet:\n"
+    "     pawns wallet create\n"
+    "     - This command creates a new wallet and outputs the keystore file and address.\n\n"
+
+    "  2. Load an existing wallet using a private key:\n"
+    "     pawns wallet load --private-key YOUR_PRIVATE_KEY\n"
+    "     - Loads a wallet from the provided private key.\n\n"
+
+    "  3. Load an existing wallet from a keystore file:\n"
+    "     pawns wallet load --keystore /path/to/keystore --password YOUR_PASSWORD\n"
+    "     - Loads a wallet from a keystore file with the provided password.\n\n"
+
+    "Options:\n"
+    "  - Use '--debug' to enable debug mode for more detailed logs.\n"
+    "  - Use '--no-store' with the 'create' command to avoid saving the wallet keystore file.\n\n"
+
+    "For more detailed information on command options, use the -h or --help flag."
+)
+
+
 
 if not icx_signer_loaded:
     pawn.console.log("[red]Required packages - coincurve, eth_keyfile ")
@@ -28,18 +54,31 @@ def get_parser():
 def get_arguments(parser):
     parser.add_argument(
         'sub_command',
-        help='create, load',
+        help='Specifies the action to perform. Options: "create" to generate a new wallet, "load" to load an existing wallet.',
+        choices=["create", "load"],
         nargs='?'
     )
-
-    parser.add_argument('-pk', '--private-key', metavar='private_key', help='A private key string in hexadecimal. default: None',
+    parser.add_argument('-pk', '--private-key', metavar='PRIVATE_KEY',
+                        help='Specifies a private key in hexadecimal format. Used with the "load" sub-command to load a wallet from its private key.',
                         default=None)
-    parser.add_argument('-d', '--debug', action='store_true', help='debug mode. True/False', default=False)
-    parser.add_argument('-k', '--keystore', metavar='keystore', help='keystore filename or keystore text')
-    parser.add_argument('-p', '--password', metavar='password', help='keystore\'s password')
-    parser.add_argument('-l', '--load-type', metavar='load_type', help='load type (file or text)', choices=["file", "text"])
-    parser.add_argument('-ns', '--no-store', action='store_true', help='Do not save as a file.', default=False)
-    parser.add_argument('--base-dir', metavar='base_dir', help='base directory', default=os.getcwd())
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='Enables debug mode, providing more detailed output for troubleshooting.',
+                        default=False)
+    parser.add_argument('-k', '--keystore', metavar='KEYSTORE',
+                        help='Specifies the path to a keystore file or the keystore content directly. Required for loading a wallet from a keystore.',
+                        required=False)
+    parser.add_argument('-p', '--password', metavar='PASSWORD',
+                        help='The password for decrypting the keystore file. Required when loading a wallet from a keystore.',
+                        required=False)
+    parser.add_argument('-l', '--load-type', metavar='LOAD_TYPE',
+                        help='Determines how the keystore information is provided: "file" for keystore file path, "text" for keystore content as text.',
+                        choices=["file", "text"], required=False)
+    parser.add_argument('-ns', '--no-store', action='store_true',
+                        help='Prevents the new wallet\'s keystore from being saved to a file when creating a wallet. Useful for temporary wallets.',
+                        default=False)
+    parser.add_argument('--base-dir', metavar='BASE_DIR',
+                        help='Sets the base directory for storing keystore files. Defaults to the current working directory.',
+                        default=os.getcwd())
 
     return parser
 
