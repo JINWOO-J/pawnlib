@@ -423,6 +423,34 @@ def is_valid_tx_hash(text=None):
             return True
     return False
 
+def is_valid_icon_keystore_file(keystore=None):
+    from pawnlib.typing.converter import flatten
+    if not isinstance(keystore, dict):
+        return False
+
+    required_keys = [
+        "address",
+        "crypto.cipher", "crypto.cipherparams.iv",
+        "crypto.ciphertext", "crypto.kdf",
+        "crypto.kdfparams.dklen",
+        "crypto.kdfparams.n",
+        "crypto.kdfparams.r",
+        "crypto.kdfparams.p",
+        "crypto.kdfparams.salt",
+        "crypto.mac",
+        "id", "version", "coinType",
+    ]
+
+    flatten_keystore = flatten(keystore)
+    missing_keys = [key for key in required_keys if key not in flatten_keystore]
+
+    if missing_keys:
+        missing_keys_str = ", ".join(missing_keys)
+        raise ValueError(f"<Invalid Keystore> Missing required key(s): {missing_keys_str}")
+
+    return True
+
+
 
 def list_depth(l):
     """

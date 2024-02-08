@@ -12,6 +12,7 @@ from .check import (
     is_valid_private_key,
     is_valid_token_address,
     is_valid_tx_hash,
+    is_valid_icon_keystore_file,
     guess_type,
     return_guess_type,
     sys_exit,

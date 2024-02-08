@@ -119,7 +119,7 @@ def main():
             args=args
         )
     )
-    pawn.console.log(args.sub_command)
+    pawn.console.log(f"{args.sub_command} wallet".title())
     args.sub_command = PromptWithArgument(
         message="What do you want to do?",
         choices=
@@ -133,7 +133,6 @@ def main():
         argument="sub_command",
         verbose=0,
     ).fuzzy()
-    pawn.console.log(f"sub_command = {args.sub_command}")
     wallet_cli = icx_signer.WalletCli(args=pconf().data.args)
 
     if args.sub_command == "load":

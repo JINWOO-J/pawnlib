@@ -5,7 +5,7 @@ import hashlib
 import base64
 from os import path
 from coincurve import PrivateKey, PublicKey
-from pawnlib.typing import check, date_utils, random_private_key, fill_required_data_arguments, is_hex, format_hex
+from pawnlib.typing import check, date_utils, random_private_key, fill_required_data_arguments, is_hex, format_hex, is_valid_icon_keystore_file
 from pawnlib.config import pawnlib_config as pawn
 from pawnlib.output import is_file, is_json_file, open_json, check_file_overwrite, NoTraceBackException
 from pawnlib.config import pawn,  NestedNamespace
@@ -160,6 +160,7 @@ class WalletCli:
 
         if _keystore:
             keystore = str(_keystore).strip()
+
             if is_file(keystore) and is_json_file(keystore):
                 pawn.console.debug(f"Found Keystore JSON file - {keystore}")
                 try:
@@ -184,7 +185,7 @@ class WalletCli:
                         raise ValueError("Invalid JSON or Keystore text")
                     _required_password = True
                 except Exception as e:
-                    raise ValueError(f"[red][Error] cannot load - {e}")
+                    raise ValueError(f"[red][Error][/red] Failed to load file '{self._args.keystore}'. JSON parsing error at: {e}")
 
         if _required_password:
             _password = PromptWithArgument(
@@ -197,7 +198,12 @@ class WalletCli:
             ).prompt()
 
         if keystore_json:
+            is_valid_keystore_result = is_valid_icon_keystore_file(keystore_json)
+            if not is_valid_keystore_result:
+                raise ValueError(f"Invalid keystore file - {self._args.keystore}")
+
             self._wallet = load_wallet_key(keystore_json, _password)
+
             if self._wallet:
                 self.print_wallet()
             else:
