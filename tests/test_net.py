@@ -73,3 +73,8 @@ class TestConnectHttp(unittest.TestCase):
             res = check_port(url, timeout=1)
             pawn.console.log(f"url={url}, expected={expected_value}, res={res}")
             self.assertEqual(check_port(url), expected_value)
+
+
+if __name__ == "__main__":
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestNetworkUtils)
+    testResult = unittest.TextTestRunner(verbosity=3).run(suite)

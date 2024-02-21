@@ -96,8 +96,8 @@ def get_arguments(parser):
     parser.add_argument('-d', '--debug', action='store_true', help='Debug mode (True/False)')
     parser.add_argument('-v', '--verbose', action='count', help='Verbose mode (view level)', default=0)
 
-    parser.add_argument('-p', '--port', type=str, help='Port number (e.g., 80)', default="")
-    parser.add_argument('--host', type=str, help='Single host IP (e.g., 192.168.1.1)', default="")
+    parser.add_argument('-p', '--port', type=int, help='Port number (e.g., 80)', default=80)
+    parser.add_argument('--host', type=str, help='Single host IP (e.g., 192.168.1.1)', default="localhost")
     parser.add_argument('--host-range', type=str, help='Host IP range (e.g., 192.168.1.1-192.168.1.255)', default="")
     parser.add_argument('--port-range', type=str, help='Port range (e.g., 20-80)', default="")
     parser.add_argument('-w', '--worker', type=int, help='Max concurrency worker count', default=100)
@@ -159,7 +159,7 @@ def main():
         find_fastest_region(args)
 
     elif args.command == "wait":
-        wait_for_port_open(args.host, args.port)
+        wait_for_port_open(args.host, args.port, timeout=args.timeout)
 
     elif args.command == "scan":
         host_range = validate_host_range(args.host_range)
