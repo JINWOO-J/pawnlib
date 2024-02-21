@@ -400,31 +400,31 @@ def check_port(host: str = "", port: int = 0, timeout: float = 3.0, protocol: Li
 
     """
 
+    if not host:
+        raise ValueError(f"Host must be specified. inputs: host={host}")
+
+    if protocol not in ["tcp", "udp"]:
+        raise ValueError(f"Invalid protocol specified. Only 'tcp' and 'udp' are supported. inputs: {protocol}")
+
     if not port:
         host, port = extract_host_port(host)
-    else:
-        pawn.console.debug(f"[red][Not Matched] host={host}, port={port}")
+        pawn.console.debug(f"[red] Parsed from host -> host={host}, port={port}")
 
-    pawn.console.debug(f"host={host}, port={port}, protocol={protocol}")
+    port = int(port)
+    pawn.console.debug(f"host={host}, port={port} ({type(port).__name__}), protocol={protocol}, timeout={timeout}")
 
-    if protocol == "tcp":
-        socket_protocol = socket.SOCK_STREAM
-    elif protocol == "udp":
-        socket_protocol = socket.SOCK_DGRAM
-    else:
-        raise ValueError("Invalid socket type argument, tcp or udp")
+    socket_protocol = socket.SOCK_STREAM if protocol == "tcp" else socket.SOCK_DGRAM
 
-    if host == "" or port == 0:
-        raise ValueError(f"Invalid host or port, inputs: host={host}, port={port}")
-
-    if timeout:
-        socket.setdefaulttimeout(float(timeout))  # seconds (float)
+    # if timeout:
+    #     socket.setdefaulttimeout(float(timeout))  # seconds (float)
 
     with socket.socket(socket.AF_INET, socket_protocol) as sock:
         host = http.remove_http(host)
+        sock.settimeout(timeout)  # Set timeout directly on the socket
         try:
             result = sock.connect_ex((host, port))
         except Exception as e:
+            pawn.console.debug(f"[FAIL] {e}")
             pawn.error_logger.error(f"[FAIL] {e}")
             return False
 
@@ -484,7 +484,7 @@ def wait_for_port_open(host: str = "", port: int = 0, timeout: float = 3.0, prot
 
 
     """
-    message = f"[bold green] Wait for port open {host}:{port} ..."
+    message = f"[bold green] Wait for port open[/bold green] {host}:{port} ........."
     count = 0
     with pawn.console.status(message) as status:
         while True:
@@ -493,7 +493,7 @@ def wait_for_port_open(host: str = "", port: int = 0, timeout: float = 3.0, prot
                 pawn.console.debug(f"[OK] Activate port -> {host}:{port}")
                 pawn.app_logger.info(f"[OK] Activate port -> {host}:{port}")
                 return True
-            status.update(f"{message} {count}")
+            status.update(f"{message}[cyan] {count}[/cyan]")
             count += 1
             time.sleep(sleep)
 
