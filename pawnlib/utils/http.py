@@ -488,6 +488,10 @@ class IconRpcTemplates:
     def is_required_sign(self):
         if self._method in self.requires_sign_method:
             return True
+
+        if isinstance(self.return_rpc, dict) and self.return_rpc.get('method') == "icx_sendTransaction":
+            return True
+
         return False
 
     def load_template(self):
@@ -521,8 +525,6 @@ class IconRpcTemplates:
                 self._params = _arguments.get('params', {})
                 self.return_rpc = json_rpc(method=self._method, params=self._params)
 
-            # pawn.console.log(f"-- return_rpc {self.return_rpc}")
-
             return self.return_rpc
         return {}
 
@@ -542,7 +544,7 @@ class IconRpcHelper:
         if required_sign_methods and isinstance(required_sign_methods, list):
             self.required_sign_methods = required_sign_methods
         else:
-            self.required_sign_methods = ['set', 'register', "unregister", "claim", "vote", "apply", "remove", "cancel", "acceptScore", "reject"]
+            self.required_sign_methods = ["set", "register", "unregister", "claim", "vote", "apply", "remove", "cancel", "acceptScore", "reject"]
 
         if not url and self.network_info:
             url = self.network_info.network_api
@@ -950,7 +952,7 @@ class IconRpcHelper:
                 )
             )
 
-            if method == "icx_sendTransaction":
+            if method == "icx_sendTransaction" and _input.get('payable') != "0x1":
                 result[score_method]['params']['value'] = "0x0"
             # pawn.console.log(f"{_input.get('type')} {score_method} , {_input.get('inputs')}, {_input.get('readonly')}")
         return result
@@ -1166,6 +1168,9 @@ class IconRpcHelper:
         self.request_payload = self._convert_valid_payload_format(payload=payload)
         private_key = self.wallet.get('private_key')
         address = self.wallet.get('address')
+        #
+        # if self.request_payload.get('params') and  not keys_exists(self.request_payload, "params", "value"):
+        #     self.request_payload['params']['value'] = "0x0"
 
         if check_balance:
             _balance = self.get_balance()
