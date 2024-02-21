@@ -147,7 +147,8 @@ def fill_sign_params_from_args(payload: dict):
             if args_key == "value":
                 value = hex(int(value * 10 ** 18))
             pawn.console.debug(f"[yellow]Defined from parameters variable, {args_key}={value}, (args.{args_key})")
-            payload['params'][args_key] = value
+            if not payload['params'].get(args_key):
+                payload['params'][args_key] = value
     return payload
 
 

@@ -168,6 +168,10 @@ class WalletCli:
                 except ValueError:
                     pawn.console.log(f"[red]Invalid JSON file - {keystore}")
                 _required_password = True
+
+                if not is_valid_icon_keystore_file(keystore_json):
+                    raise ValueError(f"Invalid keystore file - {self._args.keystore}")
+
             elif is_hex(keystore):
                 if is_private_key(keystore):
                     pawn.console.log("Found Private key")
@@ -198,10 +202,6 @@ class WalletCli:
             ).prompt()
 
         if keystore_json:
-            is_valid_keystore_result = is_valid_icon_keystore_file(keystore_json)
-            if not is_valid_keystore_result:
-                raise ValueError(f"Invalid keystore file - {self._args.keystore}")
-
             self._wallet = load_wallet_key(keystore_json, _password)
 
             if self._wallet:
