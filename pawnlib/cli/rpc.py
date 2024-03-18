@@ -3,7 +3,7 @@ import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.output.color_print import *
-from pawnlib.output import write_yaml, is_file, open_yaml_file
+from pawnlib.output import write_yaml, is_file, open_yaml_file, print_json
 from pawnlib.config import pawnlib_config as pawn, pconf
 from pawnlib.typing import sys_exit, is_valid_url, json_rpc, is_json
 from pawnlib.utils import IconRpcHelper, IconRpcTemplates, NetworkInfo, icx_signer, CallHttp
@@ -21,7 +21,7 @@ __epilog__ = (
     "This utility offers a comprehensive suite for interacting with the ICON blockchain, leveraging JSON-RPC for efficient communication.\n\n"
     "Usage examples:\n"
     "  1. Query network information:\n"
-    "     pawns rpc --url <RPC_ENDPOINT> --method getBlockByHeight --params '{\"height\":\"0x1\"}'\n"
+    "     pawns rpc --url <RPC_ENDPOINT> --method icx_getBlockByHeight --params '{\"height\":\"0x1\"}'\n"
     "     - Fetches block information by height.\n\n"
 
     "  2. Send ICX transaction:\n"
@@ -82,13 +82,13 @@ def get_arguments(parser):
     # parser.add_argument('-r', '--rnd_icx', metavar='rnd_icx', help=f'rnd_icx', default="no")
 
     parser.add_argument('-m', '--method', metavar='method', help='method for JSON-RPC', default="")
-    parser.add_argument('--params', metavar='params', help='params for JSON-RPC', default="{}")
+    parser.add_argument('--params', metavar='params',  help='params for JSON-RPC', default={})
     parser.add_argument('-x', '--http-method', metavar='method', help='method for HTTP', default="post")
     parser.add_argument('--platform', type=lambda s : s.lower(), metavar='platform', help='platform name of network name',
                         # choices=PLATFORM_LIST,
                         # default="havah"
                         )
-
+    parser.add_argument('--src',  metavar='source', help='Source path of SCORE', default="")
     parser.add_argument('--network', metavar='network_name', help='network name', default="")
 
     parser.add_argument('--fill-each-prompt',  action='store_true', help='fill each prompt', default=False)
@@ -248,11 +248,7 @@ class RpcCommand:
                 # from 주소면 wallet 디렉토리를 읽어서 리스트를 보여준다.
             self._payload['params'] = prompt(_questions)
 
-        if self.icon_tpl.is_required_sign() or self._payload.get('method') == "icx_sendTransaction":
-            self.icon_rpc.wallet = icx_signer.WalletCli().load()
-            self._payload['params']['from'] = self.icon_rpc.wallet.get('address')
-            self.print_balance()
-            self.prepare_signature()
+        self.load_wallet_and_prepare_for_sign()
 
         self._payload = PromptWithArgument(
             type="input",
@@ -269,6 +265,13 @@ class RpcCommand:
 
         if self.icon_tpl.is_required_sign():
             self.icon_rpc.get_tx_wait()
+
+    def load_wallet_and_prepare_for_sign(self):
+        if self.icon_tpl.is_required_sign() or self._payload.get('method') == "icx_sendTransaction":
+            self.icon_rpc.wallet = icx_signer.WalletCli().load()
+            self._payload['params']['from'] = self.icon_rpc.wallet.get('address')
+            self.print_balance()
+            self.prepare_signature()
 
     def print_balance(self):
         address = self.icon_rpc.wallet.get('address')
@@ -296,21 +299,71 @@ class RpcCommand:
             pawn.console.log(self.config_data)
 
     def call_raw_rpc(self):
-        pawn.console.log(f"is_valid_url=> {is_valid_url(self.args.url)}")
+        pawn.console.log(f"{self.args.url}, is_valid_url=> {is_valid_url(self.args.url)}")
         if not self.args.url or not is_valid_url(self.args.url):
             sys_exit(f"Required valid url -> {self.args.url}")
 
         if not is_json(self.args.params):
             sys_exit(f"Required invalid params-> {self.args.params}")
 
+        _payload = json_rpc(method=self.args.method, params=json.loads(self.args.params))
+
         call_http = CallHttp(
             url=self.args.url,
             method=self.args.http_method,
-            payload=json_rpc(method=self.args.method, params=json.loads(self.args.params)),
+            payload=_payload,
             headers={"Content-Type": "application/json"}
         )
         res = call_http.run()
+
+        pawn.console.log(call_http.response, f"payload={json.dumps(_payload)}")
         dump(res.response.json, hex_to_int=True)
+
+    def deploy_score(self):
+        pawn.console.log(self.args)
+        self.icon_rpc = IconRpcHelper(network_info=self.network_info)
+
+        if not is_json(self.args.params):
+            sys_exit(f"Required invalid params-> {self.args.params}")
+
+        if not self.args.src:
+            sys_exit(f"Required Source path of SCORE -> {self.args.src}")
+
+        self.args.params = json.loads(self.args.params)
+
+        _params = PromptWithArgument(
+            type="input",
+            message="Edit Params: ",
+            default="\n"+json.dumps(self.args.params, indent=4),
+            long_instruction="\nedit the transaction",
+        ).prompt()
+
+        if self.args.to:
+            pawn.console.log(f"Update to '{self.args.to}'")
+
+        self._payload = self.icon_rpc.create_deploy_payload(
+            # src="examples/icon_rpc_test/SCORE/hello-world/build/libs/hello-world-0.1.0-optimized.jar",
+            src=self.args.src,
+            params=json.loads(_params),
+            governance_address=self.args.to
+        )
+        self.load_wallet_and_prepare_for_sign()
+        del self.icon_rpc.request_payload['params']['value']
+        pawn.console.rule("2. Calculate Fee")
+        pawn.console.log(f"Fee = {self.icon_rpc.get_fee( symbol=True)}")
+
+        pawn.console.rule("3. Sign the Transaction")
+        signed_payload = self.icon_rpc.sign_tx(payload=self._payload)
+        print_json(signed_payload)
+
+        pawn.console.rule("4. Send the Transaction")
+        self.icon_rpc.rpc_call(payload=signed_payload)
+        self.icon_rpc.print_response()
+
+        pawn.console.rule("5. Wait the Transaction")
+        self.icon_rpc.get_tx_wait()
+        self.icon_rpc.print_response()
+
 
     def run(self):
         self.initialize_arguments()
@@ -318,9 +371,15 @@ class RpcCommand:
             self.write_config_file()
             return
 
-        self.set_network_info()
+        if not self.args.url:
+            self.set_network_info()
+
         if self.is_supported_platform:
-            self.generate_tx_payload()
+            if self.args.method == "deploy":
+                pawn.console.log("Deploy SCORE")
+                self.deploy_score()
+            else:
+                self.generate_tx_payload()
         else:
             pawn.console.log(f"Unsupported platform={self.args.platform}, network_name={self.args.network}")
             self.call_raw_rpc()

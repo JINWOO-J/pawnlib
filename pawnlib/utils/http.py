@@ -556,8 +556,8 @@ class IconRpcHelper:
         self._can_be_signed = None
         self.on_error = False
         self.initialize()
-        self._use_global_reqeust_payload = False
-        self.global_reqeust_payload = {}
+        self._use_global_request_payload = False
+        self.global_request_payload = {}
         self.score_api = {}
 
         self.default = {
@@ -772,6 +772,7 @@ class IconRpcHelper:
             return
 
         _content = gen_deploy_data_content(src)
+        pawn.console.debug(f"file_extension={_file_extension}, file_type={_file_type}, content_size={len(_content)}")
         _request_payload = self._convert_valid_payload_format(
             method="icx_sendTransaction",
             params={
@@ -784,7 +785,7 @@ class IconRpcHelper:
                 },
             },
         )
-        self.global_reqeust_payload = _request_payload
+        self.request_payload = _request_payload
         return _request_payload
 
     def deploy_score(self, src="", params={}, step_limit=None, governance_address=None, is_wait=True, is_confirm_send=False):
@@ -833,7 +834,7 @@ class IconRpcHelper:
             if res_json.get('error'):
                 # pawn.console.debug(f"[red] An error occurred while running debug_estimateStep, {res_json['error'].get('message')}")
                 # sys.exit(-1)
-                self.exit_on_failure(f"An error occurred while running debug_estimateStep, {res_json['error'].get('message')}")
+                self.exit_on_failure(f"An error occurred while running 'debug_estimateStep', {res_json['error'].get('message')}, URL={_url}")
 
             return res.get('result')
 
@@ -1102,11 +1103,14 @@ class IconRpcHelper:
     def parse_tx_var(self, tx=None):
         if tx:
             _tx = copy.deepcopy(tx)
-            self._use_global_reqeust_payload = False
+            self._use_global_request_payload = False
         else:
-            _tx = self.request_payload
-            self._use_global_reqeust_payload = True
-            # pawn.console.debug(f"[red]_use_global_reqeust_payload={self._use_global_reqeust_payload}")
+            if self.request_payload:
+                _tx = self.request_payload
+            else:
+                _tx = self.global_request_payload
+            self._use_global_request_payload = True
+            # pawn.console.debug(f"[red]_use_global_request_payload={self._use_global_request_payload}")
         return _tx
 
     def _force_fill_from_address(self):
@@ -1134,7 +1138,7 @@ class IconRpcHelper:
         else:
             self.exit_on_failure(f"Invalid payload => {_tx}")
 
-        if self._use_global_reqeust_payload:
+        if self._use_global_request_payload:
             self.request_payload = _tx
         return _tx
 
@@ -1161,9 +1165,9 @@ class IconRpcHelper:
         if not self.wallet or not isinstance(self.wallet, dict):
             self.exit_on_failure(f"[red] Not defined wallet => {self.wallet}")
 
-        if not payload and self.global_reqeust_payload:
-            pawn.console.debug("Use global_reqeust_payload")
-            payload = self.global_reqeust_payload
+        if not payload and self.global_request_payload:
+            pawn.console.debug("Use global_request_payload")
+            payload = self.global_request_payload
 
         self.request_payload = self._convert_valid_payload_format(payload=payload)
         private_key = self.wallet.get('private_key')
@@ -1191,7 +1195,7 @@ class IconRpcHelper:
         if address != singer.get_hx_address():
             self.exit_on_failure(f'Invalid address {address} != {singer.get_hx_address()}')
 
-        self.global_reqeust_payload = {}
+        self.global_request_payload = {}
         return self.signed_tx
 
     def exit_on_failure(self, exception, force_exit=False):
