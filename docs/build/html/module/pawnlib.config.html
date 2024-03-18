@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.config package &mdash; Pawnlib v1.0.85</title>
+  <title>pawnlib.config package &mdash; Pawnlib v1.0.97</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -38,7 +38,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.85
+                1.0.97
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -107,6 +107,30 @@
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.config.globalconfig.pconf"><code class="docutils literal notranslate"><span class="pre">pconf()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-config-first-run-checker-module">pawnlib.config.first_run_checker module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite"><code class="docutils literal notranslate"><span class="pre">FirstRunCheckerSqlite</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite.setup_database"><code class="docutils literal notranslate"><span class="pre">FirstRunCheckerSqlite.setup_database()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite.is_first_run"><code class="docutils literal notranslate"><span class="pre">FirstRunCheckerSqlite.is_first_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite.one_time_run"><code class="docutils literal notranslate"><span class="pre">FirstRunCheckerSqlite.one_time_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite.mark_first_run"><code class="docutils literal notranslate"><span class="pre">FirstRunCheckerSqlite.mark_first_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite.clear_first_run"><code class="docutils literal notranslate"><span class="pre">FirstRunCheckerSqlite.clear_first_run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunChecker"><code class="docutils literal notranslate"><span class="pre">FirstRunChecker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunChecker.check_python_version"><code class="docutils literal notranslate"><span class="pre">FirstRunChecker.check_python_version()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunChecker.load_data"><code class="docutils literal notranslate"><span class="pre">FirstRunChecker.load_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunChecker.sync_data"><code class="docutils literal notranslate"><span class="pre">FirstRunChecker.sync_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunChecker.save_data"><code class="docutils literal notranslate"><span class="pre">FirstRunChecker.save_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunChecker.is_first_run"><code class="docutils literal notranslate"><span class="pre">FirstRunChecker.is_first_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunChecker.one_time_run"><code class="docutils literal notranslate"><span class="pre">FirstRunChecker.one_time_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunChecker.mark_first_run"><code class="docutils literal notranslate"><span class="pre">FirstRunChecker.mark_first_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.config.first_run_checker.FirstRunChecker.clear_first_run"><code class="docutils literal notranslate"><span class="pre">FirstRunChecker.clear_first_run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.config.first_run_checker.one_time_run"><code class="docutils literal notranslate"><span class="pre">one_time_run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-config-first-run-checker-one-time-run">pawnlib.config.first_run_checker.one_time_run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pawnlib-config-globalconfig-pawnlib-config">pawnlib.config.globalconfig.pawnlib_config</a></li>
 </ul>
 </li>
@@ -729,6 +753,144 @@ global runtime configuration that can be accessed by any module, function, or ob
 </div>
 </dd></dl>
 
+</section>
+<section id="pawnlib-config-first-run-checker-module">
+<h2>pawnlib.config.first_run_checker module<a class="headerlink" href="#pawnlib-config-first-run-checker-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config</span> <span class="kn">import</span> <span class="n">first_run_checker</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.config.first_run_checker"></span><dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunCheckerSqlite">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FirstRunCheckerSqlite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunCheckerSqlite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunCheckerSqlite.setup_database">
+<span class="sig-name descname"><span class="pre">setup_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunCheckerSqlite.setup_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite.setup_database" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunCheckerSqlite.is_first_run">
+<span class="sig-name descname"><span class="pre">is_first_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunCheckerSqlite.is_first_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite.is_first_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunCheckerSqlite.one_time_run">
+<span class="sig-name descname"><span class="pre">one_time_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunCheckerSqlite.one_time_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite.one_time_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunCheckerSqlite.mark_first_run">
+<span class="sig-name descname"><span class="pre">mark_first_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunCheckerSqlite.mark_first_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite.mark_first_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunCheckerSqlite.clear_first_run">
+<span class="sig-name descname"><span class="pre">clear_first_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunCheckerSqlite.clear_first_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunCheckerSqlite.clear_first_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunChecker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FirstRunChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunChecker" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to check if it’s the first run of the program.</p>
+<p>This class uses a file to keep track of whether it’s the first run of the program or not.
+The file path can be specified, and by default, it’s “.task_first_run.json”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>optional</em>) – The file path to keep track of the first run. Default is “.task_first_run.json”.
+<a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.task_first_run.json'</span></code></p></li>
+<li><p><strong>debug</strong> (<em>optional</em>) – A flag to print debug information. Default is False.
+<a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config</span> <span class="kn">import</span> <span class="n">FirstRunChecker</span><span class="p">,</span> <span class="n">one_time_run</span>
+<span class="n">checker</span> <span class="o">=</span> <span class="n">FirstRunChecker</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;.first_run.json&quot;</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">checker</span><span class="o">.</span><span class="n">is_first_run</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is the first run.&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is not the first run.&quot;</span><span class="p">)</span>
+<span class="c1"># &gt;&gt; This is the first run.</span>
+
+<span class="n">checker</span><span class="o">.</span><span class="n">mark_first_run</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">checker</span><span class="o">.</span><span class="n">is_first_run</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is the first run.&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is not the first run.&quot;</span><span class="p">)</span>
+<span class="c1"># &gt;&gt; This is not the first run.</span>
+
+<span class="n">checker</span><span class="o">.</span><span class="n">clear_first_run</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">checker</span><span class="o">.</span><span class="n">is_first_run</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is the first run.&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is not the first run.&quot;</span><span class="p">)</span>
+<span class="c1"># &gt;&gt; This is the first run.</span>
+
+<span class="k">if</span> <span class="n">one_time_run</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;one time run&quot;</span><span class="p">)</span>
+<span class="c1">#&gt;&gt; one time run</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunChecker.check_python_version">
+<span class="sig-name descname"><span class="pre">check_python_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunChecker.check_python_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunChecker.check_python_version" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunChecker.load_data">
+<span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunChecker.load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunChecker.load_data" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunChecker.sync_data">
+<span class="sig-name descname"><span class="pre">sync_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunChecker.sync_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunChecker.sync_data" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunChecker.save_data">
+<span class="sig-name descname"><span class="pre">save_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunChecker.save_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunChecker.save_data" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunChecker.is_first_run">
+<span class="sig-name descname"><span class="pre">is_first_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunChecker.is_first_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunChecker.is_first_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunChecker.one_time_run">
+<span class="sig-name descname"><span class="pre">one_time_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunChecker.one_time_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunChecker.one_time_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunChecker.mark_first_run">
+<span class="sig-name descname"><span class="pre">mark_first_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunChecker.mark_first_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunChecker.mark_first_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.FirstRunChecker.clear_first_run">
+<span class="sig-name descname"><span class="pre">clear_first_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/config/first_run_checker.html#FirstRunChecker.clear_first_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.config.first_run_checker.FirstRunChecker.clear_first_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.config.first_run_checker.one_time_run">
+<span class="sig-name descname"><span class="pre">one_time_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pawnlib.config.first_run_checker.one_time_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="pawnlib-config-first-run-checker-one-time-run">
+<h2>pawnlib.config.first_run_checker.one_time_run<a class="headerlink" href="#pawnlib-config-first-run-checker-one-time-run" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.config</span> <span class="kn">import</span> <span class="n">one_time_run</span>
+
+<span class="hll"><span class="k">if</span> <span class="n">one_time_run</span><span class="p">():</span>
+</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Just one time run&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="pawnlib-config-globalconfig-pawnlib-config">
 <h2>pawnlib.config.globalconfig.pawnlib_config<a class="headerlink" href="#pawnlib-config-globalconfig-pawnlib-config" title="Permalink to this heading"></a></h2>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.utils.http &mdash; Pawnlib v1.0.84</title>
+  <title>pawnlib.utils.http &mdash; Pawnlib v1.0.97</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.84
+                1.0.97
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -238,7 +238,6 @@
         <span class="mi">508</span><span class="p">:</span> <span class="s2">&quot;Loop Detected&quot;</span><span class="p">,</span>
         <span class="mi">510</span><span class="p">:</span> <span class="s2">&quot;Not Extended&quot;</span><span class="p">,</span>
         <span class="mi">511</span><span class="p">:</span> <span class="s2">&quot;Network Authentication Required&quot;</span><span class="p">,</span>
-        <span class="c1"># 추가적인 상태 코드는 여기에 포함시킬 수 있습니다.</span>
     <span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
@@ -576,6 +575,10 @@
 <div class="viewcode-block" id="IconRpcTemplates.is_required_sign"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.is_required_sign">[docs]</a>    <span class="k">def</span> <span class="nf">is_required_sign</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_sign_method</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">return_rpc</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_rpc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;icx_sendTransaction&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
         <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="IconRpcTemplates.load_template"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.load_template">[docs]</a>    <span class="k">def</span> <span class="nf">load_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -609,8 +612,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="n">_arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">return_rpc</span> <span class="o">=</span> <span class="n">json_rpc</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span>
 
-            <span class="c1"># pawn.console.log(f&quot;-- return_rpc {self.return_rpc}&quot;)</span>
-
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_rpc</span>
         <span class="k">return</span> <span class="p">{}</span></div>
 
@@ -630,7 +631,7 @@
         <span class="k">if</span> <span class="n">required_sign_methods</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">required_sign_methods</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">required_sign_methods</span> <span class="o">=</span> <span class="n">required_sign_methods</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">required_sign_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;set&#39;</span><span class="p">,</span> <span class="s1">&#39;register&#39;</span><span class="p">,</span> <span class="s2">&quot;unregister&quot;</span><span class="p">,</span> <span class="s2">&quot;claim&quot;</span><span class="p">,</span> <span class="s2">&quot;vote&quot;</span><span class="p">,</span> <span class="s2">&quot;apply&quot;</span><span class="p">,</span> <span class="s2">&quot;remove&quot;</span><span class="p">,</span> <span class="s2">&quot;cancel&quot;</span><span class="p">,</span> <span class="s2">&quot;acceptScore&quot;</span><span class="p">,</span> <span class="s2">&quot;reject&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">required_sign_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;set&quot;</span><span class="p">,</span> <span class="s2">&quot;register&quot;</span><span class="p">,</span> <span class="s2">&quot;unregister&quot;</span><span class="p">,</span> <span class="s2">&quot;claim&quot;</span><span class="p">,</span> <span class="s2">&quot;vote&quot;</span><span class="p">,</span> <span class="s2">&quot;apply&quot;</span><span class="p">,</span> <span class="s2">&quot;remove&quot;</span><span class="p">,</span> <span class="s2">&quot;cancel&quot;</span><span class="p">,</span> <span class="s2">&quot;acceptScore&quot;</span><span class="p">,</span> <span class="s2">&quot;reject&quot;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="p">:</span>
             <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">network_api</span>
@@ -642,8 +643,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_can_be_signed</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_error</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_use_global_reqeust_payload</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">global_reqeust_payload</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_global_request_payload</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_request_payload</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">score_api</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="p">{</span>
@@ -858,6 +859,7 @@
             <span class="k">return</span>
 
         <span class="n">_content</span> <span class="o">=</span> <span class="n">gen_deploy_data_content</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file_extension=</span><span class="si">{</span><span class="n">_file_extension</span><span class="si">}</span><span class="s2">, file_type=</span><span class="si">{</span><span class="n">_file_type</span><span class="si">}</span><span class="s2">, content_size=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">_content</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">_request_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_valid_payload_format</span><span class="p">(</span>
             <span class="n">method</span><span class="o">=</span><span class="s2">&quot;icx_sendTransaction&quot;</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="p">{</span>
@@ -870,7 +872,7 @@
                 <span class="p">},</span>
             <span class="p">},</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">global_reqeust_payload</span> <span class="o">=</span> <span class="n">_request_payload</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request_payload</span> <span class="o">=</span> <span class="n">_request_payload</span>
         <span class="k">return</span> <span class="n">_request_payload</span></div>
 
 <div class="viewcode-block" id="IconRpcHelper.deploy_score"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.deploy_score">[docs]</a>    <span class="k">def</span> <span class="nf">deploy_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{},</span> <span class="n">step_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">governance_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_confirm_send</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -919,7 +921,7 @@
             <span class="k">if</span> <span class="n">res_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">):</span>
                 <span class="c1"># pawn.console.debug(f&quot;[red] An error occurred while running debug_estimateStep, {res_json[&#39;error&#39;].get(&#39;message&#39;)}&quot;)</span>
                 <span class="c1"># sys.exit(-1)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred while running debug_estimateStep, </span><span class="si">{</span><span class="n">res_json</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred while running &#39;debug_estimateStep&#39;, </span><span class="si">{</span><span class="n">res_json</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">, URL=</span><span class="si">{</span><span class="n">_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">)</span>
 
@@ -1038,7 +1040,7 @@
                 <span class="p">)</span>
             <span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;icx_sendTransaction&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;icx_sendTransaction&quot;</span> <span class="ow">and</span> <span class="n">_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;payable&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;0x1&quot;</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">score_method</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0x0&quot;</span>
             <span class="c1"># pawn.console.log(f&quot;{_input.get(&#39;type&#39;)} {score_method} , {_input.get(&#39;inputs&#39;)}, {_input.get(&#39;readonly&#39;)}&quot;)</span>
         <span class="k">return</span> <span class="n">result</span>
@@ -1188,11 +1190,14 @@
 <div class="viewcode-block" id="IconRpcHelper.parse_tx_var"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.parse_tx_var">[docs]</a>    <span class="k">def</span> <span class="nf">parse_tx_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">tx</span><span class="p">:</span>
             <span class="n">_tx</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_use_global_reqeust_payload</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_use_global_request_payload</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">_tx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_payload</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_use_global_reqeust_payload</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="c1"># pawn.console.debug(f&quot;[red]_use_global_reqeust_payload={self._use_global_reqeust_payload}&quot;)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_payload</span><span class="p">:</span>
+                <span class="n">_tx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_payload</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_tx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_request_payload</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_use_global_request_payload</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># pawn.console.debug(f&quot;[red]_use_global_request_payload={self._use_global_request_payload}&quot;)</span>
         <span class="k">return</span> <span class="n">_tx</span></div>
 
     <span class="k">def</span> <span class="nf">_force_fill_from_address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1220,7 +1225,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid payload =&gt; </span><span class="si">{</span><span class="n">_tx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_global_reqeust_payload</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_global_request_payload</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">request_payload</span> <span class="o">=</span> <span class="n">_tx</span>
         <span class="k">return</span> <span class="n">_tx</span></div>
 
@@ -1247,13 +1252,16 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wallet</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red] Not defined wallet =&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">wallet</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_reqeust_payload</span><span class="p">:</span>
-            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Use global_reqeust_payload&quot;</span><span class="p">)</span>
-            <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_reqeust_payload</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_request_payload</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Use global_request_payload&quot;</span><span class="p">)</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_request_payload</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">request_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_valid_payload_format</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
         <span class="n">private_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;private_key&#39;</span><span class="p">)</span>
         <span class="n">address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;address&#39;</span><span class="p">)</span>
+        <span class="c1">#</span>
+        <span class="c1"># if self.request_payload.get(&#39;params&#39;) and  not keys_exists(self.request_payload, &quot;params&quot;, &quot;value&quot;):</span>
+        <span class="c1">#     self.request_payload[&#39;params&#39;][&#39;value&#39;] = &quot;0x0&quot;</span>
 
         <span class="k">if</span> <span class="n">check_balance</span><span class="p">:</span>
             <span class="n">_balance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_balance</span><span class="p">()</span>
@@ -1274,7 +1282,7 @@
         <span class="k">if</span> <span class="n">address</span> <span class="o">!=</span> <span class="n">singer</span><span class="o">.</span><span class="n">get_hx_address</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid address </span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s1"> != </span><span class="si">{</span><span class="n">singer</span><span class="o">.</span><span class="n">get_hx_address</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">global_reqeust_payload</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_request_payload</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">signed_tx</span></div>
 
 <div class="viewcode-block" id="IconRpcHelper.exit_on_failure"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.exit_on_failure">[docs]</a>    <span class="k">def</span> <span class="nf">exit_on_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="p">,</span> <span class="n">force_exit</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1597,14 +1605,18 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span>
 
-        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Response from &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&#39; &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&#39; 👉 </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">  (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">):</span>
+            <span class="n">response_type</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">response_type</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span>
+
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Response from &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&#39; &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&#39; 👉 </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">response_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="p">:</span>
             <span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;rule.line&quot;</span>
 
-        <span class="n">status_code_with_message</span> <span class="o">=</span> <span class="n">HTTPStatus</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;Response </span><span class="si">{</span><span class="n">status_code_with_message</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="n">characters</span><span class="o">=</span><span class="s2">&quot;═&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="n">characters</span><span class="o">=</span><span class="s2">&quot;═&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
             <span class="n">print_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
