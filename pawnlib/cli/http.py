@@ -2,7 +2,7 @@
 import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
-from pawnlib.config import pawn, pconf
+from pawnlib.config import pawn, pconf, one_time_run
 from pawnlib.typing import str2bool, StackList, ErrorCounter,  is_json, is_valid_url, sys_exit, Null, remove_tags, FlatDict
 from pawnlib.utils.http import CallHttp, disable_ssl_warnings, ALLOW_OPERATOR
 from pawnlib.utils import ThreadPoolRunner, send_slack
@@ -79,10 +79,13 @@ class AppConfig:
     verbose: int = 1
     quiet: int = 0
     interval: float = 1.0
-    method: str = "GET"
+    # method: str = "GET"
+    method: str = ""
     timeout: float = 10.0
     base_dir: str = field(default_factory=lambda: os.getcwd())
-    success: List[str] = field(default_factory=lambda: ["status_code==200"])
+    # success: List[str] = field(default_factory=lambda: ["status_code==200"])
+    success: List[str] = field(default_factory=lambda: [])
+    # success: List = []
     logical_operator: str = "and"
     ignore_ssl: bool = True
 
@@ -186,7 +189,7 @@ def get_arguments(parser):
 
     parser.add_argument('-q', '--quiet', action='count', help='Enables quiet mode. Suppresses all messages. Default is 0.', default=0)
     parser.add_argument('-i', '--interval', type=float, help='Interval time in seconds between checks. Default is 1 second.', default=1)
-    parser.add_argument('-m', '--method', type=lambda s: s.upper(), help='HTTP method to use (e.g., GET, POST). Default is "GET".', default="get")
+    parser.add_argument('-m', '--method', type=lambda s: s.upper(), help='HTTP method to use (e.g., GET, POST). Default is "GET".', default="GET")
     parser.add_argument('-t', '--timeout', type=float, help='Timeout in seconds for each HTTP request. Default is 10 seconds.', default=10)
     parser.add_argument('-b', '--base-dir', type=str, help='Base directory for httping operations. Default is the current working directory.', default=os.getcwd())
     parser.add_argument('--success', nargs='+', help='Criteria for success. Can specify multiple criteria. Default is ["status_code==200"].', default=['status_code==200'])
@@ -214,6 +217,8 @@ def get_arguments(parser):
 def check_url_process(config):
     if not config.url:
         return
+    if one_time_run() and config.slack_url:
+        res = _send_slack(url=config.slack_url, title=f"Starting HTTPING - {config.section_name}", msg_text=config.__dict__)
 
     check_url = CallHttp(
         url=config.url,
@@ -371,10 +376,42 @@ def generate_task_from_config():
             if _config_instance.url and _config_instance.url != "http":
                 tasks.append(_config_instance)
 
+            if section_name == "default":
+                pawn.set(default_config=_config_instance)
+
     if not tasks:
         tasks = [set_default_counter()]
 
+    tasks = fill_default_config_values(tasks)
+
     validate_task_exit_on_failure(tasks)
+    return tasks
+
+def fill_default_config_values(tasks):
+    if not pconf().default_config.__dict__:
+
+        if not pconf().args.method:
+            pconf().args.method = "GET"
+
+    ignore_keys = ["log_level", "dry_run"]
+
+    for args_key, args_value in pconf().args.__dict__.items():
+
+        if args_key not in ignore_keys and args_value:
+            _default_value = getattr(pconf().default_config, args_key, None)
+
+            if not _default_value:
+                pawn.console.debug(f"Change default value '{args_key}' => {args_value}")
+                setattr(pconf().default_config, args_key, args_value)
+            elif getattr(pconf().default_config, args_key) != args_value:
+                pawn.console.debug(f"Priority args {_default_value} => {args_value}")
+                setattr(pconf().default_config, args_key, args_value)
+
+
+    for config in tasks:
+        for _default_key, _default_value  in  pconf().default_config.__dict__.items():
+            if not getattr(config, _default_key):
+                setattr(config, _default_key, _default_value)
     return tasks
 
 
@@ -457,6 +494,7 @@ def main():
         },
         fail_count=0,
         total_count=0,
+        default_config={},
 
     )
     if args.verbose > 2:
@@ -474,7 +512,7 @@ def main():
     pawn.set(tasks=tasks)
 
     # if args.slack_url:
-    #     res = _send_slack(url=args.slack_url, msg_text=tasks)
+    #     res = _send_slack(url=args.slack_url, title="Starting HTTPING", msg_text=tasks)
     #     pawn.console.log(res)
     # _send_slack(url=args.slack_url, title=f"Error HTTPING {args.url}", msg_text=args.__dict__)
     # pawn.console.log(f"console_options={pawn.console_options}")

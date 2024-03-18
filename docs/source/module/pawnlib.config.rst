@@ -31,6 +31,32 @@ pawnlib.config.globalconfig module
    :show-inheritance:
 
 
+pawnlib.config.first_run_checker module
+----------------------------------
+
+.. code-block:: python
+
+    from pawnlib.config import first_run_checker
+
+
+.. automodule:: pawnlib.config.first_run_checker
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+pawnlib.config.first_run_checker.one_time_run
+--------------------------------------------
+
+.. code-block:: python
+    :emphasize-lines: 3, 6, 17
+
+    from pawnlib.config import one_time_run
+
+    if one_time_run():
+        print("Just one time run")
+
+
 pawnlib.config.globalconfig.pawnlib_config
 --------------------------------------------
 
