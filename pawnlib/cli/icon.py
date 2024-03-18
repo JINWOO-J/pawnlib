@@ -16,7 +16,7 @@ def get_arguments(parser=None):
 
     parser.add_argument(
         'command',
-        help='account, icx_sendTransaction, icx_sendTransaction_v3, get_transactionResult, icx_getBalance, icx_getTotalSupply')
+        help='deploy')
     parser.add_argument('--url', metavar='url', help=f'loopchain baseurl. default: None', default=None)
     parser.add_argument('--from', metavar='address', dest='from_addr', help=f'from address. default: None', default=None)
     parser.add_argument('--to', metavar='address', dest="to_addr", help=f'to address. default: None', default=None)

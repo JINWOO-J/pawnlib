@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import common
 from pawnlib.output.color_print import *
+from pawnlib.config import pawn
 
 sample_dict = dict(
     aa="sdssdsdsd"
@@ -66,3 +67,9 @@ depth_1_dict = {
 dump(data)
 dump(nested_data)
 dump(attrs)
+
+pawn.set(PAWN_DEBUG=True)
+pawn.console.rule("Console logs")
+pawn.console.debug("debug message")
+pawn.console.debug("debug message", nested_data)
+

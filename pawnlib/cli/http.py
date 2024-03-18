@@ -14,6 +14,7 @@ import os
 import json
 from typing import List, Dict, Union, Type, get_type_hints, Any
 import re
+import time
 
 script_name = "pawns"
 
@@ -292,6 +293,8 @@ def check_url_process(config):
         handle_failure_on_check_url(config, message, check_url)
         print_response_if_verbose(check_url)
 
+    if config.interval and not pconf().args.dry_run:
+        time.sleep(config.interval)
 
 def print_response_if_verbose(check_url):
     if (pconf().args.verbose > 3 or pconf().args.dry_run)  and hasattr(check_url, "response"):
