@@ -239,6 +239,11 @@ class RpcCommand:
         ).fuzzy()
 
         self._payload = self.icon_tpl.get_rpc(category=category, method=self.args.method)
+
+        if self.icon_tpl.get_params_hint():
+            pawn.console.log(f"Type Hints for '{self.args.method}'")
+            print_json(self.icon_tpl.get_params_hint())
+
         required_params = self.icon_tpl.get_required_params()
 
         if required_params and self.args.fill_each_prompt:
@@ -363,7 +368,6 @@ class RpcCommand:
         pawn.console.rule("5. Wait the Transaction")
         self.icon_rpc.get_tx_wait()
         self.icon_rpc.print_response()
-
 
     def run(self):
         self.initialize_arguments()
