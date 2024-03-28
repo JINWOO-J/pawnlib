@@ -8,7 +8,7 @@ from pawnlib.utils.http import jequest, disable_ssl_warnings, icon_rpc_call, Ico
 from pawnlib.output import dump
 from pawnlib.typing.converter import convert_dict_hex_to_int, hex_to_number
 from pawnlib.typing import is_include_list, random_private_key
-from pawnlib.utils import icx_signer, http, icx_signer_org
+from pawnlib.utils import icx_signer, http
 from pawnlib import output
 from pawnlib.input import PromptWithArgument, PrivateKeyValidator, StringCompareValidator, PrivateKeyOrJsonValidator
 import json
@@ -24,16 +24,15 @@ wallet = icx_signer.load_wallet_key(
 pawn.console.log(wallet)
 
 
-wallet2= icx_signer_org.load_wallet_key(
-    private_key
-)
+def wallet_clit_new_init(self, args=None):
+    self._args = args
+    self._wallet = ""
 
-pawn.console.log(wallet2)
-# wallet = icx_signer.WalletCli()
-# print(wallet)
+icx_signer.WalletCli.__init__ = wallet_clit_new_init
+
+pawn.console.log(icx_signer.generate_keys())#
 
 
+wallet_cli = icx_signer.WalletCli(args=NestedNamespace(base_dir="sdsdsdsssd"))
 
-pawn.console.log(icx_signer.generate_keys())
-pawn.console.log(icx_signer_org.generate_keys())
-#
+pawn.console.log(wallet_cli._args)

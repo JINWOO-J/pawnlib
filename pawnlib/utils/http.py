@@ -465,6 +465,7 @@ class IconRpcTemplates:
         self._category = category
         self._method = method
         self._params = {}
+        self._params_hint = {}
         self.get_rpc()
 
     def update_template(self, new_template):
@@ -519,6 +520,10 @@ class IconRpcTemplates:
                 raise ValueError(f"[Template Error] Required method ->  category={self._category}, method={self._method}")
 
             if _arguments.get('method'):
+                if _arguments.get('params_hint', "__NOT_DEFINED__") != "__NOT_DEFINED__":
+                    self._params_hint = _arguments['params_hint']
+                    del _arguments['params_hint']
+
                 self.return_rpc = json_rpc(**_arguments)
             else:
                 self._method = _arguments.get('method', self._method)
@@ -530,6 +535,9 @@ class IconRpcTemplates:
 
     def get_required_params(self):
         return self._params
+
+    def get_params_hint(self):
+        return self._params_hint
 
 
 class IconRpcHelper:
@@ -910,7 +918,7 @@ class IconRpcHelper:
         pawn.console.debug(f"step_limit = {step_limit}")
         return fee
 
-    def get_score_api(self, address="", url=None):
+    def get_score_api(self, address="", url=None) -> list:
         if not is_valid_token_address(address, prefix="cx"):
             return self.exit_on_failure(f"Invalid token address - {address}")
 
@@ -926,11 +934,24 @@ class IconRpcHelper:
             self.exit_on_failure(error)
             return 0
 
-        return response.get('result')
+        return response.get('result', [])
 
     @staticmethod
     def name_to_params(list_data):
         return {data.get('name'): "" for data in list_data}
+
+    @staticmethod
+    def make_params_hint(list_data):
+        if not list_data:
+            return {}
+
+        formatted_data = {}
+        for data in list_data:
+            name = data.get('name')
+            data_type = data.get('type', "")
+            default = data.get('default', "")
+            formatted_data[name] = f"{default}({data_type})"
+        return formatted_data
 
     def _convert_score_api_to_params(self, data=[], address=""):
         result = {}
@@ -950,7 +971,8 @@ class IconRpcHelper:
                         method=score_method,
                         params=self.name_to_params(_input.get('inputs'))
                     )
-                )
+                ),
+                params_hint=self.make_params_hint(_input.get('inputs'))
             )
 
             if method == "icx_sendTransaction" and _input.get('payable') != "0x1":
