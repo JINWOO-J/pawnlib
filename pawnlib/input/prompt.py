@@ -58,7 +58,11 @@ class PromptWithArgument:
             ),
             select=dict(
                 # pointer="➡️ ",
-                pointer=" 👉"
+                pointer=" 👉",
+            ),
+            fuzzy=dict(
+                match_exact=True,
+                pointer="➤",
             )
         )
 

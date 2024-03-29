@@ -147,7 +147,7 @@ class WalletCli:
                 type="list",
                 default="",
                 argument="keystore",
-            ).select()
+            ).fuzzy()
             _required_password = True
 
         elif load_type == "text":

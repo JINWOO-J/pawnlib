@@ -40,7 +40,6 @@ __epilog__ = (
 )
 
 
-
 if not icx_signer_loaded:
     pawn.console.log("[red]Required packages - coincurve, eth_keyfile ")
 
