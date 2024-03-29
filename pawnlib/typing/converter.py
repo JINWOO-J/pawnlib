@@ -491,6 +491,19 @@ class FlatDict(MutableMapping):
         """
         return not self.__eq__(other)
 
+    # def __getitem__(self, key):
+    #     """Get an item for the specified key, automatically dealing with
+    #     nested children.
+    #     :param mixed key: The key to use
+    #     :rtype: mixed
+    #     :raises: KeyError
+    #     """
+    #     values = self._values
+    #     key = [key] if isinstance(key, int) else key.split(self._delimiter)
+    #     for part in key:
+    #         values = values[part]
+    #     return values
+
     def __getitem__(self, key):
         """Get an item for the specified key, automatically dealing with
         nested children.
@@ -499,9 +512,11 @@ class FlatDict(MutableMapping):
         :raises: KeyError
         """
         values = self._values
-        key = [key] if isinstance(key, int) else key.split(self._delimiter)
-        for part in key:
-            values = values[part]
+        parts = key.split(self._delimiter) if self._has_delimiter(key) else [key]
+        for part in parts:
+            values = values.get(part)
+            if values is None:
+                raise KeyError(f"Key not found: {key}")
         return values
 
     def __iter__(self):
@@ -530,26 +545,38 @@ class FlatDict(MutableMapping):
         return '<{} id={} {}>"'.format(self.__class__.__name__, id(self),
                                        str(self))
 
+    # def __setitem__(self, key, value):
+    #     """Assign the value to the key, dynamically building nested
+    #     FlatDict items where appropriate.
+    #     :param mixed key: The key for the item
+    #     :param mixed value: The value for the item
+    #     :raises: TypeError
+    #     """
+    #     if isinstance(value, self._COERCE) and not isinstance(value, FlatDict):
+    #         value = self.__class__(value, self._delimiter)
+    #     elif isinstance(value, list):
+    #         self._process_list(key, value)
+    #         return
+    #     if self._has_delimiter(key):
+    #         pk, ck = key.split(self._delimiter, 1)
+    #         if pk not in self._values:
+    #             self._values[pk] = self.__class__({ck: value}, self._delimiter)
+    #             return
+    #         elif not isinstance(self._values[pk], FlatDict):
+    #             raise TypeError('Assignment to invalid type for key {}'.format(pk))
+    #         self._values[pk][ck] = value
+    #     else:
+    #         self._values[key] = value
+
     def __setitem__(self, key, value):
-        """Assign the value to the key, dynamically building nested
-        FlatDict items where appropriate.
-        :param mixed key: The key for the item
-        :param mixed value: The value for the item
-        :raises: TypeError
-        """
-        if isinstance(value, self._COERCE) and not isinstance(value, FlatDict):
-            value = self.__class__(value, self._delimiter)
-        elif isinstance(value, list):
-            self._process_list(key, value)
-            return
         if self._has_delimiter(key):
             pk, ck = key.split(self._delimiter, 1)
-            if pk not in self._values:
-                self._values[pk] = self.__class__({ck: value}, self._delimiter)
-                return
-            elif not isinstance(self._values[pk], FlatDict):
-                raise TypeError('Assignment to invalid type for key {}'.format(pk))
-            self._values[pk][ck] = value
+            if pk in self._values and not isinstance(self._values[pk], (FlatDict, dict)):
+                self._values[pk] = FlatDict({ck: value}, self._delimiter)
+            elif pk not in self._values:
+                self._values[pk] = FlatDict({ck: value}, self._delimiter)
+            else:
+                self._values[pk][ck] = value
         else:
             self._values[key] = value
 
@@ -738,6 +765,44 @@ class FlatDict(MutableMapping):
         :rtype: bool
         """
         return isinstance(key, str) and self._delimiter in key
+
+    def unflatten(self) -> dict:
+        """
+        Unflatten the dictionary.
+        :return: unflattened dictionary
+
+        Example:
+
+            .. code-block:: python
+
+                flat_dict = {"a.b": 1, "a.c": 2, "d": 3}
+                flat = FlatDict(flat_dict)
+
+                unflatten_dict = flat.unflatten()
+                # >> {"a": {"b": 1, "c": 2}, "d": 3}
+
+        """
+        unflattened = {}
+        for flat_key, value in self.items():
+            keys = flat_key.split(self._delimiter)
+            current_level = unflattened
+            for key in keys[:-1]:
+                if key not in current_level:
+                    current_level[key] = {}
+                current_level = current_level[key]
+            current_level[keys[-1]] = value
+        return unflattened
+
+    def flatten(self) -> dict:
+        """
+        Returns a flattened dictionary.
+        :rtype: dict
+        """
+        flattened = {}
+        for key, value in self.items():
+            flattened[key] = value
+        return flattened
+
 
 
 class FlatterDict(FlatDict):
