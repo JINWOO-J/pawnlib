@@ -164,9 +164,9 @@ class WalletCli:
             if is_file(keystore) and is_json_file(keystore):
                 pawn.console.debug(f"Found Keystore JSON file - {keystore}")
                 try:
-                    keystore_json = open_json(keystore)
-                except ValueError:
-                    pawn.console.log(f"[red]Invalid JSON file - {keystore}")
+                    keystore_json = open_json(keystore, encoding='utf-8-sig')
+                except Exception as e:
+                    pawn.console.log(f"[red]Invalid JSON file - {keystore}, Exception: {e}")
                 _required_password = True
 
                 if not is_valid_icon_keystore_file(keystore_json):

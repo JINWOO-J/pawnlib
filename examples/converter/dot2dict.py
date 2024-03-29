@@ -32,3 +32,9 @@ list_config = [
 
 dump(FlatDict(list_config))
 dump(FlatDict(list_config).as_dict())
+
+
+flatten_dict = FlatDict(list_config).as_dict()
+
+pawn.console.log(FlatDict(flatten_dict).unflatten())
+pawn.console.log(FlatDict(res2.as_dict(), ).unflatten())

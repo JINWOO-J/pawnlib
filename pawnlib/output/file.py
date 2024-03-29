@@ -326,11 +326,12 @@ def is_json_file(json_file: str) -> bool:
     return True
 
 
-def open_json(filename: str):
+def open_json(filename: str, encoding="utf-8-sig"):
     """
     Read the JSON file.
 
     :param filename: str, the name of the JSON file to be read.
+    :param encoding: str, the encoding to use when opening the file.
     :return: dict, the contents of the JSON file as a dictionary.
 
     Example:
@@ -341,18 +342,19 @@ def open_json(filename: str):
             # >> {'name': 'John', 'age': 30, 'city': 'New York'}
     """
     try:
-        with open(filename, "r") as json_file:
+        with open(filename, "r", encoding=encoding) as json_file:
             return json.loads(json_file.read())
     except Exception as e:
         pawn.error_logger.error(f"[ERROR] Can't open the json -> '{filename}' / {e}") if pawn.error_logger else False
         raise ValueError(f"Error: Failed to parse JSON  in file . <'{filename}'>\n{e}")
 
 
-def open_file(filename: str):
+def open_file(filename: str, encoding=None):
     """
     Read the file.
 
     :param filename: str, the name of the file to be read.
+    :param encoding: str, the encoding to use when opening the file.
     :return: str, the contents of the file as a string.
 
     Example:
@@ -363,18 +365,19 @@ def open_file(filename: str):
             # >> 'This is an example file.\nIt contains some text.\n'
     """
     try:
-        with open(filename, "r") as file_handler:
+        with open(filename, "r", encoding=encoding) as file_handler:
             return file_handler.read()
     except Exception as e:
         pawn.error_logger.error(f"[ERROR] Can't open the file -> '{filename}' / {e}") if pawn.error_logger else False
         raise ValueError(f"Error: An error occurred while reading the file. <'{filename}'>\n{e}")
 
 
-def open_yaml_file(filename: str):
+def open_yaml_file(filename: str, encoding=None):
     """
     Read the YAML file.
 
     :param filename: str, the name of the YAML file to be read.
+    :param encoding: str, the encoding to use when opening the file.
     :return: dict, the contents of the YAML file as a dictionary.
 
     Example:
@@ -385,7 +388,7 @@ def open_yaml_file(filename: str):
             # >> {'name': 'John', 'age': 30, 'city': 'New York'}
     """
     try:
-        with open(filename, 'r') as file:
+        with open(filename, 'r', encoding=encoding) as file:
             yaml_data = yaml.load(file, Loader=yaml.FullLoader)
             return yaml_data
     except FileNotFoundError:
