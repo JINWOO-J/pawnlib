@@ -534,6 +534,7 @@ class Spinner:
         self.line_up = '\033[1A'
         self.line_up = '\x1b[1A'
         self.line_clear = '\x1b[2K'
+        self.start_time = 0
 
         if type(sys.stdout).__name__ == "FileProxy":
             self._sys_stdout = getattr(sys.stdout, "rich_proxied_file", sys.stdout)
@@ -579,10 +580,13 @@ class Spinner:
         self.busy = True
         self.thread = threading.Thread(target=self.spinner_task)
         self.thread.start()
+        self.start_time = time.time()  # 시작 시간 기록
 
     def stop(self):
         self.busy = False
         self.remove_spinner(cleanup=True)
+        elapsed_time = time.time() - self.start_time  # 경과 시간 계산
+        print(f"[DONE] {self.text} (took {elapsed_time:.2f} seconds)")  # 경과 시간 출력
 
     def __enter__(self):
         if self._sys_stdout.isatty():

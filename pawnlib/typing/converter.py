@@ -1358,30 +1358,55 @@ def flatten_dict(init: dict, separator: str = '｡', lkey: str = '') -> dict:
     return ret
 
 
-def dict_to_line(dict_param: dict, quotes: bool = False, separator: str = "=", end_separator: str = ",") -> str:
+def dict_to_line(dict_param: dict, quotes: bool = False, separator: str = "=", end_separator: str = ",",
+                 pad_width: int = 0, key_pad_width: int = 0, alignment: str = 'left', key_alignment: str = 'right',
+                 callback: callable = None) -> str:
     """
-    This function converts a dict to a line.
+       Converts a dictionary into a string with various formatting options.
 
-    :param dict_param:
-    :param quotes:
-    :param separator:
-    :param end_separator:
-    :return:
+       :param dict_param: The dictionary to convert.
+       :param quotes: If True, wraps values in quotes.
+       :param separator: The separator between keys and values.
+       :param end_separator: The separator between key-value pairs.
+       :param pad_width: The minimum width for value alignment.
+       :param key_pad_width: The minimum width for key alignment.
+       :param alignment: The alignment of the values ('left', 'right', 'center').
+       :param key_alignment: The alignment of the keys ('left', 'right', 'center').
+       :param callback: An optional callback function to apply to each value.
+       :return: The formatted string.
 
-    Example:
+       Example:
 
-        .. code-block:: python
+           .. code-block:: python
 
-            # >> {"a": "1234", "b": "1235"} => "a=1234,b=1235"
+               dict_param = {'a': 1, 'bb': 22, 'ccc': 333}
+               print(dict_to_line(dict_param, quotes=True, separator=": ", end_separator="; ", pad_width=5, key_pad_width=4, alignment='right', key_alignment='left'))
+               # "a   : "    1"; bb  : "   22"; ccc : "  333"
+       """
+    def _format_with_alignment(text, width, alignment):
+        """
+        Formats text according to the given alignment and width.
+        """
+        formats = {'left': f"<{width}", 'right': f">{width}", 'center': f"^{width}"}
+        format_spec = formats.get(alignment, "<")
+        return f"{text:{format_spec}}"
 
-    """
-    return_value = ""
+    formatted_pairs = []
     for k, v in sorted(dict_param.items()):
+        if callback and callable(callback):
+            v = callback(v)  # Apply the callback function to the value, if provided
+
+        # Apply alignment and padding to keys and values
+        formatted_key = _format_with_alignment(k, key_pad_width, key_alignment)
+        formatted_value = _format_with_alignment(v, pad_width, alignment)
+
+        # Handle quotes option for values
         if quotes:
-            return_value += f"{k}{separator}\"{v}\"{end_separator}"
-        else:
-            return_value += f"{k}{separator}{v}{end_separator}"
-    return return_value.rstrip(end_separator)
+            formatted_value = f"\"{formatted_value}\""
+
+        formatted_pairs.append(f"{formatted_key}{separator}{formatted_value}")
+
+    return end_separator.join(formatted_pairs)
 
 
 def dict_none_to_zero(data: dict) -> dict:
