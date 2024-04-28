@@ -180,29 +180,76 @@ class AsyncPortScanner:
             asyncio.run(scanner.scan_all())
     """
 
-    def __init__(self, ip_range: Tuple[str, str], port_range: Tuple[int, int] = (0, 65535), max_concurrency: int = 30, timeout=1, batch_size=50000):
+    def __init__(self, ip_range: Tuple[str, str], port_range: Tuple[int, int] = (0, 65535),
+                 max_concurrency: int = 30, timeout=1, ping_timeout=0.05, fast_scan_ports: List[int] = [22, 80, 443], batch_size=50000):
         self.start_ip, self.end_ip = ip_range
         self.start_port, self.end_port = port_range
         self.scan_results = {}
         self.semaphore = asyncio.Semaphore(max_concurrency)
         self.timeout = timeout
+        self.ping_timeout = ping_timeout
+        self.fast_scan_ports = fast_scan_ports
         self.batch_size = batch_size
 
-    async def scan_port(self, ip: str, port: int) -> bool:
-        async with self.semaphore:
-            pawn.console.debug(f"Scanning {ip}:{port} - Acquired semaphore")
+    async def ping_host(self, ip: str) -> bool:
+        common_ports = [22, 80, 443]
+        for port in common_ports:
+            try:
+                await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=self.ping_timeout)
+                return ip  # 연결 성공, 호스트가 살아 있음
+            except Exception:
+                continue  # 해당 포트에 대한 연결 실패, 다음 포트 시도
+        return False  # 모든 시도 실패, 호스트가 닫혀 있음
+
+    async def try_ping_host(self, ip: str, progress: Progress, task_id: int):
+        progress.advance(task_id)
+        for port in self.fast_scan_ports:
             try:
                 await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=self.timeout)
-                # pawn.console.debug(f"Connection successful: {ip}:{port}")
+                if progress is not None and task_id is not None:
+                    progress.advance(task_id)  # 성공적으로 핑을 완료하면 진행 상황을 업데이트합니다.
+                return ip
+            except (asyncio.TimeoutError, Exception):
+                continue  # 해당 포트에서 연결 실패, 다음 포트로 계속 시도합니다.
+        return False
+
+    async def scan_all(self, fast_scan: bool = False):
+        if fast_scan:
+            tasks = [self.check_and_scan_host(ip) for ip in self._generate_ips()]
+        else:
+            tasks = [
+                self.wrap_scan(ip, port)
+                for ip in self._generate_ips()
+                for port in range(self.start_port, self.end_port + 1)
+            ]
+        await asyncio.gather(*tasks)
+
+    async def check_and_scan_host(self, ip):
+        if await self.ping_host(ip):
+            print(f"{ip} is up, scanning ports...")
+            tasks = [self.wrap_scan(ip, port) for port in range(self.start_port, self.end_port + 1)]
+            await asyncio.gather(*tasks)
+        else:
+            print(f"{ip} is down, skipping...")
+
+    async def scan_port(self, ip: str, port: int) ->(str, int, bool):
+        async with (self.semaphore):
+            pawn.console.debug(f"Scanning {ip}:{port} - Acquired semaphore, timeout={self.timeout}")
+            try:
+                await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=self.timeout)
+                pawn.console.debug(f"Connection successful: {ip}:{port}")
                 return ip, port, True
             except asyncio.TimeoutError:
-                # pawn.console.debug(f"Timeout: {ip}:{port}")
+                pawn.console.debug(f"Timeout: {ip}:{port}")
                 return ip, port, False
             except Exception as e:
-                # pawn.console.debug(f"Error scanning {ip}:{port} - {e}")
+                if "Too many" in str(e):
+                    pawn.console.log(f"Error scanning -> [red]{e}[/red]")
+                else:
+                    pawn.console.debug(f"Error scanning {ip}:{port} - {e}")
                 return ip, port, False
             # finally:
-            #     pawn.console.debug(f"Releasing semaphore: {ip}:{port}")
+            #     pawn.console.log(f"Releasing semaphore: {ip}:{port}")
 
     def calculate_scan_range(self):
         start_ip_int = self.ip_to_int(self.start_ip)
@@ -212,27 +259,44 @@ class AsyncPortScanner:
         total_tasks = total_ips * total_ports
         return start_ip_int, end_ip_int, total_tasks
 
-    async def scan(self, progress: Progress):
-        start_ip_int, end_ip_int, total_tasks = self.calculate_scan_range()
-        task_id = progress.add_task("[cyan]Scanning...", total=total_tasks)
-
+    async def scan(self, fast_scan: bool = False, progress: Progress = None):
         tasks = []
-        for ip_int in range(start_ip_int, end_ip_int + 1):
-            ip = self.int_to_ip(ip_int)
-            for port in range(self.start_port, self.end_port + 1):
-                tasks.append(self.wrap_scan(ip, port, progress, task_id))
-                if len(tasks) >= self.batch_size:
-                    pawn.console.debug(f"Processing batch of {self.batch_size} tasks")
-                    await asyncio.gather(*tasks)
-                    tasks = []
+        ips_to_scan = await self.get_ips_to_scan(fast_scan, progress)
+        if fast_scan:
+            if ips_to_scan:
+                pawn.console.log(f"<FAST SCAN> Alive IPs: {ips_to_scan}")
+            else:
+                pawn.console.log(f"<FAST SCAN> [red]No open servers found on ports {self.fast_scan_ports}.[/red]")
 
-        # 남은 태스크 처리
+        total_ports = self.end_port - self.start_port + 1
+        total_tasks = len(ips_to_scan) * total_ports
+        fast_scan_string = "FastScan" if fast_scan else ""
+        task_id = progress.add_task(f"[cyan]Scanning {fast_scan_string}...", total=total_tasks)
+        if fast_scan:
+            pawn.console.log(f"Alive IP: {ips_to_scan}")
+
+        for ip in ips_to_scan:
+            for port in range(self.start_port, self.end_port + 1):
+                task = self.wrap_scan(ip, port, progress, task_id)
+                tasks.append(task)
+                if len(tasks) >= self.batch_size:
+                    await asyncio.gather(*tasks)
+                    tasks.clear()
+
         if tasks:
-            pawn.console.debug(f"Processing final batch of {len(tasks)} tasks")
             await asyncio.gather(*tasks)
 
-        pawn.console.log("task_completed")
-        # self._process_results(results)
+    async def get_ips_to_scan(self, fast_scan: bool, progress: Progress) -> List[str]:
+        ips = self._generate_ips()
+        if not fast_scan:
+            return ips
+
+        task_id = progress.add_task("Checking IPs...", total=len(ips))
+        ping_tasks = [self.try_ping_host(ip, progress, task_id) for ip in ips]
+
+        results = await asyncio.gather(*ping_tasks)
+        alive_ips = [result for result in results if result]
+        return alive_ips
 
     async def wrap_scan(self, ip, port, progress, task_id):
         async with self.semaphore:
@@ -245,7 +309,6 @@ class AsyncPortScanner:
         start_int = self.ip_to_int(self.start_ip)
         end_int = self.ip_to_int(self.end_ip)
         return [self.int_to_ip(ip_int) for ip_int in range(start_int, end_int + 1)]
-
 
     @staticmethod
     def ip_to_int(ip: str) -> int:
@@ -283,8 +346,7 @@ class AsyncPortScanner:
                 pawn.console.print(ipaddr)
                 pawn.console.print(parsed_data)
 
-
-    def run_scan(self):
+    def run_scan(self, fast_scan: bool = False):
         with Progress(
                 TextColumn("[bold blue]{task.description}", justify="right"),
                 BarColumn(bar_width=None),
@@ -293,7 +355,9 @@ class AsyncPortScanner:
                 TimeRemainingColumn(),
                 transient=True  # Hide the progress bar when done
         ) as progress:
-            asyncio.get_event_loop().run_until_complete(self.scan(progress))
+            # asyncio.get_event_loop().run_until_complete(self.scan(progress))
+            asyncio.get_event_loop().run_until_complete(self.scan(fast_scan, progress))
+
 
 def get_local_ip():
     """

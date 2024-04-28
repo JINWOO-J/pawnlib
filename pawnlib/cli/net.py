@@ -99,13 +99,16 @@ def get_arguments(parser):
     parser.add_argument('-p', '--port', type=int, help='Port number (e.g., 80)', default=80)
     parser.add_argument('--host', type=str, help='Single host IP (e.g., 192.168.1.1)', default="localhost")
     parser.add_argument('--host-range', type=str, help='Host IP range (e.g., 192.168.1.1-192.168.1.255)', default="")
-    parser.add_argument('--port-range', type=str, help='Port range (e.g., 20-80)', default="")
-    parser.add_argument('-w', '--worker', type=int, help='Max concurrency worker count', default=100)
+    parser.add_argument('--port-range', type=str, help='Port range (e.g., 20-80)', default="0-65535")
+    parser.add_argument('-w', '--worker', type=int, help='Max concurrency worker count', default=10000)
     parser.add_argument('-t', '--timeout', type=float, help='timeout', default=1)
-    parser.add_argument('-b', '--batch-size', type=int, help='timeout', default=10000)
+    parser.add_argument('-b', '--batch-size', type=int, help='timeout', default=1000)
+    parser.add_argument('-f', '--fast-scan', action='store_true', help='fast scan mode', default=False)
+
     parser.add_argument('--view-type', type=str, choices=['open', 'closed', 'all'], help='Type of results to view (open, closed, all)', default="open")
 
     return parser
+
 
 def print_banner():
     banner = generate_banner(
@@ -162,6 +165,9 @@ def main():
         wait_for_port_open(args.host, args.port, timeout=args.timeout)
 
     elif args.command == "scan":
+        if not args.host_range and args.host:
+            args.host_range = f"{args.host}-{args.host}"
+
         host_range = validate_host_range(args.host_range)
         port_range = validate_port_range(args.port_range)
         pawn.console.log(f"🔎 Start scanning worker={args.worker}, view_type={args.view_type} 🔎\n Host range:{format_range(host_range)} , Port range:{format_range(port_range)} ")
@@ -171,9 +177,9 @@ def main():
             port_range=port_range,
             max_concurrency=args.worker,
             batch_size=args.batch_size,
-
+            timeout=args.timeout,
         )
-        scanner.run_scan()
+        scanner.run_scan(fast_scan=args.fast_scan)
         print("\n\n")
         scanner.print_scan_results(view=args.view_type)
 
