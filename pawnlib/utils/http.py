@@ -541,7 +541,7 @@ class IconRpcTemplates:
 
 
 class IconRpcHelper:
-    def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=True, debug=False, required_sign_methods=None):
+    def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=True, debug=False, required_sign_methods=None, **kwargs):
         self.wallet = wallet
         self.governance_address = None
         self.request_payload = None
@@ -549,6 +549,8 @@ class IconRpcHelper:
         self.network_info = network_info
         self.raise_on_failure = raise_on_failure
         self.debug = debug
+        self.kwargs = kwargs
+
         if required_sign_methods and isinstance(required_sign_methods, list):
             self.required_sign_methods = required_sign_methods
         else:
@@ -933,8 +935,8 @@ class IconRpcHelper:
         if error:
             self.exit_on_failure(error)
             return 0
-
         return response.get('result', [])
+
 
     @staticmethod
     def name_to_params(list_data):
@@ -944,7 +946,6 @@ class IconRpcHelper:
     def make_params_hint(list_data):
         if not list_data:
             return {}
-
         formatted_data = {}
         for data in list_data:
             name = data.get('name')
@@ -1030,27 +1031,46 @@ class IconRpcHelper:
         if not tx_hash:
             return
         self.on_error = False
+
+        if pawn.console._live:
+            if not getattr(pawn, "console_status", None):
+                pawn.console_status = getattr(pawn, "console_status", None)
+            resp = self.check_transaction_loop(tx_hash, url, is_compact, pawn.console_status)
+        else:
+            with pawn.console.status("[magenta] Wait for transaction to be generated.") as status:
+                resp = self.check_transaction_loop(tx_hash, url, is_compact, status)
+
+        return resp
+
+    def check_transaction_loop(self, tx_hash=None, url=None,  is_compact=True, status=None):
         count = 0
-        with pawn.console.status("[magenta] Wait for transaction to be generated.") as status:
-            while True:
-                resp = self._check_transaction(url, tx_hash)
-                if resp.get('error'):
-                    text, exit_loop = self._handle_error_response(resp, count, tx_hash)
-                elif resp.get('result'):
-                    text, exit_loop = self._handle_success_response(resp, count, tx_hash)
-                else:
-                    text = resp
+        while True:
+            resp = self._check_transaction(url, tx_hash)
+            if resp.get('error'):
+                text, exit_loop = self._handle_error_response(resp, count, tx_hash)
+            elif resp.get('result'):
+                text, exit_loop = self._handle_success_response(resp, count, tx_hash)
+            else:
+                text = resp
+
+            wait_callback = self.kwargs.get('wait_callback')
+
+            if wait_callback and callable(wait_callback):
+                wait_callback(text)
+            elif getattr(status, "update", None):
                 status.update(
                     status=text,
                     spinner_style="yellow",
                 )
-                if exit_loop:
-                    self._print_final_result(text, is_compact, resp)
-                    break
-                count += 1
-                time.sleep(1)
-            if self.on_error and tx_hash:
-                self.get_debug_trace(tx_hash, reset_error=False)
+
+            if exit_loop:
+                self._print_final_result(text, is_compact, resp)
+                break
+            count += 1
+            time.sleep(1)
+        if self.on_error and tx_hash:
+            self.get_debug_trace(tx_hash, reset_error=False)
+
         return resp
 
     def _get_tx_hash(self, tx_hash):

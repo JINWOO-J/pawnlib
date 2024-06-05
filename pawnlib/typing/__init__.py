@@ -19,6 +19,7 @@ from .check import (
     is_include_list,
     detect_encoding,
     keys_exists,
+    get_if_keys_exist,
 )
 from .defines import (
     Namespace,
@@ -38,6 +39,7 @@ from .converter import (
     convert_dict_hex_to_int,
     hex_to_number,
     get_size,
+    get_value_size,
     convert_bytes,
     str2bool,
     flatten,

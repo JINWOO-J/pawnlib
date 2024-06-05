@@ -17,7 +17,7 @@ disable_ssl_warnings()
 
 private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90810"
 pawn.console.log(private_key)
-network_info = NetworkInfo(network_name="cdnet", network_api="http://100.107.31.101:9000")
+network_info = NetworkInfo(network_name="jw-test", network_api="http://20.20.4.129:9000")
 
 wallet = icx_signer.load_wallet_key(private_key)
 

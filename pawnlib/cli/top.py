@@ -3,8 +3,11 @@ import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
-from pawnlib.typing import StackList, list_to_oneline_string, str2bool
-from pawnlib.resource import SystemMonitor, get_cpu_load, get_interface_ips, get_platform_info, get_mem_info, get_netstat_count
+from pawnlib.typing import StackList, list_to_oneline_string, str2bool, shorten_text
+from pawnlib.resource import (
+    SystemMonitor, get_cpu_load, get_interface_ips, get_platform_info,
+    get_mem_info, get_netstat_count, get_hostname
+)
 from pawnlib.output import is_file
 import os
 import re
@@ -13,6 +16,8 @@ from rich.live import Live
 from rich.table import Table
 from rich.align import Align
 from rich.text import Text
+from rich.panel import Panel
+from rich import box
 from pawnlib.typing import todaydate
 import time
 
@@ -50,7 +55,7 @@ else:
 class CustomArgumentParser(argparse.ArgumentParser):
     def error(self, message):
         self.print_help()
-        # sys_exit(message, 2)
+
 
 def get_parser():
     # parser = argparse.ArgumentParser(description='monitor', epilog=epilog_tuple)
@@ -86,7 +91,7 @@ class CriticalText:
             "disk_read":  100,
             "disk_write":  100,
             "load":  int(cores),
-            "io_wait":  int(cores) * 2,
+            "i/o":  int(cores) * 2,
             "cached":  10,
         }
         self.warning_percent = warning_percent
@@ -187,53 +192,62 @@ def main():
             ),
         )
     print_banner()
-    lines = []
     system_info = get_platform_info()
+    hostname = shorten_text(get_hostname(), width=20, placeholder='...')
     system_monitor = SystemMonitor(interval=args.interval, proc_path=PROCFS_PATH)
-    table_title = f"Server status <{system_info.get('model')},  {system_info.get('cores')} cores, {get_mem_info().get('mem_total')} GB>"
+    table_title = f"🐰 {hostname} <{system_info.get('model')},  {system_info.get('cores')} cores, {get_mem_info().get('mem_total')} GB> 🐰"
 
     if args.print_type == "live":
-        print_live_status(table_title=table_title,  system_info=system_info, system_monitor=system_monitor)
+        print_live_type_status(table_title=table_title,  system_info=system_info, system_monitor=system_monitor)
     # elif args.print_type == "tab":
     #     print_tabulate_status(system_monitor=system_monitor)
     elif args.print_type == "line":
-        count = 0
-        while True:
-            columns, term_rows = os.get_terminal_size()
+        print_line_type_status(table_title=table_title, system_info=system_info, system_monitor=system_monitor, args=args)
 
-            data = get_resources_status(system_monitor=system_monitor, args=args)
-            line = []
-            columns = []
-            for column_key, value in data.items():
-                align_space = max([len(str(value)), len(column_key)]) + 2
-                columns.append(f"[blue][u]{column_key:^{align_space}}[/u][/blue]")
-                _value = CriticalText(column_key, value, cores=system_info.get('cores', 1), align_space=align_space).return_text()
-                line.append(_value)
-            # pawn.console.print(list_to_oneline_string(columns, " | ")) if count % 15 == 0 else None
-            print_line_status(columns) if count % term_rows == 0 else None
-            print_line_status(line)
-            count += 1
+
+def print_line_type_status(table_title, system_info, system_monitor, args):
+    count = 0
+    while True:
+        columns, term_rows = os.get_terminal_size()
+        data = get_resources_status(system_monitor=system_monitor, args=args)
+        line = []
+        columns = []
+        for column_key, value in data.items():
+            align_space = max([len(str(value)), len(column_key)]) + 2
+            columns.append(f"[blue][u]{column_key:^{align_space}}[/u][/blue]")
+            _value = CriticalText(column_key, value, cores=system_info.get('cores', 1), align_space=align_space).return_text()
+            line.append(_value)
+
+        if count % term_rows == 0:
+            # print(f"\t{table_title}")
+
+            pawn.console.print(Panel(table_title, expand=False))
+            print_line_status(columns)
+
+        print_line_status(line)
+
+        count += 1
 
 
 def print_line_status(line):
+    pawn.console.print("", end="│")
     for cell in line:
         pawn.console.print(cell, end="│")
     print()
 
 
-def print_live_status(table_title="",  system_info={}, system_monitor=None):
+def print_live_type_status(table_title="",  system_info={}, system_monitor: SystemMonitor = None):
     lines = []
-
-    with Live(console=pawn.console, refresh_per_second=1) as live_table:
+    with Live(console=pawn.console, refresh_per_second=2) as live_table:
         while True:
             columns, rows = os.get_terminal_size()
             diff_rows = len(lines) - rows
-            table = Table(title=table_title)
+            table = Table(title=table_title, box=box.SIMPLE)
 
             data = get_resources_status(system_monitor=system_monitor)
             line = []
             for column_key, value in data.items():
-                table.add_column(column_key)
+                table.add_column(column_key, justify='right' )
                 line.append(CriticalText(column_key, value, cores=system_info.get('cores', 1)).return_text())
             lines.append(line)
 
@@ -247,19 +261,7 @@ def print_live_status(table_title="",  system_info={}, system_monitor=None):
             live_table.update(Align.center(table))
 
 
-# def print_tabulate_status(system_monitor=None):
-#     _data = []
-#     while True:
-#         data = get_resources_status(system_monitor=system_monitor)
-#         headers = list(data.keys())
-#         values = list(data.values())
-#         _data.append(values)
-#         print(tabulate(_data, headers=headers, tablefmt="grid"))
-#
-#     print()
-
-
-def get_resources_status(system_monitor={}, args=None):
+def get_resources_status(system_monitor: SystemMonitor = None, args=None):
     if not args:
         args = pconf().args
 
@@ -273,7 +275,7 @@ def get_resources_status(system_monitor={}, args=None):
     else:
         memory = system_monitor.get_memory_status()
         network, cpu, disk = system_monitor.get_network_cpu_status()
-        # memory_unit = memory.get('unit').replace('B', "")
+        # memory_unit = memory.get('unit').replace('B', "")w
         memory_unit = memory.get('unit')
 
         data = {
@@ -285,13 +287,13 @@ def get_resources_status(system_monitor={}, args=None):
             "load": f"{get_cpu_load()['1min']}",
             "usr": f"{cpu.get('usr')}%",
             "sys": f"{cpu.get('sys')}%",
-            "io_wait": f"{cpu.get('io_wait')}",
-            "disk_read":  f"{disk['total'].get('read_mb')} M",
-            "disk_write":  f"{disk['total'].get('write_mb')} M",
-            "mem_total": f"{memory.get('total')} {memory_unit}",
+            "i/o": f"{cpu.get('io_wait')}",
+            "disk_read":  f"{disk['total'].get('read_mb')}M",
+            "disk_write":  f"{disk['total'].get('write_mb')}M",
+            "mem_total": f"{memory.get('total'):.1f}{memory_unit}",
             # "mem_used": f"{memory.get('percent')}%",
-            "mem_free": f"{memory.get('free')} {memory_unit}",
-            "cached": f"{memory.get('cached')} {memory_unit}",
+            "mem_free": f"{memory.get('free'):.1f}{memory_unit}",
+            "cached": f"{memory.get('cached'):.1f}{memory_unit}",
         }
     return data
 

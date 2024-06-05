@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import  common
+import common
 from pawnlib.utils.genesis import *
-from pawnlib.output import get_fi
 from pawnlib.utils import in_memory_zip
+
 
 def genesis_json():
     return {
@@ -30,7 +30,7 @@ def genesis_json():
         "chain": {
             "revision": "0xd",
             "validatorList": [],
-            "blockInterval": "0x7d0", # 2 secs
+            "blockInterval": "0x7d0",  # 2 secs
             "roundLimitFactor": "0x3",
             "fee": {
                 "stepPrice": "0x2e90edd00",
@@ -60,14 +60,12 @@ def genesis_json():
 
         },
         "message": "Genesis",
-        "nid":  "0x79"
+        "nid": "0x79"
     }
+
 
 cid = genesis_generator(genesis_json_or_dict=genesis_json(), genesis_filename="icon_genesis.zip")
 pawn.console.log(f"cid = {cid}")
 
-
-
 res = create_cid_from_genesis_zip("icon_genesis.zip")
 pawn.console.log(f"cid = {res}, {type(res)}")
-

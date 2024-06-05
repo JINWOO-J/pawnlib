@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-from pawnlib.config import  pawn
+from pawnlib.config import pawn
+from pawnlib.output import color_print
+
 try:
     import eth_keys
-except Exception  as e:
-    pawn.console.log("[red]Exception[/red] Required  'eth_keys' module. 'pip3 install eth_keys'" )
+except Exception as e:
+    pawn.console.log("[red]Exception[/red] Required  'eth_keys' module. 'pip3 install eth_keys'")
 
-import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 
-from pawnlib.utils.genesis  import genesis_generator, create_cid
+from pawnlib.utils.genesis import genesis_generator, create_cid
 from pawnlib.utils.in_memory_zip import read_genesis_dict_from_zip
 from pawnlib.output import is_file, print_json, open_json
 from pawnlib.typing import get_size
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
-
 
 __description__ = "Genesis Tool"
 __epilog__ = (
@@ -41,7 +41,6 @@ def get_parser():
 
 
 def get_arguments(parser=None):
-
     parser.add_argument(
         'command',
         help='gen, info',
@@ -58,6 +57,16 @@ def get_arguments(parser=None):
     parser.add_argument('-b', '--base-dir', metavar='base_dir', help=f'base dir', default=".")
     parser.add_argument('-o', '--output-file', metavar='output filename', help=f'output filename', default="icon_genesis.zip")
     return parser
+
+
+def print_hex_value(name, value):
+    if value:
+        pawn.console.log(f"{name} = {value} ({int(value, 16)})")
+
+
+def get_hex_value(value):
+    if value:
+        return  f"{value} [bright_black]({int(value, 16)})[/bright_black]"
 
 
 def main():
@@ -86,15 +95,17 @@ def main():
         pawn.console.log(f"CID = {cid}")
 
     elif args.command == "info" and is_file(args.genesis_zip_file):
-            genesis_json = read_genesis_dict_from_zip(args.genesis_zip_file)
-            print_json(genesis_json)
-            cid = create_cid(genesis_json)
-            nid = genesis_json.get('nid')
-            pawn.console.log(f"FileName  = {args.genesis_zip_file} ({get_size(args.genesis_zip_file)})")
-            pawn.console.log(f"CID       = {cid} ({int(cid, 16)})")
-            pawn.console.log(f"NID       = {nid} ({int(nid, 16)})")
+        genesis_json = read_genesis_dict_from_zip(args.genesis_zip_file)
+        # print_json(genesis_json)
 
+        cid = create_cid(genesis_json)
+        nid = genesis_json.get('nid', "")
 
+        color_print.print_kv("genesis_json", genesis_json)
+
+        color_print.print_kv("FileName", f"{args.genesis_zip_file} ({get_size(args.genesis_zip_file)})")
+        color_print.print_kv("cid", get_hex_value(cid))
+        color_print.print_kv("nid", get_hex_value(nid))
 
 
 if __name__ == '__main__':

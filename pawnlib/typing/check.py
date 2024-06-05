@@ -4,7 +4,10 @@ import json
 import sys
 from pawnlib.config import pawn
 
-
+try:
+    from typing import Any, Union
+except ImportError:
+    from typing_extensions import Any, Union
 
 
 def is_json(s) -> bool:
@@ -425,6 +428,7 @@ def is_valid_tx_hash(text=None):
             return True
     return False
 
+
 def is_valid_icon_keystore_file(keystore=None):
     from pawnlib.typing.converter import flatten
     if not isinstance(keystore, dict):
@@ -451,7 +455,6 @@ def is_valid_icon_keystore_file(keystore=None):
         raise ValueError(f"<Invalid Keystore> Missing required key(s): {missing_keys_str}")
 
     return True
-
 
 
 def list_depth(l):
@@ -642,23 +645,33 @@ def is_include_list(target=None, include_list=[], ignore_case=True):
     return False
 
 
-def keys_exists(element, *keys):
+def _traverse_keys(element: Union[dict, list], keys: tuple) -> Any:
     """
-    Check if **keys** (nested) exists in `element` (dict).
-    You don't have to implement it like this.
+    Helper function to traverse nested dictionaries and lists using the provided keys.
 
-    [X] if response.get('json') and response['json'].get('result') and response['json']['result'].get('tx_hash'): \n
-    [O] if keys_exists(response, 'json', 'result', 'tx_hash'): \n
+    :param element: The dictionary or list to traverse.
+    :param keys: The keys or indices to traverse in the dictionary or list.
+    :return: The value if all keys/indices exist, else raises an exception.
+    """
+    current_element = element
+    for key in keys:
+        if isinstance(current_element, list):
+            key = int(key)  # Convert key to int if the current element is a list
+        current_element = current_element[key]
+    return current_element
 
-    :param element: dictionary value
-    :param keys: The keys you want to find in the dictionary.
-    :return:
+
+def keys_exists(element: dict, *keys: str) -> bool:
+    """
+    Check if **keys** (nested) exist in `element` (dict).
+
+    :param element: The dictionary to search.
+    :param keys: The keys to traverse in the dictionary.
+    :return: True if all keys exist, False otherwise.
 
     Example:
 
         .. code-block:: python
-
-            from pawnlib.typing.check import keys_exists
 
             dict_example = {
                 "name": "example",
@@ -667,7 +680,6 @@ def keys_exists(element, *keys):
                     "description_3": "333",
                 },
                 "none_value_key": None,
-
             }
 
             keys_exists(dict_example, 'name', 'description')
@@ -678,16 +690,61 @@ def keys_exists(element, *keys):
 
             keys_exists(dict_example, 'name', 'none_key')
             # >> False
-
     """
-    _element = element
-    for key in keys:
-        try:
-            _element = _element[key]
-        except (KeyError, TypeError):
-            return False
+    try:
+        _traverse_keys(element, keys)
+        return True
+    except (KeyError, TypeError, IndexError, ValueError):
+        return False
 
-    return True
+
+def get_if_keys_exist(element: dict, *keys: str, default: Any = None) -> Any:
+    """
+    Retrieve the value from a nested dictionary if **keys** exists in `element`.
+
+    :param element: The dictionary to search.
+    :param keys: The keys to traverse in the dictionary.
+    :param default: The default value to return if the keys do not exist.
+    :return: The value if all keys exist, else the default value.
+
+    Example:
+
+        .. code-block:: python
+
+            dict_example = {
+                "name": "example",
+                "description": {
+                    "description_2": "222",
+                    "description_3": "333",
+                },
+                "none_value_key": None,
+                "nested_list": [{"key1": "value1"}, {"key2": "value2"}]
+            }
+
+            get_if_keys_exist(dict_example, 'name')
+            # >> 'example'
+
+            get_if_keys_exist(dict_example, 'description', 'description_2')
+            # >> '222'
+
+            get_if_keys_exist(dict_example, 'none_value_key')
+            # >> None
+
+            get_if_keys_exist(dict_example, 'name', 'none_key')
+            # >> None
+
+            get_if_keys_exist(dict_example, 'nested_list', '1', 'key2')
+            # >> 'value2'
+
+            get_if_keys_exist(dict_example, 'nested_list', '0', 'key1')
+            # >> 'value1'
+    """
+    try:
+        return _traverse_keys(element, keys)
+    except (KeyError, TypeError, IndexError, ValueError) as e:
+        key_path = ' -> '.join(keys)
+        pawn.console.debug(f"Error accessing key/index '{key_path}': {e}")
+        return default
 
 
 def detect_encoding(byte_data, default_encode="utf8"):

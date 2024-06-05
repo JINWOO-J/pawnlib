@@ -145,6 +145,7 @@ def convert_value(value: Any, target_type: Type) -> Any:
     else:
         return value  # 이미 올바른 타입일 경우
 
+
 def _convert_to_list(value: Any, item_type: Type) -> list:
     if isinstance(value, str):
         try:
@@ -155,6 +156,7 @@ def _convert_to_list(value: Any, item_type: Type) -> list:
         parsed_list = [value] if not isinstance(value, list) else value
 
     return [convert_value(item, item_type) for item in parsed_list]
+
 
 def _convert_to_dict(value: Any, key_type: Type, value_type: Type) -> dict:
     if isinstance(value, str):
@@ -224,7 +226,7 @@ def check_url_process(config):
         url=config.url,
         method=config.method,
         timeout=config.timeout * 1000,
-        data=config.data,
+        payload=config.data,
         headers=config.headers,
         success_criteria=config.success,
         success_operator=config.logical_operator,
@@ -526,13 +528,20 @@ def main():
         for task in tasks:
             check_url_process(task)
     else:
-        ThreadPoolRunner(
+        runner = ThreadPoolRunner(
             func=check_url_process,
             tasks=tasks,
             max_workers=args.workers,
             verbose=args.verbose,
             sleep=args.interval
-        ).forever_run()
+        )
+        runner.forever_run()
+
+        # try:
+        #     runner.forever_run()
+        # except KeyboardInterrupt:
+        #     runner.stop()
+        #     print("Runner stopped.")
 
 
 if __name__ == '__main__':
