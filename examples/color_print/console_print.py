@@ -72,4 +72,3 @@ pawn.set(PAWN_DEBUG=True)
 pawn.console.rule("Console logs")
 pawn.console.debug("debug message")
 pawn.console.debug("debug message", nested_data)
-

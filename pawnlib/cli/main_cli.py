@@ -101,29 +101,6 @@ def parse_args(parser, commands):
     return args, command
 
 
-# def parse_args(parser, commands):
-#     split_argv = [[]]
-#     if len(sys.argv) > 1:
-#         command = sys.argv[1]
-#     else:
-#         command = None
-#
-#     # 서브파서가 존재하는지 확인합니다.
-#     if commands.choices:
-#         # 서브파서가 있는 경우, 명령어와 관련된 인자만 분석합니다.
-#         if len(sys.argv) > 1 and sys.argv[1] in commands.choices:
-#             args = parser.parse_args()
-#         else:
-#             # 명령어가 제공되지 않았거나 잘못된 경우 도움말을 출력합니다.
-#             parser.print_help()
-#             sys.exit(1)
-#     else:
-#         # 서브파서가 없는 경우, 일반적인 방식으로 인자를 분석합니다.
-#         args = parser.parse_args()
-#
-#     return args, command
-
-
 def get_sys_argv():
     if len(sys.argv) > 1:
         return sys.argv[1]

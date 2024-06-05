@@ -10,7 +10,7 @@ import threading
 import itertools
 from io import TextIOWrapper
 from typing import Callable, List, Dict, Union
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from pawnlib.output import dump, debug_print, bcolors
 from pawnlib import typing
@@ -52,6 +52,7 @@ class ThreadPoolRunner:
         self.results = []
         self.sleep = sleep
         self.verbose = verbose
+        self.stop_event = threading.Event()
 
     def initializer_worker(self):
         """
@@ -72,6 +73,30 @@ class ThreadPoolRunner:
                 self.log_results(results)
         return results
 
+    def run(self):
+        """
+        Run the function with the given arguments in parallel using a thread pool.
+
+        :return: A list of results from each task.
+        :rtype: list
+        """
+        with ThreadPoolExecutor(max_workers=self.max_workers, initializer=self.initializer_worker) as pool:
+            futures = {pool.submit(self.func, task): task for task in self.tasks}
+            results = []
+            try:
+                for future in as_completed(futures):
+                    result = future.result()
+                    results.append(result)
+                    if self.verbose > 0:
+                        self.log_results(result)
+            except Exception as e:
+                print(f"Exception encountered: {e}")
+                pool.shutdown(wait=False)
+                for future in futures:
+                    future.cancel()
+                raise
+        return results
+
     @staticmethod
     def log_results(results):
         """
@@ -80,9 +105,10 @@ class ThreadPoolRunner:
         :param results: A list of results from each task.
         :type results: list
         """
-        for result in results:
-            if result:
-                print(result)
+        if results:
+            for result in results:
+                if result:
+                    print(result)
 
     def forever_run(self):
         """
@@ -92,6 +118,24 @@ class ThreadPoolRunner:
             self.run()
             time.sleep(self.sleep)
 
+    # def forever_run(self):
+    #     """
+    #     Run the function with the given arguments in parallel using a thread pool indefinitely.
+    #     """
+    #     try:
+    #         while not self.stop_event.is_set():
+    #             self.run()
+    #             time.sleep(self.sleep)
+    #     except KeyboardInterrupt:
+    #         print("Interrupted by user, stopping...")
+    #         self.stop()
+
+
+    def stop(self):
+        """
+        Stop the forever_run loop.
+        """
+        self.stop_event.set()
 
 class Daemon(object):
     """

@@ -5,7 +5,7 @@ from pawnlib.__version__ import __version__ as _version
 from pawnlib.output.color_print import *
 from pawnlib.output import write_yaml, is_file, open_yaml_file, print_json
 from pawnlib.config import pawnlib_config as pawn, pconf
-from pawnlib.typing import sys_exit, is_valid_url, json_rpc, is_json
+from pawnlib.typing import sys_exit, is_valid_url, json_rpc, is_json, get_value_size, get_size
 from pawnlib.utils import IconRpcHelper, IconRpcTemplates, NetworkInfo, icx_signer, CallHttp
 
 from InquirerPy import prompt
@@ -80,7 +80,6 @@ def get_arguments(parser):
     # parser.add_argument('-i', '--increase', metavar='increase_count', type=int, help=f'increase count number')
     # parser.add_argument('--increase-count', metavar='increase_count', type=int, help=f'increase count number', default=1)
     # parser.add_argument('-r', '--rnd_icx', metavar='rnd_icx', help=f'rnd_icx', default="no")
-
     parser.add_argument('-m', '--method', metavar='method', help='method for JSON-RPC', default="")
     parser.add_argument('--params', metavar='params',  help='params for JSON-RPC', default={})
     parser.add_argument('-x', '--http-method', metavar='method', help='method for HTTP', default="post")
@@ -181,13 +180,23 @@ class RpcCommand:
         print_banner()
         fetch_environments_to_args()
         pawn.console.log(args)
-        self.load_config_file()
         self.args = pconf().data.args
 
+    def load_network_config(self):
+        self.load_config_file()
         self.network_info = NetworkInfo(force=True)
         self.network_info.update_platform_info(self.config_data)
 
+    def load_config_file(self):
+        if is_file(self.config_file):
+            self.config_data = open_yaml_file(self.config_file)
+
+            pawn.console.log(f"Loaded configuration from '{self.config_file}' len={get_value_size(self.config_data)}, size={get_size(self.config_file)}")
+            pawn.console.debug(self.config_data)
+
     def set_network_info(self):
+        pawn.console.log(self.network_info)
+
         platform_list = self.network_info.get_platform_list() + ["etc"]
         PromptWithArgument(
             message="Select Platform ?",
@@ -297,32 +306,34 @@ class RpcCommand:
             network_info = NetworkInfo(force=True).get_platform_info()
             write_yaml(self.config_file, data=network_info)
 
-    def load_config_file(self):
-        if is_file(self.config_file):
-            self.config_data = open_yaml_file(self.config_file)
-            pawn.console.log(f"Loaded configuration from '{self.config_file}' len={len(self.config_data)}")
-            pawn.console.log(self.config_data)
-
     def call_raw_rpc(self):
-        pawn.console.log(f"{self.args.url}, is_valid_url=> {is_valid_url(self.args.url)}")
-        if not self.args.url or not is_valid_url(self.args.url):
-            sys_exit(f"Required valid url -> {self.args.url}")
+        try:
 
-        if not is_json(self.args.params):
-            sys_exit(f"Required invalid params-> {self.args.params}")
+            valid_url = is_valid_url(self.args.url)
+            pawn.console.log(f"{self.args.url}, is_valid_url => {valid_url}")
 
-        _payload = json_rpc(method=self.args.method, params=json.loads(self.args.params))
+            # if not valid_url:
+            #     sys_exit(f"Required valid url -> {self.args.url}")
 
-        call_http = CallHttp(
-            url=self.args.url,
-            method=self.args.http_method,
-            payload=_payload,
-            headers={"Content-Type": "application/json"}
-        )
-        res = call_http.run()
+            if not isinstance(self.args.params, (str, dict)) or not is_json(self.args.params) and not isinstance(self.args.params, dict):
+                sys_exit(f"Invalid params -> {self.args.params}")
 
-        pawn.console.log(call_http.response, f"payload={json.dumps(_payload)}")
-        dump(res.response.json, hex_to_int=True)
+            if not self._payload:
+                json_params = json.loads(self.args.params) if is_json(self.args.params) else self.args.params
+                self._payload = json_rpc(method=self.args.method, params=json_params)
+
+            call_http = CallHttp(
+                url=self.args.url,
+                method=self.args.http_method,
+                payload=self._payload,
+                headers={"Content-Type": "application/json"}
+            )
+            res = call_http.run()
+            pawn.console.log(call_http.response, f"payload={json.dumps(self._payload)}")
+            dump(res.response.json, hex_to_int=True)
+        except Exception as e:
+            pawn.console.log(f"An error occurred: {e}")
+            sys_exit(f"An error occurred: {e}")
 
     def deploy_score(self):
         pawn.console.log(self.args)
@@ -369,11 +380,27 @@ class RpcCommand:
         self.icon_rpc.get_tx_wait()
         self.icon_rpc.print_response()
 
+    def create_json_rpc_request_from_dot_command(self):
+
+        # pawn.console.log(self.icon_tpl.get_methods())
+        # exit()
+        parts = self.args.method.split('.')
+
+        if len(parts) > 2:
+            method = parts[0]
+            param_type = parts[1]
+            param_value = parts[2]
+            pawn.console.log(parts, method, param_type, param_value)
+            self._payload = json_rpc(method=method, params={param_type: param_value})
+            pawn.console.debug(f"auto payload={self._payload}")
+
     def run(self):
         self.initialize_arguments()
         if self.args.command == "config":
             self.write_config_file()
             return
+
+        self.load_network_config()
 
         if not self.args.url:
             self.set_network_info()
@@ -386,6 +413,7 @@ class RpcCommand:
                 self.generate_tx_payload()
         else:
             pawn.console.log(f"Unsupported platform={self.args.platform}, network_name={self.args.network}")
+            self.create_json_rpc_request_from_dot_command()
             self.call_raw_rpc()
 
 

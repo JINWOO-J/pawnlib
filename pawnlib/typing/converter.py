@@ -1211,6 +1211,51 @@ def get_size(file_path: str = '', attr=False):
     return return_size
 
 
+def get_value_size(value):
+    """
+    Determine the size of the value based on its type, handling nested lists and dictionaries recursively.
+
+    :param value: The value to determine the size of.
+    :type value: Any
+    :return: The size of the value.
+    :rtype: int
+
+    Example:
+
+        .. code-block:: python
+
+            get_value_size(None)
+            # >> 0
+
+            get_value_size([1, 2, 3])
+            # >> 3
+
+            get_value_size({"key1": "value1", "key2": "value2"})
+            # >> 2
+
+            get_value_size("Hello")
+            # >> 5
+
+            get_value_size(True)
+            # >> 1
+
+            get_value_size([1, [2, 3], {"key": "value"}])
+            # >> 5
+    """
+    if value is None:
+        return 0
+    elif isinstance(value, list):
+        return sum(get_value_size(item) for item in value)
+    elif isinstance(value, dict):
+        return sum(get_value_size(key) + get_value_size(val) for key, val in value.items())
+    elif isinstance(value, str):
+        return len(value)
+    elif isinstance(value, bool):
+        return 1
+    else:
+        return len(str(value))
+
+
 def convert_bytes(num: Union[int, float]) -> str:
     """
 
@@ -1358,35 +1403,24 @@ def flatten_dict(init: dict, separator: str = '｡', lkey: str = '') -> dict:
     return ret
 
 
-def dict_to_line(dict_param: dict, quotes: bool = False, separator: str = "=", end_separator: str = ",",
+def dict_to_line(dict_param: dict, quotes: Literal[None, 'all', 'strings_only'] = None, separator: str = "=", end_separator: str = ",",
                  pad_width: int = 0, key_pad_width: int = 0, alignment: str = 'left', key_alignment: str = 'right',
                  callback: callable = None) -> str:
     """
-       Converts a dictionary into a string with various formatting options.
+    Converts a dictionary into a string with various formatting options. Optionally wraps values or string values in quotes.
 
-       :param dict_param: The dictionary to convert.
-       :param quotes: If True, wraps values in quotes.
-       :param separator: The separator between keys and values.
-       :param end_separator: The separator between key-value pairs.
-       :param pad_width: The minimum width for value alignment.
-       :param key_pad_width: The minimum width for key alignment.
-       :param alignment: The alignment of the values ('left', 'right', 'center').
-       :param key_alignment: The alignment of the keys ('left', 'right', 'center').
-       :param callback: An optional callback function to apply to each value.
-       :return: The formatted string.
-
-       Example:
-
-           .. code-block:: python
-
-               dict_param = {'a': 1, 'bb': 22, 'ccc': 333}
-               print(dict_to_line(dict_param, quotes=True, separator=": ", end_separator="; ", pad_width=5, key_pad_width=4, alignment='right', key_alignment='left'))
-               # "a   : "    1"; bb  : "   22"; ccc : "  333"
-       """
+    :param dict_param: The dictionary to convert.
+    :param quotes: 'all' to wrap all values in quotes, 'strings_only' to wrap only string values in quotes, or None.
+    :param separator: The separator between keys and values.
+    :param end_separator: The separator between key-value pairs.
+    :param pad_width: The minimum width for value alignment.
+    :param key_pad_width: The minimum width for key alignment.
+    :param alignment: The alignment of the values ('left', 'right', 'center').
+    :param key_alignment: The alignment of the keys ('left', 'right', 'center').
+    :param callback: An optional callback function to apply to each value.
+    :return: The formatted string.
+    """
     def _format_with_alignment(text, width, alignment):
-        """
-        Formats text according to the given alignment and width.
-        """
         formats = {'left': f"<{width}", 'right': f">{width}", 'center': f"^{width}"}
         format_spec = formats.get(alignment, "<")
         return f"{text:{format_spec}}"
@@ -1401,7 +1435,7 @@ def dict_to_line(dict_param: dict, quotes: bool = False, separator: str = "=", e
         formatted_value = _format_with_alignment(v, pad_width, alignment)
 
         # Handle quotes option for values
-        if quotes:
+        if (quotes == 'all') or (quotes == 'strings_only' and isinstance(v, str)):
             formatted_value = f"\"{formatted_value}\""
 
         formatted_pairs.append(f"{formatted_key}{separator}{formatted_value}")
@@ -2510,6 +2544,7 @@ def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False,
         else:
             return f"{_origin_text[:width]} {placeholder}"
     return text
+
 
 def remove_ascii_and_tags(text: str = "", case_sensitive: Literal["lower", "upper", "both"] = "lower"):
     text = remove_ascii_color_codes(text)

@@ -9,13 +9,17 @@ import inspect
 import executing
 from contextlib import contextmanager, AbstractContextManager
 
-from pawnlib.typing import converter, date_utils, list_to_oneline_string, const, is_include_list, remove_tags, remove_ascii_color_codes,timestamp_to_string, is_hex
+from pawnlib.typing import (
+    converter, date_utils, list_to_oneline_string, const, is_include_list, remove_tags,
+    remove_ascii_color_codes,timestamp_to_string, is_hex, is_json
+)
 from pawnlib.config import pawnlib_config as pawn, global_verbose
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import Terminal256Formatter
 from rich.syntax import Syntax
 from rich.table import Table
+from rich.pretty import Pretty
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 from rich import print as rprint
 from typing import Union, Callable
@@ -1496,6 +1500,103 @@ def print_var(data=None, title='', **kwargs):
         print(syntax_highlight(data, **kwargs))
     else:
         pawn.console.print(f"\t[white bold]{data}\n")
+
+
+def create_kv_table(padding=0, key_ratio=2, value_ratio=7):
+    table = Table(
+        padding=padding,
+        pad_edge=False,
+        expand=True,
+        show_header=False,
+        show_footer=False,
+        show_edge=False,
+        show_lines=False,
+        box=None
+    )
+
+    table.add_column("Key", no_wrap=False, justify="left", style="bold yellow", min_width=padding, ratio=key_ratio)
+    table.add_column("Separator", no_wrap=False, justify="left", width=3)
+    table.add_column("Value", no_wrap=True, justify="left", ratio=value_ratio, max_width=50)
+    table.add_column("Debug Info", justify="right", style="grey84")
+
+    return table
+
+
+def get_pretty_value(value):
+    if isinstance(value, (dict, list)):
+        return Syntax(json.dumps(value, indent=4), "json", theme="material", line_numbers=False)
+    else:
+        if value and is_json(value):
+            __loaded_json = json.loads(value)
+            return Pretty(json.loads(value))
+        return value
+
+
+def print_kv(key="", value="", symbol="░",  separator=":", padding=1, key_ratio=1, value_ratio=7):
+    """
+    Print a key-value pair with a symbol, padding, and value size information.
+
+    :param key: The key to print. Defaults to an empty string.
+    :param value: The value associated with the key. Defaults to an empty string.
+    :param symbol: A symbol to prepend to the key. Defaults to a star emoji.
+    :param separator: The separator between the key and the value. Defaults to a colon.
+    :param padding: The padding between columns. Defaults to 5.
+    :param key_ratio: The ratio of the table width allocated for keys. Defaults to 1z.
+    :param value_ratio: The ratio of the table width allocated for values. Defaults to 7.
+
+    Example:
+
+        .. code-block:: python
+
+            print_kv(key="Name", value="John Doe", symbol="👤")
+            # Output:
+            # 👤 Name   :   John Doe   str[bright_black](8)[/bright_black]
+
+            print_kv(key="Age", value=30, symbol="🔢", padding=3)
+            # Output:
+            # 🔢 Age : 30   int[bright_black](2)[/bright_black]
+
+    """
+    table = create_kv_table(padding=padding, key_ratio=key_ratio, value_ratio=value_ratio)
+    value_info = f"{type(value).__name__}[bright_black]({converter.get_value_size(value)})[/bright_black]"
+    table.add_row(f"{symbol} {key}", f"[grey69] {separator} [/grey69]", get_pretty_value(value), value_info)
+    pawn.console.print(table)
+
+
+def print_grid(data: dict = None, title="", symbol="░", separator=":",  padding=0, key_ratio=1, value_ratio=7):
+    """
+    Print a grid layout with a title and optional padding and edge padding.
+
+    :param data: The data to display in the grid. Default is None.
+    :param title: The title of the grid. Default is an empty string.
+    :param symbol: The symbol used for the grid. Default is '░'.  or 🔘★⭐️ ■ ▓  ▒ ░
+    :param separator: The separator between the key and the value. Defaults to a colon.
+    :param padding: The padding around each cell. Default is 0.
+    :param key_ratio: The ratio of the table width allocated for keys. Defaults to 1.
+    :param value_ratio: The ratio of the table width allocated for values. Defaults to 7.
+
+    Example:
+
+        .. code-block:: python
+
+            data = {"Item 1": 123, "Item 2": 456}
+            print_grid(data, title="Inventory", symbol="■", padding=1, pad_edge=False)
+
+            # Output will display a grid with the title "Inventory", using '■' as the symbol,
+            # 1 padding around each cell, and no padding on the edge.
+
+    """
+    table = create_kv_table(padding=padding, key_ratio=key_ratio, value_ratio=value_ratio)
+    pawn.console.rule(f" ✨✨{title}✨✨", style="white")
+    if not isinstance(data, dict):
+        pawn.console.log(f"'{data}' is not dict")
+        return
+
+    for key, value in data.items():
+        value_info = f"{type(value).__name__}[bright_black]({converter.get_value_size(value)})[/bright_black]"
+        table.add_row(f"{symbol} {key}", f"[grey69] {separator} [/grey69]", get_pretty_value(value), value_info)
+    pawn.console.print(table)
+    pawn.console.rule("", style="white")
 
 
 def print_aligned_text(left_text, right_text, filler='.'):
