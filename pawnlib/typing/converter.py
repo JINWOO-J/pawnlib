@@ -67,6 +67,9 @@ class StackList:
         self.push(item)
         return True
 
+    def sum(self):
+        return sum(self.data)
+
     def median(self):
         return statistics.median(self.data)
 

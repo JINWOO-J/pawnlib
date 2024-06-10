@@ -1,14 +1,14 @@
 
 --build-arg BASE_IMAGE=python:3.9.13-slim-buster  
---build-arg BUILD_DATE=2024-05-28T11:50:07UTC  
+--build-arg BUILD_DATE=2024-06-05T00:12:03UTC  
 --build-arg DOCKER_BUILD_OPTION=--no-cache --rm=true  
 --build-arg ECHO_OPTION=  
 --build-arg GIT_USER=JINWOO-J  
 --build-arg IS_MULTI_ARCH=false  
---build-arg LOCAL_SERVER=jw-server  
+--build-arg LOCAL_SERVER=20.20.5.172  
 --build-arg NAME=pawnlib  
 --build-arg PRIMARY_BRANCH=master  
 --build-arg REPO_HUB=jinwoo  
 --build-arg SED_OPTION=''  
 --build-arg UNAME_S=Darwin  
---build-arg VERSION=2.0.1  
+--build-arg VERSION=2.0.2  
