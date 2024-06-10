@@ -154,6 +154,7 @@ def cleanup_args():
 def main():
     pawn.console.debug("Starting main_cli wrapper")
     args, command, parser = None, None, None
+    pawn.set(PAWN_LINE=False)
     try:
         pawn.console.debug(f"<before> {sys.argv}")
         args, command, parser = get_args()

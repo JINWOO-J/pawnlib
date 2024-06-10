@@ -28,6 +28,8 @@ icon_rpc = IconRpcHelper(
     network_info=network_info,
     wallet=wallet,
     raise_on_failure=True,
+    wait_sleep=0.01,
+    tx_method='icx_getTransactionByHash',
 )
 
 pawn.console.log(network_info)
@@ -40,16 +42,19 @@ payload = generator.json_rpc(
         'value': hex(icx_signer.icx_to_wei(0.1)),
         # 'fee': hex(icx_to_wei(fee)),
         # 'stepLimit': hex(2000000),
-        'timestamp': hex(icx_signer.get_timestamp_us())
+        # 'timestamp': hex(icx_signer.get_timestamp_us())
     }
 )
 
 
 signed_transaction = icon_rpc.sign_tx(payload=payload)
 print_var(signed_transaction)
-tx_result = icon_rpc.sign_send()
-print(f"tx_result={tx_result}")
+tx_result = icon_rpc.sign_send(is_block_time=True)
+pawn.console.print(f"tx_result={tx_result}, elapsed={icon_rpc.get_total_elapsed()}, elapsed={icon_rpc.get_elapsed().sum()}")
 
 print_var(tx_result)
+
+# icon_rpc.analyze_tx_block_time()
+
 
 print("END---")

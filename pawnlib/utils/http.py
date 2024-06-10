@@ -13,7 +13,7 @@ from pawnlib.output import (
     print_json)
 from pawnlib.resource import net
 from pawnlib.typing import date_utils
-from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const, shorten_text
+from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, const, shorten_text, StackList
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
 from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit, is_hex, is_valid_tx_hash
@@ -541,7 +541,8 @@ class IconRpcTemplates:
 
 
 class IconRpcHelper:
-    def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=True, debug=False, required_sign_methods=None, **kwargs):
+    def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=True, debug=False,
+                 required_sign_methods=None, wait_sleep=1, tx_method="icx_getTransactionResult",   **kwargs):
         self.wallet = wallet
         self.governance_address = None
         self.request_payload = None
@@ -549,6 +550,8 @@ class IconRpcHelper:
         self.network_info = network_info
         self.raise_on_failure = raise_on_failure
         self.debug = debug
+        self.wait_sleep = wait_sleep
+        self.tx_method = tx_method
         self.kwargs = kwargs
 
         if required_sign_methods and isinstance(required_sign_methods, list):
@@ -569,6 +572,10 @@ class IconRpcHelper:
         self._use_global_request_payload = False
         self.global_request_payload = {}
         self.score_api = {}
+        self.elapsed_stack = StackList(max_length=100)
+        self.timing_stack = StackList(max_length=100)
+        self.start_time = time.time()
+        self.end_time = 0
 
         self.default = {
             "stepLimit": hex(2500000)
@@ -590,11 +597,13 @@ class IconRpcHelper:
 
     def _set_governance_address(self, method=None):
         if self.network_info and not self.governance_address:
-            if self.network_info.platform == "havah":
-                if method and method.startswith("get"):
-                    self.governance_address = const.CHAIN_SCORE_ADDRESS
+            if self.network_info.platform == "havah" and method and method.startswith("get"):
+                self.governance_address = const.CHAIN_SCORE_ADDRESS
             else:
                 self.governance_address = const.GOVERNANCE_ADDRESS
+
+        if not self.governance_address:
+            self.governance_address = const.GOVERNANCE_ADDRESS
 
     def _decorator_enforce_kwargs(func):
         def from_kwargs(self, *args, **kwargs):
@@ -642,6 +651,7 @@ class IconRpcHelper:
                  reset_error=True,
                  raise_on_failure=False,
                  store_request_payload=True,
+                 return_key=None,
                  http_method: Literal["get", "post", "patch", "delete"] = 'post',
                  ) -> dict:
         if url:
@@ -675,7 +685,19 @@ class IconRpcHelper:
             self.on_error = True
             self.print_error_message(print_error)
 
-        return self.response.get('json')
+        # pawn.console.log(self.response.get('elapsed'), self.response.get('timing'))
+        self.elapsed_stack.push(self.response.get('elapsed'))
+        self.timing_stack.push(self.response.get('timing'))
+        return self.handle_response_with_key(self.response.get('json'), return_key=return_key)
+
+    def get_elapsed(self, mode='elapsed'):
+        if mode == "elapsed":
+            return self.elapsed_stack
+        if mode == "timing":
+            return self.timing_stack
+
+    def get_total_elapsed(self):
+        return int((time.time() - self.start_time) * 1000)
 
     def print_error_message(self, print_error=True):
         if print_error:
@@ -711,7 +733,7 @@ class IconRpcHelper:
             params=params
         )
 
-    def _is_signable_governance_method(self, method):
+    def _is_signable_governance_method(self, method: str) -> bool:
         # if self.network_info.platform == "havah" or self.network_info.platform == "icon" and method:
         if method:
             for required_sign_method in self.required_sign_methods:
@@ -743,7 +765,7 @@ class IconRpcHelper:
         return _request_payload
 
     def governance_call(self, url=None, method=None, params={}, governance_address=None,
-                        sign=None, store_request_payload=True, is_wait=True, value="0x0", step_limit=None):
+                        sign=None, store_request_payload=True, is_wait=True, value="0x0", step_limit=None, return_key="result"):
         if governance_address:
             self.governance_address = governance_address
         else:
@@ -766,8 +788,9 @@ class IconRpcHelper:
                 payload=_request_payload,
                 print_error=True,
                 store_request_payload=store_request_payload,
+                return_key=return_key
             )
-            return response.get('result', {})
+            return response
 
     def create_deploy_payload(self, src="", params={}, governance_address=None):
         self.governance_address = governance_address if governance_address else const.CHAIN_SCORE_ADDRESS
@@ -937,7 +960,6 @@ class IconRpcHelper:
             return 0
         return response.get('result', [])
 
-
     @staticmethod
     def name_to_params(list_data):
         return {data.get('name'): "" for data in list_data}
@@ -1009,6 +1031,53 @@ class IconRpcHelper:
         else:
             return self.exit_on_failure(f"Invalid token address - {address}")
 
+    def analyze_tx_block_time(self, transaction):
+        # transaction = self.get_tx(tx_hash, return_key="result")
+        # pawn.console.log(transaction)
+        tx_timestamp = int(transaction['timestamp'], 16)
+        block_height = transaction['blockHeight']
+        block_timestamp = self.get_block(block_height, return_key="result.time_stamp")
+
+        # pawn.console.log(f"diff_time={(tx_timestamp-block_timestamp)/1_000_000}")
+        elapsed_time = (tx_timestamp-block_timestamp)/1_000_000
+
+        return {
+            # "tx_hash": tx_hash,
+            "tx_timestamp": tx_timestamp,
+            "block_height": block_height,
+            "block_timestamp": block_timestamp,
+            "elapsed_time": elapsed_time
+        }
+
+    def get_block(self, block_height=None, return_key=None):
+        if not block_height:
+            self.exit_on_failure("Required block_height for get_block()")
+
+        if is_int(block_height):
+            _block_height = hex(block_height)
+        elif is_hex(block_height):
+            _block_height = block_height
+
+        response = self.rpc_call(
+            method="icx_getBlockByHeight",
+            params={"height": _block_height}
+        )
+
+        if isinstance(response, dict):
+            if return_key:
+                return FlatDict(response).get(return_key)
+            return response
+        return response.get('text')
+
+    def handle_response_with_key(self, response=None, return_key=None):
+        if not response:
+            response = self.response
+        if isinstance(response, dict):
+            if return_key:
+                return FlatDict(response).get(return_key)
+            return response
+        return response.get('text')
+
     def get_tx(self,  tx_hash=None, url=None,  return_key=None):
         if not tx_hash:
             tx_hash = self._get_tx_hash(tx_hash)
@@ -1017,7 +1086,8 @@ class IconRpcHelper:
 
         response = self.rpc_call(
             url=url,
-            method="icx_getTransactionResult",
+            # method="icx_getTransactionResult",
+            method=self.tx_method,
             params={"txHash": tx_hash}
         )
         if isinstance(response, dict):
@@ -1026,7 +1096,7 @@ class IconRpcHelper:
             return response
         return response.get('text')
 
-    def get_tx_wait(self,  tx_hash=None, url=None,  is_compact=True):
+    def get_tx_wait(self,  tx_hash=None, url=None,  is_compact=True, is_block_time=False):
         tx_hash = self._get_tx_hash(tx_hash)
         if not tx_hash:
             return
@@ -1035,21 +1105,26 @@ class IconRpcHelper:
         if pawn.console._live:
             if not getattr(pawn, "console_status", None):
                 pawn.console_status = getattr(pawn, "console_status", None)
-            resp = self.check_transaction_loop(tx_hash, url, is_compact, pawn.console_status)
+            resp = self.check_transaction_loop(tx_hash, url, is_compact, pawn.console_status, is_block_time)
         else:
             with pawn.console.status("[magenta] Wait for transaction to be generated.") as status:
-                resp = self.check_transaction_loop(tx_hash, url, is_compact, status)
+                resp = self.check_transaction_loop(tx_hash, url, is_compact, status, is_block_time)
 
         return resp
 
-    def check_transaction_loop(self, tx_hash=None, url=None,  is_compact=True, status=None):
+    def check_transaction_loop(self, tx_hash=None, url=None,  is_compact=True, status=None, is_block_time=False):
         count = 0
         while True:
             resp = self._check_transaction(url, tx_hash)
             if resp.get('error'):
                 text, exit_loop = self._handle_error_response(resp, count, tx_hash)
             elif resp.get('result'):
-                text, exit_loop = self._handle_success_response(resp, count, tx_hash)
+                if is_block_time:
+                    block_elapsed_time = f"<{self.analyze_tx_block_time(resp.get('result')).get('elapsed_time'):.2f}s> "
+                else:
+                    block_elapsed_time = ""
+
+                text, exit_loop = self._handle_success_response(resp, count, tx_hash, prefix_text=block_elapsed_time)
             else:
                 text = resp
 
@@ -1067,7 +1142,7 @@ class IconRpcHelper:
                 self._print_final_result(text, is_compact, resp)
                 break
             count += 1
-            time.sleep(1)
+            time.sleep(self.wait_sleep)
         if self.on_error and tx_hash:
             self.get_debug_trace(tx_hash, reset_error=False)
 
@@ -1106,7 +1181,7 @@ class IconRpcHelper:
         text = f"{prefix_text}{exit_msg}[white] '{_error_message}'"
         return text, exit_loop
 
-    def _handle_success_response(self, resp, count, tx_hash):
+    def _handle_success_response(self, resp, count, tx_hash, prefix_text=""):
         if resp['result'].get('logsBloom'):
             resp['result']['logsBloom'] = int(resp['result']['logsBloom'], 16)
         if resp['result'].get('failure'):
@@ -1116,7 +1191,7 @@ class IconRpcHelper:
             _resp_status = "[green][OK][/green]"
             self.on_error = False
         exit_loop = True
-        prefix_text = f"[cyan][Wait TX][{count}][/cyan] Check a transaction by [i cyan]{tx_hash}[/i cyan] "
+        prefix_text = f"[cyan][Wait TX][{count}][/cyan] {prefix_text}Check a transaction by [i cyan]{tx_hash}[/i cyan] "
         text = align_text(prefix_text, _resp_status, ".")
         return text, exit_loop
 
@@ -1250,14 +1325,14 @@ class IconRpcHelper:
                 sys_exit()
         return exception
 
-    def sign_send(self, is_wait=True, is_compact=False):
+    def sign_send(self, is_wait=True, is_compact=False, is_block_time=False):
         if self.signed_tx:
             response = self.rpc_call(payload=self.signed_tx, print_error=True)
             if not is_wait:
                 return response
 
             if isinstance(response, dict) and response.get('result'):
-                resp = self.get_tx_wait(tx_hash=response['result'], is_compact=is_compact)
+                resp = self.get_tx_wait(tx_hash=response['result'], is_compact=is_compact, is_block_time=is_block_time)
                 return resp
         else:
             self.exit_on_failure(f"Required signed transaction")
@@ -1843,6 +1918,7 @@ class CallWebsocket:
         self.http_url = append_http(connect_url)
         self.status_console = Null()
         self._use_status_console = use_status_console
+        self.icon_rpc_helper = IconRpcHelper(url=f"{self.http_url}/api/v3")
 
         self._ws = None
 
@@ -1900,6 +1976,7 @@ class GoloopWebsocket(CallWebsocket):
         self.tx_count = 0
         self.tx_timestamp = 0
         self.tx_timestamp_dt = None
+        self.preps_info = {}
 
         self.blockheight_now = 0
 
@@ -1923,7 +2000,14 @@ class GoloopWebsocket(CallWebsocket):
     def request_blockheight_callback(self):
         if self.blockheight == 0:
             self.blockheight = self.get_last_blockheight()
+
+        if not self.blockheight:
+            raise ValueError(f"Failed to retrieve the block height. blockheight: {self.blockheight},  response: {self.get_response_content()}")
+
         pawn.console.log(f"Call request_blockheight_callback - blockheight: {self.blockheight:,}")
+
+        self.fetch_and_store_preps_info()
+
         send_data = {
             "height": hex(self.blockheight)
         }
@@ -1935,20 +2019,17 @@ class GoloopWebsocket(CallWebsocket):
             if not keys_exists(dict_items, key):
                 return False
         return True
+
     def parse_transfer_tx(self, confirmed_transaction_list=[]):
         if isinstance(confirmed_transaction_list, list):
             for transaction in confirmed_transaction_list:
-                _from = shorten_text(transaction.get('to'), width=None, shorten_middle=True)
-                _to = shorten_text(transaction.get('from'), width=None, shorten_middle=True)
+                _from = shorten_text(transaction.get('from'), width=None, shorten_middle=True)
+                _to = shorten_text(transaction.get('to'), width=None, shorten_middle=True)
                 _value = transaction.get('value')
                 if _from and _to  and _value:
-                # if self._multiple_keys_exists(transaction, "to", "from"):
                     _value = int(_value, 16) / const.TINT
-                    if _value >0:
-                        pawn.console.log(f"[TRANSFER] {_from} 👉 {_to} 💰 {_value}")
-                        # pawn.console.log(transaction)
-                    # else:
-                    #     pawn.console.log(transaction)
+                    if _value > 0:
+                        pawn.console.log(f"[TRANSFER] {_from} 👉 {_to} 💰 {_value} ICX")
 
     def parse_blockheight(self, response=None):
         response_json = json.loads(response)
@@ -1960,20 +2041,27 @@ class GoloopWebsocket(CallWebsocket):
             if confirmed_transaction_list:
                 self.parse_transfer_tx(confirmed_transaction_list)
 
-
             self.blockheight_now = hash_result.get("height")
             pawn.set(LAST_EXECUTE_POINT=self.blockheight_now)
             self.block_timestamp = hash_result.get("time_stamp")
-
-            _message = f"[bold][📦 {self.blockheight_now:,}][/bold] 📅 {date_utils.timestamp_to_string(self.block_timestamp)}, tx_hash: {hash_result.get('block_hash')}"
-            pawn.console.debug(_message)
-            self.status_console.update(_message)
 
             if self.block_timestamp_prev != 0:
                 self.compare_diff_time['block'] = abs(self.block_timestamp_prev - self.block_timestamp)
 
             tx_list = hash_result.get('confirmed_transaction_list')
             self.tx_count = len(tx_list)
+
+            peer_id = self.preps_info.get(hash_result.get('peer_id'))
+            if peer_id:
+                peer_name = shorten_text(peer_id.get('name'), width=16, placeholder="..")
+            else:
+                peer_name = ""
+
+            _message = (f"[[bold dodger_blue1]📦 {self.blockheight_now:,}[/bold dodger_blue1]] 📅 {date_utils.timestamp_to_string(self.block_timestamp)}, "
+                        f"tx_cnt: {self.tx_count}, tx_hash: {shorten_text(hash_result.get('block_hash'), width=10, placeholder='..', shorten_middle=True)}, Validator: {peer_name}")
+
+            pawn.console.debug(_message)
+            self.status_console.update(_message)
 
             for tx in tx_list:
                 self.tx_timestamp = int(tx.get("timestamp", "0x0"), 0)  # 16진수, timestamp가 string이여야한다.
@@ -2009,11 +2097,34 @@ class GoloopWebsocket(CallWebsocket):
             return "".join(result)
         return result
 
-    def get_last_blockheight(self):
-        res = jequest(method="post", url=f"{self.http_url}/api/v3", data=generate_json_rpc(method="icx_getLastBlock"))
-        pawn.console.log(res['json'].get('result'))
-        if res['json'].get('result'):
-            return res['json']['result'].get('height')
+    def get_response_content(self):
+        response = self.icon_rpc_helper.response
+        if response.get('json'):
+            return response.get('json')
+        return response.get('text')
+
+    def get_last_blockheight(self) -> int:
+        return self.execute_rpc_call(method='icx_getLastBlock', return_key="result.height")
+
+    def get_preps(self):
+        return self.execute_rpc_call(governance_address=const.CHAIN_SCORE_ADDRESS, method='getPReps', return_key="result.preps")
+
+    def fetch_and_store_preps_info(self):
+        prep_list = self.get_preps()
+        for prep in prep_list:
+            if isinstance(prep, dict ) and prep.get('nodeAddress'):
+                self.preps_info[prep.get('nodeAddress')] = prep
+
+    def execute_rpc_call(self, method=None, return_key=None, governance_address=None):
+        if governance_address:
+            response = self.icon_rpc_helper.governance_call(method=method, governance_address=governance_address, return_key=return_key)
+        else:
+            response = self.icon_rpc_helper.rpc_call(method=method, return_key=return_key)
+        if not response:
+            pawn.console.log(f"[yellow]\[warn][/yellow] Response  is None. method='{method}', "
+                             f"return_key='{return_key}', {self.get_response_content()}")
+
+        return response
 
     def get_block_hash(self, hash):
         res = jequest(
