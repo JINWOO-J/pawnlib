@@ -582,7 +582,7 @@ class IconRpcHelper:
         }
 
     def initialize(self):
-        # self._set_governance_address()
+        self._set_governance_address()
         if self.network_info:
             pawn.console.debug(self.network_info)
         else:
@@ -597,13 +597,13 @@ class IconRpcHelper:
 
     def _set_governance_address(self, method=None):
         if self.network_info and not self.governance_address:
-            if self.network_info.platform == "havah" and method and method.startswith("get"):
-                self.governance_address = const.CHAIN_SCORE_ADDRESS
-            else:
-                self.governance_address = const.GOVERNANCE_ADDRESS
+            if self.network_info.platform == "havah":
+                self.governance_address = const.CHAIN_SCORE_ADDRESS if method and method.startswith("get") else const.GOVERNANCE_ADDRESS
+            # else:  # ICON
+            #     self.governance_address = const.CHAIN_SCORE_ADDRESS
 
-        if not self.governance_address:
-            self.governance_address = const.GOVERNANCE_ADDRESS
+        # If governance_address is still not set, default to GOVERNANCE_ADDRESS
+        self.governance_address = self.governance_address or const.CHAIN_SCORE_ADDRESS
 
     def _decorator_enforce_kwargs(func):
         def from_kwargs(self, *args, **kwargs):
@@ -742,7 +742,7 @@ class IconRpcHelper:
                     return True
         return False
 
-    def create_governance_payload(self, method, params):
+    def create_governance_payload(self, method, params={}):
 
         if self._can_be_signed is None:
             self._can_be_signed = self._is_signable_governance_method(method)
