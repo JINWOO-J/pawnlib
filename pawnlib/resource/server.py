@@ -807,6 +807,15 @@ def get_platform_info():
     return platform_info
 
 
+def parse_cpu_load(load_str):
+    load_list = load_str.split()
+    cpu_load_dict = OrderedDict()
+    cpu_load_dict["1min"] = round(float(load_list[0]), 2)
+    cpu_load_dict["5min"] = round(float(load_list[1]), 2)
+    cpu_load_dict["15min"] = round(float(load_list[2]), 2)
+    return cpu_load_dict
+
+
 def get_cpu_load():
     """
     Returns dict with current cpu load average
@@ -827,12 +836,7 @@ def get_cpu_load():
     else:
         with open('/proc/loadavg') as f:
             cpu_load = f.read()
-            cpu_load_result = cpu_load.split(" ")
-            return {
-                "1min": round(float(cpu_load_result[0]), 2),
-                "5min": round(float(cpu_load_result[1]), 2),
-                "15min": round(float(cpu_load_result[2]), 2),
-            }
+            return parse_cpu_load(cpu_load)
 
 
 def get_uptime_cmd() -> dict:
@@ -853,12 +857,8 @@ def get_uptime_cmd() -> dict:
 
     raw = subprocess.check_output('uptime').decode("utf8").replace(',', '')
     load_raw = raw.split('load averages:')[1].strip()
-    load_list = load_raw.split(' ')
-    return {
-        "1min": round(float(load_list[0]), 2),
-        "5min": round(float(load_list[1]), 2),
-        "15min": round(float(load_list[2]), 2)
-    }
+    # load_list = load_raw.split(' ')
+    return parse_cpu_load(load_raw)
 
 
 def get_total_memory_usage() -> float:
