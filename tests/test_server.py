@@ -50,7 +50,7 @@ pawn.console.rule(f"[bold green] --- rlimit Information ----")
 print(server.get_rlimit_nofile())
 
 pawn.console.rule(f"[bold green] --- CPU LOAD Information ----")
-print(server.get_cpu_load())
+print(dict(server.get_cpu_load()))
 
 pawn.console.rule(f"[bold green] --- CPU Percentage Information ----")
 print(server.get_cpu_usage_percentage())
