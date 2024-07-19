@@ -21,6 +21,8 @@ from rich.syntax import Syntax
 from rich.table import Table
 from rich.pretty import Pretty
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
+from rich.panel import Panel
+from rich.console import Group, Console
 from rich import print as rprint
 from typing import Union, Callable
 from datetime import datetime
@@ -1183,7 +1185,6 @@ def print_syntax(data, name="json", indent=4, style="material", oneline_list=Tru
         print(syntax_highlight(data, name, indent, style, oneline_list, line_indent))
 
 
-
 def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, **kwargs):
     """
     Syntax highlighting function
@@ -1430,26 +1431,43 @@ def count_nested_dict_len(d):
     return length
 
 
-def get_var_name():
+def get_var_name(var):
     """
     Get the variable name from the call frame.
 
-    This function uses the sys._getframe() function to get the call frame, and then uses the executing library to get the variable name from the call frame.
+    This function uses the inspect and ast modules to get the variable name from the call frame.
 
     Returns:
         str: The variable name if it can be found, otherwise an empty string.
     """
-
+    import ast
     try:
-        call_frame = sys._getframe(2)
-        source = executing.Source.for_frame(call_frame)
-        ex = source.executing(call_frame)
-        func_ast = ex.node
-        for ast in func_ast.args:
-            if getattr(ast, 'id', ''):
-                return ast.id
-    except Exception:
-        return ""
+        frame = inspect.currentframe().f_back.f_back
+        code_context = inspect.getframeinfo(frame).code_context
+        if not code_context:
+            return ""
+        call_line = code_context[0].strip()
+        tree = ast.parse(call_line)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                for arg in node.args:
+                    if isinstance(arg, ast.Name):
+                        if eval(arg.id, frame.f_globals, frame.f_locals) is var:
+                            return arg.id
+                    elif isinstance(arg, ast.Attribute):
+                        attr_names = []
+                        while isinstance(arg, ast.Attribute):
+                            attr_names.append(arg.attr)
+                            arg = arg.value
+                        if isinstance(arg, ast.Name):
+                            attr_names.append(arg.id)
+                            full_name = '.'.join(reversed(attr_names))
+                            if eval(full_name, frame.f_globals, frame.f_locals) is var:
+                                return full_name
+    except Exception as e:
+        pawn.console.log(f"Exception occurred in get_var_name: {e}")
+
+    return ""
 
 
 def get_data_length(data):
@@ -1474,7 +1492,7 @@ def get_data_length(data):
         return ""
 
 
-def print_var(data=None, title='', **kwargs):
+def print_var(data=None, title='', line_indent='      ', **kwargs):
     """
     Print the variable.
 
@@ -1483,23 +1501,91 @@ def print_var(data=None, title='', **kwargs):
     Args:
         data (Any, optional): The data to print. Defaults to None.
         title (str, optional): The title to print. Defaults to ''.
+        line_indent (str, optional): The line indent to use when printing the data. Defaults to '      '.
         **kwargs: Arbitrary keyword arguments.
-
-    Keyword Args:
-        line_indent (str): The line indent to use when printing the data. Defaults to '      '.
     """
 
-    kwargs.setdefault('line_indent', '      ')
-    var_name = get_var_name()
+    var_name = get_var_name(data)
     data_length = get_data_length(data)
+
+    if not title:
+        title = var_name
+
     _title = f"[yellow bold]{title}[/yellow bold]" if title else ""
 
-    pawn.console.log(f"🎁 [[blue bold]{var_name}[/blue bold]] {_title}"
-                     f"\t[italic] ({type(data).__name__}), {data_length}", _stack_offset=2)
-    if isinstance(data, dict) or isinstance(data, list):
-        print(syntax_highlight(data, **kwargs))
+    # Print the variable name and its value on the same line
+    bg_color = "rgb(40,40,40)"
+    styled_value = ""
+
+    details = ""
+    if hasattr(data, '__dict__'):  # Check if it's an instance of a class
+        attributes = vars(data)
+        for attr, value in attributes.items():
+            styled_attr_value = style_value(value)
+            details += f"{line_indent}[cyan]{var_name}.{attr}[/cyan] = {styled_attr_value} [italic]({type(value).__name__})[/italic]\n"
+    elif isinstance(data, (dict, list)):
+        # Convert data to syntax highlighted string
+        syntax_str = syntax_highlight(data, rich=True,  style="monokai", line_indent=line_indent,  **kwargs)
+        details = syntax_str
+        # json_str = json.dumps(data, indent=2)
+        # details = Group(*[Text(line, style="bold magenta") for line in json_str.split('\n')])
+    # panel_content = Group(output, details)
     else:
-        pawn.console.print(f"\t[white bold]{data}\n")
+        styled_value = style_value(data)
+
+    output = f"🎁 [blue bold]{var_name}[/blue bold] = [italic]{styled_value} ({type(data).__name__})[/italic]\n"
+    # # Combine main output and details
+
+    if details:
+        panel_content = Group(output, details)
+    else:
+        panel_content = output
+
+    panel = Panel(panel_content, title=_title, expand=True, style=f"on {bg_color}")
+    console = Console()
+    console.print(panel)
+
+
+def style_value(value):
+    """
+    Apply different styles based on the value's type or value.
+    """
+    if isinstance(value, bool):
+        return f"[green]{value}[/green]" if value else f"[red]{value}[/red]"
+    elif isinstance(value, (int, float)):
+        return f"[cyan]{value}[/cyan]"
+    elif isinstance(value, str):
+        return f"[yellow]{value}[/yellow]"
+    else:
+        return f"[white]{value}[/white]"
+
+# def print_var(data=None, title='', **kwargs):
+#     """
+#     Print the variable.
+#
+#     This function prints the variable with its name, type, and length. It also prints the data if it is a dictionary or a list.
+#
+#     Args:
+#         data (Any, optional): The data to print. Defaults to None.
+#         title (str, optional): The title to print. Defaults to ''.
+#         **kwargs: Arbitrary keyword arguments.
+#
+#     Keyword Args:
+#         line_indent (str): The line indent to use when printing the data. Defaults to '      '.
+#     """
+#
+#     kwargs.setdefault('line_indent', '      ')
+#     var_name = get_var_name(data)
+#     data_length = get_data_length(data)
+#     _title = f"[yellow bold]{title}[/yellow bold]" if title else ""
+#
+#     pawn.console.log(f"🎁 [[blue bold]{var_name}[/blue bold]] {_title}"
+#                      f"\t[italic] ({type(data).__name__}), {data_length}", _stack_offset=2)
+#     if isinstance(data, dict) or isinstance(data, list):
+#         print(syntax_highlight(data, **kwargs))
+#     else:
+#         pawn.console.print(f"\t[white bold]{data}\n")
+
 
 
 def create_kv_table(padding=0, key_ratio=2, value_ratio=7):
@@ -1563,7 +1649,8 @@ def print_kv(key="", value="", symbol="░",  separator=":", padding=1, key_rati
     pawn.console.print(table)
 
 
-def print_grid(data: dict = None, title="", symbol="░", separator=":",  padding=0, key_ratio=1, value_ratio=7):
+def print_grid(data: dict = None, title="", symbol="░", separator=":",  padding=0, key_ratio=1, value_ratio=7,
+               key_prefix="", key_postfix="", value_prefix="", value_postfix=""):
     """
     Print a grid layout with a title and optional padding and edge padding.
 
@@ -1575,6 +1662,12 @@ def print_grid(data: dict = None, title="", symbol="░", separator=":",  paddin
     :param key_ratio: The ratio of the table width allocated for keys. Defaults to 1.
     :param value_ratio: The ratio of the table width allocated for values. Defaults to 7.
 
+    :param key_prefix: A prefix to add to each key. Default is an empty string.
+    :param key_postfix: A postfix to add to each key. Default is an empty string.
+    :param value_prefix: A prefix to add to each value. Default is an empty string.
+    :param value_postfix: A postfix to add to each value. Default is an empty string.
+
+
     Example:
 
         .. code-block:: python
@@ -1585,6 +1678,8 @@ def print_grid(data: dict = None, title="", symbol="░", separator=":",  paddin
             # Output will display a grid with the title "Inventory", using '■' as the symbol,
             # 1 padding around each cell, and no padding on the edge.
 
+            print_grid(data, title="Inventory", symbol="■", padding=1, key_prefix="[", key_postfix="]", value_prefix="(", value_postfix=")")
+
     """
     table = create_kv_table(padding=padding, key_ratio=key_ratio, value_ratio=value_ratio)
     pawn.console.rule(f" ✨✨{title}✨✨", style="white")
@@ -1594,7 +1689,12 @@ def print_grid(data: dict = None, title="", symbol="░", separator=":",  paddin
 
     for key, value in data.items():
         value_info = f"{type(value).__name__}[bright_black]({converter.get_value_size(value)})[/bright_black]"
-        table.add_row(f"{symbol} {key}", f"[grey69] {separator} [/grey69]", get_pretty_value(value), value_info)
+        table.add_row(
+            f"{symbol} {key_prefix}{key}{key_postfix}",
+            f"[grey69] {separator} [/grey69]",
+            f"{value_prefix}{get_pretty_value(value)}{value_postfix}",
+            value_info
+        )
     pawn.console.print(table)
     pawn.console.rule("", style="white")
 
