@@ -30,5 +30,5 @@ from .server import (
     get_aws_metadata,
     aws_data_crawl,
     get_netstat_count,
-
+    DiskPerformanceTester,
 )

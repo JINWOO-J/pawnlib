@@ -4,7 +4,6 @@ import platform
 import os
 import subprocess
 import re
-import socket
 from pawnlib.utils import http
 from pawnlib.typing import is_valid_ipv4, split_every_n
 from pawnlib.config import pawn
@@ -13,9 +12,13 @@ from collections import OrderedDict, defaultdict
 
 import socket
 import fcntl
-import array
 import struct
-import errno
+import statistics
+from concurrent.futures import ThreadPoolExecutor
+from rich.progress import Progress, TaskID, TextColumn, BarColumn, TimeRemainingColumn
+import json
+from pawnlib.typing import dict_to_line
+import signal
 
 
 def hex_mask_to_cidr(hex_mask):
@@ -1044,3 +1047,268 @@ def aws_data_crawl(url, d, timeout):
                 d[l] = r.get('json')
             else:
                 d[l] = r.get('text')
+
+
+def io_flags_to_string(flags):
+    flag_names = {
+        os.O_RDONLY: 'O_RDONLY',
+        os.O_WRONLY: 'O_WRONLY',
+        os.O_RDWR: 'O_RDWR',
+        os.O_CREAT: 'O_CREAT',
+        os.O_EXCL: 'O_EXCL',
+        os.O_TRUNC: 'O_TRUNC',
+        os.O_APPEND: 'O_APPEND',
+        os.O_NONBLOCK: 'O_NONBLOCK',
+        os.O_SYNC: 'O_SYNC',
+        os.O_DSYNC: 'O_DSYNC',
+        os.O_RSYNC: 'O_RSYNC',
+    }
+
+    result = []
+    for flag_value, flag_name in flag_names.items():
+        if flags & flag_value:
+            result.append(flag_name)
+    return '|'.join(result)
+
+
+class DiskPerformanceTester:
+    """
+    Class to test disk performance by measuring read and write speeds.
+
+    :param file_path: Path to the file used for testing.
+    :param file_size_mb: Size of the test file in megabytes.
+    :param iterations: Number of iterations for the test.
+    :param block_size_kb: Size of each block in kilobytes.
+    :param num_threads: Number of threads to use for the test.
+    :param io_pattern: I/O pattern, e.g., "sequential" or "random".
+    :param decimal_places: Number of decimal places for results.
+    :param console: Console object for logging.
+    :param debug: Flag to enable debug logging.
+
+    Example:
+
+        .. code-block:: python
+
+            tester = DiskPerformanceTester("/tmp/testfile", 100)
+
+            tester.run_parallel_tests()
+
+            # or
+
+            tester.measure_write_speed("/tmp/testfile", task_id, progress)
+            tester.measure_read_speed("/tmp/testfile", task_id, progress)
+            tester.cleanup_and_exit()
+    """
+
+    def __init__(self, file_path, file_size_mb, iterations=5, block_size_kb=1024, num_threads=1, io_pattern="sequential", decimal_places=2, console=None, debug=False):
+        self.base_file_path = file_path
+        self.file_size_mb = file_size_mb
+        self.iterations = iterations
+        self.block_size_kb = block_size_kb
+        self.num_threads = num_threads
+        self.io_pattern = io_pattern
+        self.data = bytearray(os.urandom(self.block_size_kb * 1024))  # Random data for write
+        self.write_speeds = []
+        self.read_speeds = []
+        self.average_write_speed = 0
+        self.average_read_speed = 0
+        self.test_files = []  # List to track generated test files
+        self.debug = debug
+        if console:
+            self.console = console
+        else:
+            self.console = pawn.console
+
+        self.decimal_places = decimal_places
+        self.cpu_load = {}
+        signal.signal(signal.SIGINT, self.cleanup_and_exit)
+        signal.signal(signal.SIGTERM, self.cleanup_and_exit)
+
+    def log_with_progress(self, progress: Progress, task_id: TaskID, message: str):
+        """Helper function to log messages with progress"""
+        if self.debug:
+            progress.console.log(message)
+        progress.update(task_id, advance=0)
+
+    def measure_write_speed(self, file_path, task_id, progress):
+        speeds = []
+        for i in range(self.iterations):
+            start_time = time.time()
+            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_SYNC
+            try:
+                fd = os.open(file_path, flags)
+                self.log_with_progress(progress, task_id, f"[{i}]Opened file {file_path} for writing with fd {fd} (flags: {io_flags_to_string(flags)})")
+                for _ in range(self.file_size_mb * 1024 // self.block_size_kb):
+                    os.write(fd, self.data)
+                os.close(fd)
+                self.log_with_progress(progress, task_id, f"[{i}]Closed file {file_path} with fd {fd}")
+            except OSError as e:
+                self.log_with_progress(progress, task_id, f"[{i}]OS error writing to file {file_path}: {e}")
+            except Exception as e:
+                self.log_with_progress(progress, task_id, f"[{i}]Unexpected error writing to file {file_path}: {e}")
+            end_time = time.time()
+            duration = end_time - start_time
+            if duration > 0:
+                speed = self.file_size_mb / duration  # MB/s
+                speeds.append(round(speed, self.decimal_places))
+            progress.update(task_id, advance=1)
+        return speeds
+
+    def measure_read_speed(self, file_path, task_id, progress):
+        speeds = []
+        for i in range(self.iterations):
+            self.prepare_file(file_path, task_id, progress)  # Ensure the file is ready to be read
+            start_time = time.time()
+            flags = os.O_RDONLY | os.O_SYNC
+            try:
+                fd = os.open(file_path, flags)
+                self.log_with_progress(progress, task_id, f"[{i}]Opened file {file_path} for reading with fd {fd} (flags: {io_flags_to_string(flags)})")
+                while os.read(fd, self.block_size_kb * 1024):
+                    pass
+                os.close(fd)
+                self.log_with_progress(progress, task_id, f"[{i}]Closed file {file_path} with fd {fd}")
+            except OSError as e:
+                self.log_with_progress(progress, task_id, f"[{i}]OS error reading from file {file_path}: {e}")
+            except Exception as e:
+                self.log_with_progress(progress, task_id, f"[{i}]Unexpected error reading from file {file_path}: {e}")
+            end_time = time.time()
+            duration = end_time - start_time
+            if duration > 0:
+                speed = self.file_size_mb / duration  # MB/s
+                speeds.append(round(speed, self.decimal_places))
+            progress.update(task_id, advance=1)
+        return speeds
+
+    def prepare_file(self, file_path, task_id, progress):
+        # Ensure the file is ready to be read
+        try:
+            fd = os.open(file_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_SYNC)
+            self.log_with_progress(progress, task_id, f"Preparing file {file_path} for reading with fd {fd} (O_SYNC)")
+            for _ in range(self.file_size_mb * 1024 // self.block_size_kb):
+                os.write(fd, self.data)
+            os.close(fd)
+            self.log_with_progress(progress, task_id, f"Prepared and closed file {file_path} with fd {fd}")
+        except OSError as e:
+            self.log_with_progress(progress, task_id, f"OS error preparing file {file_path}: {e}")
+        except Exception as e:
+            self.log_with_progress(progress, task_id, f"Unexpected error preparing file {file_path}: {e}")
+
+    def cleanup(self, file_path):
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                self.debug and self.console.log(f"Deleted file {file_path}")
+        except OSError as e:
+            self.console.log(f"OS error deleting file {file_path}: {e}")
+        except Exception as e:
+            self.console.log(f"Unexpected error deleting file {file_path}: {e}")
+
+    def cleanup_files(self):
+        for file_path in self.test_files:
+            self.cleanup(file_path)
+
+    def cleanup_and_exit(self, signum, frame):
+        self.console.log(f"Signal {signum} received. Cleaning up and exiting.")
+        self.cleanup_files()
+        exit(0)
+
+    def run_parallel_tests(self):
+        write_speeds = []
+        read_speeds = []
+
+        with Progress(
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(bar_width=self.console.size.width),"[progress.percentage]{task.percentage:>3.0f}%",
+                TimeRemainingColumn(),
+                console=self.console) as progress:
+
+            write_task = progress.add_task("Write Test", total=self.num_threads * self.iterations)
+            read_task = progress.add_task("Read Test", total=self.num_threads * self.iterations)
+            with ThreadPoolExecutor(max_workers=self.num_threads) as executor:
+                futures = []
+                for i in range(self.num_threads):
+                    file_path = f'{self.base_file_path}_write_{i}'
+                    self.test_files.append(file_path)
+                    futures.append(executor.submit(self.measure_write_speed, file_path, write_task, progress))
+                for future in futures:
+                    write_speeds.extend(future.result())
+
+                futures = []
+                for i in range(self.num_threads):
+                    file_path = f'{self.base_file_path}_read_{i}'
+                    self.test_files.append(file_path)
+                    futures.append(executor.submit(self.measure_read_speed, file_path, read_task, progress))
+                for future in futures:
+                    read_speeds.extend(future.result())
+
+        self.write_speeds = self.validate_speeds(write_speeds)
+        self.read_speeds = self.validate_speeds(read_speeds)
+
+        self.average_write_speed = round(statistics.mean(self.write_speeds), self.decimal_places) if self.write_speeds else 0
+        self.average_read_speed = round(statistics.mean(self.read_speeds), self.decimal_places) if self.read_speeds else 0
+
+        # Record CPU load
+        self.cpu_load = get_cpu_load()
+
+        # Cleanup all test files
+        self.cleanup_files()
+
+        # Print summary
+        self.print_summary()
+
+        # Save results
+        self.save_results()
+
+        # Visualize results
+        # self.visualize_results()
+
+    def validate_speeds(self, speeds):
+        # Validate and filter out unrealistic speed values
+        if not speeds:
+            return []
+
+        if len(speeds) == 1:
+            # If there is only one speed, return it as it is
+            return speeds
+
+        mean = statistics.mean(speeds)
+        stdev = statistics.stdev(speeds)
+
+        # Accept speeds within 3 standard deviations of the mean
+        return [speed for speed in speeds if mean - 3 * stdev <= speed <= mean + 3 * stdev]
+
+    def print_summary(self):
+        self.console.log(f"Write speeds: {self.write_speeds}")
+        self.console.log(f"Average write speed: {self.average_write_speed:.2f} MB/s")
+        self.console.log(f"Read speeds: {self.read_speeds}")
+        self.console.log(f"Average read speed: {self.average_read_speed:.2f} MB/s")
+        self.console.log(f"CPU load during test: {dict_to_line(self.cpu_load, end_separator=', ' )}")
+
+    def save_results(self):
+        results = {
+            "write_speeds": self.write_speeds,
+            "average_write_speed": self.average_write_speed,
+            "read_speeds": self.read_speeds,
+            "average_read_speed": self.average_read_speed,
+            "system_info": self.get_system_info(),
+            "resource_usages":
+                {"cpu_load": self.cpu_load}
+        }
+        with open("disk_performance_results.json", "w") as f:
+            json.dump(results, f, indent=4)
+        self.console.log("Results saved to disk_performance_results.json")
+
+    # def visualize_results(self):
+    #     plt.figure(figsize=(10, 5))
+    #     plt.plot(self.write_speeds, label='Write Speeds (MB/s)')
+    #     plt.plot(self.read_speeds, label='Read Speeds (MB/s)')
+    #     plt.xlabel('Iteration')
+    #     plt.ylabel('Speed (MB/s)')
+    #     plt.title('Disk Performance')
+    #     plt.legend()
+    #     plt.savefig("disk_performance_results.png")
+    #     plt.show()
+    #     self.console.log("Results visualized and saved to disk_performance_results.png")
+
+    def get_system_info(self):
+        return get_platform_info()
