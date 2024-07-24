@@ -7,6 +7,7 @@ import os
 from pawnlib.typing import str2bool, StackList, remove_tags, dict_to_line
 from pawnlib.output import write_json, print_grid, print_var
 from rich.tree import Tree
+from copy import deepcopy
 
 from pawnlib.resource import DiskPerformanceTester
 
@@ -57,6 +58,24 @@ def print_banner():
         print(banner)
 
 
+def find_all_arguments(parser):
+    args = {}
+    for action in parser._actions:
+        if action.option_strings:  # Positional arguments have an empty option_strings list
+            args[action.dest] = action.option_strings
+    return args
+
+
+def create_argument_dict(namespace, all_arguments):
+    namespace_copy = deepcopy(namespace.__dict__)
+    combined_args_dict = {}
+    for arg_dest, arg_value in namespace_copy.items():
+        if arg_dest in all_arguments:
+            combined_arg_names = ", ".join(all_arguments[arg_dest])
+            combined_args_dict[combined_arg_names] = arg_value
+    return combined_args_dict
+
+
 def print_unless_quiet_mode(message=""):
     if not pconf().args.quiet:
         pawn.console.print(message)
@@ -86,16 +105,22 @@ def main():
         data={},
         fail_count=0,
         total_count=0,
+        PAWN_LINE=False,
     )
 
     if args.verbose > 2:
         pawn.set(
+            PAWN_LINE=True,
             PAWN_LOGGER=dict(
                 log_level="DEBUG",
                 stdout_level="DEBUG",
             )
         )
-    print_grid(args.__dict__, title="Arguments", key_prefix="--")
+
+    all_args = find_all_arguments(parser)
+    argument_dict = create_argument_dict(args, all_args)
+
+    print_grid(argument_dict, title="Arguments", key_prefix="", key_ratio=2)
 
     if args.command == "disk":
         tester = DiskPerformanceTester(

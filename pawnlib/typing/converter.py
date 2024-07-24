@@ -13,6 +13,7 @@ from deprecated import deprecated
 from typing import Union, Any, Type
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from collections.abc import MutableMapping
+from collections import OrderedDict
 from pawnlib import logger
 from pawnlib.typing.constants import const
 from pawnlib.config.__fix_import import Null
@@ -1406,9 +1407,9 @@ def flatten_dict(init: dict, separator: str = '｡', lkey: str = '') -> dict:
     return ret
 
 
-def dict_to_line(dict_param: dict, quotes: Literal[None, 'all', 'strings_only'] = None, separator: str = "=", end_separator: str = ",",
-                 pad_width: int = 0, key_pad_width: int = 0, alignment: str = 'left', key_alignment: str = 'right',
-                 callback: callable = None) -> str:
+def dict_to_line(dict_param: dict, quotes: Literal[None, 'all', 'strings_only'] = None, separator: str = "=",
+                 end_separator: str = ",", pad_width: int = 0, key_pad_width: int = 0, alignment: str = 'left',
+                 key_alignment: str = 'right', callback: callable = None) -> str:
     """
     Converts a dictionary into a string with various formatting options. Optionally wraps values or string values in quotes.
 
@@ -1429,7 +1430,12 @@ def dict_to_line(dict_param: dict, quotes: Literal[None, 'all', 'strings_only'] 
         return f"{text:{format_spec}}"
 
     formatted_pairs = []
-    for k, v in sorted(dict_param.items()):
+    items = dict_param.items()
+
+    if not isinstance(dict_param, OrderedDict):
+        items = sorted(items)
+
+    for k, v in items:
         if callback and callable(callback):
             v = callback(v)  # Apply the callback function to the value, if provided
 
