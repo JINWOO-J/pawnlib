@@ -525,7 +525,7 @@ class SystemMonitor:
 
             # if disk_name.startswith('sd') or disk_name.startswith('nvme') or disk_name.startswith('vd'):
             if any( disk_name.startswith(_type) for _type in disk_types):
-            # if not any(c.isdigit() for c in disk_name):
+                # if not any(c.isdigit() for c in disk_name):
                 disk_stats[disk_name] = {
                     'read_ios': int(fields[3]),
                     'read_bytes': int(fields[5]) * 512,  # Convert to bytes
@@ -955,7 +955,7 @@ def get_mem_info(unit="GB"):
                 elif fields[0] == 'SwapTotal:':
                     data['swap_total'] = int(fields[1], 10)
                 elif fields[0] == 'SwapFree:': \
-                    data['swap_free'] = int(fields[1], 10)
+                        data['swap_free'] = int(fields[1], 10)
                 break
             data['mem_used'] = data['mem_total'] - data['mem_free']
             data['swap_used'] = data['swap_total'] - data['swap_free']
@@ -1050,7 +1050,7 @@ def aws_data_crawl(url, d, timeout):
 
 
 def io_flags_to_string(flags):
-    flag_names = {
+    flag_descriptions = {
         os.O_RDONLY: 'O_RDONLY',
         os.O_WRONLY: 'O_WRONLY',
         os.O_RDWR: 'O_RDWR',
@@ -1060,14 +1060,15 @@ def io_flags_to_string(flags):
         os.O_APPEND: 'O_APPEND',
         os.O_NONBLOCK: 'O_NONBLOCK',
         os.O_SYNC: 'O_SYNC',
-        os.O_DSYNC: 'O_DSYNC',
-        os.O_RSYNC: 'O_RSYNC',
+        os.O_DSYNC: 'O_DSYNC'
     }
+    if hasattr(os, 'O_RSYNC'):
+        flag_descriptions[os.O_RSYNC] = 'O_RSYNC'
 
     result = []
-    for flag_value, flag_name in flag_names.items():
-        if flags & flag_value:
-            result.append(flag_name)
+    for value, name in flag_descriptions.items():
+        if flags & value:
+            result.append(name)
     return '|'.join(result)
 
 
@@ -1110,6 +1111,8 @@ class DiskPerformanceTester:
         self.data = bytearray(os.urandom(self.block_size_kb * 1024))  # Random data for write
         self.write_speeds = []
         self.read_speeds = []
+        self.total_write_duration = 0
+        self.total_read_duration = 0
         self.average_write_speed = 0
         self.average_read_speed = 0
         self.test_files = []  # List to track generated test files
@@ -1130,31 +1133,45 @@ class DiskPerformanceTester:
             progress.console.log(message)
         progress.update(task_id, advance=0)
 
+    def get_write_flags(self):
+        flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_SYNC
+        if hasattr(os, 'O_RSYNC'):
+            flags |= os.O_RSYNC
+        return flags
+
     def measure_write_speed(self, file_path, task_id, progress):
+        total_speed = 0
+        total_duration = 0
         speeds = []
         for i in range(self.iterations):
             start_time = time.time()
-            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_SYNC
+            flags = self.get_write_flags()
             try:
                 fd = os.open(file_path, flags)
-                self.log_with_progress(progress, task_id, f"[{i}]Opened file {file_path} for writing with fd {fd} (flags: {io_flags_to_string(flags)})")
+                self.log_with_progress(progress, task_id, f"[{i}] Opened file {file_path} for writing with fd {fd} (flags: {io_flags_to_string(flags)})")
                 for _ in range(self.file_size_mb * 1024 // self.block_size_kb):
                     os.write(fd, self.data)
                 os.close(fd)
-                self.log_with_progress(progress, task_id, f"[{i}]Closed file {file_path} with fd {fd}")
+                self.log_with_progress(progress, task_id, f"[{i}] Closed file {file_path} with fd {fd}")
             except OSError as e:
-                self.log_with_progress(progress, task_id, f"[{i}]OS error writing to file {file_path}: {e}")
+                self.log_with_progress(progress, task_id, f"[{i}] OS error writing to file {file_path}: {e}")
             except Exception as e:
-                self.log_with_progress(progress, task_id, f"[{i}]Unexpected error writing to file {file_path}: {e}")
+                self.log_with_progress(progress, task_id, f"[{i}] Unexpected error writing to file {file_path}: {e}")
             end_time = time.time()
             duration = end_time - start_time
+            total_duration += duration
             if duration > 0:
                 speed = self.file_size_mb / duration  # MB/s
                 speeds.append(round(speed, self.decimal_places))
+                total_speed += speed
             progress.update(task_id, advance=1)
-        return speeds
+        average_speed = total_speed / self.iterations # Sum of all speeds in this thread
+        self.console.log(f"Write total speed for {file_path}: {average_speed:.2f} MB/s")
+        return speeds, total_duration
 
     def measure_read_speed(self, file_path, task_id, progress):
+        total_speed = 0
+        total_duration = 0
         speeds = []
         for i in range(self.iterations):
             self.prepare_file(file_path, task_id, progress)  # Ensure the file is ready to be read
@@ -1162,22 +1179,26 @@ class DiskPerformanceTester:
             flags = os.O_RDONLY | os.O_SYNC
             try:
                 fd = os.open(file_path, flags)
-                self.log_with_progress(progress, task_id, f"[{i}]Opened file {file_path} for reading with fd {fd} (flags: {io_flags_to_string(flags)})")
+                self.log_with_progress(progress, task_id, f"[{i}] Opened file {file_path} for reading with fd {fd} (flags: {io_flags_to_string(flags)})")
                 while os.read(fd, self.block_size_kb * 1024):
                     pass
                 os.close(fd)
-                self.log_with_progress(progress, task_id, f"[{i}]Closed file {file_path} with fd {fd}")
+                self.log_with_progress(progress, task_id, f"[{i}] Closed file {file_path} with fd {fd}")
             except OSError as e:
-                self.log_with_progress(progress, task_id, f"[{i}]OS error reading from file {file_path}: {e}")
+                self.log_with_progress(progress, task_id, f"[{i}] OS error reading from file {file_path}: {e}")
             except Exception as e:
-                self.log_with_progress(progress, task_id, f"[{i}]Unexpected error reading from file {file_path}: {e}")
+                self.log_with_progress(progress, task_id, f"[{i}] Unexpected error reading from file {file_path}: {e}")
             end_time = time.time()
             duration = end_time - start_time
+            total_duration += duration
             if duration > 0:
                 speed = self.file_size_mb / duration  # MB/s
                 speeds.append(round(speed, self.decimal_places))
+                total_speed += speed
             progress.update(task_id, advance=1)
-        return speeds
+        average_speed = total_speed  /self.iterations # Sum of all speeds in this thread
+        self.console.log(f"Read total speed for {file_path}: {average_speed:.2f} MB/s")
+        return speeds, total_duration
 
     def prepare_file(self, file_path, task_id, progress):
         # Ensure the file is ready to be read
@@ -1212,42 +1233,60 @@ class DiskPerformanceTester:
         self.cleanup_files()
         exit(0)
 
+    def run_test(self, task_name, measure_func, progress):
+        task = progress.add_task(task_name, total=self.num_threads * self.iterations)
+        speeds = []
+        total_duration = 0
+
+        with ThreadPoolExecutor(max_workers=self.num_threads) as executor:
+            futures = []
+            for i in range(self.num_threads):
+                file_path = f'{self.base_file_path}_{task_name.lower()}_{i}'
+                self.test_files.append(file_path)
+                futures.append(executor.submit(measure_func, file_path, task, progress))
+
+            for future in futures:
+                speed, duration = future.result()
+                speeds.append(speed)
+                total_duration += duration
+
+        return speeds, total_duration
+
     def run_parallel_tests(self):
-        write_speeds = []
-        read_speeds = []
+        write_speeds, total_write_duration = [], 0
+        read_speeds, total_read_duration = [], 0
 
         with Progress(
                 TextColumn("[progress.description]{task.description}"),
-                BarColumn(bar_width=self.console.size.width),"[progress.percentage]{task.percentage:>3.0f}%",
+                BarColumn(bar_width=None),
+                "[progress.percentage]{task.percentage:>3.0f}%",
                 TimeRemainingColumn(),
                 console=self.console) as progress:
 
-            write_task = progress.add_task("Write Test", total=self.num_threads * self.iterations)
-            read_task = progress.add_task("Read Test", total=self.num_threads * self.iterations)
-            with ThreadPoolExecutor(max_workers=self.num_threads) as executor:
-                futures = []
-                for i in range(self.num_threads):
-                    file_path = f'{self.base_file_path}_write_{i}'
-                    self.test_files.append(file_path)
-                    futures.append(executor.submit(self.measure_write_speed, file_path, write_task, progress))
-                for future in futures:
-                    write_speeds.extend(future.result())
+            write_speeds, total_write_duration = self.run_test("Write Test", self.measure_write_speed, progress)
+            read_speeds, total_read_duration = self.run_test("Read Test", self.measure_read_speed, progress)
 
-                futures = []
-                for i in range(self.num_threads):
-                    file_path = f'{self.base_file_path}_read_{i}'
-                    self.test_files.append(file_path)
-                    futures.append(executor.submit(self.measure_read_speed, file_path, read_task, progress))
-                for future in futures:
-                    read_speeds.extend(future.result())
+        # Flatten the list of speeds
+        flat_write_speeds = [speed for sublist in write_speeds for speed in sublist]
+        flat_read_speeds = [speed for sublist in read_speeds for speed in sublist]
 
-        self.write_speeds = self.validate_speeds(write_speeds)
-        self.read_speeds = self.validate_speeds(read_speeds)
+        # Calculate overall average speeds
+        self.write_speeds = self.validate_speeds(flat_write_speeds)
+        self.read_speeds = self.validate_speeds(flat_read_speeds)
 
-        self.average_write_speed = round(statistics.mean(self.write_speeds), self.decimal_places) if self.write_speeds else 0
-        self.average_read_speed = round(statistics.mean(self.read_speeds), self.decimal_places) if self.read_speeds else 0
+        total_write_size_mb = self.file_size_mb * self.iterations * self.num_threads
+        total_read_size_mb = self.file_size_mb * self.iterations * self.num_threads
 
-        # Record CPU load
+        if total_write_duration > 0:
+            self.average_write_speed = round(total_write_size_mb / total_write_duration, self.decimal_places)
+        else:
+            self.average_write_speed = 0
+
+        if total_read_duration > 0:
+            self.average_read_speed = round(total_read_size_mb / total_read_duration, self.decimal_places)
+        else:
+            self.average_read_speed = 0
+
         self.cpu_load = get_cpu_load()
 
         # Cleanup all test files
@@ -1277,12 +1316,25 @@ class DiskPerformanceTester:
         # Accept speeds within 3 standard deviations of the mean
         return [speed for speed in speeds if mean - 3 * stdev <= speed <= mean + 3 * stdev]
 
+    # def print_summary(self):
+    #     self.console.log(f"Write speeds: {self.write_speeds}")
+    #     self.console.log(f"Average write speed: {self.average_write_speed:.2f} MB/s")
+    #     self.console.log(f"Read speeds: {self.read_speeds}")
+    #     self.console.log(f"Average read speed: {self.average_read_speed:.2f} MB/s")
+    #     self.console.log(f"CPU load during test: {dict_to_line(self.cpu_load, end_separator=', ' )}")
+
     def print_summary(self):
         self.console.log(f"Write speeds: {self.write_speeds}")
-        self.console.log(f"Average write speed: {self.average_write_speed:.2f} MB/s")
+        threads_write_result = ""
+        threads_read_result = ""
+        if self.num_threads > 1:
+            threads_write_result = f"(Threads: {self.average_write_speed*self.num_threads:.2f} MB/s per thread)"
+            threads_read_result = f"(Threads: {self.average_read_speed*self.num_threads:.2f} MB/s per thread)"
+
+        self.console.log(f"Average write speed: {self.average_write_speed:.2f} MB/s {threads_write_result}")
         self.console.log(f"Read speeds: {self.read_speeds}")
-        self.console.log(f"Average read speed: {self.average_read_speed:.2f} MB/s")
-        self.console.log(f"CPU load during test: {dict_to_line(self.cpu_load, end_separator=', ' )}")
+        self.console.log(f"Average read speed: {self.average_read_speed:.2f} MB/s {threads_read_result}")
+        self.console.log(f"CPU load during test: {dict_to_line(self.cpu_load, end_separator=', ')}")
 
     def save_results(self):
         results = {
