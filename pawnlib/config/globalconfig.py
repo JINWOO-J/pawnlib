@@ -314,12 +314,11 @@ class PawnlibConfig(metaclass=Singleton):
             pawn_debug=self.debug,
             redirect=self.debug,  # <-- not supported by rich.console.Console
             record=True,
-            soft_wrap=True,
+            soft_wrap=False,
             force_terminal=True,
             # log_time_format="[%Y-%m-%d %H:%M:%S.%f]"
             log_time_format=lambda dt: f"[{dt.strftime('%H:%M:%S,%f')[:-3]}]"
         )
-        # print(self.console_options)
         if not self._loaded.get('console'):
             # There are visible problems with InquirerPy.
             _console_options['redirect'] = False

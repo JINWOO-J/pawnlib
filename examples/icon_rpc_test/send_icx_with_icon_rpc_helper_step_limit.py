@@ -18,7 +18,7 @@ private_key = "0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa9081
 pawn.console.log(private_key)
 
 icon_rpc = IconRpcHelper(
-    network_info=NetworkInfo(network_name="cdnet"),
+    network_info=NetworkInfo(network_name="jw-test", network_api="http://icontest01:9000"),
     wallet=icx_signer.load_wallet_key(private_key),
     raise_on_failure=True,
 )
@@ -40,7 +40,6 @@ payload = generator.json_rpc(
 signed_transaction = icon_rpc.sign_tx(payload=payload)
 print_var(signed_transaction)
 tx_result = icon_rpc.sign_send()
-print(f"tx_result={tx_result}")
 
 print_var(tx_result)
 

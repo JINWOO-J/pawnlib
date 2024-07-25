@@ -29,6 +29,13 @@ from datetime import datetime
 import textwrap
 from requests.structures import CaseInsensitiveDict
 
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal  # pragma: no cover
+
+AlignMethod = Literal["left", "center", "right"]
+VerticalAlignMethod = Literal["top", "middle", "bottom"]
 
 _ATTRIBUTES = dict(
     list(zip([
@@ -748,7 +755,7 @@ def kvPrint(key, value):
     print(bcolors.WARNING + "{:>{key_value}} ".format(str(value), key_value=key_value) + bcolors.ENDC)
 
 
-def print_json(obj, syntax=True, line_indent="", style="material",  **kwargs):
+def print_json(obj, syntax=True, line_indent="", rich_syntax=True,  style="material",  **kwargs):
     """
     Print a JSON object with optional syntax highlighting and indentation.
 
@@ -779,7 +786,10 @@ def print_json(obj, syntax=True, line_indent="", style="material",  **kwargs):
             # >> {"name": "John", "age": 30, "city": "New York"}
 
     """
-    print(pretty_json(obj, syntax=syntax, line_indent=line_indent, style=style, **kwargs))
+    if rich_syntax is True:
+        pawn.console.print(pretty_json(obj, syntax=syntax, rich_syntax=True, line_indent=line_indent, style=style, **kwargs))
+    else:
+        print(pretty_json(obj, syntax=syntax, rich_syntax=True, line_indent=line_indent, style=style, **kwargs))
 
 
 def pretty_json(obj, syntax=True, rich_syntax=False, style="one-dark", line_indent="", **kwargs):
@@ -827,7 +837,7 @@ def pretty_json(obj, syntax=True, rich_syntax=False, style="one-dark", line_inde
 
     if syntax:
         if rich_syntax:
-            return Syntax(json_string, "json", line_numbers=False, theme=style)
+            return Syntax(json_string, "json", line_numbers=False, background_color="rgb(40,40,40)", theme=style)
         else:
             return syntax_highlight(json_string, name="json", line_indent=line_indent, style=style).strip()
     else:
@@ -1185,18 +1195,19 @@ def print_syntax(data, name="json", indent=4, style="material", oneline_list=Tru
         print(syntax_highlight(data, name, indent, style, oneline_list, line_indent))
 
 
-def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, **kwargs):
+def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, word_wrap=True,  **kwargs):
     """
     Syntax highlighting function
 
-    :param data:
-    :param name:
-    :param indent:
-    :param style:
-    :param oneline_list:
-    :param line_indent:
-    :param rich:
-    :return:
+    :param data: The data to be highlighted.
+    :param name: The name of the lexer to use for highlighting.
+    :param indent: The number of spaces to use for indentation.
+    :param style: The style to use for highlighting.
+    :param oneline_list: Whether to compact lists into one line.
+    :param line_indent: The string to use for line indentation.
+    :param rich: Whether to use rich text formatting.
+    :param word_wrap: Whether to enable word wrapping.
+    :return: The highlighted code as a string.
 
     Example:
 
@@ -1226,7 +1237,7 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
         code_data = textwrap.indent(code_data, line_indent)
 
     if rich:
-        return Syntax(code_data, name, theme=style, **kwargs)
+        return Syntax(code_data, name, theme=style, word_wrap=word_wrap,  **kwargs)
     else:
         return highlight(
             code=code_data,
@@ -1413,15 +1424,31 @@ def data_clean(data):
 
 def count_nested_dict_len(d):
     """
-    Count the length of a nested dictionary.
+   Count the total number of keys in a nested dictionary.
 
-    This function counts the number of items in a dictionary. If a value in the dictionary is also a dictionary, it recursively counts the number of items in that dictionary as well.
+   :param d: Dictionary to count keys in.
+   :type d: dict
+   :return: Total number of keys in the dictionary, including nested dictionaries.
+   :rtype: int
 
-    Args:
-        d (dict): The dictionary to count the length of.
+   Example:
 
-    Returns:
-        int: The length of the dictionary.
+       .. code-block:: python
+
+           nested_dict = {
+               'a': 1,
+               'b': {'c': 2, 'd': {'e': 3}},
+               'f': {'g': 4}
+           }
+
+           count_nested_dict_len(nested_dict)
+           # >> 6
+
+           count_nested_dict_len({'x': {'y': {'z': {}}}})
+           # >> 3
+
+           count_nested_dict_len({})
+           # >> 0
     """
 
     length = len(d)
@@ -1434,11 +1461,26 @@ def count_nested_dict_len(d):
 def get_var_name(var):
     """
     Get the variable name from the call frame.
-
     This function uses the inspect and ast modules to get the variable name from the call frame.
 
-    Returns:
-        str: The variable name if it can be found, otherwise an empty string.
+    :param var: The variable whose name is to be retrieved.
+    :return: The name of the variable as a string.
+
+    Example:
+
+        .. code-block:: python
+
+            my_var = 10
+            get_var_name(my_var)
+            # >> 'my_var'
+
+            class MyClass:
+                def __init__(self):
+                    self.attr = 5
+
+            instance = MyClass()
+            get_var_name(instance.attr)
+            # >> 'instance.attr'
     """
     import ast
     try:
@@ -1472,37 +1514,63 @@ def get_var_name(var):
 
 def get_data_length(data):
     """
-    Get the length of the data.
+    Get the length of the data. If the data is a dictionary, it calculates the nested dictionary length.
 
-    This function tries to get the length of the data. If the data is a dictionary, it gets the nested dictionary length. If the data is not a dictionary, it gets the length of the data.
+    :param data: The input data which can be of any type.
+    :return: A string representing the length of the data.
 
-    Args:
-        data (Any): The data to get the length of.
+    Example:
 
-    Returns:
-        str: A string representing the length of the data. If the length cannot be found, it returns an empty string.
+        .. code-block:: python
+
+             get_data_length([1, 2, 3])
+             # >> 'len=3'
+
+             get_data_length({'a': 1, 'b': {'c': 2}})
+             # >> 'dict_len=2'
+
+             get_data_length("hello")
+             # >> 'len=5'
+
     """
-
     try:
         if isinstance(data, dict):
-            return f"nested_dict_len={count_nested_dict_len(data)}"
+            return f"dict_len={count_nested_dict_len(data)}"
         else:
             return f"len={len(data)}"
     except Exception:
         return ""
 
 
-def print_var(data=None, title='', line_indent='      ', **kwargs):
+def print_var(
+        data=None,
+        title: str = '',
+        line_indent: str = ' ',
+        detail: bool = True,
+        title_align: AlignMethod = "center",
+        **kwargs
+    ):
     """
-    Print the variable.
+    Print the variable name and its value on the same line with optional details.
 
-    This function prints the variable with its name, type, and length. It also prints the data if it is a dictionary or a list.
+    :param data: The variable to be printed.
+    :param title: Optional title for the output.
+    :param line_indent: String used for indentation.
+    :param detail: Whether to include detailed information.
+    :param title_align: Alignment method for the title. Can be "left", "center", or "right". Default is "center".
+    :param kwargs: Additional keyword arguments.
 
-    Args:
-        data (Any, optional): The data to print. Defaults to None.
-        title (str, optional): The title to print. Defaults to ''.
-        line_indent (str, optional): The line indent to use when printing the data. Defaults to '      '.
-        **kwargs: Arbitrary keyword arguments.
+    Example:
+
+        .. code-block:: python
+            dict_var = {"key": "value"}
+
+            print_var(dict_var)
+            print_var(data={"key": "value"}, title="Example Dict")
+            print_var(data=[1, 2, 3], title="Example List")
+            print_var(data=42, title="Example Int")
+            print_var(data="Hello, World!", title="Example String")
+
     """
 
     var_name = get_var_name(data)
@@ -1517,31 +1585,34 @@ def print_var(data=None, title='', line_indent='      ', **kwargs):
     bg_color = "rgb(40,40,40)"
     styled_value = ""
 
+    if "style" not in kwargs:
+        kwargs['style'] = "native"
+        kwargs['background_color'] = bg_color
+
     details = ""
+
     if hasattr(data, '__dict__'):  # Check if it's an instance of a class
         attributes = vars(data)
         for attr, value in attributes.items():
             styled_attr_value = style_value(value)
             details += f"{line_indent}[cyan]{var_name}.{attr}[/cyan] = {styled_attr_value} [italic]({type(value).__name__})[/italic]\n"
     elif isinstance(data, (dict, list)):
-        # Convert data to syntax highlighted string
-        syntax_str = syntax_highlight(data, rich=True,  style="monokai", line_indent=line_indent,  **kwargs)
+        syntax_str = syntax_highlight(data, rich=True,  line_indent=line_indent,  **kwargs)
         details = syntax_str
-        # json_str = json.dumps(data, indent=2)
-        # details = Group(*[Text(line, style="bold magenta") for line in json_str.split('\n')])
-    # panel_content = Group(output, details)
     else:
         styled_value = style_value(data)
 
-    output = f"🎁 [blue bold]{var_name}[/blue bold] = [italic]{styled_value} ({type(data).__name__})[/italic]\n"
-    # # Combine main output and details
+    if detail:
+        output = f"🎁 [blue bold]{var_name}[/blue bold] = [italic]{styled_value} ({type(data).__name__}) {data_length}[/italic]\n"
+    else:
+        output = styled_value
 
     if details:
         panel_content = Group(output, details)
     else:
         panel_content = output
 
-    panel = Panel(panel_content, title=_title, expand=True, style=f"on {bg_color}")
+    panel = Panel(panel_content, title=_title, title_align=title_align, expand=True, style=f"on {bg_color}")
     console = Console()
     console.print(panel)
 
@@ -1558,34 +1629,6 @@ def style_value(value):
         return f"[yellow]{value}[/yellow]"
     else:
         return f"[white]{value}[/white]"
-
-# def print_var(data=None, title='', **kwargs):
-#     """
-#     Print the variable.
-#
-#     This function prints the variable with its name, type, and length. It also prints the data if it is a dictionary or a list.
-#
-#     Args:
-#         data (Any, optional): The data to print. Defaults to None.
-#         title (str, optional): The title to print. Defaults to ''.
-#         **kwargs: Arbitrary keyword arguments.
-#
-#     Keyword Args:
-#         line_indent (str): The line indent to use when printing the data. Defaults to '      '.
-#     """
-#
-#     kwargs.setdefault('line_indent', '      ')
-#     var_name = get_var_name(data)
-#     data_length = get_data_length(data)
-#     _title = f"[yellow bold]{title}[/yellow bold]" if title else ""
-#
-#     pawn.console.log(f"🎁 [[blue bold]{var_name}[/blue bold]] {_title}"
-#                      f"\t[italic] ({type(data).__name__}), {data_length}", _stack_offset=2)
-#     if isinstance(data, dict) or isinstance(data, list):
-#         print(syntax_highlight(data, **kwargs))
-#     else:
-#         pawn.console.print(f"\t[white bold]{data}\n")
-
 
 
 def create_kv_table(padding=0, key_ratio=2, value_ratio=7):
