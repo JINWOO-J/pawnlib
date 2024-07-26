@@ -50,9 +50,9 @@ class NestedNamespace(SimpleNamespace):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         for key, val in kwargs.items():
-            if type(val) == dict:
+            if isinstance(val, dict):
                 setattr(self, key, NestedNamespace(**val))
-            elif type(val) == list:
+            elif isinstance(val, list):
                 setattr(self, key, list(map(self._______map_____entry, val)))
 
     def _keys(self) -> list:
@@ -230,7 +230,7 @@ class PawnlibConfig(metaclass=Singleton):
             timeout=6000,
             debug=False,
             use_global_namespace=True
-        ):
+    ):
         """
         This class can share variables using globals().
 
@@ -310,7 +310,7 @@ class PawnlibConfig(metaclass=Singleton):
             "on_ready": False
 
         }
-        self. use_global_namespace = use_global_namespace
+        self.use_global_namespace = use_global_namespace
 
         if self.use_global_namespace:
             globals()[self.global_name] = {}
@@ -441,9 +441,9 @@ class PawnlibConfig(metaclass=Singleton):
         :return:
         """
         true_list = ("yes", "true", "t", "1", "True", "TRUE")
-        if type(v) == bool:
+        if isinstance(v, bool):
             return v
-        if type(v) == str:
+        if isinstance(v, str):
             return v.lower() in true_list
         return eval(f"{v}") in true_list
 
