@@ -15,6 +15,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 LOG_DIR = f"{get_real_path(__file__)}/logs"
 APP_NAME = "default_appsss"
 
+pawn.console.log("default printing")
 
 pawn.set(
     PAWN_LINE=True,
