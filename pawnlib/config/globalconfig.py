@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Optional, Callable
 from collections import namedtuple
 from collections.abc import Mapping
-import pawnlib.config.configure
 from pawnlib.__version__ import __title__, __version__
 from pawnlib.config.__fix_import import Null
 from pawnlib.config.console import Console
@@ -17,8 +16,27 @@ import copy
 from types import SimpleNamespace
 from functools import partial
 from rich import inspect as rich_inspect
-import collections
-import re
+from contextlib import contextmanager
+
+
+class ConfigManager:
+    def __init__(self):
+        self._config = {}
+
+    @contextmanager
+    def use_config(self, config):
+        old_config = self._config.copy()
+        self._config.update(config)
+        try:
+            yield
+        finally:
+            self._config = old_config
+
+    def set(self, key, value):
+        self._config[key] = value
+
+    def get(self, key, default=None):
+        return self._config.get(key, default)
 
 
 class NestedNamespace(SimpleNamespace):
@@ -204,7 +222,15 @@ class Singleton(type):
 
 # @singleton
 class PawnlibConfig(metaclass=Singleton):
-    def __init__(self, global_name="pawnlib_global_config", app_logger=Null(), error_logger=Null(), timeout=6000, debug=False):
+    def __init__(
+            self,
+            global_name="pawnlib_global_config",
+            app_logger=Null(),
+            error_logger=Null(),
+            timeout=6000,
+            debug=False,
+            use_global_namespace=True
+        ):
         """
         This class can share variables using globals().
 
@@ -284,11 +310,16 @@ class PawnlibConfig(metaclass=Singleton):
             "on_ready": False
 
         }
+        self. use_global_namespace = use_global_namespace
+
+        if self.use_global_namespace:
+            globals()[self.global_name] = {}
+        else:
+            self.config_manager = ConfigManager()
 
         self._do_not_execute_namespace_keys = [f"{self.env_prefix}_LOGGER", f"{self.env_prefix}_CONSOLE"]
         self.log_time_format = None
 
-        globals()[self.global_name] = {}
         self._init_console(force_init=True)
 
     @staticmethod
@@ -395,6 +426,7 @@ class PawnlibConfig(metaclass=Singleton):
         self.fill_config_from_environment()
         self.set(**kwargs)
         # self._load_config_file()
+        self._config_file = self.get('PAWN_CONFIG_FILE', 'config.ini')  # Set _config_file here
         self._loaded['on_ready'] = True
         self.console.debug(f"🐍 {self.get_python_version()}, ♙ {__title__.title()}/{__version__}, PATH={self.pawnlib_path()}")
         self._load_config_file()
@@ -475,13 +507,17 @@ class PawnlibConfig(metaclass=Singleton):
                 "type": str,
                 "default": self.global_name
             },
+            "USE_GLOBAL_NS": {
+                "type": str,
+                "default": self.use_global_namespace
+            },
             "CONSOLE": {
                 "type": dict,
                 "default": {}
             },
             "LINE": {
-              "type": self.str2bool,
-              "default": True,
+                "type": self.str2bool,
+                "default": True,
             },
             "PATH": {
                 "type": str,
@@ -492,6 +528,10 @@ class PawnlibConfig(metaclass=Singleton):
                 "default": "%H:%M:%S.%f"
             },
         }
+
+        if not self.use_global_namespace:
+            del default_structure['GLOBAL_NAME']
+
         mandatory_environments = list(default_structure.keys())
 
         for environment in mandatory_environments:
@@ -552,9 +592,12 @@ class PawnlibConfig(metaclass=Singleton):
                 pawnlib_config.get("hello")
 
         """
-        if self.global_name in globals():
-            return globals()[self.global_name].get(key, default)
-        return default
+        if self.use_global_namespace:
+            if self.global_name in globals():
+                return globals()[self.global_name].get(key, default)
+            return default
+        else:
+            return self.config_manager.get(key, default)
 
     def set(self, **kwargs):
         """
@@ -586,7 +629,7 @@ class PawnlibConfig(metaclass=Singleton):
             if order_dict.get(priority_key):
                 order_dict.move_to_end(key=priority_key, last=False)
 
-        if self.global_name in globals():
+        if self.global_name in globals() or not self.use_global_namespace:
             for p_key, p_value in order_dict.items():
                 if self._environments.get(p_key, self._none_string) != self._none_string \
                         and self._environments[p_key].get("input"):
@@ -613,7 +656,9 @@ class PawnlibConfig(metaclass=Singleton):
                     self.debug = self.str2bool(p_value)
                     self.console.pawn_debug = self.str2bool(p_value)
                     if self.debug:
-                        rich_traceback_install(show_locals=True, width=160)
+                        if not self._loaded.get('rich_traceback_installed'):
+                            rich_traceback_install(show_locals=True, width=160)
+                            self._loaded['rich_traceback_installed'] = True
                         if self.app_logger:
                             set_debug_logger(self.app_logger)
                 elif p_key == f"{self.env_prefix}_LINE":
@@ -651,7 +696,10 @@ class PawnlibConfig(metaclass=Singleton):
                     #     self.console.log(f"fff => {self.data}")
                     p_value = self.data
 
-                globals()[self.global_name][p_key] = p_value
+                if self.use_global_namespace:
+                    globals()[self.global_name][p_key] = p_value
+                else:
+                    self.config_manager.set(p_key, p_value)
 
     def _check_logger_not_null(self, key, value):
         if type(value).__name__ == "Logger":
@@ -807,8 +855,12 @@ class PawnlibConfig(metaclass=Singleton):
                 tmp_result.remove(value)
                 is_modify = True
             if is_modify:
-                globals()[self.global_name][key] = tmp_result
-                return tmp_result
+
+                if self.use_global_namespace:
+                    globals()[self.global_name][key] = tmp_result
+                    return tmp_result
+                else:
+                    self.config_manager.set(key, tmp_result)
         return init_value
 
     def __str__(self):
@@ -825,12 +877,15 @@ class PawnlibConfig(metaclass=Singleton):
                 print(pawnlib_config.conf().hello) # >>> 'world'
 
         """
-        g = globals()
-        if self.global_name in g:
-            # return nestednamedtuple(g[self.global_name], ignore_keys=self._do_not_execute_namespace_keys)
-            return NestedNamespace(**g[self.global_name])
+        if self.use_global_namespace:
+            g = globals()
+            if self.global_name in g:
+                # return nestednamedtuple(g[self.global_name], ignore_keys=self._do_not_execute_namespace_keys)
+                return NestedNamespace(**g[self.global_name])
+            else:
+                return NestedNamespace()
         else:
-            return NestedNamespace({})
+            return NestedNamespace(**self.config_manager._config)
 
     def to_dict(self) -> dict:
         """Access global configuration as a dict.
@@ -843,11 +898,14 @@ class PawnlibConfig(metaclass=Singleton):
                 print(pawnlib_config.to_dict().get("hello")) # >>> 'world'
 
         """
-        g = globals()
-        if self.global_name in g:
-            return g[self.global_name]
+        if self.use_global_namespace:
+            g = globals()
+            if self.global_name in g:
+                return g[self.global_name]
+            else:
+                return {}
         else:
-            return {}
+            return self.config_manager._config
 
 
 def _list_duplicates(seq):
@@ -867,7 +925,11 @@ def set_debug_logger(logger_name=None, propagate=0, get_logger_name='PAWNS', lev
         __logger.addHandler(logger_name)
 
 
-pawnlib_config = PawnlibConfig(global_name="pawnlib_global_config").init_with_env()
+def create_pawn(use_global_namespace=True) -> PawnlibConfig:
+    return PawnlibConfig(global_name="pawnlib_global_config", use_global_namespace=use_global_namespace).init_with_env()
+
+
+pawnlib_config = create_pawn(use_global_namespace=False)
 pawn = pawnlib_config
 pconf = partial(pawn.conf)
 global_verbose = pawnlib_config.get('PAWN_VERBOSE', 0)

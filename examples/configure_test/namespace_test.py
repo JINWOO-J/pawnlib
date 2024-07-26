@@ -9,6 +9,7 @@ def main():
         data={"aaaa": "bbbb"},
         asdf=NestedNamespace(**{"ssss": 1222})
     )
+    print(pawn.to_dict())
     pawn.console.log(pconf())
     undefined_key = set_namespace_default_value(
         namespace=pconf().data,
