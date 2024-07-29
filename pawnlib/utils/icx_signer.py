@@ -212,14 +212,15 @@ class WalletCli:
         return self._wallet
 
     def create(self, is_store_file=True):
-        PromptWithArgument(
-            message="Enter your private key (default: empty is random)",
-            type="input",
-            default="",
-            argument="private_key",
-            validate=PrivateKeyValidator(allow_none=True),
-            # verbose=0,
-        ).prompt()
+        if hasattr(self._args, "password") and not self._args.password:
+            PromptWithArgument(
+                message="Enter your private key (default: empty is random)",
+                type="input",
+                default="",
+                argument="private_key",
+                validate=PrivateKeyValidator(allow_none=True),
+                # verbose=0,
+            ).prompt()
 
         PromptWithArgument(
             message="Enter password for private key",
