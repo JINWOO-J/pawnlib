@@ -110,7 +110,6 @@ def main():
     if args.sub_command == "wallet":
         args.sub_command = ""
 
-    pawn.console.log(f"args = {args}")
     args.subparser_name = "wallet"
     pawn.set(
         PAWN_DEBUG=args.debug,
@@ -118,6 +117,9 @@ def main():
             args=args
         )
     )
+
+    args.debug and pawn.console.log(f"args = {args}")
+
     pawn.console.log(f"{args.sub_command} wallet".title())
     args.sub_command = PromptWithArgument(
         message="What do you want to do?",
@@ -138,7 +140,7 @@ def main():
         wallet_cli.load()
 
     elif args.sub_command == "create":
-        is_store_file = False  if args.no_store else True
+        is_store_file = not args.no_store
         wallet_cli.create(is_store_file=is_store_file)
 
 
