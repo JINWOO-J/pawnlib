@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-from pawnlib.config import pawnlib_config as pawn
-import time
 import common
-
+from pawnlib.config import pawnlib_config as pawn
 from pawnlib.utils.http import jequest, disable_ssl_warnings, icon_rpc_call, IconRpcHelper, NetworkInfo
 # from pawnlib.utils.icon import rpc_call
 from pawnlib.output import dump, syntax_highlight, print_var

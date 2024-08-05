@@ -221,7 +221,7 @@ class RpcCommand:
     def generate_tx_payload(self):
         self.icon_rpc = IconRpcHelper(network_info=self.network_info)
         pawn.console.log("Fetching Governance SCORE API")
-        _governance_score_api  = self.icon_rpc.get_governance_api()
+        _governance_score_api = self.icon_rpc.get_governance_api()
         self.icon_tpl.update_template(_governance_score_api)
 
         category = None

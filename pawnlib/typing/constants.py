@@ -45,6 +45,63 @@ class TimeStampDigits:
     NANOSECONDS_DIGITS = 19
 
 
+class ICONConstants:
+    ICON_METHODS = {
+        "cx0000000000000000000000000000000000000001": [
+            "getRevision", "getVersion", "getStepPrice", "getStepCosts", "getMaxStepLimit",
+            "getScoreStatus", "acceptScore", "rejectScore", "addAuditor", "removeAuditor", "isInScoreBlackList",
+            "getProposal", "getProposals", "registerProposal", "voteProposal", "applyProposal",
+            "cancelProposal", "onTimer"
+        ],
+        "cx0000000000000000000000000000000000000000": [
+            "disableScore", "enableScore", "acceptScore", "rejectScore", "blockScore", "unblockScore",
+            "getBlockedScores", "blockAccount", "unblockAccount", "isBlocked", "setRevision", "setStepPrice",
+            "setStepCost", "setMaxStepLimit", "getRevision", "getStepPrice", "getStepCost", "getStepCosts",
+            "getMaxStepLimit", "getScoreStatus", "getServiceConfig", "getFeeSharingConfig", "getNetworkInfo",
+            "getIISSInfo", "setStake", "getStake", "setDelegation", "getDelegation", "claimIScore",
+            "queryIScore", "registerPRep", "getPRep", "unregisterPRep", "setPRep", "getPReps", "getMainPReps",
+            "getSubPReps", "setBond", "getBond", "setBonderList", "getBonderList", "estimateUnstakeLockPeriod",
+            "getPRepTerm", "getPRepStats", "getPRepStatsOf", "disqualifyPRep", "burn", "validateRewardFund",
+            "setRewardFund", "setRewardFundAllocation2", "getScoreOwner", "setScoreOwner", "setNetworkScore",
+            "getNetworkScores", "addTimer", "removeTimer", "penalizeNonvoters", "setSlashingRates",
+            "getSlashingRates", "setUseSystemDeposit", "getUseSystemDeposit", "getBTPNetworkTypeID",
+            "getPRepNodePublicKey", "setPRepNodePublicKey", "registerPRepNodePublicKey", "openBTPNetwork",
+            "closeBTPNetwork", "sendBTPMessage", "getMinimumBond", "setMinimumBond", "initCommissionRate",
+            "setCommissionRate", "requestUnjail", "handleDoubleSignReport", "setPRepCountConfig",
+            "getPRepCountConfig", "setBondRequirementRate"
+        ]
+    }
+
+
+class HAVAHConstants:
+    HAVAH_METHODS = {
+        "cx0000000000000000000000000000000000000001": [
+            "setRevision", "setStepPrice", "setStepCost", "setMaxStepLimit", "grantValidator",
+            "revokeValidator", "setTimestampThreshold", "setRoundLimitFactor", "setUSDTPrice",
+            "setUSDTPriceOracle", "getUSDTPriceOracle", "addPlanetManager", "removePlanetManager",
+            "startRewardIssue", "setPrivateClaimableRate", "withdrawLostTo", "registerValidator",
+            "enableValidator", "unregisterValidator", "setBlockVoteCheckParameters", "setActiveValidatorCount",
+            "name", "openBTPNetwork", "delegate", "setDelegate"
+        ],
+        "cx0000000000000000000000000000000000000000": [
+            "setRevision", "setStepPrice", "setStepCost", "setMaxStepLimit", "getRevision",
+            "getStepPrice", "getStepCost", "getStepCosts", "getMaxStepLimit", "getServiceConfig",
+            "getScoreOwner", "setScoreOwner", "setRoundLimitFactor", "getRoundLimitFactor", "setUSDTPrice",
+            "getUSDTPrice", "getIssueInfo", "startRewardIssue", "addPlanetManager", "removePlanetManager",
+            "isPlanetManager", "registerPlanet", "unregisterPlanet", "setPlanetOwner", "getPlanetInfo",
+            "reportPlanetWork", "claimPlanetReward", "getRewardInfoOf", "getRewardInfo",
+            "setPrivateClaimableRate", "getPrivateClaimableRate", "addDeployer", "removeDeployer", "isDeployer",
+            "getDeployers", "setTimestampThreshold", "getTimestampThreshold", "grantValidator",
+            "revokeValidator", "getValidators", "getRewardInfosOf", "withdrawLostTo", "getLost",
+            "getBTPNetworkTypeID", "getBTPPublicKey", "openBTPNetwork", "closeBTPNetwork", "sendBTPMessage",
+            "setBTPPublicKey", "setBlockVoteCheckParameters", "getBlockVoteCheckParameters",
+            "registerValidator", "unregisterValidator", "getNetworkStatus", "setValidatorInfo",
+            "setNodePublicKey", "enableValidator", "getValidatorInfo", "getValidatorStatus",
+            "setActiveValidatorCount", "getActiveValidatorCount", "getValidatorsOf", "getValidatorsInfo",
+            "getDisqualifiedValidatorsInfo"
+        ]
+    }
+
 
 class AllConstants(
     TimeConstants,
@@ -52,6 +109,8 @@ class AllConstants(
     NumericConstants,
     AddressConstants,
     TimeStampDigits,
+    ICONConstants,
+    HAVAHConstants
 ):
     __slots__ = ()
 
