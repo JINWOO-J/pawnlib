@@ -597,13 +597,25 @@ class IconRpcHelper:
 
     def _set_governance_address(self, method=None):
         if self.network_info and not self.governance_address:
-            if self.network_info.platform == "havah":
-                self.governance_address = const.CHAIN_SCORE_ADDRESS if method and method.startswith("get") else const.GOVERNANCE_ADDRESS
-            # else:  # ICON
-            #     self.governance_address = const.CHAIN_SCORE_ADDRESS
+            if self.network_info.platform == "havah" and method and method.startswith("get"):
+                self.governance_address = const.CHAIN_SCORE_ADDRESS
+            else:
+                self.governance_address = const.GOVERNANCE_ADDRESS
 
         # If governance_address is still not set, default to GOVERNANCE_ADDRESS
         self.governance_address = self.governance_address or const.CHAIN_SCORE_ADDRESS
+
+    def _set_governance_address_with_const(self, method):
+        rpc_api_methods = {}
+        if self.network_info.platform == "havah":
+            rpc_api_methods = const.HAVAH_METHODS
+        elif self.network_info.platform == "icon":
+            rpc_api_methods = const.ICON_METHODS
+
+        if rpc_api_methods:
+            for score_address, score_methods in rpc_api_methods.items():
+                if method in score_methods:
+                    self.governance_address = score_address
 
     def _decorator_enforce_kwargs(func):
         def from_kwargs(self, *args, **kwargs):
@@ -769,7 +781,7 @@ class IconRpcHelper:
         if governance_address:
             self.governance_address = governance_address
         else:
-            self._set_governance_address(method=method)
+            self._set_governance_address_with_const(method=method)
 
         if sign is not None:
             self._can_be_signed = sign
@@ -957,7 +969,7 @@ class IconRpcHelper:
         error = self.response.get('error')
         if error:
             self.exit_on_failure(error)
-            return 0
+            return []
         return response.get('result', [])
 
     @staticmethod
@@ -976,8 +988,12 @@ class IconRpcHelper:
             formatted_data[name] = f"{default}({data_type})"
         return formatted_data
 
-    def _convert_score_api_to_params(self, data=[], address=""):
-        result = {}
+    def _convert_score_api_to_params(self, data=[], address="", return_method_only=False):
+        if return_method_only:
+            result = []
+        else:
+            result = {}
+
         for _input in data:
             if _input.get('type') != "function":
                 continue
@@ -985,30 +1001,33 @@ class IconRpcHelper:
             method = "icx_call" if _input.get('readonly') == "0x1" else "icx_sendTransaction"
             score_method = _input.get('name')
 
-            result[score_method] = dict(
-                method=method,
-                params=dict(
-                    dataType="call",
-                    to=address,
-                    data=dict(
-                        method=score_method,
-                        params=self.name_to_params(_input.get('inputs'))
-                    )
-                ),
-                params_hint=self.make_params_hint(_input.get('inputs'))
-            )
+            if return_method_only:
+                result.append(score_method)
+            else:
+                result[score_method] = dict(
+                    method=method,
+                    params=dict(
+                        dataType="call",
+                        to=address,
+                        data=dict(
+                            method=score_method,
+                            params=self.name_to_params(_input.get('inputs'))
+                        )
+                    ),
+                    params_hint=self.make_params_hint(_input.get('inputs'))
+                )
 
-            if method == "icx_sendTransaction" and _input.get('payable') != "0x1":
-                result[score_method]['params']['value'] = "0x0"
+                if method == "icx_sendTransaction" and _input.get('payable') != "0x1":
+                    result[score_method]['params']['value'] = "0x0"
             # pawn.console.log(f"{_input.get('type')} {score_method} , {_input.get('inputs')}, {_input.get('readonly')}")
         return result
 
-    def get_governance_api(self, url=None):
+    def get_governance_api(self, url=None, return_method_only=False):
         self.score_api = {}
         for address in [const.GOVERNANCE_ADDRESS, const.CHAIN_SCORE_ADDRESS]:
             _api_result = self.get_score_api(address=address, url=url)
             if _api_result:
-                self.score_api[address] = self._convert_score_api_to_params(_api_result, address=address)
+                self.score_api[address] = self._convert_score_api_to_params(_api_result, address=address, return_method_only=return_method_only)
 
         return self.score_api
 
