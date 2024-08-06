@@ -130,7 +130,8 @@ def main():
             block_size_kb=args.block_size_kb,
             num_threads=args.num_threads,
             io_pattern=args.io_pattern,
-            debug=args.verbose > 1
+            debug=args.verbose > 1,
+            additional_info={"args": argument_dict}
         )
         tester.console.log(f'Measuring write and read speed for {args.file_size_mb}MB with {args.block_size_kb}KB block size, {args.iterations} iterations, {args.num_threads} threads, {args.io_pattern} I/O pattern...')
         tester.run_parallel_tests()
