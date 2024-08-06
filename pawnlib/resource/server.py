@@ -1085,6 +1085,7 @@ class DiskPerformanceTester:
     :param decimal_places: Number of decimal places for results.
     :param console: Console object for logging.
     :param debug: Flag to enable debug logging.
+    :param additional_info: Additional info for result file
 
     Example:
 
@@ -1101,7 +1102,7 @@ class DiskPerformanceTester:
             tester.cleanup_and_exit()
     """
 
-    def __init__(self, file_path, file_size_mb, iterations=5, block_size_kb=1024, num_threads=1, io_pattern="sequential", decimal_places=2, console=None, debug=False):
+    def __init__(self, file_path, file_size_mb, iterations=5, block_size_kb=1024, num_threads=1, io_pattern="sequential", decimal_places=2, console=None, debug=False, additional_info=None):
         self.base_file_path = file_path
         self.file_size_mb = file_size_mb
         self.iterations = iterations
@@ -1117,6 +1118,7 @@ class DiskPerformanceTester:
         self.average_read_speed = 0
         self.test_files = []  # List to track generated test files
         self.debug = debug
+        self.additional_info = additional_info
         if console:
             self.console = console
         else:
@@ -1346,6 +1348,9 @@ class DiskPerformanceTester:
             "resource_usages":
                 {"cpu_load": self.cpu_load}
         }
+        if self.additional_info:
+            results["additional_info"] = self.additional_info
+
         with open("disk_performance_results.json", "w") as f:
             json.dump(results, f, indent=4)
         self.console.log("Results saved to disk_performance_results.json")
