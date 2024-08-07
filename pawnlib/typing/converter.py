@@ -1580,6 +1580,35 @@ def long_to_bytes(val, endianness='big'):
     return s
 
 
+class PrettyOrderedDict(OrderedDict):
+    """
+     A subclass of OrderedDict that provides a pretty string representation.
+
+     Example:
+
+         .. code-block:: python
+
+            from pawnlib.typing.converter import PrettyOrderedDict
+
+             pod = PrettyOrderedDict()
+             pod['one'] = 1
+             pod['two'] = 2
+             pod['three'] = 3
+
+             print(pod)
+             # >> {'one': 1, 'two': 2, 'three': 3}
+
+             repr(pod)
+             # >> "{'one': 1, 'two': 2, 'three': 3}"
+
+     """
+    def __repr__(self):
+        return '{' + ', '.join(f'{repr(k)}: {repr(v)}' for k, v in self.items()) + '}'
+
+    def __str__(self):
+        return self.__repr__()
+
+
 def ordereddict_to_dict(obj, reverse=False):
     """
     Change the order of the keys in the dictionary.
@@ -1593,6 +1622,7 @@ def ordereddict_to_dict(obj, reverse=False):
         .. code-block:: python
 
             from collections import OrderedDict
+            from pawnlib.typing.converter import ordereddict_to_dict
 
             # Create an ordered dictionary
             od = OrderedDict([('c', 3), ('b', 2), ('a', 1)])
@@ -2418,6 +2448,17 @@ def snake_case(s):
         re.sub('([A-Z][a-z]+)', r' \1',
                re.sub('([A-Z]+)', r' \1',
                       s.replace('-', ' '))).split()).lower()
+
+
+def snake_case_to_title_case(s, separator=' '):
+    """
+    Convert a snake_case string to Title Case with a specified separator.
+
+    :param s: The input snake_case string to convert.
+    :param separator: The separator to use between words. Default is a space.
+    :return: The converted string in Title Case with the specified separator.
+    """
+    return separator.join(word.capitalize() for word in s.split('_'))
 
 
 def camel_case_to_lower_case(s):

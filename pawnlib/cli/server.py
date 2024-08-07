@@ -4,12 +4,14 @@ from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
 import os
-from pawnlib.typing import str2bool, StackList, remove_tags, dict_to_line
-from pawnlib.output import write_json, print_grid, print_var
+from pawnlib.typing import str2bool, StackList, remove_tags, dict_to_line, flatten
+from pawnlib.output import write_json, print_grid, print_var, get_color_by_threshold
 from rich.tree import Tree
 from copy import deepcopy
+from rich.table import Table
+from rich.panel import Panel
 
-from pawnlib.resource import DiskPerformanceTester
+from pawnlib.resource.server import DiskPerformanceTester, FileSystemTester, get_platform_info, DiskUsage, get_cpu_load, get_iowait
 
 __description__ = "This command is used to check and verify the server’s resources."
 
@@ -37,10 +39,19 @@ def get_arguments(parser):
     parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
     parser.add_argument('--file-path', type=str, default='testfile', help='Path to the test file')
     parser.add_argument('--file-size-mb', type=int, default=1024, help='Size of the test file in MB')
-    parser.add_argument('--iterations', type=int, default=5, help='Number of iterations for testing')
+    parser.add_argument('-i', '--iterations', type=int, default=5, help='Number of iterations for testing')
     parser.add_argument('--block-size-kb', type=int, default=1024, help='Block size in KB')
     parser.add_argument('-n', '--num-threads', type=int, default=1, help='Number of parallel threads')
+    parser.add_argument('--count', type=int, default=1000, help='Number of file')
     parser.add_argument('--io-pattern', type=str, choices=['sequential', 'random'], default='sequential', help='I/O pattern: sequential or random')
+    parser.add_argument(
+        '-w', '--write-file',
+        type=str,
+        nargs='?',
+        const='performance_test.json',
+        help='Write the output to a file. Default file is "performance_test.json". If a filename is provided, it will be used instead.',
+        default=None
+    )
     return parser
 
 
@@ -79,6 +90,92 @@ def create_argument_dict(namespace, all_arguments):
 def print_unless_quiet_mode(message=""):
     if not pconf().args.quiet:
         pawn.console.print(message)
+
+
+def run_disk_performance_test(args):
+    disk_tester = DiskPerformanceTester(
+        file_path=args.file_path,
+        file_size_mb=args.file_size_mb,
+        iterations=args.iterations,
+        block_size_kb=args.block_size_kb,
+        num_threads=args.num_threads,
+        io_pattern=args.io_pattern,
+        verbose=args.verbose > 1,
+    )
+    disk_tester.console.log(f'Measuring write and read speed for {args.file_size_mb}MB with {args.block_size_kb}KB block size, {args.iterations} iterations, {args.num_threads} threads, {args.io_pattern} I/O pattern...')
+    test_results = disk_tester.run_parallel_tests()
+    test_results["resource_usages"] = get_cpu_load()
+    disk_tester.print_summary()
+
+    return test_results
+
+
+def run_filesystem_performance_test(args):
+    fs_tester = FileSystemTester(
+        test_dir=args.file_path,
+        file_count=args.count,
+        file_size=args.file_size_mb,
+        iterations=args.iterations,
+        verbose=args.verbose > 1
+    )
+    test_results = fs_tester.run_tests()
+    test_results["resource_usages"] = get_cpu_load()
+    return test_results
+
+
+def display_system_info(system_info):
+    tree = Tree("[bold blue]🖥️ System Information[/bold blue]")
+
+    for key, value in system_info.items():
+        if key == "disk_usages":
+            disk_usages_tree = tree.add("[bold green]💾 Disk Usages[/bold green]")
+            for mount_point, usage in value.items():
+                # disk_usages_tree.add(
+                #     f"{mount_point}: [yellow]Total[/yellow]: {usage['total']} {usage['unit']}, "
+                #     f"[red]Used[/red]: {usage['used']} {usage['unit']}, [green]Free[/green]: {usage['free']} {usage['unit']}, "
+                #     f"[magenta]Percent Used[/magenta]: {usage['percent']}%"
+                # )
+                color,  percent = get_color_by_threshold(usage['percent'], return_tuple=True)
+                usage_line = f"[{color}]{usage['used']:>7} / {usage['total']:>7} {usage['unit']} ({percent}%) [/{color}]"
+                disk_usages_tree.add(f"{mount_point:>10} : {usage_line}")
+
+        elif key == "arguments":
+            pass
+            # arguments_tree = tree.add("[bold cyan]⚙️ Arguments[/bold cyan]")
+            # for arg, arg_value in value.items():
+            #     arguments_tree.add(f"{arg}: {arg_value}")
+        else:
+            tree.add(f"{key.replace('_', ' ').title()}: {value}")
+
+    pawn.console.print(Panel(tree, title="🖥️ [bold blue]System Information[/bold blue]"))
+
+
+def display_performance_results(disk_performance_result=None, filesystem_performance_result=None):
+    tree = Tree("[bold blue]📊 Performance Results[/bold blue]")
+
+    if disk_performance_result:
+        disk_perf_tree = tree.add("[bold yellow]💽 Disk Performance[/bold yellow]")
+        disk_perf_tree.add(f"Write Speeds (MB/s): {disk_performance_result['write_speeds']}")
+        disk_perf_tree.add(f"Average Write Speed (MB/s): {disk_performance_result['average_write_speed']}")
+        disk_perf_tree.add(f"Read Speeds (MB/s): {disk_performance_result['read_speeds']}")
+        disk_perf_tree.add(f"Average Read Speed (MB/s): {disk_performance_result['average_read_speed']}")
+
+        resource_usages_tree = disk_perf_tree.add("[bold magenta]🔧 Resource Usages[/bold magenta]")
+        for period, load in disk_performance_result['resource_usages'].items():
+            resource_usages_tree.add(f"{period}: {load}")
+
+    if filesystem_performance_result:
+        fs_perf_tree = tree.add("[bold green]🗄️ Filesystem Performance[/bold green]")
+        for key, value in filesystem_performance_result.items():
+            if key != "resource_usages":
+                fs_perf_tree.add(f"{key.replace('_', ' ').title()}: {value}")
+
+        fs_resource_usages_tree = fs_perf_tree.add("[bold magenta]🔧 Resource Usages[/bold magenta]")
+        for period, load in filesystem_performance_result['resource_usages'].items():
+            fs_resource_usages_tree.add(f"{period}: {load}")
+
+    if tree:
+        pawn.console.print(Panel(tree, title="📊 [bold blue]Performance Results[/bold blue]"))
 
 
 def main():
@@ -122,21 +219,47 @@ def main():
 
     print_grid(argument_dict, title="Arguments", key_prefix="", key_ratio=2)
 
+    test_results = {
+        "system_info": get_platform_info(
+            **dict(
+                disk_usages=DiskUsage().get_disk_usage('all'),
+                arguments=argument_dict
+            )
+        ),
+    }
+
     if args.command == "disk":
-        tester = DiskPerformanceTester(
-            file_path=args.file_path,
-            file_size_mb=args.file_size_mb,
-            iterations=args.iterations,
-            block_size_kb=args.block_size_kb,
-            num_threads=args.num_threads,
-            io_pattern=args.io_pattern,
-            debug=args.verbose > 1,
-            additional_info={"args": argument_dict}
-        )
-        tester.console.log(f'Measuring write and read speed for {args.file_size_mb}MB with {args.block_size_kb}KB block size, {args.iterations} iterations, {args.num_threads} threads, {args.io_pattern} I/O pattern...')
-        tester.run_parallel_tests()
+        test_results["disk_performance_result"] = run_disk_performance_test(args)
+    elif args.command == "fs":
+        test_results["filesystem_performance_result"] = run_filesystem_performance_test(args)
+    elif args.command == "check":
+        test_results["disk_performance_result"] = run_disk_performance_test(args)
+        test_results["filesystem_performance_result"] = run_filesystem_performance_test(args)
     else:
         parser.error(f"'{args.command}' command not found")
+
+    # print_grid(flatten(test_results), key_ratio=4, is_value_type=False)
+    # pawn.console.log(test_results)
+
+    # Display all information
+    display_system_info(test_results['system_info'])
+    display_performance_results(test_results.get('disk_performance_result'), test_results.get('filesystem_performance_result'))
+
+    if args.write_file:
+        write_res = write_json(filename=args.write_file, data=test_results)
+        pawn.console.log(write_res)
+
+    # if test_results.get('system_info'):
+    #     pawn.console.rule("System Information")
+    #     display_system_info(test_results['system_info'])
+    #
+    # if test_results.get('disk_performance_result'):
+    #     pawn.console.rule("Disk Performance Result")
+    #     display_disk_performance(test_results['disk_performance_result'])
+    #
+    # if test_results.get('filesystem_performance_result'):
+    #     pawn.console.rule("Filesystem Performance Result")
+    #     display_filesystem_performance(test_results['filesystem_performance_result'])
 
 
 if __name__ == '__main__':

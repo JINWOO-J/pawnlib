@@ -88,11 +88,11 @@ class CriticalText:
             "usr": 80,
             "sys": 80,
             "mem_used": 99.5,
-            "disk_read":  100,
-            "disk_write":  100,
+            "disk_rd":  400,
+            "disk_wr":  400,
             "load":  int(cores),
             "i/o":  int(cores) * 2,
-            "cached":  10,
+            # "cached":  10,
         }
         self.warning_percent = warning_percent
         self.medium_percent = medium_percent
@@ -247,7 +247,7 @@ def print_live_type_status(table_title="",  system_info={}, system_monitor: Syst
             data = get_resources_status(system_monitor=system_monitor)
             line = []
             for column_key, value in data.items():
-                table.add_column(column_key, justify='right' )
+                table.add_column(column_key, justify='right')
                 line.append(CriticalText(column_key, value, cores=system_info.get('cores', 1)).return_text())
             lines.append(line)
 
@@ -274,8 +274,7 @@ def get_resources_status(system_monitor: SystemMonitor = None, args=None):
         time.sleep(args.interval)
     else:
         memory = system_monitor.get_memory_status()
-        network, cpu, disk = system_monitor.get_network_cpu_status()
-        # memory_unit = memory.get('unit').replace('B', "")w
+        network, cpu, disk = system_monitor.collect_system_status()
         memory_unit = memory.get('unit')
 
         data = {
@@ -287,11 +286,10 @@ def get_resources_status(system_monitor: SystemMonitor = None, args=None):
             "load": f"{get_cpu_load()['1min']}",
             "usr": f"{cpu.get('usr')}%",
             "sys": f"{cpu.get('sys')}%",
-            "i/o": f"{cpu.get('io_wait')}",
-            "disk_read":  f"{disk['total'].get('read_mb')}M",
-            "disk_write":  f"{disk['total'].get('write_mb')}M",
+            "i/o": f"{cpu.get('io_wait'):.2f}",
+            "disk_rd": f"{disk['Total'].get('read_mb')}M",
+            "disk_wr": f"{disk['Total'].get('write_mb')}M",
             "mem_total": f"{memory.get('total'):.1f}{memory_unit}",
-            # "mem_used": f"{memory.get('percent')}%",
             "mem_free": f"{memory.get('free'):.1f}{memory_unit}",
             "cached": f"{memory.get('cached'):.1f}{memory_unit}",
         }
