@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+from pawnlib.config import pawnlib_config as pawn
+from pawnlib.output import dump, get_script_path, debug_logging
+{% if use_daemon == true -%}
+import sys
+import time
+from pawnlib.utils.operate_handler import Daemon
+{% endif %}
+
+__version = "0.0.1"
+
+
+{% if banner -%}
+def print_banner():
+    {%- for banner_string in banner %}
+    print(f'{{banner_string}}')
+    {%- endfor %}
+{%- endif %}
+
+
+def main():
+    app_name = "{{ app_name }}"
+    log_time_format = '%Y-%m-%d %H:%M:%S.%f'
+    current_path = get_script_path(__file__)
+    stdout = True
+    pawn.set(
+        PAWN_PATH=current_path,
+        PAWN_LOGGER=dict(
+            log_level="INFO",
+            stdout_level="INFO",
+            log_path=f"{current_path}/logs",
+            stdout=stdout,
+            use_hook_exception=True,
+        ),
+        PAWN_TIME_FORMAT=log_time_format,
+        PAWN_CONSOLE=dict(
+            redirect=True,
+            record=True
+        ),
+        PAWN_DEBUG=True, # Don't use production, because it's not stored exception log.
+        app_name=app_name,
+        data={}
+    )
+
+    pawn.app_logger.info("App logger initializing")
+    pawn.error_logger.debug("Debug logger initializing")
+    pawn.error_logger.error("Error logger initializing")
+    pawn.console.log(pawn.to_dict())
+
+    debug_logging(pawn.to_dict())
+    dump(pawn.to_dict())
+
+    {% if use_daemon == true -%}
+    while True:
+        # MainLoop
+        print("This is Daemon")
+        time.sleep(1)
+    {% endif %}
+
+
+if __name__ == "__main__":
+    try:
+        {%- if banner %}
+        print_banner()
+        {%- endif %}
+        {%- if use_daemon == true %}
+        if len(sys.argv) != 2:
+            print("Invalid argument [start/stop]")
+            sys.exit()
+        command = sys.argv[1]
+        daemon = Daemon(
+            pidfile="/tmp/{{app_name}}.pid",
+            func=main
+        )
+        if command == "start":
+            daemon.start()
+        elif command == "stop":
+            daemon.stop()
+        else:
+            print("Command not found [start/stop]")
+        {%- else %}
+        main()
+        {% endif %}
+    except KeyboardInterrupt:
+        pawn.console.log("Keyboard Interrupted")
+    except Exception as e:
+        pawn.console.print_exception(
+            show_locals=pawn.get("PAWN_DEBUG", False),
+            width=160
+        )
+
+
