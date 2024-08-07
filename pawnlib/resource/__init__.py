@@ -21,6 +21,7 @@ from .server import (
     get_rlimit_nofile,
     get_platform_info,
     get_cpu_load,
+    get_iowait,
     get_mem_info,
     get_uptime_cmd,
     get_total_memory_usage,
@@ -30,5 +31,6 @@ from .server import (
     get_aws_metadata,
     aws_data_crawl,
     get_netstat_count,
+    DiskUsage,
     DiskPerformanceTester,
 )

@@ -1631,7 +1631,7 @@ def style_value(value):
         return f"[white]{value}[/white]"
 
 
-def create_kv_table(padding=0, key_ratio=2, value_ratio=7):
+def create_kv_table(padding=0, key_ratio=2, value_ratio=7, overflow="fold"):
     table = Table(
         padding=padding,
         pad_edge=False,
@@ -1640,24 +1640,42 @@ def create_kv_table(padding=0, key_ratio=2, value_ratio=7):
         show_footer=False,
         show_edge=False,
         show_lines=False,
-        box=None
+        box=None,
     )
 
-    table.add_column("Key", no_wrap=False, justify="left", style="bold yellow", min_width=padding, ratio=key_ratio)
+    table.add_column("Key", no_wrap=False, justify="left", style="bold yellow", min_width=padding, ratio=key_ratio, overflow=overflow)
     table.add_column("Separator", no_wrap=False, justify="left", width=3)
-    table.add_column("Value", no_wrap=True, justify="left", ratio=value_ratio, max_width=50)
+    table.add_column("Value", no_wrap=True, justify="left", ratio=value_ratio, max_width=50, overflow=overflow)
     table.add_column("Debug Info", justify="right", style="grey84")
 
     return table
 
 
+# def get_pretty_value(value):
+#     if isinstance(value, (dict, list)):
+#         pawn.console.log(value)
+#         return Syntax(json.dumps(value, indent=4), "json", theme="material", line_numbers=False)
+#     else:
+#         if value and is_json(value):
+#             __loaded_json = json.loads(value)
+#             return Pretty(json.loads(value))
+#         return value
+
+
 def get_pretty_value(value):
     if isinstance(value, (dict, list)):
-        return Syntax(json.dumps(value, indent=4), "json", theme="material", line_numbers=False)
+        pawn.console.log(value)
+        pretty_value = Pretty(value, expand_all=True)
+        with pawn.console.capture() as capture:
+            pawn.console.print(pretty_value)
+        return capture.get()
     else:
         if value and is_json(value):
             __loaded_json = json.loads(value)
-            return Pretty(json.loads(value))
+            pretty_value = Pretty(__loaded_json, expand_all=True)
+            with pawn.console.capture() as capture:
+                pawn.console.print(pretty_value)
+            return capture.get()
         return value
 
 
@@ -1693,7 +1711,7 @@ def print_kv(key="", value="", symbol="░",  separator=":", padding=1, key_rati
 
 
 def print_grid(data: dict = None, title="", symbol="░", separator=":",  padding=0, key_ratio=1, value_ratio=7,
-               key_prefix="", key_postfix="", value_prefix="", value_postfix=""):
+               key_prefix="", key_postfix="", value_prefix="", value_postfix="", is_value_type=True):
     """
     Print a grid layout with a title and optional padding and edge padding.
 
@@ -1709,6 +1727,7 @@ def print_grid(data: dict = None, title="", symbol="░", separator=":",  paddin
     :param key_postfix: A postfix to add to each key. Default is an empty string.
     :param value_prefix: A prefix to add to each value. Default is an empty string.
     :param value_postfix: A postfix to add to each value. Default is an empty string.
+    :param is_value_type: Flag to indicate if value type should be displayed.
 
 
     Example:
@@ -1731,7 +1750,10 @@ def print_grid(data: dict = None, title="", symbol="░", separator=":",  paddin
         return
 
     for key, value in data.items():
-        value_info = f"{type(value).__name__}[bright_black]({converter.get_value_size(value)})[/bright_black]"
+        if is_value_type:
+            value_info = f"{type(value).__name__}[bright_black]({converter.get_value_size(value)})[/bright_black]"
+        else:
+            value_info = ""
         table.add_row(
             f"{symbol} {key_prefix}{key}{key_postfix}",
             f"[grey69] {separator} [/grey69]",
@@ -1830,3 +1852,37 @@ class NoTraceBackException(Exception):
         self.args = "<{0.__name__}> {1}".format(type(self), msg),
         # ex_type, ex_value, traceback = sys.exc_info()
         raise Exception(self)
+
+
+def get_color_by_threshold(value, limit=100, unit="", thresholds=None, return_tuple=False):
+    """
+    Determine the color based on the value and thresholds.
+
+    :param value: The value to be evaluated.
+    :param limit: The limit to compare the value against. Default is 100.
+    :param unit: The unit to append to the value. Default is an empty string.
+    :param thresholds: A dictionary defining the thresholds and their corresponding colors.
+                       The keys are the threshold values (as a fraction of the limit) and the values are the colors.
+                       Example: {0.9: "red", 0.8: "orange1", 0.7: "yellow"}
+                       Default is {0.9: "red", 0.8: "orange1", 0.7: "yellow", 0.0: "white"}.
+    :param return_tuple: If True, returns a tuple (color, formatted_value). Default is False.
+    :return: If return_tuple is False, returns a formatted string in rich text format.
+             If return_tuple is True, returns a tuple (color, formatted_value).
+    """
+    if thresholds is None:
+        thresholds = {0.9: "red", 0.8: "orange1", 0.7: "yellow", 0.0: "white"}
+
+    percent = value / limit if limit != 0 else 0
+
+    color = "green"
+    for threshold, threshold_color in sorted(thresholds.items(), reverse=True):
+        if percent >= threshold:
+            color = threshold_color
+            break
+
+    formatted_value = f"{value}{unit}"
+
+    if return_tuple:
+        return color, formatted_value
+    else:
+        return f"[{color}]{formatted_value}[/{color}]"

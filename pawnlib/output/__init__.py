@@ -54,5 +54,6 @@ from .color_print import (
     get_colorful_object,
     syntax_highlight,
     ProgressTime,
-    NoTraceBackException
+    NoTraceBackException,
+    get_color_by_threshold
 )

@@ -5,9 +5,9 @@ from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
 import os
 from pawnlib.typing import str2bool, StackList, remove_tags, dict_to_line
-from pawnlib.output import write_json
+from pawnlib.output import write_json, get_color_by_threshold
 from rich.tree import Tree
-from pawnlib.resource import get_interface_ips, get_public_ip, get_hostname, get_platform_info, get_rlimit_nofile, get_mem_info, get_location
+from pawnlib.resource import get_interface_ips, get_public_ip, get_hostname, get_platform_info, get_rlimit_nofile, get_mem_info, get_location, DiskUsage
 
 __description__ = "This command displays server resource information."
 
@@ -41,12 +41,20 @@ def get_parser():
 
 
 def get_arguments(parser):
-    parser.add_argument('url', help='url', type=str, nargs='?', default="")
+    # parser.add_argument('url', help='url', type=str, nargs='?', default="")
     parser.add_argument('-c', '--config-file', type=str, help='config', default="config.ini")
     parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level (default: %(default)s)', default=1)
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
     parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
-    parser.add_argument("--output-file", "-o", type=str, help="The name of the file to write the output to.", default="", )
+    # parser.add_argument( "-o", "--output-file", type=str, help="The name of the file to write the output to.", default="", )
+    parser.add_argument(
+        '-w', '--write-file',
+        type=str,
+        nargs='?',
+        const='resource_info.json',
+        help='Write the output to a file. Default file is "resource_info.json". If a filename is provided, it will be used instead.',
+        default=None
+    )
     return parser
 
 
@@ -110,6 +118,7 @@ def main():
     result = {
         "system": {},
         "network": {},
+        "disk": {},
     }
 
     system_tree = Tree("[bold]🖥️  System Information[/bold]")
@@ -151,10 +160,23 @@ def main():
                 ipaddr = f"{ipaddr}[/on #050B27]"
             local_tree.add(f"[bold]{interface:<{longest_length+1}}[/bold]: {ipaddr}")
         print_unless_quiet_mode(network_tree)
+        print_unless_quiet_mode("")
 
-        if args.output_file:
-            write_res = write_json(filename=args.output_file, data=result)
-            pawn.console.log(write_res)
+    disk_usage = DiskUsage()
+    disk_usage_result = disk_usage.get_disk_usage("all")
+    result['disk'] = disk_usage_result
+
+    disk_tree = Tree("[bold]💾 Disk Usage[/bold]")
+    for mount_point, usage in disk_usage_result.items():
+        color,  percent = get_color_by_threshold(usage['percent'], return_tuple=True)
+        usage_line = f"[{color}]{usage['used']:>7} / {usage['total']:>7} {usage['unit']} ({percent}%) [/{color}]"
+        disk_tree.add(f"[bold blue]{mount_point:<11}[/bold blue]: {usage_line}")
+
+    print_unless_quiet_mode(disk_tree)
+
+    if args.write_file:
+        write_res = write_json(filename=args.write_file, data=result)
+        pawn.console.log(write_res)
 
 
 if __name__ == '__main__':

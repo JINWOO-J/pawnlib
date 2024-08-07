@@ -7,17 +7,24 @@ import re
 from pawnlib.utils import http
 from pawnlib.typing import is_valid_ipv4, split_every_n
 from pawnlib.config import pawn
+from pawnlib.output import print_grid
 from typing import Callable
 from collections import OrderedDict, defaultdict
+from pawnlib.typing.converter import PrettyOrderedDict, dict_to_line
+
+import shutil
+import random
+import string
 
 import socket
 import fcntl
 import struct
 import statistics
 from concurrent.futures import ThreadPoolExecutor
-from rich.progress import Progress, TaskID, TextColumn, BarColumn, TimeRemainingColumn
+from rich.progress import Progress, TaskID, TextColumn, BarColumn, TimeRemainingColumn, TimeElapsedColumn
+from rich.table import Table
 import json
-from pawnlib.typing import dict_to_line
+
 import signal
 
 
@@ -365,95 +372,92 @@ def get_default_route_and_interface_macos():
 
 class SystemMonitor:
     def __init__(self, interval=1, proc_path="/proc"):
+        if interval <= 0:
+            raise ValueError("Interval must be a positive number greater than 0")
+
         self.interval = interval
         self.proc_path = proc_path
-        self.instance_data_total = []
         self.prev_net_data = self.parse_net_dev()
         self.prev_cpu_data = self.parse_cpu_stat()
         self.prev_disk_stats = self.read_disk_stats()
 
-        if self.interval < 0:
-            raise ValueError("Interval must be positive number or greater than 0")
-
-        self.last_data = {
-            "cpu": {},
-            "network": {},
-        }
-
-    # @staticmethod
-    # def read_net_dev_file():
-    #     with open("/proc/net/dev") as f:
-    #         lines = f.readlines()
-    #     return lines
+    def read_stats_file(self, filename=""):
+        with open(filename) as f:
+            return f.readlines()
 
     def parse_net_dev(self):
         lines = self.read_stats_file(f"{self.proc_path}/net/dev")
         data = {}
         for line in lines[2:]:
-            line = line.split()
-            iface = line[0].strip(':')
+            parts = line.split()
+            iface = parts[0].strip(':')
             if iface == "lo" or iface.startswith("sit"):
                 continue
             data[iface] = {
-                'received': int(line[1]),
-                'sent': int(line[9]),
-                'packets_recv': int(line[2]),
-                'packets_sent': int(line[10]),
+                'recv': int(parts[1]),
+                'sent': int(parts[9]),
+                'packets_recv': int(parts[2]),
+                'packets_sent': int(parts[10]),
             }
         return data
 
-    def get_network_cpu_status(self):
+    def parse_cpu_stat(self):
+        for line in self.read_stats_file(f"{self.proc_path}/stat"):
+            if line.startswith("cpu "):
+                values = line.split()[1:]
+                return list(map(int, values))
+
+    def get_cpu_status(self, decimal=1):
+        end_values = self.parse_cpu_stat()
+        start_values = self.prev_cpu_data
+        self.prev_cpu_data = end_values
+
+        diff = [end - start for start, end in zip(start_values, end_values)]
+        total_diff = sum(diff)
+
+        us_percent = 100 * diff[0] / total_diff
+        sy_percent = 100 * diff[2] / total_diff
+        id_percent = 100 * diff[3] / total_diff
+        io_wait = 100 * diff[4] / total_diff
+
+        return {
+            'usr': round(us_percent, decimal),
+            'sys': round(sy_percent, decimal),
+            'idle': round(id_percent, decimal),
+            'io_wait': round(io_wait, decimal)
+        }
+
+    def collect_system_status(self):
         time.sleep(self.interval)
-        cpu_status = self.get_cpu_status(period=0)
-        network_status = self.get_network_status(period=0)
+        cpu_status = self.get_cpu_status()
+        network_status = self.get_network_status()
         disk_stats = self.get_disk_usage()
         return network_status, cpu_status, disk_stats
 
-    def get_network_status(self, period=1):
-        time.sleep(period)
+    def get_network_status(self):
         curr_net_data = self.parse_net_dev()
+        interface_data = OrderedDict()
+        total_received = total_sent = total_packets_recv = total_packets_sent = 0
 
-        total_received = 0
-        total_sent = 0
-        total_packets_recv = 0
-        total_packets_sent = 0
+        for iface, curr in curr_net_data.items():
+            prev = self.prev_net_data.get(iface)
+            if prev:
+                diff_recv = (curr['recv'] - prev['recv']) * 8 / 1_000_000 / self.interval  # Bytes to Mb
+                diff_sent = (curr['sent'] - prev['sent']) * 8 / 1_000_000 / self.interval  # Bytes to Mb
+                diff_packets_recv = curr['packets_recv'] - prev['packets_recv']
+                diff_packets_sent = curr['packets_sent'] - prev['packets_sent']
 
-        interface_data = OrderedDict({})
-        for iface in curr_net_data:
-            if self.prev_net_data.get(iface):
-                prev_received = self.prev_net_data[iface]['received']
-                prev_sent = self.prev_net_data[iface]['sent']
-                prev_packets_recv = self.prev_net_data[iface]['packets_recv']
-                prev_packets_sent = self.prev_net_data[iface]['packets_sent']
-
-                curr_received = curr_net_data[iface]['received']
-                curr_sent = curr_net_data[iface]['sent']
-                curr_packets_recv = curr_net_data[iface]['packets_recv']
-                curr_packets_sent = curr_net_data[iface]['packets_sent']
-
-                diff_received = (curr_received - prev_received) * 8 / 1_000_000 / self.interval  # Bytes to Megabits
-                diff_sent = (curr_sent - prev_sent) * 8 / 1_000_000 / self.interval  # Bytes to Megabits
-                diff_packets_recv = curr_packets_recv - prev_packets_recv
-                diff_packets_sent = curr_packets_sent - prev_packets_sent
-
-                total_received += diff_received
+                total_received += diff_recv
                 total_sent += diff_sent
                 total_packets_recv += diff_packets_recv
                 total_packets_sent += diff_packets_sent
 
                 interface_data[iface] = {
-                    "recv": diff_received,
+                    "recv": diff_recv,
                     "sent": diff_sent,
                     "packets_recv": diff_packets_recv,
                     "packets_sent": diff_packets_sent,
                 }
-
-            # pawn.console.log(f"{iface:<9}: {diff_received:.2f} Mb/s In, {diff_sent:.2f} Mb/s Out, "
-            #                  f"{diff_packets_recv} Packets In, {diff_packets_sent} Packets Out")
-
-        # total_string = "Total"
-        # pawn.console.log(f"📶 [white bold]{total_string:<9}[/white bold]: {total_received:.2f} Mb/s In, {total_sent:.2f} Mb/s Out, "
-        #                  f"{total_packets_recv} Packets In, {total_packets_sent} Packets Out ")
 
         interface_data["Total"] = {
             "recv": total_received,
@@ -461,94 +465,36 @@ class SystemMonitor:
             "packets_recv": total_packets_recv,
             "packets_sent": total_packets_sent,
         }
-        interface_data.move_to_end("Total", False)
-
-        # for data in interface_data:
-        #     iface, diff_received, diff_sent, diff_packets_recv, diff_packets_sent = data
-        #     pawn.console.log(f"📶 {iface:<9}: {diff_received:.2f} Mb/s In, {diff_sent:.2f} Mb/s Out, "
-        #                      f"{diff_packets_recv} Packets In, {diff_packets_sent} Packets Out")
-        # print("")
         self.prev_net_data = curr_net_data
         return interface_data
 
-    def print_network_status(self):
-        interface_data = self.get_network_status()
-        for iface, value in interface_data.items():
-            # iface, diff_received, diff_sent, diff_packets_recv, diff_packets_sent = data
-            pawn.console.log(f"📶 {iface:<9}: {value.get('recv'):.2f} Mb/s In, {value.get('sent'):.2f} Mb/s Out, "
-                             f"{value.get('packets_recv')} Packets In, {value.get('packets_sent')} Packets Out")
-        print("")
-
-    # @staticmethod
-    # def read_stat_file():
-    #     with open("/proc/stat") as f:
-    #         lines = f.readlines()
-    #     return lines
-
-    def parse_cpu_stat(self):
-        cpu_line = ""
-        for line in self.read_stats_file(f"{self.proc_path}/stat"):
-            if line.startswith("cpu"):
-                cpu_line = line
-                break
-
-        cpu_values = cpu_line.strip().split()[1:]
-        cpu_values = [int(value) for value in cpu_values]
-        return cpu_values
-
-    def get_cpu_status(self, period=1, decimal=1):
-        start_values = self.prev_cpu_data
-        end_values = self.parse_cpu_stat()
-
-        diff_values = [end - start for start, end in zip(start_values, end_values)]
-        total_diff = sum(diff_values)
-
-        us_percent = 100 * diff_values[0] / total_diff
-        sy_percent = 100 * diff_values[2] / total_diff
-        id_percent = 100 * diff_values[3] / total_diff
-        io_wait = 100 * diff_values[4] / total_diff   # Added for iowait
-        return {
-            'usr': round(us_percent, decimal),
-            'sys': round(sy_percent, decimal),
-            'idle': round(id_percent, decimal),
-            'io_wait': round(io_wait, decimal)
-        }
-        # print(f"CPU Usage --> {us_percent:.2f}% us  :  {sy_percent:.2f}% sy  :  {id_percent:.2f}% id  :  {io_wait:.2f}% iowait")  # Edited for iowait
-
     def read_disk_stats(self):
         disk_stats = {}
-        for line in self.read_stats_file(f"{self.proc_path}/diskstats"):
-            fields = line.strip().split()
-            disk_name = fields[2]
-            # print(disk_name)
-            disk_types = ["sd", "vd", "nvme"]
-
-            # if disk_name.startswith('sd') or disk_name.startswith('nvme') or disk_name.startswith('vd'):
-            if any( disk_name.startswith(_type) for _type in disk_types):
-                # if not any(c.isdigit() for c in disk_name):
+        lines = self.read_stats_file(f"{self.proc_path}/diskstats")
+        for line in lines:
+            parts = line.split()
+            disk_name = parts[2]
+            if any(disk_name.startswith(prefix) for prefix in ["sd", "vd", "nvme"]):
                 disk_stats[disk_name] = {
-                    'read_ios': int(fields[3]),
-                    'read_bytes': int(fields[5]) * 512,  # Convert to bytes
-                    'write_ios': int(fields[7]),
-                    'write_bytes': int(fields[9]) * 512,  # Convert to bytes
+                    'read_ios': int(parts[3]),
+                    'read_bytes': int(parts[5]) * 512,
+                    'write_ios': int(parts[7]),
+                    'write_bytes': int(parts[9]) * 512,
                 }
         return disk_stats
 
     def get_disk_usage(self):
         curr_disk_stats = self.read_disk_stats()
         disk_usage = {}
-        total_read_ios = 0
-        total_write_ios = 0
-        total_read_bytes = 0
-        total_write_bytes = 0
+        total_read_ios = total_write_ios = total_read_bytes = total_write_bytes = 0
 
-        for disk, curr_stats in curr_disk_stats.items():
+        for disk, curr in curr_disk_stats.items():
             if disk in self.prev_disk_stats:
-                prev_stats = self.prev_disk_stats[disk]
-                read_ios = curr_stats['read_ios'] - prev_stats['read_ios']
-                read_bytes = curr_stats['read_bytes'] - prev_stats['read_bytes']
-                write_ios = curr_stats['write_ios'] - prev_stats['write_ios']
-                write_bytes = curr_stats['write_bytes'] - prev_stats['write_bytes']
+                prev = self.prev_disk_stats[disk]
+                read_ios = curr['read_ios'] - prev['read_ios']
+                read_bytes = curr['read_bytes'] - prev['read_bytes']
+                write_ios = curr['write_ios'] - prev['write_ios']
+                write_bytes = curr['write_bytes'] - prev['write_bytes']
 
                 disk_usage[disk] = {
                     'read_ios': read_ios,
@@ -564,7 +510,7 @@ class SystemMonitor:
                 total_read_bytes += read_bytes
                 total_write_bytes += write_bytes
 
-        disk_usage['total'] = {
+        disk_usage['Total'] = {
             'read_ios': total_read_ios,
             'read_bytes': total_read_bytes,
             'write_ios': total_write_ios,
@@ -575,58 +521,49 @@ class SystemMonitor:
         self.prev_disk_stats = curr_disk_stats
         return disk_usage
 
-    @staticmethod
-    def read_stats_file( filename=""):
-        with open(filename) as f:
-            lines = f.readlines()
-        return lines
+    def get_memory_status(self, unit="GB"):
+        meminfo = self.read_stats_file(f"{self.proc_path}/meminfo")
+        meminfo_dict = self.parse_meminfo(meminfo)
+
+        units = {"KB": 1, "MB": 1024, "GB": 1024 * 1024}
+        unit_multiplier = units.get(unit.upper(), 1024 * 1024)
+
+        total_mem = meminfo_dict["MemTotal"] / unit_multiplier
+        free_mem = meminfo_dict["MemFree"] / unit_multiplier
+        avail_mem = meminfo_dict["MemAvailable"] / unit_multiplier
+        cached_mem = meminfo_dict["Cached"] / unit_multiplier
+
+        used_mem = total_mem - free_mem
+        percent_used = 100 * used_mem / total_mem
+
+        return {
+            "total": round(total_mem, 2),
+            "used": round(used_mem, 2),
+            "free": round(free_mem, 2),
+            "avail": round(avail_mem, 2),
+            "cached": round(cached_mem, 2),
+            "percent": round(percent_used, 2),
+            "unit": unit
+        }
 
     @staticmethod
     def parse_meminfo(lines):
         meminfo = {}
         for line in lines:
-            key, value = line.strip().split(":")
-            meminfo[key] = int(value.strip().split(" ")[0])
+            key, value = line.split(":")
+            meminfo[key] = int(value.strip().split()[0])
         return meminfo
 
-    def get_memory_status(self, unit="GB"):
-        meminfo = self.read_stats_file(f"{self.proc_path}/meminfo")
-        parsed_meminfo = self.parse_meminfo(meminfo)
-
-        unit_multiplier = 1
-        if unit.upper() == "KB":
-            unit_multiplier = 1
-        elif unit.upper() == "MB":
-            unit_multiplier = 1024
-        elif unit.upper() == "GB":
-            unit_multiplier = 1024 * 1024
-        else:
-            raise ValueError("Invalid unit. Valid values are KB, MB, and GB.")
-
-        total_memory = parsed_meminfo["MemTotal"] / unit_multiplier
-        free_memory = parsed_meminfo["MemFree"] / unit_multiplier
-        available_memory = parsed_meminfo["MemAvailable"] / unit_multiplier
-        cached_memory = parsed_meminfo["Cached"] / unit_multiplier
-
-        used_memory = total_memory - free_memory
-        percent_used = 100 * used_memory / total_memory
-
-        # print(f"Memory Usage --> {percent_used:.2f}% ({used_memory:.2f} {unit} Used / {total_memory:.2f} {unit} Total)")
-        return {
-            "total": round(total_memory, 2),
-            "used": round(used_memory, 2),
-            "free": round(free_memory, 2),
-            "avail": round(available_memory, 2),
-            "cached": round(cached_memory, 2),
-            "percent": round(percent_used, 2),
-            "unit": unit
-        }
+    def get_system_status(self):
+        time.sleep(self.interval)
+        network_status = self.get_network_status()
+        cpu_status = self.get_cpu_status()
+        disk_stats = self.get_disk_usage()
+        return network_status, cpu_status, disk_stats
 
     def print_memory_status(self):
-        memory_status = self.get_memory_status()
-        unit = memory_status.get('unit')
-        print(f"Memory Usage --> {memory_status.get('percent'):.2f}% ({memory_status.get('used'):.2f} {unit} Used "
-              f"/ {memory_status.get('total'):.2f} {unit} Total)")
+        mem_status = self.get_memory_status()
+        print(f"Memory Usage --> {mem_status['percent']:.2f}% ({mem_status['used']:.2f} {mem_status['unit']} Used / {mem_status['total']:.2f} {mem_status['unit']} Total)")
 
 
 def get_netstat_count(proc_path="/proc", detail=False):
@@ -753,7 +690,7 @@ def get_mac_platform_info():
     return data
 
 
-def get_platform_info():
+def get_platform_info(**kwargs):
     """
 
     Returns a dict with platform information
@@ -807,12 +744,15 @@ def get_platform_info():
                 platform_info['cores'] = cpu_count
         except Exception as e:
             print(e)
+    if isinstance(kwargs, dict):
+        platform_info.update(kwargs)
+
     return platform_info
 
 
 def parse_cpu_load(load_str):
     load_list = load_str.split()
-    cpu_load_dict = OrderedDict()
+    cpu_load_dict = PrettyOrderedDict()
     cpu_load_dict["1min"] = round(float(load_list[0]), 2)
     cpu_load_dict["5min"] = round(float(load_list[1]), 2)
     cpu_load_dict["15min"] = round(float(load_list[2]), 2)
@@ -840,6 +780,50 @@ def get_cpu_load():
         with open('/proc/loadavg') as f:
             cpu_load = f.read()
             return parse_cpu_load(cpu_load)
+
+
+def parse_proc_stat():
+    with open('/proc/stat', 'r') as f:
+        lines = f.readlines()
+
+    cpu_line = [line for line in lines if line.startswith('cpu ')][0]
+    values = cpu_line.split()[1:]  # Skip the 'cpu' prefix
+    values = list(map(int, values))
+
+    return values
+
+
+def calculate_iowait_linux(interval=1):
+    initial_values = parse_proc_stat()
+    time.sleep(interval)
+    final_values = parse_proc_stat()
+
+    total_initial = sum(initial_values)
+    total_final = sum(final_values)
+
+    total_diff = total_final - total_initial
+    iowait_diff = final_values[4] - initial_values[4]  # iowait is the 5th value (index 4)
+
+    iowait_percentage = (iowait_diff / total_diff) * 100
+
+    return round(iowait_percentage, 2)
+
+
+def run_command(command):
+    try:
+        output = subprocess.check_output(command).decode('utf-8')
+        return output.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Error running command {' '.join(command)}: {e}")
+        return None
+
+
+def get_iowait():
+    system = platform.system()
+    if system == 'Linux':
+        return calculate_iowait_linux()
+    else:
+        pawn.console.debug(f"Unsupported operating system: {system}")
 
 
 def get_uptime_cmd() -> dict:
@@ -1072,6 +1056,98 @@ def io_flags_to_string(flags):
     return '|'.join(result)
 
 
+class DiskUsage:
+    def __init__(self):
+        self.ignore_partitions = [
+            "/System/Volumes", "/private/var/folders/", "/sys", "/proc", "/dev", "/run/docker/netns", "/var/lib/docker"
+        ]
+        self.unit_factors = {
+            "B": 1,
+            "KB": 1024,
+            "MB": 1024**2,
+            "GB": 1024**3
+        }
+
+    def match_list(self, patterns, text):
+        """
+        Check if the text matches any pattern in the list.
+        """
+        for pattern in patterns:
+            if re.search(pattern, text):
+                return True
+        return False
+
+    def get_mount_points(self):
+        """
+        Get a list of all mount points.
+        """
+        mount_points = []
+        if platform.system() == 'Darwin':  # macOS
+            try:
+                output = subprocess.check_output(['df']).decode('utf-8')
+                lines = output.splitlines()[1:]
+                for line in lines:
+                    parts = line.split()
+                    mount_point = parts[-1]
+                    if not self.match_list(self.ignore_partitions, mount_point):
+                        mount_points.append(mount_point)
+            except subprocess.CalledProcessError as e:
+                print(f"Error occurred while running df: {e}")
+        elif platform.system() == 'Linux':  # Linux
+            with open('/proc/mounts', 'r') as f:
+                for line in f.readlines():
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        mount_point = parts[1]
+                        if not self.match_list(self.ignore_partitions, mount_point):
+                            mount_points.append(mount_point)
+        else:
+            raise NotImplementedError("Unsupported operating system")
+        return mount_points
+
+    @staticmethod
+    def calculate_disk_usage(mount_point, factor, precision, unit):
+        """
+        Helper function to calculate disk usage for a given mount point.
+        """
+        total, used, free = shutil.disk_usage(mount_point)
+        return {
+            "total": round(total / factor, precision),
+            "used": round(used / factor, precision),
+            "free": round(free / factor, precision),
+            "percent": round(used / total * 100, precision) if total > 0 else 0,
+            "unit": unit
+        }
+
+    def get_disk_usage(self, mount_point="/", unit="GB", precision=2):
+        """
+        Get disk usage information for a specific mount point or all mount points.
+
+        :param mount_point: Mount point to check. Use "/", "/home", or "all".
+        :param unit: Unit for disk usage. Can be "B", "KB", "MB", or "GB". Default is "GB".
+        :param precision: Number of decimal places for the output. Default is 2.
+        :return: Disk usage information.
+        """
+        if unit not in self.unit_factors:
+            raise ValueError(f"Unsupported unit: {unit}. Supported units are B, KB, MB, GB.")
+
+        factor = self.unit_factors[unit]
+        disk_info = {}
+
+        if mount_point == "all":
+            for mount_point in self.get_mount_points():
+                if os.path.ismount(mount_point):
+                    pawn.console.debug(f"Calculating disk usage for {mount_point}")
+                    disk_info[mount_point] = self.calculate_disk_usage(mount_point, factor, precision, unit)
+        else:
+            if os.path.ismount(mount_point):
+                disk_info[mount_point] = self.calculate_disk_usage(mount_point, factor, precision, unit)
+            else:
+                raise ValueError(f"{mount_point} is not a valid mount point")
+
+        return disk_info
+
+
 class DiskPerformanceTester:
     """
     Class to test disk performance by measuring read and write speeds.
@@ -1084,7 +1160,7 @@ class DiskPerformanceTester:
     :param io_pattern: I/O pattern, e.g., "sequential" or "random".
     :param decimal_places: Number of decimal places for results.
     :param console: Console object for logging.
-    :param debug: Flag to enable debug logging.
+    :param verbose: Flag to enable verbose logging.
     :param additional_info: Additional info for result file
 
     Example:
@@ -1102,7 +1178,7 @@ class DiskPerformanceTester:
             tester.cleanup_and_exit()
     """
 
-    def __init__(self, file_path, file_size_mb, iterations=5, block_size_kb=1024, num_threads=1, io_pattern="sequential", decimal_places=2, console=None, debug=False, additional_info=None):
+    def __init__(self, file_path, file_size_mb, iterations=5, block_size_kb=1024, num_threads=1, io_pattern="sequential", decimal_places=2, console=None, verbose=False, additional_info=None):
         self.base_file_path = file_path
         self.file_size_mb = file_size_mb
         self.iterations = iterations
@@ -1117,7 +1193,7 @@ class DiskPerformanceTester:
         self.average_write_speed = 0
         self.average_read_speed = 0
         self.test_files = []  # List to track generated test files
-        self.debug = debug
+        self.verbose = verbose
         self.additional_info = additional_info
         if console:
             self.console = console
@@ -1125,13 +1201,12 @@ class DiskPerformanceTester:
             self.console = pawn.console
 
         self.decimal_places = decimal_places
-        self.cpu_load = {}
         signal.signal(signal.SIGINT, self.cleanup_and_exit)
         signal.signal(signal.SIGTERM, self.cleanup_and_exit)
 
     def log_with_progress(self, progress: Progress, task_id: TaskID, message: str):
         """Helper function to log messages with progress"""
-        if self.debug:
+        if self.verbose:
             progress.console.log(message)
         progress.update(task_id, advance=0)
 
@@ -1198,7 +1273,7 @@ class DiskPerformanceTester:
                 speeds.append(round(speed, self.decimal_places))
                 total_speed += speed
             progress.update(task_id, advance=1)
-        average_speed = total_speed  /self.iterations # Sum of all speeds in this thread
+        average_speed = total_speed / self.iterations # Sum of all speeds in this thread
         self.console.log(f"Read total speed for {file_path}: {average_speed:.2f} MB/s")
         return speeds, total_duration
 
@@ -1220,7 +1295,7 @@ class DiskPerformanceTester:
         try:
             if os.path.exists(file_path):
                 os.remove(file_path)
-                self.debug and self.console.log(f"Deleted file {file_path}")
+                self.verbose and self.console.log(f"Deleted file {file_path}")
         except OSError as e:
             self.console.log(f"OS error deleting file {file_path}: {e}")
         except Exception as e:
@@ -1262,6 +1337,7 @@ class DiskPerformanceTester:
                 TextColumn("[progress.description]{task.description}"),
                 BarColumn(bar_width=None),
                 "[progress.percentage]{task.percentage:>3.0f}%",
+                TimeElapsedColumn(),
                 TimeRemainingColumn(),
                 console=self.console) as progress:
 
@@ -1289,19 +1365,19 @@ class DiskPerformanceTester:
         else:
             self.average_read_speed = 0
 
-        self.cpu_load = get_cpu_load()
-
         # Cleanup all test files
         self.cleanup_files()
+        results = self.create_results_dict()
 
         # Print summary
-        self.print_summary()
+        # self.print_summary()
 
         # Save results
-        self.save_results()
+        # self.save_results()
 
         # Visualize results
         # self.visualize_results()
+        return results
 
     def validate_speeds(self, speeds):
         # Validate and filter out unrealistic speed values
@@ -1318,13 +1394,6 @@ class DiskPerformanceTester:
         # Accept speeds within 3 standard deviations of the mean
         return [speed for speed in speeds if mean - 3 * stdev <= speed <= mean + 3 * stdev]
 
-    # def print_summary(self):
-    #     self.console.log(f"Write speeds: {self.write_speeds}")
-    #     self.console.log(f"Average write speed: {self.average_write_speed:.2f} MB/s")
-    #     self.console.log(f"Read speeds: {self.read_speeds}")
-    #     self.console.log(f"Average read speed: {self.average_read_speed:.2f} MB/s")
-    #     self.console.log(f"CPU load during test: {dict_to_line(self.cpu_load, end_separator=', ' )}")
-
     def print_summary(self):
         self.console.log(f"Write speeds: {self.write_speeds}")
         threads_write_result = ""
@@ -1336,20 +1405,21 @@ class DiskPerformanceTester:
         self.console.log(f"Average write speed: {self.average_write_speed:.2f} MB/s {threads_write_result}")
         self.console.log(f"Read speeds: {self.read_speeds}")
         self.console.log(f"Average read speed: {self.average_read_speed:.2f} MB/s {threads_read_result}")
-        self.console.log(f"CPU load during test: {dict_to_line(self.cpu_load, end_separator=', ')}")
+        self.console.log(f"CPU load during test: {dict_to_line(get_cpu_load(), end_separator=', ')}")
 
-    def save_results(self):
+    def create_results_dict(self):
         results = {
             "write_speeds": self.write_speeds,
             "average_write_speed": self.average_write_speed,
             "read_speeds": self.read_speeds,
             "average_read_speed": self.average_read_speed,
-            "system_info": self.get_system_info(),
-            "resource_usages":
-                {"cpu_load": self.cpu_load}
         }
         if self.additional_info:
             results["additional_info"] = self.additional_info
+        return results
+
+    def save_results(self):
+        results = self.create_results_dict()
 
         with open("disk_performance_results.json", "w") as f:
             json.dump(results, f, indent=4)
@@ -1367,5 +1437,159 @@ class DiskPerformanceTester:
     #     plt.show()
     #     self.console.log("Results visualized and saved to disk_performance_results.png")
 
-    def get_system_info(self):
-        return get_platform_info()
+
+class FileSystemTester:
+    def __init__(self, test_dir, file_count=1000, file_size=1024, iterations=5, decimal_places=3, verbose=False, console=None):
+        self.test_dir = test_dir
+        self.file_count = file_count
+        self.file_size = file_size  # in bytes
+        self.iterations = iterations
+        self.verbose = verbose
+        self.decimal_places = decimal_places
+
+        if console:
+            self.console = console
+        else:
+            self.console = pawn.console
+
+    def setup(self):
+        if os.path.exists(self.test_dir):
+            shutil.rmtree(self.test_dir)
+        os.makedirs(self.test_dir)
+
+    def cleanup(self):
+        if os.path.exists(self.test_dir):
+            shutil.rmtree(self.test_dir)
+
+    def generate_random_string(self, size):
+        return ''.join(random.choices(string.ascii_letters + string.digits, k=size))
+
+    def test_file_creation(self, progress, task_id):
+        self.verbose and self.console.log("Start File creation test")
+        durations = []
+        for _ in range(self.iterations):
+            self.setup()
+            start_time = time.time()
+            for i in range(self.file_count):
+                with open(os.path.join(self.test_dir, f'file_{i}.txt'), 'w') as f:
+                    f.write(self.generate_random_string(self.file_size))
+                progress.update(task_id, advance=1)
+            end_time = time.time()
+            duration = end_time - start_time
+            durations.append(duration)
+            self.cleanup()
+        avg_duration = sum(durations) / len(durations)
+        self.verbose and self.console.log(f'File creation test completed in {avg_duration:.4f} seconds (average over {self.iterations} iterations)')
+        return avg_duration
+
+    def test_file_reading(self, progress, task_id):
+        self.verbose and self.console.log("Start File reading test")
+        durations = []
+        for _ in range(self.iterations):
+            self.setup()
+            # Create files first
+            for i in range(self.file_count):
+                with open(os.path.join(self.test_dir, f'file_{i}.txt'), 'w') as f:
+                    f.write(self.generate_random_string(self.file_size))
+            start_time = time.time()
+            for i in range(self.file_count):
+                with open(os.path.join(self.test_dir, f'file_{i}.txt'), 'r') as f:
+                    content = f.read()
+                progress.update(task_id, advance=1)
+            end_time = time.time()
+            duration = end_time - start_time
+            durations.append(duration)
+            self.cleanup()
+        avg_duration = sum(durations) / len(durations)
+        self.verbose and self.console.log(f'File reading test completed in {avg_duration:.4f} seconds (average over {self.iterations} iterations)')
+        return avg_duration
+
+    def test_file_deletion(self, progress, task_id):
+        self.verbose and self.console.log("Start File deletion test")
+        durations = []
+        for _ in range(self.iterations):
+            self.setup()
+            # Create files first
+            for i in range(self.file_count):
+                with open(os.path.join(self.test_dir, f'file_{i}.txt'), 'w') as f:
+                    f.write(self.generate_random_string(self.file_size))
+            start_time = time.time()
+            for i in range(self.file_count):
+                os.remove(os.path.join(self.test_dir, f'file_{i}.txt'))
+                progress.update(task_id, advance=1)
+            end_time = time.time()
+            duration = end_time - start_time
+            durations.append(duration)
+            self.cleanup()
+        avg_duration = sum(durations) / len(durations)
+        self.verbose and self.console.log(f'File deletion test completed in {avg_duration:.4f} seconds (average over {self.iterations} iterations)')
+        return avg_duration
+
+    def test_directory_traversal(self, progress, task_id):
+        durations = []
+        for _ in range(self.iterations):
+            self.setup()
+            # Create files first
+            for i in range(self.file_count):
+                with open(os.path.join(self.test_dir, f'file_{i}.txt'), 'w') as f:
+                    f.write(self.generate_random_string(self.file_size))
+            start_time = time.time()
+            for root, dirs, files in os.walk(self.test_dir):
+                for file in files:
+                    full_path = os.path.join(root, file)
+                progress.update(task_id, advance=1)
+            end_time = time.time()
+            duration = end_time - start_time
+            durations.append(duration)
+            self.cleanup()
+        avg_duration = sum(durations) / len(durations)
+        self.verbose and self.console.log(f'Directory traversal test completed in {avg_duration:.4f} seconds (average over {self.iterations} iterations)')
+        return avg_duration
+
+    def run_tests(self, is_print=False):
+        self.console.log(f'Starting file system tests with {self.file_count} files of {self.file_size} bytes each, running {self.iterations} iterations')
+
+        total_tasks = self.iterations * self.file_count * 4
+        with Progress(
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(bar_width=None),
+                "[progress.percentage]{task.percentage:>3.1f}%",
+                TimeElapsedColumn(),
+                TimeRemainingColumn(),
+                console=self.console
+        ) as progress:
+            creation_task = progress.add_task("File Creation", total=self.iterations * self.file_count)
+            reading_task = progress.add_task("File Reading", total=self.iterations * self.file_count)
+            deletion_task = progress.add_task("File Deletion", total=self.iterations * self.file_count)
+            traversal_task = progress.add_task("Directory Traversal", total=self.iterations * self.file_count)
+
+            file_creation_time = round(self.test_file_creation(progress, creation_task), self.decimal_places)
+            file_reading_time = round(self.test_file_reading(progress, reading_task), self.decimal_places)
+            file_deletion_time = round(self.test_file_deletion(progress, deletion_task), self.decimal_places)
+            directory_traversal_time = round(self.test_directory_traversal(progress, traversal_task), self.decimal_places)
+
+            progress.update(creation_task, completed=self.iterations * self.file_count)
+            progress.update(reading_task, completed=self.iterations * self.file_count)
+            progress.update(deletion_task, completed=self.iterations * self.file_count)
+            progress.update(traversal_task, completed=self.iterations * self.file_count)
+
+        results = {
+            "file_creation_time": file_creation_time,
+            "file_reading_time": file_reading_time,
+            "directory_traversal_time": directory_traversal_time,
+            "file_deletion_time": file_deletion_time
+        }
+
+        if is_print:
+            self.print_results(results)
+        return results
+
+    def print_results(self, results):
+        table = Table(title="File System Test Results")
+        table.add_column("Test", style="cyan", no_wrap=True)
+        table.add_column("Duration (s)", style="magenta")
+
+        for key, value in results.items():
+            table.add_row(key.replace("_", " ").title(), str(value))
+
+        self.console.print(table)
