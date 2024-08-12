@@ -26,6 +26,18 @@ class TestMethodRequest(unittest.TestCase):
         )
         dump(res)
 
+    @parameterized.expand([
+        ("append api v3 path with normal url", append_api_v3, dict(url="asd.com"), "http://asd.com/api/v3"),
+        ("append api v3 path with normal url", append_api_v3, dict(url="http://asd.com"), "http://asd.com/api/v3"),
+        ("url already contains api v3", append_api_v3, dict(url="http://asd.com/api/v3"), "http://asd.com/api/v3"),
+        ("url already contains api v3", append_api_v3, dict(url="asd.com/api/v3"), "http://asd.com/api/v3"),
+    ])
+
+    def test_02_append_api_v3(self, name, function=None, params={}, expected_value=None):
+        result = function(**params)
+        print(f"{function.__name__}({params}) <{type(params)}> result => {result}")
+        self.assertEqual(result, expected_value)
+
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestMethodRequest)

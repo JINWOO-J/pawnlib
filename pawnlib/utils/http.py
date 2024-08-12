@@ -5,6 +5,7 @@ import socket
 import ssl
 from functools import partial
 from datetime import datetime
+
 from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose, pconf, SimpleNamespace, Null
 from pawnlib.output import (
     NoTraceBackException,
@@ -21,6 +22,8 @@ from pawnlib.utils.operate_handler import WaitStateLoop
 from pawnlib.output import pretty_json, align_text, get_file_extension, is_directory, is_file
 from pawnlib.utils.in_memory_zip import gen_deploy_data_content
 from websocket import create_connection, WebSocket, enableTrace
+from urllib.parse import urlparse
+
 try:
     from pawnlib.utils import icx_signer
 except ImportError:
@@ -233,7 +236,7 @@ class AllowsKey(StrEnum):
 
 @dataclass
 class NetworkInfo:
-    network_name: str = "mainnet"
+    network_name: str = ""
     platform: str = "icon"
     force: bool = False
     network_api: str = ""
@@ -399,10 +402,29 @@ class NetworkInfo:
             return self.network_info
         return self.network_info
 
+    def fetch_network_info(self):
+        mandatory_keys = ["platform", "nid"]
+        if self.network_api:
+            try:
+                pawn.console.debug("Try fetching network info")
+                api_url = append_http(append_api_v3(self.network_api))
+                result = IconRpcHelper().rpc_call(url=api_url, method="icx_getNetworkInfo", return_key="result")
+                pawn.console.debug(result)
+                for key in mandatory_keys:
+                    self.__dict__[key] = result[key]
+
+                platform_info = self._platform_info.get(self.platform, {})
+                self.__dict__["symbol"] = platform_info.get('symbol', 'Unknown')
+            except Exception as e:
+                pawn.console.log(f"[red]Exception:[/red] {e}")
+
     def _extract_network_info(self):
+        mandatory_keys = ["platform", "network_api", "nid"]
+        if not self.nid:
+            self.fetch_network_info()
         _static_network_info = {
             key: value for key, value in copy.deepcopy(self.__dict__).items()
-            if key and value and key not in ['_platform_info', 'static_values', 'network_info']
+            if (key and value and key not in ['_platform_info', 'static_values', 'network_info']) or key in mandatory_keys
         }
         return _static_network_info
 
@@ -1419,9 +1441,14 @@ def append_ws(url):
     return url
 
 
+# def append_api_v3(url):
+#     if "/api/v3" not in url:
+#         return append_http(f"{url}/api/v3")
+#     return append_http(url)
+
 def append_api_v3(url):
-    if "/api/v3" not in url:
-        return f"{url}/api/v3"
+    if not url.endswith("/api/v3"):
+        url = f"{url.rstrip('/')}/api/v3"
     return append_http(url)
 
 
@@ -1562,11 +1589,13 @@ class CallHttp:
                  payload={},
                  timeout=3000,
                  ignore_ssl: bool = False,
+                 verify=False,
                  verbose: int = 0,
                  success_criteria: Union[dict, list, str, None] = "__DEFAULT__",
                  success_operator: Literal["and", "or"] = "and",
                  success_syntax: Literal["operator", "string", "auto"] = "auto",
                  raise_on_failure: bool = False,
+
                  auto_run: bool = True,
                  **kwargs
                  ):
@@ -1576,6 +1605,11 @@ class CallHttp:
         self.payload = payload
         self.timeout = timeout / 1000
         self.ignore_ssl = ignore_ssl
+        self.verify = verify
+
+        if self.ignore_ssl:
+            disable_ssl_warnings()
+
         self.verbose = verbose
 
         _default_criteria = [AllowsKey.status_code, "<=", 399]
@@ -1689,9 +1723,9 @@ class CallHttp:
 
             func = getattr(requests, self.method)
             if self.method == "get":
-                self.response = func(self.url, verify=False, timeout=self.timeout, **self.kwargs)
+                self.response = func(self.url, verify=self.verify, timeout=self.timeout, **self.kwargs)
             else:
-                self.response = func(self.url, json=self.payload, verify=False, timeout=self.timeout, **self.kwargs)
+                self.response = func(self.url, json=self.payload, verify=self.verify, timeout=self.timeout, **self.kwargs)
 
         except Exception as e:
             return self.exit_on_failure(e)
@@ -1945,10 +1979,17 @@ class CallWebsocket:
             enableTrace(True)
 
     def connect_websocket(self, api_url=""):
-        self._ws = create_connection(f"{self.ws_url}/{api_url}", timeout=self.timeout, sslopt={"cert_reqs": ssl.CERT_NONE})
+        parsed_url = urlparse(self.ws_url)
+
+        if parsed_url.path:
+            _ws_url = self.ws_url
+        else:
+            _ws_url = f"{self.ws_url}{api_url}"
+
+        self._ws = create_connection(f"{_ws_url}", timeout=self.timeout, sslopt={"cert_reqs": ssl.CERT_NONE})
         self._ws.settimeout(self.timeout)
 
-    def run(self, api_url="api/v3/icon_dex/block", status_console=False):
+    def run(self, api_url="/api/v3/icon_dex/block", status_console=False):
         self.connect_websocket(api_url)
         if self._use_status_console or status_console:
             with pawn.console.status("Call WebSocket") as self.status_console:
@@ -1976,6 +2017,7 @@ class GoloopWebsocket(CallWebsocket):
                  sec_thresholds=4,
                  monitoring_target=None,
                  ignore_ssl=True,
+                 network_info: NetworkInfo = None,
                  ):
 
         self.connect_url = connect_url
@@ -1996,6 +2038,7 @@ class GoloopWebsocket(CallWebsocket):
         self.tx_timestamp = 0
         self.tx_timestamp_dt = None
         self.preps_info = {}
+        self.network_info = network_info
 
         self.blockheight_now = 0
 
@@ -2056,6 +2099,9 @@ class GoloopWebsocket(CallWebsocket):
 
         if response_json and response_json.get('hash'):
             hash_result = self.get_block_hash(response_json.get('hash'))
+            if not hash_result or not hash_result.get('confirmed_transaction_list'):
+                return
+
             confirmed_transaction_list = hash_result.get('confirmed_transaction_list')
             if confirmed_transaction_list:
                 self.parse_transfer_tx(confirmed_transaction_list)
@@ -2128,17 +2174,41 @@ class GoloopWebsocket(CallWebsocket):
     def get_preps(self):
         return self.execute_rpc_call(governance_address=const.CHAIN_SCORE_ADDRESS, method='getPReps', return_key="result.preps")
 
-    def fetch_and_store_preps_info(self):
-        prep_list = self.get_preps()
-        for prep in prep_list:
-            if isinstance(prep, dict ) and prep.get('nodeAddress'):
-                self.preps_info[prep.get('nodeAddress')] = prep
+    def get_validator_info(self):
+        return self.execute_rpc_call(
+            governance_address=const.CHAIN_SCORE_ADDRESS,
+            method='getValidatorsInfo',
+            params={"dataType": "all"},
+            return_key="result.validators"
+            )
 
-    def execute_rpc_call(self, method=None, return_key=None, governance_address=None):
+    def fetch_and_store_preps_info(self):
+        try:
+            platform_name = getattr(self.network_info, "platform", "icon")
+
+            platform_methods = {
+                "icon": (self.get_preps, "nodeAddress"),
+                "havah": (self.get_validator_info, "node")
+            }
+
+            if platform_name not in platform_methods:
+                raise ValueError("Unsupported platform")
+
+            fetch_method, key_name = platform_methods[platform_name]
+
+            preps_list = fetch_method()
+            for prep in preps_list:
+                if isinstance(prep, dict) and key_name in prep:
+                    self.preps_info[prep[key_name]] = prep
+
+        except Exception as error:
+            pawn.console.log(error)
+
+    def execute_rpc_call(self, method=None, params={},return_key=None, governance_address=None):
         if governance_address:
-            response = self.icon_rpc_helper.governance_call(method=method, governance_address=governance_address, return_key=return_key)
+            response = self.icon_rpc_helper.governance_call(method=method, params=params, governance_address=governance_address, return_key=return_key)
         else:
-            response = self.icon_rpc_helper.rpc_call(method=method, return_key=return_key)
+            response = self.icon_rpc_helper.rpc_call(method=method, params=params, return_key=return_key)
         if not response:
             pawn.console.log(f"[yellow]\[warn][/yellow] Response  is None. method='{method}', "
                              f"return_key='{return_key}', {self.get_response_content()}")

@@ -3,6 +3,8 @@
 A collection of libraries that can be used like pawns on a chessboard.
 Pawnlib is a collection of libraries for IaC.
 
+It provides a collection of utility functions and classes that aim to enhance productivity and streamline code development. The library is particularly useful for developers looking to reduce repetitive coding patterns and improve code readability.
+
 utils, globals vars, logging, http, network, pretty printing, resource, converter ...
 
 

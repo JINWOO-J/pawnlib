@@ -4,7 +4,7 @@ from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
 import os
-from pawnlib.typing import str2bool, StackList, remove_tags, dict_to_line, flatten
+from pawnlib.typing import str2bool, StackList, remove_tags, dict_to_line, flatten, sys_exit
 from pawnlib.output import write_json, print_grid, print_var, get_color_by_threshold
 from rich.tree import Tree
 from copy import deepcopy
@@ -24,6 +24,8 @@ __epilog__ = (
     "For more detailed command usage and options, refer to the help documentation by running 'pawns server --help'."
 )
 
+VALID_COMMANDS = ["disk", "fs", "check"]
+
 
 def get_parser():
     parser = argparse.ArgumentParser(description='server')
@@ -32,7 +34,14 @@ def get_parser():
 
 
 def get_arguments(parser):
-    parser.add_argument('command', help='command', type=str, nargs='?', default="")
+    parser.add_argument(
+        'command',
+        help=f'Command to execute ({", ".join(VALID_COMMANDS)})',
+        type=str,
+        choices=VALID_COMMANDS,
+        nargs='?',  # Make this optional if you want to provide a default
+        default=None  # Or set a default command if appropriate
+    )
     parser.add_argument('-c', '--config-file', type=str, help='config', default="config.ini")
     parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level (default: %(default)s)', default=1)
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
@@ -181,6 +190,21 @@ def display_performance_results(disk_performance_result=None, filesystem_perform
 def main():
     app_name = 'Server Checker'
     parser = get_parser()
+    command_definitions = {
+        "disk": {
+            "functions": [run_disk_performance_test],
+            "result_keys": ["disk_performance_result"],
+        },
+        "fs": {
+            "functions": [run_filesystem_performance_test],
+            "result_keys": ["filesystem_performance_result"],
+        },
+        "check": {
+            "functions": [run_disk_performance_test, run_filesystem_performance_test],
+            "result_keys": ["disk_performance_result", "filesystem_performance_result"],
+        }
+    }
+
     args, unknown = parser.parse_known_args()
     config_file = args.config_file
 
@@ -228,18 +252,17 @@ def main():
         ),
     }
 
-    if args.command == "disk":
-        test_results["disk_performance_result"] = run_disk_performance_test(args)
-    elif args.command == "fs":
-        test_results["filesystem_performance_result"] = run_filesystem_performance_test(args)
-    elif args.command == "check":
-        test_results["disk_performance_result"] = run_disk_performance_test(args)
-        test_results["filesystem_performance_result"] = run_filesystem_performance_test(args)
-    else:
-        parser.error(f"'{args.command}' command not found")
+    if not args.command:
+        parser.print_help()
+        sys_exit(f"\nError: A valid command is required. Please choose from ({', '.join(VALID_COMMANDS)}).\n")
 
-    # print_grid(flatten(test_results), key_ratio=4, is_value_type=False)
-    # pawn.console.log(test_results)
+    # Execute the functions and store the results based on the command
+    if args.command in command_definitions:
+        command_info = command_definitions[args.command]
+        for func, result_key in zip(command_info["functions"], command_info["result_keys"]):
+            test_results[result_key] = func(args)
+    else:
+        parser.error(f"'{args.command}' is not a valid command.")
 
     # Display all information
     display_system_info(test_results['system_info'])
@@ -248,18 +271,6 @@ def main():
     if args.write_file:
         write_res = write_json(filename=args.write_file, data=test_results)
         pawn.console.log(write_res)
-
-    # if test_results.get('system_info'):
-    #     pawn.console.rule("System Information")
-    #     display_system_info(test_results['system_info'])
-    #
-    # if test_results.get('disk_performance_result'):
-    #     pawn.console.rule("Disk Performance Result")
-    #     display_disk_performance(test_results['disk_performance_result'])
-    #
-    # if test_results.get('filesystem_performance_result'):
-    #     pawn.console.rule("Filesystem Performance Result")
-    #     display_filesystem_performance(test_results['filesystem_performance_result'])
 
 
 if __name__ == '__main__':

@@ -8,6 +8,7 @@ from pawnlib.config import pawn
 from pawnlib.utils import http
 from pawnlib.typing import date_utils, str2bool
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
+from urllib.parse import urlparse
 
 __version__ = "0.0.1"
 __description__ = "Connect to the Goloop network with WebSocket to receive blocks."
@@ -37,7 +38,7 @@ def get_parser():
 
 
 def get_arguments(parser):
-    parser.add_argument('url', help='url', nargs='?',)
+    parser.add_argument('url', help='URL for websocket connection', nargs='?')
     parser.add_argument('-c', '--command', type=str, help='command', default=None, choices=["diff", "transfer", None])
     parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level', default=0)
     parser.add_argument('-b', '--blockheight', type=int, help='position of blockheight to start. ', default=0)
@@ -74,16 +75,33 @@ def main():
         LAST_EXECUTE_POINT=0,
     )
 
+    if not args.url:
+        parser.error("The 'url' argument is required.")
+
     if args.verbose > 2:
         pawn.set(PAWN_DEBUG=True)
 
-    http.GoloopWebsocket(
-        connect_url=args.url,
+    parsed_url = urlparse(http.append_http(args.url))
+
+    websocket_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    websocket_path = parsed_url.path or "/api/v3/icon_dex/block"
+
+    pawn.console.log(f"Url={websocket_url}, Path={websocket_path}")
+
+    network_info = http.NetworkInfo(network_api=websocket_url)
+
+    # network_info = http.NetworkInfo(network_name="mainnet")
+    pawn.console.log(network_info)
+
+    goloop_websocket = http.GoloopWebsocket(
+        connect_url=websocket_url,
         blockheight=args.blockheight,
         monitoring_target=args.target,
         verbose=args.verbose,
         sec_thresholds=args.diff,
-    ).run()
+        network_info=network_info,
+    )
+    goloop_websocket.run(api_url=websocket_path)
 
 
 if __name__ == "__main__":
