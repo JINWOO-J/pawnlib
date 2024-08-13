@@ -13,7 +13,7 @@ from rich.panel import Panel
 
 from pawnlib.resource.server import DiskPerformanceTester, FileSystemTester, get_platform_info, DiskUsage, get_cpu_load, get_iowait
 
-__description__ = "This command is used to check and verify the server’s resources."
+__description__ = "This command is used to measure server performance and verify specifications."
 
 __epilog__ = (
     "This tool is intended for checking and validating server resources.\n\n"
@@ -21,10 +21,13 @@ __epilog__ = (
     "  1. Measure disk performance:\n"
     "     pawns server disk --file-path /path/to/testfile --file-size-mb 1024 --iterations 5 --block-size-kb 1024 --num-threads 1 --io-pattern sequential\n"
     "     - Measures write and read speed for a test file with specified parameters.\n\n"
+    "  2. Measure filesystem performance:\n"
+    "     pawns server fs server fs -i 5 --count 2000 \n"
+    "     -  Measure the filesystem performance 5 times with 2,000 files.\n\n"    
     "For more detailed command usage and options, refer to the help documentation by running 'pawns server --help'."
 )
 
-VALID_COMMANDS = ["disk", "fs", "check"]
+VALID_COMMANDS = ["disk", "fs", "all"]
 
 
 def get_parser():
@@ -199,7 +202,7 @@ def main():
             "functions": [run_filesystem_performance_test],
             "result_keys": ["filesystem_performance_result"],
         },
-        "check": {
+        "all": {
             "functions": [run_disk_performance_test, run_filesystem_performance_test],
             "result_keys": ["disk_performance_result", "filesystem_performance_result"],
         }
@@ -237,7 +240,9 @@ def main():
                 stdout_level="DEBUG",
             )
         )
-
+    
+    print_banner()
+    
     all_args = find_all_arguments(parser)
     argument_dict = create_argument_dict(args, all_args)
 

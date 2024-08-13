@@ -14,6 +14,12 @@ utils, globals vars, logging, http, network, pretty printing, resource, converte
 
 [![PyPI version](https://badge.fury.io/py/pawnlib.svg)](https://badge.fury.io/py/pawnlib)
 
+<p align="center">
+	<img src="https://img.shields.io/github/last-commit/JINWOO-J/pawnlib?style=default&logo=git&logoColor=white&color=0080ff" alt="last-commit">
+	<img src="https://img.shields.io/github/languages/top/JINWOO-J/pawnlib?style=default&color=0080ff" alt="repo-top-language">
+	<img src="https://img.shields.io/github/languages/count/JINWOO-J/pawnlib?style=default&color=0080ff" alt="repo-language-count">
+<p>
+
 
 ### Installing pawnlib
 - **Installing pawnlib**
@@ -72,6 +78,56 @@ def main():
     pawn.console.log(pawn.to_dict())
 
 ```
+### pawns
+
+`pawns` CLI supports the following commands: icon, server, proxy, net, top, docker, aws, rpc, http, gs, init, info, banner, websocket, wallet.
+
+
+```
+$ pawns 
+--------------------------------------------------
+
+__________  _____  __      _________    _________
+\______   \/  _  \/  \    /  \      \  /   _____/
+ |     ___/  /_\  \   \/\/   /   |   \ \_____  \
+ |    |  /    |    \        /    |    \/        \
+ |____|  \____|__  /\__/\  /\____|__  /_______  /
+                 \/      \/         \/        \/
+
+ - Description :
+ - Version     : 2.0.15
+ - Author      : jinwoo
+
+--------------------------------------------------
+
+
+The pawns is designed to serve as the main command-line interface (CLI)
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+
+sub-module:
+  {icon,server,proxy,net,top,docker,aws,rpc,http,gs,init,info,banner,websocket,wallet}
+    icon                icon module
+    server              This command is used to check and verify the server’s resources.
+    proxy               A Proxy Reflector Tool
+    net                 This is a tool to measure your server's resources.
+    top                 This is a tool to measure your server's resources.
+    docker              docker module
+    aws                 Get meta information from AWS EC2.
+    rpc                 This tool uses JSON remote procedure calls, or RPCs, commonly used on the ICON blockchain.
+    http                This is a tool to measure RTT on HTTP/S requests.
+    gs                  Genesis Tool
+    init                Advanced Python application builder: Easily initialize your Python development environment with
+                        customizable templates and best practices.
+    info                This command displays server resource information.
+    banner              Command to test the banner.
+    websocket           Connect to the Goloop network with WebSocket to receive blocks.
+    wallet              A tool for managing ICON wallets. It supports creating new wallets and loading existing ones.
+```
+
+
 
 ### app builder 
 - **app builder** 
