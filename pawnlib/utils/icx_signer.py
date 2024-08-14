@@ -7,7 +7,7 @@ from os import path
 from coincurve import PrivateKey, PublicKey
 from pawnlib.typing import check, date_utils, random_private_key, fill_required_data_arguments, is_hex, format_hex, is_valid_icon_keystore_file
 from pawnlib.config import pawnlib_config as pawn
-from pawnlib.output import is_file, is_json_file, open_json, check_file_overwrite, NoTraceBackException
+from pawnlib.output import is_file, is_json_file, open_json, check_file_overwrite, NoTraceBackException, print_json, print_var
 from pawnlib.config import pawn,  NestedNamespace
 from pawnlib.input import PromptWithArgument, PrivateKeyValidator, StringCompareValidator, PrivateKeyOrJsonValidator
 import json
@@ -89,7 +89,7 @@ class WalletCli:
             password=""
         )
         self._args = fill_required_data_arguments(required=required_args)
-        self._wallet = ""
+        self._wallet = {}
 
     def load(self):
         keystore_json = {}
@@ -212,6 +212,20 @@ class WalletCli:
         return self._wallet
 
     def create(self, is_store_file=True):
+        self._handle_password_prompt()
+
+        if not self._args.private_key:
+            self._args.private_key = random_private_key()
+
+        self._wallet = load_wallet_key(self._args.private_key, password=self._args.password)
+        self.print_wallet()
+
+        if is_store_file:
+            self._save_wallet_to_file()
+        else:
+            self._generate_wallet(is_store_file=False)
+
+    def _handle_password_prompt(self):
         if hasattr(self._args, "password") and not self._args.password:
             PromptWithArgument(
                 message="Enter your private key (default: empty is random)",
@@ -219,7 +233,6 @@ class WalletCli:
                 default="",
                 argument="private_key",
                 validate=PrivateKeyValidator(allow_none=True),
-                # verbose=0,
             ).prompt()
 
         PromptWithArgument(
@@ -231,33 +244,36 @@ class WalletCli:
             validate=lambda result: len(result) >= 1,
         ).prompt()
 
-        if not self._args.private_key:
-            self._args.private_key = random_private_key()
+    def _save_wallet_to_file(self):
+        default_filename = f"{self._wallet.get('address')}_{date_utils.todaydate('ms_text')}.json"
+        PromptWithArgument(
+            message="Enter the name of JSON file to be saved.",
+            default=default_filename,
+            argument="keystore",
+            invalid_message="Requires at least one character.",
+            validate=lambda result: len(result) >= 1,
+        ).prompt()
 
-        self._wallet = load_wallet_key(self._args.private_key, password=self._args.password)
-        self.print_wallet()
+        if check_file_overwrite(filename=self._args.keystore):
+            self._generate_wallet()
 
-        if is_store_file:
-            default_filename = f"{self._wallet.get('address')}_{date_utils.todaydate('ms_text')}.json"
-            PromptWithArgument(
-                message="Enter the name of JSON file to be saved.",
-                default=default_filename,
-                argument="keystore",
-                invalid_message="Requires at least one character.",
-                validate=lambda result: len(result) >= 1,
-            ).prompt()
-            if check_file_overwrite(filename=self._args.keystore):
-                try:
-                    wallet = generate_wallet(
-                        file_path=self._args.keystore,
-                        password=self._args.password,
-                        overwrite=False,
-                        private_key=self._args.private_key,
-                        expected_address=self._wallet.get('address'),
-                    )
-                    pawn.console.log(f"Generate Wallet - {wallet.get_hx_address()} to '{self._args.keystore}'")
-                except Exception as e:
-                    pawn.console.log(f"[red][ERROR] Generate wallet - {e}")
+    def _generate_wallet(self, is_store_file=True):
+        try:
+            wallet = generate_wallet(
+                file_path=self._args.keystore,
+                password=self._args.password,
+                overwrite=False,
+                private_key=self._args.private_key,
+                expected_address=self._wallet.get('address'),
+                is_store_file=is_store_file
+            )
+            if is_store_file:
+                pawn.console.log(f"Generate Wallet - {wallet.get_hx_address()} to '{self._args.keystore}'")
+            else:
+                pawn.console.print(" 🔑 keystore content")
+                print_json(wallet.key_store_content)
+        except Exception as e:
+            pawn.console.log(f"[red][ERROR] Generate wallet - {e}")
 
     def print_wallet(self):
         if self._wallet:
@@ -282,11 +298,16 @@ def store_keystore_file_on_the_path(file_path, json_string, overwrite=False):
         f.write(json_string)
 
 
-def generate_wallet(file_path=None, password=None, overwrite=False, private_key=None, expected_address=None):
+def generate_wallet(file_path=None, password=None, overwrite=False, private_key=None, expected_address=None, is_store_file=True):
     singer = IcxSigner(data=private_key)
     if not file_path:
         file_path = f"{singer.get_hx_address()}_{date_utils.todaydate('ms_text')}.json"
-    singer.store(file_path, password, overwrite, expected_address=expected_address)
+
+    if is_store_file:
+        singer.store(file_path, password, overwrite, expected_address=expected_address)
+    else:
+        singer.create_key_store_content(password)
+
     return singer
 
 
@@ -456,6 +477,8 @@ class IcxSigner(object):
         """
         self._private_key_hex = None
         self._private_key_bytes = None
+        self.key_store_content = {}
+
         if data:
             self._check_private_key(data)
 
@@ -538,24 +561,41 @@ class IcxSigner(object):
         signature = privkey.sign(msg_hash, hasher=None)
         return signature
 
-    def store(self, file_path: str, password: str, overwrite: bool = False, expected_address: str = None):
+    def create_key_store_content(self, password: str, iterations=16384, kdf="scrypt"):
         try:
-            key_store_contents = create_keyfile_json(
+            self.key_store_content = {}
+            self.key_store_content = create_keyfile_json(
                 self.get_privkey_bytes(),
                 bytes(password, 'utf-8'),
+                iterations=iterations,
+                kdf=kdf
+            )
+            self.key_store_content['address'] = self.get_hx_address()
+            self.key_store_content['coinType'] = 'icx'
+            return self.key_store_content
+        except Exception as e:
+            raise ValueError(e)
+
+    def store(self, file_path: str, password: str, overwrite: bool = False, expected_address: str = None):
+        try:
+            # key_store_contents = create_keyfile_json(
+            #     self.get_privkey_bytes(),
+            #     bytes(password, 'utf-8'),
+            #     iterations=16384,
+            #     kdf="scrypt"
+            # )
+
+            self.key_store_content = self.create_key_store_content(
+                password,
                 iterations=16384,
                 kdf="scrypt"
             )
-            key_store_contents['address'] = self.get_hx_address()
-            key_store_contents['coinType'] = 'icx'
-
             # validate the  contents of a keystore file.
             if expected_address and expected_address != self.get_hx_address():
                 raise ValueError(f"Not expected address => expected({expected_address}) != real({self.get_hx_address()})")
 
-            import json
-            if key_store_contents:
-                json_string_keystore_data = json.dumps(key_store_contents)
+            if self.key_store_content:
+                json_string_keystore_data = json.dumps(self.key_store_content)
                 store_keystore_file_on_the_path(file_path, json_string_keystore_data, overwrite)
                 pawn.console.debug(f"Stored Wallet. Address: {self.get_hx_address()}, File path: {file_path}")
         except FileExistsError:

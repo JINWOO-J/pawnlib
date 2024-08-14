@@ -96,7 +96,7 @@ clean:
 
 
 build: make_build_args clean test
-		#python3 setup.py bdist_wheel
+		@echo "Building project with name: $(NAME)"
 		hatchling build
 
 
@@ -146,5 +146,5 @@ local: build
 	pip3 install dist/pawnlib-$(VERSION)-py3-none-any.whl --force-reinstall
 
 local_deploy: build
-	scp dist/pawnlib-$(VERSION)-py3-none-any.whl root@$(LOCAL_SERVER):/app/;
-	ssh root@$(LOCAL_SERVER) pip3 install /app/pawnlib-$(VERSION)-py3-none-any.whl --force-reinstall
+	scp dist/$(NAME)-$(VERSION)-py3-none-any.whl root@$(LOCAL_SERVER):/app/;
+	ssh root@$(LOCAL_SERVER) pip3 install /app/$(NAME)-$(VERSION)-py3-none-any.whl --force-reinstall
