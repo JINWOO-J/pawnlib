@@ -2861,33 +2861,33 @@ def format_hex(input_str):
 
 def decode_jwt(jwt_token, use_kst=False):
     """
- Decode a JWT token and return its header, payload, and expiration details.
+     Decode a JWT token and return its header, payload, and expiration details.
 
- :param jwt_token: The JWT token to decode.
- :param use_kst: Boolean indicating whether to convert expiration time to KST timezone.
- :return: A dictionary containing the decoded header, payload, expiration time, remaining time, and remaining seconds.
+     :param jwt_token: The JWT token to decode.
+     :param use_kst: Boolean indicating whether to convert expiration time to KST timezone.
+     :return: A dictionary containing the decoded header, payload, expiration time, remaining time, and remaining seconds.
 
- Example:
+     Example:
 
-     .. code-block:: python
+         .. code-block:: python
 
-         decoded = decode_jwt("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhIiwicGVybWlzc2lvbnMiOiJ1c2VyIiwiZXhwIjoxNzIzNjAxMjI5fQ.OVkMM0MSH48qk25TN1LyJytfGa5QG4IyhBqVk9GyyzI")
-         print(decoded["header"])
-         # >> {'typ': 'JWT', 'alg': 'HS256'}
+             decoded = decode_jwt("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhIiwicGVybWlzc2lvbnMiOiJ1c2VyIiwiZXhwIjoxNzIzNjAxMjI5fQ.OVkMM0MSH48qk25TN1LyJytfGa5QG4IyhBqVk9GyyzI")
+             print(decoded["header"])
+             # >> {'typ': 'JWT', 'alg': 'HS256'}
 
-         print(decoded["payload"])
-         # >> {'sub': 'a', 'permissions': 'user', 'exp': 1723601229}
+             print(decoded["payload"])
+             # >> {'sub': 'a', 'permissions': 'user', 'exp': 1723601229}
 
-         print(decoded["expiration_time"])
-         # >> '2024-08-14 02:07:09 UTC'
+             print(decoded["expiration_time"])
+             # >> '2024-08-14 02:07:09 UTC'
 
-         print(decoded["remaining_time"])
-         # >> 'Token has expired'
+             print(decoded["remaining_time"])
+             # >> 'Token has expired'
 
-         print(decoded["remaining_seconds"])
-         # >> 0
+             print(decoded["remaining_seconds"])
+             # >> 0
 
- """
+     """
     try:
         header_base64, payload_base64, signature_base64 = jwt_token.split('.')
 
