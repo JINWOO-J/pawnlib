@@ -154,6 +154,8 @@ def main():
         longest_length = max(len(item[0]) for item in interface_list)
 
         for interface, ipaddr in get_interface_ips(ignore_interfaces=['lo0', 'lo']):
+            pawn.console.log(f"--- {ipaddr}")
+
             result['network'][interface] = ipaddr
             if "G/W" in ipaddr:
                 interface = f"[bold blue][on #050B27]{interface:<{longest_length}} [/bold blue]"

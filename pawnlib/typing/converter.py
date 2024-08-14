@@ -18,7 +18,7 @@ from pawnlib import logger
 from pawnlib.typing.constants import const
 from pawnlib.config.__fix_import import Null
 import statistics
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 try:
     from typing import Literal
@@ -2857,3 +2857,93 @@ def format_hex(input_str):
         return '0x' + input_str[1:]
     else:
         return '0x' + input_str
+
+
+def decode_jwt(jwt_token, use_kst=False):
+    """
+ Decode a JWT token and return its header, payload, and expiration details.
+
+ :param jwt_token: The JWT token to decode.
+ :param use_kst: Boolean indicating whether to convert expiration time to KST timezone.
+ :return: A dictionary containing the decoded header, payload, expiration time, remaining time, and remaining seconds.
+
+ Example:
+
+     .. code-block:: python
+
+         decoded = decode_jwt("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhIiwicGVybWlzc2lvbnMiOiJ1c2VyIiwiZXhwIjoxNzIzNjAxMjI5fQ.OVkMM0MSH48qk25TN1LyJytfGa5QG4IyhBqVk9GyyzI")
+         print(decoded["header"])
+         # >> {'typ': 'JWT', 'alg': 'HS256'}
+
+         print(decoded["payload"])
+         # >> {'sub': 'a', 'permissions': 'user', 'exp': 1723601229}
+
+         print(decoded["expiration_time"])
+         # >> '2024-08-14 02:07:09 UTC'
+
+         print(decoded["remaining_time"])
+         # >> 'Token has expired'
+
+         print(decoded["remaining_seconds"])
+         # >> 0
+
+ """
+    try:
+        header_base64, payload_base64, signature_base64 = jwt_token.split('.')
+
+        header_bytes = base64.urlsafe_b64decode(header_base64 + '==')
+        header = json.loads(header_bytes)
+
+        payload_bytes = base64.urlsafe_b64decode(payload_base64 + '==')
+        payload = json.loads(payload_bytes)
+
+        iat_timestamp = payload.get('iat')
+        exp_timestamp = payload.get('exp')
+
+        if iat_timestamp:
+            iat_datetime_utc = datetime.fromtimestamp(iat_timestamp, tz=timezone.utc)
+            if use_kst:
+                kst_timezone = timezone(timedelta(hours=9))
+                iat_datetime = iat_datetime_utc.astimezone(kst_timezone)
+            else:
+                iat_datetime = iat_datetime_utc
+        else:
+            iat_datetime = None
+
+        if exp_timestamp:
+            exp_datetime_utc = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+            if use_kst:
+                kst_timezone = timezone(timedelta(hours=9))
+                exp_datetime = exp_datetime_utc.astimezone(kst_timezone)
+                current_time = datetime.now(tz=kst_timezone)
+            else:
+                exp_datetime = exp_datetime_utc
+                current_time = datetime.now(tz=timezone.utc)
+
+            time_difference = exp_datetime - current_time
+            total_seconds = int(time_difference.total_seconds())
+
+            if total_seconds > 0:
+                days = time_difference.days
+                hours, remainder = divmod(time_difference.seconds, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                remaining_time = f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds"
+            else:
+                remaining_time = "Token has expired"
+                # total_seconds = 0
+        else:
+            exp_datetime = None
+            remaining_time = None
+            total_seconds = None
+
+        return {
+            "header": header,
+            "payload": payload,
+            "issued_at": iat_datetime.strftime('%Y-%m-%d %H:%M:%S %Z') if iat_datetime else None,
+            "expiration_time": exp_datetime.strftime('%Y-%m-%d %H:%M:%S %Z') if exp_datetime else None,
+            "remaining_time": remaining_time,
+            "remaining_seconds": total_seconds
+        }
+    except Exception as e:
+        print(f"Error decoding JWT: {e}")
+        return {}
