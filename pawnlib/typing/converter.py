@@ -1427,7 +1427,7 @@ def dict_to_line(dict_param: dict, quotes: Literal[None, 'all', 'strings_only'] 
     def _format_with_alignment(text, width, alignment):
         formats = {'left': f"<{width}", 'right': f">{width}", 'center': f"^{width}"}
         format_spec = formats.get(alignment, "<")
-        return f"{text:{format_spec}}"
+        return f"{str(text):{format_spec}}"  # Convert to string before formatting
 
     formatted_pairs = []
     items = dict_param.items()
@@ -1450,7 +1450,6 @@ def dict_to_line(dict_param: dict, quotes: Literal[None, 'all', 'strings_only'] 
         formatted_pairs.append(f"{formatted_key}{separator}{formatted_value}")
 
     return end_separator.join(formatted_pairs)
-
 
 def dict_none_to_zero(data: dict) -> dict:
     """

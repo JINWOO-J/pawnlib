@@ -215,14 +215,63 @@ def subnet_mask_to_decimal(subnet_mask):
     return None
 
 
-def get_interface_ips(ignore_interfaces=None, detail=True, is_sort=True):
+# def get_interface_ips(ignore_interfaces=None, detail=False, is_sort=True):
+#     """
+#     Get the IP addresses of the interfaces.
+#
+#     :param ignore_interfaces: A list of interface names to ignore.
+#     :param detail: Whether to show detailed information or not.
+#     :param is_sort: Whether to sort the results or not.
+#     :return: A list of tuples containing interface name and IP address.
+#
+#     Example:
+#
+#         .. code-block:: python
+#
+#             from pawnlib.resource import server
+#
+#             server.get_interface_ips()
+#             # >> [('lo', '127.0.0.1 / 8'), ('wlan0', '192.168.0.10 / 24, G/W: 192.168.0.1')]
+#
+#     """
+#     interfaces_and_ips = []
+#
+#     if ignore_interfaces is None:
+#         ignore_interfaces = []
+#
+#     interface_names = get_interface_names()
+#     default_route, default_interface = get_default_route_and_interface()
+#
+#     for interface_name in interface_names:
+#         if interface_name in ignore_interfaces:
+#             continue
+#
+#         if detail:
+#             ip_and_netmask = get_ip_and_netmask(interface_name)
+#             ip_address = f"{ip_and_netmask[0]:<15} / {ip_and_netmask[1]}" if len(ip_and_netmask) > 1 else " ".join(ip_and_netmask)
+#         else:
+#             ip_address = " ".join(get_ip_addresses(interface_name))
+#
+#         if ip_address:
+#             if default_interface and default_route and interface_name == default_interface:
+#                 ip_address += f", G/W: {default_route}"
+#
+#             interfaces_and_ips.append((interface_name, ip_address))
+#
+#     if is_sort:
+#         interfaces_and_ips.sort(key=lambda x: 'G/W' in x[1], reverse=True)
+#
+#     return interfaces_and_ips
+
+
+def get_interface_ips(ignore_interfaces=None, detail=False, is_sort=True):
     """
     Get the IP addresses of the interfaces.
 
     :param ignore_interfaces: A list of interface names to ignore.
     :param detail: Whether to show detailed information or not.
     :param is_sort: Whether to sort the results or not.
-    :return: A list of tuples containing interface name and IP address.
+    :return: A list of tuples containing interface name and IP address or a dictionary with IP, subnet, and gateway.
 
     Example:
 
@@ -231,7 +280,10 @@ def get_interface_ips(ignore_interfaces=None, detail=True, is_sort=True):
             from pawnlib.resource import server
 
             server.get_interface_ips()
-            # >> [('lo', '127.0.0.1 / 8'), ('wlan0', '192.168.0.10 / 24, G/W: 192.168.0.1')]
+            # >> [('lo', '127.0.0.1 / 8'), ('wlan0', '192.168.0.10, G/W: 192.168.0.1')]
+
+            server.get_interface_ips(detail=True)
+            # >>  [ ('en0', {'ip': '20.22.1.13', 'subnet': '255.255.252.0', 'gateway': '20.22.0.1'}),('utun4', {'ip': '43.62.13.6'})]
 
     """
     interfaces_and_ips = []
@@ -248,18 +300,28 @@ def get_interface_ips(ignore_interfaces=None, detail=True, is_sort=True):
 
         if detail:
             ip_and_netmask = get_ip_and_netmask(interface_name)
-            ip_address = f"{ip_and_netmask[0]:<15} / {ip_and_netmask[1]}" if len(ip_and_netmask) > 1 else " ".join(ip_and_netmask)
+            ip_dict = {}
+
+            # Only add to the dict if the IP value exists
+            if ip_and_netmask and len(ip_and_netmask) > 0:
+                ip_dict["ip"] = ip_and_netmask[0]
+                if len(ip_and_netmask) > 1:
+                    ip_dict["subnet"] = ip_and_netmask[1]
+                if default_interface and interface_name == default_interface and default_route:
+                    ip_dict["gateway"] = default_route
+
+            ip_address = ip_dict
         else:
             ip_address = " ".join(get_ip_addresses(interface_name))
 
-        if ip_address:
-            if default_interface and default_route and interface_name == default_interface:
-                ip_address += f", G/W: {default_route}"
+            # if default_interface and default_route and interface_name == default_interface:
+            #     ip_address += f", G/W: {default_route}"
 
+        if ip_address:
             interfaces_and_ips.append((interface_name, ip_address))
 
     if is_sort:
-        interfaces_and_ips.sort(key=lambda x: 'G/W' in x[1], reverse=True)
+        interfaces_and_ips.sort(key=lambda x: 'gateway' in x[1] if isinstance(x[1], dict) else 'G/W' in x[1], reverse=True)
 
     return interfaces_and_ips
 
@@ -638,24 +700,44 @@ def _line_split(line="", sep=":", d=0, data_type: Callable = str):
     return data_type()
 
 
-def get_rlimit_nofile():
+def get_rlimit_nofile(detail=False):
     """
+    Returns a dict with the current soft and hard limits of resource.
+    If detail is True, it also includes the number of used file handles
+    and their usage percentage.
 
-    Returns a dict (soft, hard) with the current soft and hard limits of resource
-
-    :return:
+    :param detail: If True, include used_handles and usage_percentage.
+    :return: A dictionary containing 'soft', 'hard', and optionally 'used_handles', 'usage_percentage'.
 
     Example:
 
         .. code-block:: python
 
             from pawnlib.resource import server
-            server.get_rlimit_nofile()
+            server.get_rlimit_nofile(detail=True)
 
+            ## > {'soft': 1024, 'hard': 4096, 'used_handles': 512, 'usage_percentage': 50.0}
 
     """
     soft, hard = __resource.getrlimit(__resource.RLIMIT_NOFILE)
-    return {"soft": soft, "hard": hard}
+
+    result = {
+        "soft": soft,
+        "hard": hard
+    }
+
+    if detail:
+        # Use lsof to count the number of currently open file handles
+        used_handles = int(subprocess.check_output("lsof 2>&1 | grep -v 'no pwd entry for UID'| wc -l", shell=True).strip())
+
+        # Calculate the percentage of used file handles
+        usage_percentage = (used_handles / soft) * 100 if soft > 0 else 0
+
+        # Add these details to the result
+        result["used_handles"] = used_handles
+        result["usage_percentage"] = round(usage_percentage, 2)  # Round to two decimal places
+
+    return result
 
 
 def get_mac_platform_info():
@@ -692,10 +774,9 @@ def get_mac_platform_info():
 
 def get_platform_info(**kwargs):
     """
+    Returns a dict with platform information, including the specific operating system.
 
-    Returns a dict with platform information
-
-    :return:
+    :return: A dictionary containing platform information.
 
     Example:
 
@@ -704,46 +785,58 @@ def get_platform_info(**kwargs):
             from pawnlib.resource import server
             server.get_platform_info()
 
-            ## > {'system': 'Darwin', 'version': 'Darwin Kernel Version 21.6.0: Wed Aug 10 14:28:23 PDT 2022; root:xnu-8020.141.5~2/RELEASE_ARM64_T6000', 'release': '21.6.0', 'machine': 'arm64', 'processor': 'arm', 'python_version': '3.9.13', 'model': 'Apple M1 Pro', 'cores': 10}
-
+            ## > {'system': 'Darwin', 'os': 'macOS', 'version': 'Darwin Kernel Version 21.6.0: Wed Aug 10 14:28:23 PDT 2022; root:xnu-8020.141.5~2/RELEASE_ARM64_T6000', 'release': '21.6.0', 'machine': 'arm64', 'processor': 'arm', 'python_version': '3.9.13', 'model': 'Apple M1 Pro', 'cores': 10}
 
     """
 
     try:
         uname = platform.uname()
         python_version = platform.python_version()
+        os_name = "Unknown"
+
+        if uname.system == "Darwin":
+            os_name = "macOS"
+        elif uname.system == "Linux":
+            if os.path.exists("/etc/os-release"):
+                with open("/etc/os-release") as f:
+                    for line in f:
+                        if line.startswith("ID="):
+                            os_name = line.strip().split("=")[1].strip('"')
+                            break
+        elif uname.system == "Windows":
+            os_name = "Windows"
+
         platform_info = {
             "system": uname.system,
+            "os": os_name,
             "version": uname.version,
             "release": uname.release,
             "machine": uname.machine,
             "processor": uname.processor,
             "python_version": python_version,
         }
-    except:
+    except Exception as e:
+        print(e)
         platform_info = {}
 
     if platform_info.get('system') == "Darwin":
         platform_info.update(**get_mac_platform_info())
-
     else:
         try:
             with open('/proc/cpuinfo') as f:
                 cpu_count = 0
                 model = None
                 for line in f:
-                    # Ignore the blank line separating the information between
-                    # details about two processing units
                     if line.strip():
                         if line.rstrip('\n').startswith('model name'):
-                            model_name = line.rstrip('\n').split(':')[1]
+                            model_name = line.rstrip('\n').split(':')[1].strip()
                             model = model_name
-                            model = model.strip()
                             cpu_count += 1
                 platform_info['model'] = model
                 platform_info['cores'] = cpu_count
         except Exception as e:
             print(e)
+
     if isinstance(kwargs, dict):
         platform_info.update(kwargs)
 
@@ -826,6 +919,83 @@ def get_iowait():
         pawn.console.debug(f"Unsupported operating system: {system}")
 
 
+def get_uptime():
+    if os.name == 'posix':
+        if "Darwin" in os.uname().sysname:
+            uptime_seconds = float(subprocess.check_output("sysctl -n kern.boottime | awk '{print $4}' | sed 's/,//'", shell=True).strip())
+            current_time = time.time()
+            uptime_seconds = current_time - uptime_seconds
+        else:  # Linux
+            with open('/proc/uptime', 'r') as f:
+                uptime_seconds = float(f.readline().split()[0])
+
+        uptime_days = uptime_seconds // (24 * 3600)
+        uptime_seconds %= (24 * 3600)
+        uptime_hours = uptime_seconds // 3600
+        uptime_seconds %= 3600
+        uptime_minutes = uptime_seconds // 60
+
+        return f" {int(uptime_days)} days, {int(uptime_hours)} hours, {int(uptime_minutes)} minutes"
+    else:
+        return "Not supported Uptime on this OS"
+
+def get_swap_usage():
+    if os.name != 'posix':
+        return "Swap Usage: Not supported on this OS"
+
+    if "Darwin" in os.uname().sysname:  # macOS
+        return get_macos_swap_usage()
+    else:  # Linux
+        return get_linux_swap_usage()
+
+
+def get_macos_swap_usage():
+    try:
+        swap_info = subprocess.check_output("sysctl vm.swapusage", shell=True).decode().strip()
+        match = re.search(r'total = (\d+\.\d+)M.*used = (\d+\.\d+)M', swap_info)
+        if not match:
+            raise ValueError("Unexpected swap info format")
+
+        total_swap, used_swap = map(float, match.groups())
+        total_swap_gb = total_swap / 1024
+        used_swap_gb = used_swap / 1024
+
+        return format_swap_usage(used_swap_gb, total_swap_gb)
+    except (subprocess.CalledProcessError, ValueError) as e:
+        return f"Error getting swap usage: {str(e)}"
+
+
+def get_linux_swap_usage():
+    try:
+        with open('/proc/meminfo') as f:
+            meminfo = f.read()
+
+        total_swap = parse_meminfo_line(meminfo, "SwapTotal")
+        free_swap = parse_meminfo_line(meminfo, "SwapFree")
+
+        total_swap_gb = total_swap / 1024 / 1024
+        used_swap_gb = (total_swap - free_swap) / 1024 / 1024
+
+        return format_swap_usage(used_swap_gb, total_swap_gb)
+    except (IOError, ValueError) as e:
+        return f"Error getting swap usage: {str(e)}"
+
+
+def parse_meminfo_line(meminfo, key):
+    for line in meminfo.splitlines():
+        if key in line:
+            return int(line.split()[1])
+    raise ValueError(f"{key} not found in meminfo")
+
+
+def format_swap_usage(used_swap_gb, total_swap_gb):
+    if total_swap_gb == 0:
+        return "No swap configured"
+
+    usage_percentage = (used_swap_gb / total_swap_gb) * 100
+    return f"{used_swap_gb:.2f} GB / {total_swap_gb:.2f} GB ({usage_percentage:.2f}%)"
+
+
 def get_uptime_cmd() -> dict:
     """
     Returns dict with current cpu load average using uptime command
@@ -846,6 +1016,11 @@ def get_uptime_cmd() -> dict:
     load_raw = raw.split('load averages:')[1].strip()
     # load_list = load_raw.split(' ')
     return parse_cpu_load(load_raw)
+
+
+def get_load_average():
+    load1, load5, load15 = os.getloadavg()
+    return f"{load1:.2f}, {load5:.2f}, {load15:.2f} (1, 5, 15 minutes)"
 
 
 def get_total_memory_usage() -> float:
@@ -1059,7 +1234,8 @@ def io_flags_to_string(flags):
 class DiskUsage:
     def __init__(self):
         self.ignore_partitions = [
-            "/System/Volumes", "/private/var/folders/", "/sys", "/proc", "/dev", "/run/docker/netns", "/var/lib/docker"
+            "/System/Volumes", "/private/var/folders/", "/sys", "/proc", "/dev", "/run/docker/netns", "/var/lib/docker",
+            "/run", "/snap", "/boot/efi"
         ]
         self.unit_factors = {
             "B": 1,
