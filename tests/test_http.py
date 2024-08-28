@@ -31,6 +31,7 @@ class TestMethodRequest(unittest.TestCase):
         ("append api v3 path with normal url", append_api_v3, dict(url="http://asd.com"), "http://asd.com/api/v3"),
         ("url already contains api v3", append_api_v3, dict(url="http://asd.com/api/v3"), "http://asd.com/api/v3"),
         ("url already contains api v3", append_api_v3, dict(url="asd.com/api/v3"), "http://asd.com/api/v3"),
+        ("url already contains api v3d", append_api_v3, dict(url="asd.com/api/v3d"), "http://asd.com/api/v3d"),
     ])
 
     def test_02_append_api_v3(self, name, function=None, params={}, expected_value=None):

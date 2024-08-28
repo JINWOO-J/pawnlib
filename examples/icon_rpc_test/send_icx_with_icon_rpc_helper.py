@@ -46,9 +46,10 @@ payload = generator.json_rpc(
     }
 )
 
-
+pawn.console.rule("Sign TX")
 signed_transaction = icon_rpc.sign_tx(payload=payload)
 print_var(signed_transaction)
+pawn.console.rule("Send TX")
 tx_result = icon_rpc.sign_send(is_block_time=True)
 pawn.console.print(f"tx_result={tx_result}, elapsed={icon_rpc.get_total_elapsed()}, elapsed={icon_rpc.get_elapsed().sum()}")
 

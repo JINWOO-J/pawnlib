@@ -918,7 +918,6 @@ class IconRpcHelper:
             if _tx['params'].get(key, '__NOT_DEFINED__') != "__NOT_DEFINED__":
                 pawn.console.debug(f"Remove the unnecessary '{key}' in payload")
                 del _tx['params'][key]
-
         estimate_step = self.get_estimate_step(tx=_tx)
         _guess_step_kind = self._guess_step_kind(tx=_tx)
         pawn.console.debug(f"guess step_kind = {_guess_step_kind}")
@@ -1441,13 +1440,8 @@ def append_ws(url):
     return url
 
 
-# def append_api_v3(url):
-#     if "/api/v3" not in url:
-#         return append_http(f"{url}/api/v3")
-#     return append_http(url)
-
 def append_api_v3(url):
-    if not url.endswith("/api/v3"):
+    if "/api/v3" not in url:
         url = f"{url.rstrip('/')}/api/v3"
     return append_http(url)
 
