@@ -2,6 +2,7 @@ import logging
 import os
 import configparser
 import sys
+import json
 from uuid import uuid4
 from pathlib import Path
 from typing import Optional, Callable
@@ -41,49 +42,101 @@ class ConfigManager:
 
 class NestedNamespace(SimpleNamespace):
     @staticmethod
-    def _______map_____entry(entry):
+    def _map_entry(entry):
+        """
+        Helper method to map dictionary entries to NestedNamespace instances.
+
+        :param entry: Dictionary or other object to map.
+        :return: NestedNamespace instance if the entry is a dictionary, otherwise returns the entry as is.
+        """
         if isinstance(entry, dict):
             return NestedNamespace(**entry)
-
         return entry
 
     def __init__(self, **kwargs):
+        """
+        Initialize the NestedNamespace with nested dictionaries and lists converted to NestedNamespace instances.
+
+        :param kwargs: Keyword arguments where values can be dictionaries or lists.
+        """
         super().__init__(**kwargs)
         for key, val in kwargs.items():
             if isinstance(val, dict):
                 setattr(self, key, NestedNamespace(**val))
             elif isinstance(val, list):
-                setattr(self, key, list(map(self._______map_____entry, val)))
+                setattr(self, key, list(map(self._map_entry, val)))
 
-    def _keys(self) -> list:
+    def keys(self) -> list:
+        """
+        Get a list of keys in the current namespace.
+
+        :return: List of keys.
+        """
         return list(self.__dict__.keys())
 
-    def _values(self) -> list:
+    def values(self) -> list:
+        """
+        Get a list of values in the current namespace.
+
+        :return: List of values.
+        """
         return list(self.__dict__.values())
 
     def as_dict(self) -> dict:
+        """
+        Convert the NestedNamespace to a dictionary, recursively converting all nested namespaces.
+
+        :return: Dictionary representation of the NestedNamespace.
+        """
         return self._namespace_to_dict(self.__dict__)
 
     def _namespace_to_dict(self, _dict):
-        dict2 = {}
-        for k in _dict.keys():
-            if isinstance(_dict[k], dict) or isinstance(_dict[k], NestedNamespace):
-                dict2[k] = self._namespace_to_dict(_dict[k]._asdict())
+        """
+        Helper method to recursively convert a NestedNamespace to a dictionary.
+
+        :param _dict: The dictionary to convert.
+        :return: Converted dictionary.
+        """
+        result = {}
+        for key, value in _dict.items():
+            if isinstance(value, (dict, NestedNamespace)):
+                result[key] = self._namespace_to_dict(value._asdict())
             else:
-                dict2[k] = _dict[k]
-        return dict2
+                result[key] = value
+        return result
 
     def _asdict(self) -> dict:
+        """
+        Get the internal dictionary representation of the current namespace.
+
+        :return: Internal dictionary representation.
+        """
         return self.__dict__
 
-    # def __repr__(self):
-    #     'Return a nicely formatted representation string'
-    #     field_names = tuple(self.as_dict().keys())
-    #     field_values = tuple(self.as_dict().values())
-    #     indent = "\n    "
-    #     # indent = ""
-    #     repr_fmt = '(' + ', '.join(f'{indent}{name}=%r' for name in field_names) + f'{indent})'
-    #     return self.__class__.__name__ + repr_fmt % field_values
+    def get_nested(self, keys: list):
+        """
+        Retrieve a nested value from the namespace using a list of keys.
+
+        :param keys: List of keys to traverse the nested structure.
+        :return: The nested value if found, otherwise None.
+
+        Example:
+            >>> ns = NestedNamespace(level1={'level2': {'level3': 'value'}})
+            >>> ns.get_nested(['level1', 'level2', 'level3'])
+            'value'
+
+            >>> ns.get_nested(['level1', 'nonexistent', 'level3'])
+            None
+        """
+        result = self
+        for key in keys:
+            if isinstance(result, dict):
+                result = result.get(key, None)
+            else:
+                result = getattr(result, key, None)
+            if result is None:
+                return None
+        return result
 
     def __repr__(self, indent=4):
         result = self.__class__.__name__ + '('
@@ -210,14 +263,25 @@ class ConfigSectionMap(configparser.ConfigParser):
     def get_default(self):
         return dict(self._defaults)
 
+#
+# class Singleton(type):
+#     _instances = {}
+#
+#     def __call__(cls, *args, **kwargs):
+#         if cls not in cls._instances:
+#             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+#         return cls._instances[cls]
 
 class Singleton(type):
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+        if cls in cls._instances:
+            print(f"[WARN] {cls.__name__} instance already exists. Returning the existing instance.")
+            return cls._instances[cls]
+        instance = super(Singleton, cls).__call__(*args, **kwargs)
+        cls._instances[cls] = instance
+        return instance
 
 
 # @singleton
@@ -377,7 +441,17 @@ class PawnlibConfig(metaclass=Singleton):
             try:
                 if _config_filename.is_file():
                     config.read(_config_filename)
-                    self.set(PAWN_CONFIG=config.as_dict())
+                    config_dict = config.as_dict()
+                    for section, config_item in config_dict.items():
+                        for key, value in config_dict[section].items():
+                            # Try to parse value as JSON
+                            try:
+                                parsed_value = json.loads(value)
+                                config_dict[section][key] = parsed_value
+                            except (json.JSONDecodeError, TypeError):
+                                # If it's not JSON, just keep the original value
+                                config_dict[section][key] = value
+                    self.set(PAWN_CONFIG=config_dict)
                 else:
                     self.set(PAWN_CONFIG={})
                     self.console.debug(f"[bold red] cannot found config_file - {_config_filename}")
@@ -866,7 +940,7 @@ class PawnlibConfig(metaclass=Singleton):
     def __str__(self):
         return f"<{self.version.title()}>[{self.global_name}]\n{self.to_dict()}"
 
-    def conf(self) -> namedtuple:
+    def conf(self) -> NestedNamespace:
         """Access global configuration as a :class:`pawnlib.config.globalconfig.PawnlibConfig`.
 
         Example:
