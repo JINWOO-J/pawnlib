@@ -1169,16 +1169,18 @@ def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = Fal
     else:
         return converted_value
 
-
-def int_to_loop_hex(value: float) -> str:
+def int_to_loop_hex(value: float, rounding: Literal['floor', 'round'] = 'floor') -> str:
     """
-    Convert an integer to a hexadecimal string representing the value multiplied by 10^18.
+    Convert a float to a hexadecimal string representing the value multiplied by 10^18.
 
-    :param value: Integer value to be converted. Must be non-negative.
-    :type value: int
+    :param value: Float value to be converted. Must be non-negative.
+    :type value: float
+    :param rounding: Rounding method to use ('floor' or 'round'). Defaults to 'floor'.
+    :type rounding: Literal['floor', 'round']
     :return: Hexadecimal string of the loop value.
     :rtype: str
     :raises ValueError: If the input value is negative.
+    :raises TypeError: If the input value is not a numeric type.
 
     Example:
 
@@ -1189,7 +1191,13 @@ def int_to_loop_hex(value: float) -> str:
             # >> '0xde0b6b3a7640000'
 
             int_to_loop_hex(123)
-            # >> '0x6f05b59d3b2000000'
+            # >> '0x6f05b59d3b20000000'
+
+            int_to_loop_hex(1.1, rounding='floor')
+            # >> '0xf43fc2c04ee0000'
+
+            int_to_loop_hex(1.1, rounding='round')
+            # >> '0xf43fc2c04ee0000'
 
             int_to_loop_hex(0)
             # >> '0x0'
@@ -1201,7 +1209,15 @@ def int_to_loop_hex(value: float) -> str:
         raise TypeError("Value must be a numeric type (int or float).")
     if value < 0:
         raise ValueError("Negative values are not allowed.")
-    loop_value = value * 10**18
+
+    if rounding not in ['floor', 'round']:
+        raise ValueError("Rounding must be either 'floor' or 'round'.")
+
+    if rounding == 'floor':
+        loop_value = math.floor(value * 10**18)
+    else:  # rounding == 'round'
+        loop_value = round(value * 10**18)
+
     hex_value = hex(loop_value)
     return hex_value
 
