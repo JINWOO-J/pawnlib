@@ -33,6 +33,7 @@ from pawnlib.typing import (
     random_private_key,
     remove_tags,
     is_valid_url,
+    int_to_loop_hex
 )
 
 import datetime
@@ -212,6 +213,13 @@ class TestTyping(unittest.TestCase):
         self.assertEqual(list_depth(depth_1_list), 1)
         self.assertEqual(list_depth(depth_2_list), 2)
         self.assertEqual(list_depth(depth_5_list), 5)
+
+    def test_int_to_loop_hex(self, name=None, function=None, param=None, expected_value=None):
+        test_sets = [ 0, 1, 100, 2323, 23233]
+        for number in test_sets:
+            converted_hex = int_to_loop_hex(number)
+            converted_int = hex_to_number(converted_hex)
+            self.assertEqual(number, converted_int)
 
     def test_check_is_valid_url(self):
 
