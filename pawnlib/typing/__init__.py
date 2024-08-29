@@ -38,6 +38,7 @@ from .converter import (
     convert_hex_to_int,
     convert_dict_hex_to_int,
     hex_to_number,
+    int_to_loop_hex,
     get_size,
     get_value_size,
     convert_bytes,

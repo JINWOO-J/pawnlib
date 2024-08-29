@@ -1170,6 +1170,42 @@ def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = Fal
         return converted_value
 
 
+def int_to_loop_hex(value: float) -> str:
+    """
+    Convert an integer to a hexadecimal string representing the value multiplied by 10^18.
+
+    :param value: Integer value to be converted. Must be non-negative.
+    :type value: int
+    :return: Hexadecimal string of the loop value.
+    :rtype: str
+    :raises ValueError: If the input value is negative.
+
+    Example:
+
+        .. code-block:: python
+            from pawnlib.typing import int_to_loop_hex
+
+            int_to_loop_hex(1)
+            # >> '0xde0b6b3a7640000'
+
+            int_to_loop_hex(123)
+            # >> '0x6f05b59d3b2000000'
+
+            int_to_loop_hex(0)
+            # >> '0x0'
+
+            int_to_loop_hex(-1)
+            # Raises ValueError: Negative values are not allowed.
+    """
+    if not isinstance(value, (int, float)):
+        raise TypeError("Value must be a numeric type (int or float).")
+    if value < 0:
+        raise ValueError("Negative values are not allowed.")
+    loop_value = value * 10**18
+    hex_value = hex(loop_value)
+    return hex_value
+
+
 def get_size(file_path: str = '', attr=False):
     """
 
