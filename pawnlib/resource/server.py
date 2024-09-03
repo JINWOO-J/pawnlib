@@ -1235,13 +1235,16 @@ class DiskUsage:
     def __init__(self):
         self.ignore_partitions = [
             "/System/Volumes", "/private/var/folders/", "/sys", "/proc", "/dev", "/run/docker/netns", "/var/lib/docker",
-            "/run", "/snap", "/boot/efi"
+            "/run", "/snap", "/boot/efi", "/var/lib/nfs/rpc_pipefs",
+            "/var/run",  "/var/lock", "/media" , "/mnt",
         ]
         self.unit_factors = {
             "B": 1,
             "KB": 1024,
             "MB": 1024**2,
-            "GB": 1024**3
+            "GB": 1024**3,
+            "TB": 1024**4,
+            "PB": 1024**5
         }
 
     def match_list(self, patterns, text):
@@ -1281,12 +1284,74 @@ class DiskUsage:
             raise NotImplementedError("Unsupported operating system")
         return mount_points
 
-    @staticmethod
-    def calculate_disk_usage(mount_point, factor, precision, unit):
+    # @staticmethod
+    # def calculate_disk_usage(mount_point, factor, precision, unit):
+    #     """
+    #     Helper function to calculate disk usage for a given mount point.
+    #     """
+    #     total, used, free = shutil.disk_usage(mount_point)
+    #     return {
+    #         "total": round(total / factor, precision),
+    #         "used": round(used / factor, precision),
+    #         "free": round(free / factor, precision),
+    #         "percent": round(used / total * 100, precision) if total > 0 else 0,
+    #         "unit": unit
+    #     }
+
+    def get_disk_usage(self, mount_point="/", unit="GB", precision=2):
         """
-        Helper function to calculate disk usage for a given mount point.
+        Get disk usage information for a specific mount point or all mount points.
+
+        :param mount_point: Mount point to check. Use "/", "/home", or "all".
+        :param unit: Unit for disk usage. Can be "B", "KB", "MB", "GB", "TB", or "auto". Default is "GB".
+        :param precision: Number of decimal places for the output. Default is 2.
+        :return: Disk usage information.
+        """
+        if unit not in self.unit_factors and unit != "auto":
+            raise ValueError(f"Unsupported unit: {unit}. Supported units are B, KB, MB, GB, TB, auto.")
+
+        disk_info = {}
+
+        if mount_point == "all":
+            for mount_point in self.get_mount_points():
+                if os.path.ismount(mount_point):
+                    disk_info[mount_point] = self.calculate_disk_usage_with_auto_unit(mount_point, precision, unit)
+        else:
+            if os.path.ismount(mount_point):
+                disk_info[mount_point] = self.calculate_disk_usage_with_auto_unit(mount_point, precision, unit)
+            else:
+                raise ValueError(f"{mount_point} is not a valid mount point")
+
+        return disk_info
+
+    def calculate_disk_usage_with_auto_unit(self, mount_point, precision, unit):
+        """
+        Calculate disk usage with automatic unit selection if 'auto' is specified.
         """
         total, used, free = shutil.disk_usage(mount_point)
+
+        if unit == "auto":
+            if total >= self.unit_factors["PB"]:
+                factor = self.unit_factors["PB"]
+                unit = "PB"
+            elif total >= self.unit_factors["TB"]:
+                factor = self.unit_factors["TB"]
+                unit = "TB"
+            elif total >= self.unit_factors["GB"]:
+                factor = self.unit_factors["GB"]
+                unit = "GB"
+            elif total >= self.unit_factors["MB"]:
+                factor = self.unit_factors["MB"]
+                unit = "MB"
+            elif total >= self.unit_factors["KB"]:
+                factor = self.unit_factors["KB"]
+                unit = "KB"
+            else:
+                factor = self.unit_factors["B"]
+                unit = "B"
+        else:
+            factor = self.unit_factors[unit]
+
         return {
             "total": round(total / factor, precision),
             "used": round(used / factor, precision),
@@ -1294,34 +1359,6 @@ class DiskUsage:
             "percent": round(used / total * 100, precision) if total > 0 else 0,
             "unit": unit
         }
-
-    def get_disk_usage(self, mount_point="/", unit="GB", precision=2):
-        """
-        Get disk usage information for a specific mount point or all mount points.
-
-        :param mount_point: Mount point to check. Use "/", "/home", or "all".
-        :param unit: Unit for disk usage. Can be "B", "KB", "MB", or "GB". Default is "GB".
-        :param precision: Number of decimal places for the output. Default is 2.
-        :return: Disk usage information.
-        """
-        if unit not in self.unit_factors:
-            raise ValueError(f"Unsupported unit: {unit}. Supported units are B, KB, MB, GB.")
-
-        factor = self.unit_factors[unit]
-        disk_info = {}
-
-        if mount_point == "all":
-            for mount_point in self.get_mount_points():
-                if os.path.ismount(mount_point):
-                    pawn.console.debug(f"Calculating disk usage for {mount_point}")
-                    disk_info[mount_point] = self.calculate_disk_usage(mount_point, factor, precision, unit)
-        else:
-            if os.path.ismount(mount_point):
-                disk_info[mount_point] = self.calculate_disk_usage(mount_point, factor, precision, unit)
-            else:
-                raise ValueError(f"{mount_point} is not a valid mount point")
-
-        return disk_info
 
 
 class DiskPerformanceTester:
