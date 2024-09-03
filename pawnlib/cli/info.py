@@ -166,7 +166,7 @@ def main():
         _location = get_location(result['network']['public_ip']['ip'])
         if _location:
             result['network']['public_ip'].update(_location)
-            public_ip_tree.add(f"[bold] Region : {_location.get('region')}, Timezone={_location.get('timezone')}")
+            public_ip_tree.add(f"[bold] Region : {_location.get('region')}, TimezonLoe={_location.get('timezone')}")
             public_ip_tree.add(f"[bold] ASN : {dict_to_line(_location.get('asn'), end_separator=', ')}")
 
     local_tree = network_tree.add("[bold] Local IP[/bold]")
@@ -176,7 +176,7 @@ def main():
         longest_length = max(len(item[0]) for item in interface_list)
 
         for interface, ipaddr in interface_list:
-            subnet_str = f"/ {ipaddr.get('subnet')}" if ipaddr.get('subnet') else ""
+            subnet_str = f" / {ipaddr.get('subnet')}" if ipaddr.get('subnet') else ""
             gateway_str = f", G/W: {ipaddr.get('gateway')}" if ipaddr.get('gateway') else ""
             formatted_ipaddr = f"{ipaddr.get('ip'):<10}{subnet_str}{gateway_str}"
 
@@ -189,13 +189,14 @@ def main():
         print_unless_quiet_mode("")
 
     disk_usage = DiskUsage()
-    disk_usage_result = disk_usage.get_disk_usage("all")
+    disk_usage_result = disk_usage.get_disk_usage("all", unit="auto")
     result['disk'] = disk_usage_result
 
     disk_tree = Tree("[bold]💾 Disk Usage[/bold]")
     for mount_point, usage in disk_usage_result.items():
         color,  percent = get_color_by_threshold(usage['percent'], return_tuple=True)
-        usage_line = f"[{color}]{usage['used']:>7} / {usage['total']:>7} {usage['unit']} ({percent}%) [/{color}]"
+        color_unit = f"[grey74]{usage['unit']}[/grey74]"
+        usage_line = f"[{color}]{usage['used']:>7}[/{color}] {color_unit}[{color}] / {usage['total']:>7}[/{color}] {color_unit} [{color}]({percent}%)[/{color}] "
         disk_tree.add(f"[bold blue]{mount_point:<11}[/bold blue]: {usage_line}")
 
     print_unless_quiet_mode(disk_tree)
