@@ -136,7 +136,8 @@ class CryptographicConstants:
 class NetworkConstants:
     DEFAULT_HTTP_PORT = 80
     DEFAULT_HTTPS_PORT = 443
-    DEFAULT_ICON_PORT = 9000
+    DEFAULT_ICON_RPC_PORT = 9000
+    DEFAULT_ICON_P2P_PORT = 7100
     DEFAULT_ETHEREUM_PORT = 8545
     DEFAULT_BITCOIN_PORT = 8333
     LOCALHOST = "127.0.0.1"
@@ -173,7 +174,7 @@ class AWSRegionConstants:
     }
 
     @staticmethod
-    def get_name(code: str) -> str:
+    def region_name(code: str) -> str:
         """
         Get the human-readable name of an AWS region based on its code.
 
@@ -183,7 +184,7 @@ class AWSRegionConstants:
         return AWSRegionConstants.REGIONS.get(code, "Unknown region")
 
     @staticmethod
-    def get_list() -> list:
+    def region_list() -> list:
         """
         Get a list of all AWS region codes.
 
@@ -191,6 +192,48 @@ class AWSRegionConstants:
         """
         print(AWSRegionConstants.REGIONS.keys())
         return list(AWSRegionConstants.REGIONS.keys())
+
+
+class GradeMappingConstants:
+    GRADE_MAPPING = {
+        "0x0": {"name": "Main", "color": "[blue]\[Main][/blue]"},
+        "0x1": {"name": "Sub", "color": "[green]\[Sub][/green]"},
+        "0x2": {"name": "Cand", "color": "[Cand]"}
+    }
+
+    @staticmethod
+    def grade_name(grade_code: str) -> str:
+        """
+        Get the name associated with the grade code.
+        :param grade_code: Grade code (e.g., "0x0").
+        :return: Grade name (e.g., "Main").
+        """
+        return GradeMappingConstants.GRADE_MAPPING.get(grade_code, {}).get("name", "Unknown grade")
+
+    @staticmethod
+    def grade_color(grade_code: str) -> str:
+        """
+        Get the color representation associated with the grade code.
+        :param grade_code: Grade code (e.g., "0x0").
+        :return: Color representation (e.g., "[blue]\\[Main][/blue]").
+        """
+        return GradeMappingConstants.GRADE_MAPPING.get(grade_code, {}).get("color", "Unknown color")
+
+
+class YesNoConstants:
+    YES_NO_MAPPING = {
+        "0x0": "no",
+        "0x1": "yes"
+    }
+
+    @staticmethod
+    def yes_no(grade_code: str) -> str:
+        """
+        Get 'yes' or 'no' based on the grade code.
+        :param grade_code: Grade code (e.g., "0x0" for 'no', "0x1" for 'yes').
+        :return: 'yes' or 'no'.
+        """
+        return YesNoConstants.YES_NO_MAPPING.get(grade_code, "Unknown code")
 
 
 class AllConstants(
@@ -203,7 +246,9 @@ class AllConstants(
     HAVAHConstants,
     CryptographicConstants,
     NetworkConstants,
-    AWSRegionConstants
+    AWSRegionConstants,
+    GradeMappingConstants,
+    YesNoConstants
 ):
     __slots__ = ()
 
@@ -211,9 +256,9 @@ class AllConstants(
         raise TypeError("Constants are read-only")
 
     def get_aws_region_name(self, code: str = "") -> str:
-        return self.get_name(code)
+        return self.region_name(code)
 
     def get_aws_region_list(self) -> list:
-        return self.get_list()
+        return self.region_list()
 
 const = AllConstants()
