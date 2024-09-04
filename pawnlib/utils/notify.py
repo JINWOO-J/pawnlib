@@ -1,9 +1,191 @@
+import os
+import re
 import requests
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output import color_print
 from pawnlib.resource import net
 from pawnlib.typing import date_utils, shorten_text
 from pawnlib.utils import http
+import json
+
+class TelegramBot:
+    """
+    A class to interact with the Telegram Bot API.
+
+    :param bot_token: Telegram bot token. If not provided, it will be fetched from the 'TELEGRAM_BOT_TOKEN' environment variable.
+    :param chat_id: Chat ID to send messages to. If not provided, it will be fetched from the 'TELEGRAM_CHAT_ID' environment variable or determined dynamically.
+
+    :raises ValueError: If the bot token is not provided either as an argument or an environment variable.
+
+    Example:
+
+        .. code-block:: python
+
+            bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
+            bot.send_message("Hello, world!")
+            bot.send_html_message("<b>Hello, world!</b>")
+            bot.send_plain_text_message("Just plain text.")
+            bot.send_dict_message({"key": "value"})
+
+    """
+
+    def __init__(self, bot_token=None, chat_id=None):
+        self.bot_token = bot_token or os.getenv('TELEGRAM_BOT_TOKEN')
+        if not self.bot_token:
+            raise ValueError("Telegram bot token is required. Please set it as an argument or in the 'TELEGRAM_BOT_TOKEN' environment variable.")
+
+        self.chat_id = chat_id
+        self.api_url = f"https://api.telegram.org/bot{self.bot_token}"
+        self.chat_id = chat_id or os.getenv('TELEGRAM_CHAT_ID')
+
+        if not self.chat_id:
+            self.chat_id = self.get_chat_id()
+
+    def escape_markdown(self, text):
+        """
+        Escape Markdown special characters for MarkdownV2.
+
+        :param text: The text to escape.
+        :return: The escaped text.
+
+        Example:
+
+            .. code-block:: python
+
+                bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
+                escaped_text = bot.escape_markdown("Hello *world*!")
+                print(escaped_text)  # Output: Hello \*world\*!
+        """
+        escape_chars = r'_*[]()~`>#+-=|{}.!'
+        return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', str(text))
+
+    def send_message(self, message, parse_mode="MarkdownV2", disable_web_page_preview=False):
+        """
+        Send a message to the Telegram chat.
+
+        :param message: The message to send.
+        :param parse_mode: The parse mode for the message ('MarkdownV2' or 'HTML').
+        :param disable_web_page_preview: Whether to disable web page preview.
+        :return: The response from the Telegram API if successful, None otherwise.
+
+        Example:
+
+            .. code-block:: python
+
+                bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
+                response = bot.send_message("Hello, world!")
+                print(response)
+        """
+        payload = {
+            "chat_id": self.chat_id,
+            "text": self.escape_markdown(message) if parse_mode == "MarkdownV2" else message,
+            "parse_mode": parse_mode,
+            "disable_web_page_preview": disable_web_page_preview
+        }
+        response = requests.post(f"{self.api_url}/sendMessage", json=payload)
+        if response.status_code == 200:
+            return response.json()  # 성공적으로 메시지를 보낸 경우
+        else:
+            print(f"Failed to send message: {response.status_code} - {response.text}")
+            return None
+
+    def send_html_message(self, message):
+        """
+        Send a message using HTML formatting.
+
+        :param message: The message to send.
+        :return: The response from the Telegram API if successful, None otherwise.
+
+        Example:
+
+            .. code-block:: python
+
+                bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
+                response = bot.send_html_message("<b>Hello, world!</b>")
+                print(response)
+        """
+        return self.send_message(message, parse_mode="HTML")
+
+    def send_plain_text_message(self, message):
+        """
+        Send a plain text message without any formatting.
+
+        :param message: The message to send.
+        :return: The response from the Telegram API if successful, None otherwise.
+
+        Example:
+
+            .. code-block:: python
+
+                bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
+                response = bot.send_plain_text_message("Just plain text.")
+                print(response)
+        """
+        return self.send_message(message)
+
+    def send_dict_message(self, message_dict):
+        """
+        Send a dictionary as a JSON formatted message.
+
+        :param message_dict: The dictionary to send.
+        :return: The response from the Telegram API if successful, None otherwise.
+
+        Example:
+
+            .. code-block:: python
+
+                bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
+                response = bot.send_dict_message({"key": "value"})
+                print(response)
+        """
+        message = json.dumps(message_dict, indent=2)
+        return self.send_plain_text_message(message)
+
+    def get_chat_id(self):
+        """Retrieve chat_id by getting updates from the Telegram bot API"""
+        response = requests.get(f"{self.api_url}/getUpdates")
+        if response.status_code == 200:
+            data = response.json()
+            if "result" in data and len(data["result"]) > 0:
+                chat_id = data["result"][-1]["message"]["chat"]["id"]
+                print(f"Retrieved chat_id: {chat_id}")
+                return chat_id
+            else:
+                raise ValueError("No messages found in bot updates to retrieve chat_id.")
+        else:
+            raise ConnectionError(f"Failed to retrieve updates: {response.status_code} - {response.text}")
+
+    def save_chat_id(self, chat_id_file="chat_id.txt"):
+        """Save the chat_id to a file for later use"""
+        with open(chat_id_file, "w") as file:
+            file.write(str(self.chat_id))  # chat_id를 문자열로 변환하여 저장
+        print(f"chat_id saved to {chat_id_file}")
+
+    def load_chat_id(self, chat_id_file="chat_id.txt"):
+        """Load the chat_id from a file"""
+        if os.path.exists(chat_id_file):
+            with open(chat_id_file, "r") as file:
+                self.chat_id = file.read().strip()
+            print(f"Loaded chat_id from {chat_id_file}")
+        else:
+            print(f"chat_id file {chat_id_file} not found. Retrieving chat_id using getUpdates...")
+            self.chat_id = self.get_chat_id()
+
+    def send_auto_message(self, message):
+        """Automatically detect the type of message and send it appropriately"""
+        if isinstance(message, dict):
+            self.send_dict_message(message)
+        elif isinstance(message, str):
+            if self.is_html(message):
+                self.send_html_message(message)
+            else:
+                self.send_plain_text_message(message)
+        else:
+            raise ValueError("Unsupported message type")
+
+    def is_html(self, message):
+        """Check if the string contains HTML tags"""
+        return bool(re.search(r'<[^>]+>', message))
 
 
 def get_level_color(c_level):

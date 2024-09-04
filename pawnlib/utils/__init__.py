@@ -32,6 +32,7 @@ from .log import (
 )
 
 from .notify import (
+    TelegramBot,
     send_slack,
     send_slack_token
 )

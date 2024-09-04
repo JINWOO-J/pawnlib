@@ -2998,3 +2998,11 @@ def decode_jwt(jwt_token, use_kst=False):
     except Exception as e:
         print(f"Error decoding JWT: {e}")
         return {}
+
+
+def escape_markdown(text):
+    """Escape Markdown special characters"""
+    escape_chars = r'_*[]()~`>#+-=|{}.!'
+    return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', str(text))
+
+
