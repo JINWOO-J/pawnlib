@@ -30,16 +30,18 @@ class TelegramBot:
     """
 
     def __init__(self, bot_token=None, chat_id=None):
-        self.bot_token = bot_token or os.getenv('TELEGRAM_BOT_TOKEN')
+        self.bot_token = (bot_token or os.getenv('TELEGRAM_BOT_TOKEN', '')).strip('\'"')
         if not self.bot_token:
             raise ValueError("Telegram bot token is required. Please set it as an argument or in the 'TELEGRAM_BOT_TOKEN' environment variable.")
 
         self.chat_id = chat_id
         self.api_url = f"https://api.telegram.org/bot{self.bot_token}"
-        self.chat_id = chat_id or os.getenv('TELEGRAM_CHAT_ID')
+        self.chat_id = (chat_id or os.getenv('TELEGRAM_CHAT_ID', '')).strip('\'"')
 
         if not self.chat_id:
             self.chat_id = self.get_chat_id()
+
+        pawn.console.debug(f"bot_token={self.bot_token}, chat_id={self.chat_id}")
 
     def escape_markdown(self, text):
         """
@@ -148,7 +150,7 @@ class TelegramBot:
             data = response.json()
             if "result" in data and len(data["result"]) > 0:
                 chat_id = data["result"][-1]["message"]["chat"]["id"]
-                print(f"Retrieved chat_id: {chat_id}")
+                pawn.console.debug(f"Retrieved chat_id: {chat_id}")
                 return chat_id
             else:
                 raise ValueError("No messages found in bot updates to retrieve chat_id.")
@@ -159,16 +161,16 @@ class TelegramBot:
         """Save the chat_id to a file for later use"""
         with open(chat_id_file, "w") as file:
             file.write(str(self.chat_id))  # chat_id를 문자열로 변환하여 저장
-        print(f"chat_id saved to {chat_id_file}")
+        pawn.console.debug(f"chat_id saved to {chat_id_file}")
 
     def load_chat_id(self, chat_id_file="chat_id.txt"):
         """Load the chat_id from a file"""
         if os.path.exists(chat_id_file):
             with open(chat_id_file, "r") as file:
                 self.chat_id = file.read().strip()
-            print(f"Loaded chat_id from {chat_id_file}")
+            pawn.console.debug(f"Loaded chat_id from {chat_id_file}")
         else:
-            print(f"chat_id file {chat_id_file} not found. Retrieving chat_id using getUpdates...")
+            pawn.console.debug(f"chat_id file {chat_id_file} not found. Retrieving chat_id using getUpdates...")
             self.chat_id = self.get_chat_id()
 
     def send_auto_message(self, message):
