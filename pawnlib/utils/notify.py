@@ -59,7 +59,7 @@ class TelegramBot:
         escape_chars = r'_*[]()~`>#+-=|{}.!'
         return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', str(text))
 
-    def send_message(self, message, parse_mode="MarkdownV2", disable_web_page_preview=False):
+    def send_message(self, message, parse_mode="Markdown", disable_web_page_preview=False):
         """
         Send a message to the Telegram chat.
 
@@ -178,6 +178,8 @@ class TelegramBot:
         elif isinstance(message, str):
             if self.is_html(message):
                 self.send_html_message(message)
+            elif self.is_markdown(message):
+                self.send_message(message, parse_mode="Markdown")
             else:
                 self.send_plain_text_message(message)
         else:
@@ -186,6 +188,12 @@ class TelegramBot:
     def is_html(self, message):
         """Check if the string contains HTML tags"""
         return bool(re.search(r'<[^>]+>', message))
+
+    def is_markdown(self, message):
+        """Check if the string contains MarkdownV2 special characters"""
+        # MarkdownV2에서 사용하는 특수 문자를 검사
+        markdown_special_chars = r'[_*[\]()~`>#+-=|{}.!]'
+        return bool(re.search(f'[{re.escape(markdown_special_chars)}]', message))
 
 
 def get_level_color(c_level):
