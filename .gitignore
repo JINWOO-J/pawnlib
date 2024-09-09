@@ -1,4 +1,5 @@
 # temp directory for testing
+config.ini
 http_config.ini
 tests/temp/*
 tests/logs/*

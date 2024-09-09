@@ -1,6 +1,6 @@
 from pawnlib.output import *
 from pawnlib.typing.generator import generate_number_list
-from pawnlib.asyncio import AsyncTasks, async_partial
+# from pawnlib.asyncio import AsyncTasks, async_partial
 import aiodocker
 import asyncio
 import re
