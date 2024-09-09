@@ -8,3 +8,4 @@ from .async_docker import (
     extract_upper_key_to_env_list
 )
 
+from .compose import DockerComposeBuilder
