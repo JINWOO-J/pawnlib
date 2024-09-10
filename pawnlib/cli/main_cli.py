@@ -10,7 +10,7 @@ from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.utils.operate_handler import run_with_keyboard_interrupt
 from pawnlib.input.prompt import NewlineHelpFormatter, ColoredHelpFormatter, CustomArgumentParser
-from pawnlib.typing.check import sys_exit
+from pawnlib.typing.check import sys_exit, error_and_exit
 
 
 def load_submodule_parsers(parent_module, parser, help=None):
@@ -173,7 +173,7 @@ def main():
             if pawn.get('PAWN_DEBUG'):
                 pawn.console.print_exception(show_locals=pawn.get("PAWN_DEBUG", False), width=160)
             else:
-                pawn.console.log(f"[red]Exception -- {e}")
+                error_and_exit(f"[orange3]{e}[/orange3]", title="Exception Error Occurred")
     else:
         if parser:
             parser.print_help()

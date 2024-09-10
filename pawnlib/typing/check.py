@@ -1,7 +1,10 @@
 import copy
+import os
 import re
 import json
 import sys
+import inspect
+from rich.panel import Panel
 from pawnlib.config import pawn
 
 try:
@@ -585,6 +588,30 @@ def return_guess_type(value):
         return guessed_type(value)
     else:
         return value
+
+
+def error_and_exit(message, title="Error Occurred", exit_code=1):
+    """
+    Print an error message with the caller's file name and line number, then exit the program.
+
+    :param message: The error message to display.
+    :param title: The error title to display.
+    :param exit_code: The exit code to use when terminating the program (default is 1).
+    """
+    caller_frame = inspect.stack()[1]
+    file_name = os.path.basename(caller_frame.filename)
+    line_number = caller_frame.lineno
+    error_message = f"[bold red]Error:[/bold red] {message}"
+    subtitle = f"{file_name}:{line_number}"
+    print("")
+    pawn.console.print(
+        Panel(
+            error_message, title=f"[bold red]{title} (-{exit_code})[/bold red]", expand=True, subtitle=subtitle,
+            padding=1,
+        )
+    )
+    print("")
+    sys.exit(exit_code)
 
 
 def sys_exit(message="", return_code=-1):

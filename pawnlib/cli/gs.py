@@ -10,11 +10,13 @@ except Exception as e:
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 
-from pawnlib.utils.genesis import genesis_generator, create_cid
+from pawnlib.utils.genesis import GenesisGenerator, create_cid, genesis_generator, create_cid, validate_genesis_json
 from pawnlib.utils.in_memory_zip import read_genesis_dict_from_zip
 from pawnlib.output import is_file, print_json, open_json
-from pawnlib.typing import get_size
+from pawnlib.typing import get_size, sys_exit, FlatDict, hex_to_number
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
+from pawnlib.typing.check import error_and_exit
+
 
 __description__ = "Genesis Tool"
 __epilog__ = (
@@ -91,17 +93,30 @@ def main():
     if args.command == "gen":
         genesis_file = f"{args.base_dir}/{args.input_genesis}"
         json_dict = open_json(genesis_file)
-        cid = genesis_generator(genesis_json_or_dict=json_dict, base_dir=args.base_dir, genesis_filename=args.output_file)
-        pawn.console.log(f"CID = {cid}")
 
-    elif args.command == "info" and is_file(args.genesis_zip_file):
+        validate_genesis_json(json_dict)
+        genesis_gen = GenesisGenerator(genesis_json_or_dict=json_dict, base_dir=args.base_dir, genesis_filename=args.output_file)
+        genesis_gen.initialize()
+        genesis_gen.log_initialization_info()
+        genesis_gen.parse_and_write_genesis_json()
+        file_info = genesis_gen.write_genesis_zip()
+        cid = genesis_gen.create_cid()
+        pawn.console.log(f"CID={cid}, NID={genesis_gen.nid}({hex_to_number(genesis_gen.nid)}), {genesis_gen.genesis_filename} {file_info}")
+
+        # cid2 = genesis_generator(genesis_json_or_dict=json_dict, base_dir=args.base_dir, genesis_filename=args.output_file)
+        # pawn.console.log(f"CID = {cid2}")
+
+    elif args.command == "info":
+        if not is_file(args.genesis_zip_file):
+            error_and_exit(f"[yellow]{args.genesis_zip_file}[/yellow] not found. Please check the file path")
+
         genesis_json = read_genesis_dict_from_zip(args.genesis_zip_file)
-        # print_json(genesis_json)
+        validate_genesis_json(genesis_json)
 
         cid = create_cid(genesis_json)
         nid = genesis_json.get('nid', "")
 
-        color_print.print_kv("genesis_json", genesis_json)
+        color_print.print_kv("genesis_json", genesis_json, is_force_syntax=True)
 
         color_print.print_kv("FileName", f"{args.genesis_zip_file} ({get_size(args.genesis_zip_file)})")
         color_print.print_kv("cid", get_hex_value(cid))

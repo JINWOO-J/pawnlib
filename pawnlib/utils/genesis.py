@@ -1,6 +1,6 @@
-from pawnlib.utils.icx_signer import __make_params_serialized
+from pawnlib.utils.icx_signer import __make_params_serialized as make_params_serialized
 from hashlib import sha3_256
-from pawnlib.typing import format_hex, keys_exists, token_hex, get_size
+from pawnlib.typing import format_hex, keys_exists, token_hex, get_size, sys_exit, FlatDict, error_and_exit
 from pawnlib.output.file import open_json, is_file, is_directory, is_json, write_json
 from pawnlib.utils.in_memory_zip import read_file_from_zip, read_genesis_dict_from_zip
 from pawnlib.config import pawn
@@ -10,16 +10,18 @@ import os
 import zipfile
 import tempfile
 import re
+import copy
 
 
 class GenesisGenerator:
     def __init__(self, genesis_json_or_dict=None, base_dir=None, genesis_filename="icon_genesis.zip"):
-        self.genesis_json_or_dict = genesis_json_or_dict
+        self.genesis_json_or_dict = copy.deepcopy(genesis_json_or_dict)
         self.base_dir = base_dir if base_dir else pawn.get_path()
         self.genesis_filename = genesis_filename
         self.prepare_temp_dir = None
         self.final_temp_dir = None
         self.cid = None
+        self.nid = None
         self.genesis_json = None
 
     def make_temp_dir(self):
@@ -28,7 +30,7 @@ class GenesisGenerator:
 
     def initialize(self):
         if isinstance(self.genesis_json_or_dict, dict):
-            self.genesis_json = self.genesis_json_or_dict
+            self.genesis_json = copy.deepcopy(self.genesis_json_or_dict)
         elif isinstance(self.genesis_json_or_dict, str) and is_file(self.genesis_json_or_dict):
             self.genesis_json = open_json(self.genesis_json_or_dict)
         else:
@@ -47,7 +49,8 @@ class GenesisGenerator:
         self.log_initialization_info()
         self.parse_and_write_genesis_json()
         self.write_genesis_zip()
-        self.cid = create_cid(self.genesis_json_or_dict)
+        # self.cid = create_cid(self.genesis_json_or_dict)
+        self.create_cid()
         pawn.console.debug(f"cid = {self.cid}")
         return self.cid
 
@@ -56,6 +59,16 @@ class GenesisGenerator:
         pawn.console.debug(f"Generating prepare temporary -> {self.prepare_temp_dir}")
         pawn.console.debug(f"Generating final temporary -> {self.final_temp_dir}")
 
+    def create_cid(self, data=None):
+        if data:
+            self.genesis_json_or_dict = data
+        serialized_data = make_params_serialized(self.genesis_json_or_dict)
+        encoded_data = f"genesis_tx.{serialized_data}".encode()
+        pawn.console.debug(encoded_data)
+        cid_hash = sha3_256(encoded_data).digest().hex()
+        self.cid = format_hex(cid_hash[:6])
+        return self.cid
+
     def parse_and_write_genesis_json(self):
         for account in self.genesis_json.get('accounts', []):
             if keys_exists(account, "score", "contentId"):
@@ -63,6 +76,7 @@ class GenesisGenerator:
                 parsed_content_id = self.make_score_zip(account['score']['contentId'])
                 pawn.console.debug(f"parsed_content_id={parsed_content_id}")
                 account['score']['contentId'] = parsed_content_id
+        self.nid = self.genesis_json.get('nid')
         write_json(filename=f"{self.final_temp_dir}/genesis.json", data=self.genesis_json)
 
     def write_genesis_zip(self):
@@ -70,6 +84,7 @@ class GenesisGenerator:
         make_zip_without(self.final_temp_dir, genesis_zip_file, ['tests'])
         file_info = get_size(genesis_zip_file, attr=True)
         pawn.console.debug(f"Generated {genesis_zip_file} => {file_info}")
+        return file_info
 
     @staticmethod
     def extract_content_pattern(string):
@@ -125,7 +140,7 @@ def calculate_hash(file_path):
 
 
 def create_cid(data: dict):
-    _inner_data = __make_params_serialized(data)
+    _inner_data = make_params_serialized(data)
     data = f"genesis_tx.{_inner_data}".encode()
     pawn.console.debug(data)
     cid_hash = sha3_256(data).digest().hex()
@@ -148,6 +163,29 @@ def create_cid_from_genesis_file(genesis_file):
 
 def create_cid_from_genesis_zip(zip_file_name):
     return create_cid(read_genesis_dict_from_zip(zip_file_name))
+
+
+def validate_genesis_json(genesis_json=None):
+    if not isinstance(genesis_json, dict):
+        sys_exit("genesis_json is not dict")
+    flat_dict = FlatDict(genesis_json)
+
+    mandatory_keys = ["accounts", "chain", "chain.validatorList", "message", "nid"]
+    missing_keys = []
+    for key in mandatory_keys:
+        if key not in flat_dict:
+            missing_keys.append(key)
+
+    if missing_keys:
+        # pawn.console.log(f"[bold red]Missing mandatory keys:[/bold red] {', '.join(missing_keys)}")
+        # sys_exit("Invalid genesis_json format. Missing mandatory keys.")
+        error_and_exit(
+            "Invalid genesis_json format. Missing mandatory keys.\n"
+           f"[bold red]Missing mandatory keys:[/bold red] {', '.join(missing_keys)}"
+        )
+
+    pawn.console.log("[bold bright_white]Genesis JSON validation successful.[/bold bright_white]")
+    return True
 
 
 genesis_generator = GenesisGenerator().run
