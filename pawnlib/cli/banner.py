@@ -8,7 +8,18 @@ from pawnlib.resource import server
 import pyfiglet
 
 __description__ = 'Command to test the banner.'
-
+__epilog__ = (
+    "This script generates text banners using various fonts.\n\n"
+    
+    "Usage examples:\n"
+    
+    "    1. Generate a banner with default font:\n"
+    "        `$ pawns banner --text \"Hello World\"`\n\n"
+    "    2. List all available fonts and generate banners:\n"
+    "        `$ pawns banner --text \"Sample Text\"`\n\n"
+    
+    "For more information, visit the project repository or consult the documentation."
+)
 
 def get_parser():
     parser = argparse.ArgumentParser(description='BANNER')
@@ -41,6 +52,11 @@ def main():
         pawn.console.print(font)
         print(generate_banner(args.text, font=font, version=font))
 
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 if __name__ == '__main__':
     main()

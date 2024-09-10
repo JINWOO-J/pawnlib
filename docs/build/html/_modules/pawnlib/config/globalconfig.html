@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.config.globalconfig &mdash; Pawnlib v1.0.84</title>
+  <title>pawnlib.config.globalconfig &mdash; Pawnlib v2.0.32</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.84
+                2.0.32
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -52,7 +52,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
@@ -89,12 +91,12 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">configparser</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span>
-<span class="kn">import</span> <span class="nn">pawnlib.config.configure</span>
 <span class="kn">from</span> <span class="nn">pawnlib.__version__</span> <span class="kn">import</span> <span class="n">__title__</span><span class="p">,</span> <span class="n">__version__</span>
 <span class="kn">from</span> <span class="nn">pawnlib.config.__fix_import</span> <span class="kn">import</span> <span class="n">Null</span>
 <span class="kn">from</span> <span class="nn">pawnlib.config.console</span> <span class="kn">import</span> <span class="n">Console</span>
@@ -104,55 +106,126 @@
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">SimpleNamespace</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="n">inspect</span> <span class="k">as</span> <span class="n">rich_inspect</span>
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+
+
+<div class="viewcode-block" id="ConfigManager"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.ConfigManager">[docs]</a><span class="k">class</span> <span class="nc">ConfigManager</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="ConfigManager.use_config"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.ConfigManager.use_config">[docs]</a>    <span class="nd">@contextmanager</span>
+    <span class="k">def</span> <span class="nf">use_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">old_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">old_config</span></div>
+
+<div class="viewcode-block" id="ConfigManager.set"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.ConfigManager.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="ConfigManager.get"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.ConfigManager.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="NestedNamespace"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.NestedNamespace">[docs]</a><span class="k">class</span> <span class="nc">NestedNamespace</span><span class="p">(</span><span class="n">SimpleNamespace</span><span class="p">):</span>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_______map_____entry</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_map_entry</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method to map dictionary entries to NestedNamespace instances.</span>
+
+<span class="sd">        :param entry: Dictionary or other object to map.</span>
+<span class="sd">        :return: NestedNamespace instance if the entry is a dictionary, otherwise returns the entry as is.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">NestedNamespace</span><span class="p">(</span><span class="o">**</span><span class="n">entry</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">entry</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="NestedNamespace.__init__"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.NestedNamespace.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the NestedNamespace with nested dictionaries and lists converted to NestedNamespace instances.</span>
+
+<span class="sd">        :param kwargs: Keyword arguments where values can be dictionaries or lists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">NestedNamespace</span><span class="p">(</span><span class="o">**</span><span class="n">val</span><span class="p">))</span>
-            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_______map_____entry</span><span class="p">,</span> <span class="n">val</span><span class="p">)))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_map_entry</span><span class="p">,</span> <span class="n">val</span><span class="p">)))</span></div>
 
-    <span class="k">def</span> <span class="nf">_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<div class="viewcode-block" id="NestedNamespace.keys"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.NestedNamespace.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of keys in the current namespace.</span>
 
-    <span class="k">def</span> <span class="nf">_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+<span class="sd">        :return: List of keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="NestedNamespace.values"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.NestedNamespace.values">[docs]</a>    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of values in the current namespace.</span>
+
+<span class="sd">        :return: List of values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="NestedNamespace.as_dict"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.NestedNamespace.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the NestedNamespace to a dictionary, recursively converting all nested namespaces.</span>
+
+<span class="sd">        :return: Dictionary representation of the NestedNamespace.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_namespace_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_namespace_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_dict</span><span class="p">):</span>
-        <span class="n">dict2</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_dict</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_dict</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">NestedNamespace</span><span class="p">):</span>
-                <span class="n">dict2</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_namespace_to_dict</span><span class="p">(</span><span class="n">_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">_asdict</span><span class="p">())</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method to recursively convert a NestedNamespace to a dictionary.</span>
+
+<span class="sd">        :param _dict: The dictionary to convert.</span>
+<span class="sd">        :return: Converted dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">NestedNamespace</span><span class="p">)):</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_namespace_to_dict</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">_asdict</span><span class="p">())</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">dict2</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">dict2</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span> <span class="nf">_asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the internal dictionary representation of the current namespace.</span>
+
+<span class="sd">        :return: Internal dictionary representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
 
-    <span class="c1"># def __repr__(self):</span>
-    <span class="c1">#     &#39;Return a nicely formatted representation string&#39;</span>
-    <span class="c1">#     field_names = tuple(self.as_dict().keys())</span>
-    <span class="c1">#     field_values = tuple(self.as_dict().values())</span>
-    <span class="c1">#     indent = &quot;\n    &quot;</span>
-    <span class="c1">#     # indent = &quot;&quot;</span>
-    <span class="c1">#     repr_fmt = &#39;(&#39; + &#39;, &#39;.join(f&#39;{indent}{name}=%r&#39; for name in field_names) + f&#39;{indent})&#39;</span>
-    <span class="c1">#     return self.__class__.__name__ + repr_fmt % field_values</span>
+<div class="viewcode-block" id="NestedNamespace.get_nested"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.NestedNamespace.get_nested">[docs]</a>    <span class="k">def</span> <span class="nf">get_nested</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a nested value from the namespace using a list of keys.</span>
+
+<span class="sd">        :param keys: List of keys to traverse the nested structure.</span>
+<span class="sd">        :return: The nested value if found, otherwise None.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; ns = NestedNamespace(level1={&#39;level2&#39;: {&#39;level3&#39;: &#39;value&#39;}})</span>
+<span class="sd">            &gt;&gt;&gt; ns.get_nested([&#39;level1&#39;, &#39;level2&#39;, &#39;level3&#39;])</span>
+<span class="sd">            &#39;value&#39;</span>
+
+<span class="sd">            &gt;&gt;&gt; ns.get_nested([&#39;level1&#39;, &#39;nonexistent&#39;, &#39;level3&#39;])</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">result</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span>
@@ -279,19 +352,38 @@
 <div class="viewcode-block" id="ConfigSectionMap.get_default"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.ConfigSectionMap.get_default">[docs]</a>    <span class="k">def</span> <span class="nf">get_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="p">)</span></div></div>
 
+<span class="c1">#</span>
+<span class="c1"># class Singleton(type):</span>
+<span class="c1">#     _instances = {}</span>
+<span class="c1">#</span>
+<span class="c1">#     def __call__(cls, *args, **kwargs):</span>
+<span class="c1">#         if cls not in cls._instances:</span>
+<span class="c1">#             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)</span>
+<span class="c1">#         return cls._instances[cls]</span>
 
 <div class="viewcode-block" id="Singleton"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.Singleton">[docs]</a><span class="k">class</span> <span class="nc">Singleton</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
     <span class="n">_instances</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">cls</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instances</span><span class="p">:</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">_instances</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Singleton</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instances</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span></div>
+        <span class="k">if</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instances</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[WARN] </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instance already exists. Returning the existing instance.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instances</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Singleton</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_instances</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span>
+        <span class="k">return</span> <span class="n">instance</span></div>
 
 
 <span class="c1"># @singleton</span>
 <div class="viewcode-block" id="PawnlibConfig"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig">[docs]</a><span class="k">class</span> <span class="nc">PawnlibConfig</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">Singleton</span><span class="p">):</span>
-<div class="viewcode-block" id="PawnlibConfig.__init__"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_name</span><span class="o">=</span><span class="s2">&quot;pawnlib_global_config&quot;</span><span class="p">,</span> <span class="n">app_logger</span><span class="o">=</span><span class="n">Null</span><span class="p">(),</span> <span class="n">error_logger</span><span class="o">=</span><span class="n">Null</span><span class="p">(),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">6000</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="PawnlibConfig.__init__"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">global_name</span><span class="o">=</span><span class="s2">&quot;pawnlib_global_config&quot;</span><span class="p">,</span>
+            <span class="n">app_logger</span><span class="o">=</span><span class="n">Null</span><span class="p">(),</span>
+            <span class="n">error_logger</span><span class="o">=</span><span class="n">Null</span><span class="p">(),</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">6000</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_global_namespace</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This class can share variables using globals().</span>
 
@@ -371,11 +463,16 @@
             <span class="s2">&quot;on_ready&quot;</span><span class="p">:</span> <span class="kc">False</span>
 
         <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_global_namespace</span> <span class="o">=</span> <span class="n">use_global_namespace</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_global_namespace</span><span class="p">:</span>
+            <span class="nb">globals</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_manager</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_do_not_execute_namespace_keys</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env_prefix</span><span class="si">}</span><span class="s2">_LOGGER&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env_prefix</span><span class="si">}</span><span class="s2">_CONSOLE&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_time_format</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="nb">globals</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_console</span><span class="p">(</span><span class="n">force_init</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PawnlibConfig.inspect"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.inspect">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -401,12 +498,11 @@
             <span class="n">pawn_debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
             <span class="n">redirect</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>  <span class="c1"># &lt;-- not supported by rich.console.Console</span>
             <span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">soft_wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">soft_wrap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">force_terminal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="c1"># log_time_format=&quot;[%Y-%m-%d %H:%M:%S.%f]&quot;</span>
             <span class="n">log_time_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">dt</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S,</span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">]&quot;</span>
         <span class="p">)</span>
-        <span class="c1"># print(self.console_options)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loaded</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;console&#39;</span><span class="p">):</span>
             <span class="c1"># There are visible problems with InquirerPy.</span>
             <span class="n">_console_options</span><span class="p">[</span><span class="s1">&#39;redirect&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
@@ -434,7 +530,17 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">_config_filename</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">_config_filename</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">PAWN_CONFIG</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
+                    <span class="n">config_dict</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">config_item</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">[</span><span class="n">section</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                            <span class="c1"># Try to parse value as JSON</span>
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="n">parsed_value</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                                <span class="n">config_dict</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsed_value</span>
+                            <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                                <span class="c1"># If it&#39;s not JSON, just keep the original value</span>
+                                <span class="n">config_dict</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">PAWN_CONFIG</span><span class="o">=</span><span class="n">config_dict</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">PAWN_CONFIG</span><span class="o">=</span><span class="p">{})</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red] cannot found config_file - </span><span class="si">{</span><span class="n">_config_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -483,6 +589,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fill_config_from_environment</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># self._load_config_file()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PAWN_CONFIG_FILE&#39;</span><span class="p">,</span> <span class="s1">&#39;config.ini&#39;</span><span class="p">)</span>  <span class="c1"># Set _config_file here</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_loaded</span><span class="p">[</span><span class="s1">&#39;on_ready&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🐍 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_python_version</span><span class="p">()</span><span class="si">}</span><span class="s2">, ♙ </span><span class="si">{</span><span class="n">__title__</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">, PATH=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pawnlib_path</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_config_file</span><span class="p">()</span>
@@ -497,9 +604,9 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">true_list</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="s2">&quot;TRUE&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">v</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">true_list</span>
         <span class="k">return</span> <span class="nb">eval</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">true_list</span></div>
 
@@ -563,13 +670,17 @@
                 <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                 <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_name</span>
             <span class="p">},</span>
+            <span class="s2">&quot;USE_GLOBAL_NS&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_global_namespace</span>
+            <span class="p">},</span>
             <span class="s2">&quot;CONSOLE&quot;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
                 <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{}</span>
             <span class="p">},</span>
             <span class="s2">&quot;LINE&quot;</span><span class="p">:</span> <span class="p">{</span>
-              <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">str2bool</span><span class="p">,</span>
-              <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">str2bool</span><span class="p">,</span>
+                <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="s2">&quot;PATH&quot;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -580,6 +691,10 @@
                 <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;%H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span>
             <span class="p">},</span>
         <span class="p">}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_global_namespace</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">default_structure</span><span class="p">[</span><span class="s1">&#39;GLOBAL_NAME&#39;</span><span class="p">]</span>
+
         <span class="n">mandatory_environments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">default_structure</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
         <span class="k">for</span> <span class="n">environment</span> <span class="ow">in</span> <span class="n">mandatory_environments</span><span class="p">:</span>
@@ -640,9 +755,12 @@
 <span class="sd">                pawnlib_config.get(&quot;hello&quot;)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_name</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
-            <span class="k">return</span> <span class="nb">globals</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">default</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_global_namespace</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_name</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
+                <span class="k">return</span> <span class="nb">globals</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">default</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_manager</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PawnlibConfig.set"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -674,7 +792,7 @@
             <span class="k">if</span> <span class="n">order_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">priority_key</span><span class="p">):</span>
                 <span class="n">order_dict</span><span class="o">.</span><span class="n">move_to_end</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">priority_key</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_name</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_name</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_global_namespace</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">p_key</span><span class="p">,</span> <span class="n">p_value</span> <span class="ow">in</span> <span class="n">order_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_environments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_none_string</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_none_string</span> \
                         <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_environments</span><span class="p">[</span><span class="n">p_key</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">):</span>
@@ -701,7 +819,9 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">str2bool</span><span class="p">(</span><span class="n">p_value</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">pawn_debug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">str2bool</span><span class="p">(</span><span class="n">p_value</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-                        <span class="n">rich_traceback_install</span><span class="p">(</span><span class="n">show_locals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">160</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loaded</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rich_traceback_installed&#39;</span><span class="p">):</span>
+                            <span class="n">rich_traceback_install</span><span class="p">(</span><span class="n">show_locals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">160</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_loaded</span><span class="p">[</span><span class="s1">&#39;rich_traceback_installed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
                         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_logger</span><span class="p">:</span>
                             <span class="n">set_debug_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_logger</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">p_key</span> <span class="o">==</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env_prefix</span><span class="si">}</span><span class="s2">_LINE&quot;</span><span class="p">:</span>
@@ -739,7 +859,10 @@
                     <span class="c1">#     self.console.log(f&quot;fff =&gt; {self.data}&quot;)</span>
                     <span class="n">p_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
 
-                <span class="nb">globals</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">][</span><span class="n">p_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_value</span></div>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_global_namespace</span><span class="p">:</span>
+                    <span class="nb">globals</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">][</span><span class="n">p_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_value</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config_manager</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">p_key</span><span class="p">,</span> <span class="n">p_value</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_check_logger_not_null</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;Logger&quot;</span><span class="p">:</span>
@@ -895,14 +1018,18 @@
                 <span class="n">tmp_result</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                 <span class="n">is_modify</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="n">is_modify</span><span class="p">:</span>
-                <span class="nb">globals</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_result</span>
-                <span class="k">return</span> <span class="n">tmp_result</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_global_namespace</span><span class="p">:</span>
+                    <span class="nb">globals</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_result</span>
+                    <span class="k">return</span> <span class="n">tmp_result</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config_manager</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">tmp_result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">init_value</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">&gt;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
 
-<div class="viewcode-block" id="PawnlibConfig.conf"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.conf">[docs]</a>    <span class="k">def</span> <span class="nf">conf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">namedtuple</span><span class="p">:</span>
+<div class="viewcode-block" id="PawnlibConfig.conf"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.conf">[docs]</a>    <span class="k">def</span> <span class="nf">conf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NestedNamespace</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Access global configuration as a :class:`pawnlib.config.globalconfig.PawnlibConfig`.</span>
 
 <span class="sd">        Example:</span>
@@ -913,12 +1040,15 @@
 <span class="sd">                print(pawnlib_config.conf().hello) # &gt;&gt;&gt; &#39;world&#39;</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_name</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
-            <span class="c1"># return nestednamedtuple(g[self.global_name], ignore_keys=self._do_not_execute_namespace_keys)</span>
-            <span class="k">return</span> <span class="n">NestedNamespace</span><span class="p">(</span><span class="o">**</span><span class="n">g</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_global_namespace</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_name</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+                <span class="c1"># return nestednamedtuple(g[self.global_name], ignore_keys=self._do_not_execute_namespace_keys)</span>
+                <span class="k">return</span> <span class="n">NestedNamespace</span><span class="p">(</span><span class="o">**</span><span class="n">g</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">NestedNamespace</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">NestedNamespace</span><span class="p">({})</span></div>
+            <span class="k">return</span> <span class="n">NestedNamespace</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">config_manager</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PawnlibConfig.to_dict"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.PawnlibConfig.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Access global configuration as a dict.</span>
@@ -931,11 +1061,14 @@
 <span class="sd">                print(pawnlib_config.to_dict().get(&quot;hello&quot;)) # &gt;&gt;&gt; &#39;world&#39;</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_name</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">g</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_global_namespace</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_name</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">g</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_name</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{}</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{}</span></div></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_manager</span><span class="o">.</span><span class="n">_config</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_list_duplicates</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
@@ -955,7 +1088,11 @@
         <span class="n">__logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span></div>
 
 
-<span class="n">pawnlib_config</span> <span class="o">=</span> <span class="n">PawnlibConfig</span><span class="p">(</span><span class="n">global_name</span><span class="o">=</span><span class="s2">&quot;pawnlib_global_config&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">init_with_env</span><span class="p">()</span>
+<div class="viewcode-block" id="create_pawn"><a class="viewcode-back" href="../../../module/pawnlib.config.html#pawnlib.config.globalconfig.create_pawn">[docs]</a><span class="k">def</span> <span class="nf">create_pawn</span><span class="p">(</span><span class="n">use_global_namespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PawnlibConfig</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">PawnlibConfig</span><span class="p">(</span><span class="n">global_name</span><span class="o">=</span><span class="s2">&quot;pawnlib_global_config&quot;</span><span class="p">,</span> <span class="n">use_global_namespace</span><span class="o">=</span><span class="n">use_global_namespace</span><span class="p">)</span><span class="o">.</span><span class="n">init_with_env</span><span class="p">()</span></div>
+
+
+<span class="n">pawnlib_config</span> <span class="o">=</span> <span class="n">create_pawn</span><span class="p">(</span><span class="n">use_global_namespace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">pawn</span> <span class="o">=</span> <span class="n">pawnlib_config</span>
 <span class="n">pconf</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">pawn</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
 <span class="n">global_verbose</span> <span class="o">=</span> <span class="n">pawnlib_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PAWN_VERBOSE&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.typing.check &mdash; Pawnlib v1.0.97</title>
+  <title>pawnlib.typing.check &mdash; Pawnlib v2.0.32</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.97
+                2.0.32
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -52,7 +52,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
@@ -86,12 +88,18 @@
              
   <h1>Source code for pawnlib.typing.check</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">rich.panel</span> <span class="kn">import</span> <span class="n">Panel</span>
 <span class="kn">from</span> <span class="nn">pawnlib.config</span> <span class="kn">import</span> <span class="n">pawn</span>
 
-
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
 
 
 <div class="viewcode-block" id="is_json"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_json">[docs]</a><span class="k">def</span> <span class="nf">is_json</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -512,6 +520,7 @@
             <span class="k">return</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="kc">False</span></div>
 
+
 <div class="viewcode-block" id="is_valid_icon_keystore_file"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.is_valid_icon_keystore_file">[docs]</a><span class="k">def</span> <span class="nf">is_valid_icon_keystore_file</span><span class="p">(</span><span class="n">keystore</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">pawnlib.typing.converter</span> <span class="kn">import</span> <span class="n">flatten</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keystore</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -538,7 +547,6 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;Invalid Keystore&gt; Missing required key(s): </span><span class="si">{</span><span class="n">missing_keys_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="kc">True</span></div>
-
 
 
 <div class="viewcode-block" id="list_depth"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.list_depth">[docs]</a><span class="k">def</span> <span class="nf">list_depth</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
@@ -671,6 +679,30 @@
         <span class="k">return</span> <span class="n">value</span></div>
 
 
+<div class="viewcode-block" id="error_and_exit"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.error_and_exit">[docs]</a><span class="k">def</span> <span class="nf">error_and_exit</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Error Occurred&quot;</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print an error message with the caller&#39;s file name and line number, then exit the program.</span>
+
+<span class="sd">    :param message: The error message to display.</span>
+<span class="sd">    :param title: The error title to display.</span>
+<span class="sd">    :param exit_code: The exit code to use when terminating the program (default is 1).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">caller_frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">caller_frame</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">line_number</span> <span class="o">=</span> <span class="n">caller_frame</span><span class="o">.</span><span class="n">lineno</span>
+    <span class="n">error_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[bold red]Error:[/bold red] </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">subtitle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">line_number</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+        <span class="n">Panel</span><span class="p">(</span>
+            <span class="n">error_message</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;[bold red]</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2"> (-</span><span class="si">{</span><span class="n">exit_code</span><span class="si">}</span><span class="s2">)[/bold red]&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subtitle</span><span class="o">=</span><span class="n">subtitle</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">exit_code</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="sys_exit"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.sys_exit">[docs]</a><span class="k">def</span> <span class="nf">sys_exit</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">return_code</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function executes the sys.exit() method.</span>
@@ -729,23 +761,33 @@
     <span class="k">return</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="keys_exists"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.keys_exists">[docs]</a><span class="k">def</span> <span class="nf">keys_exists</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_traverse_keys</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Check if **keys** (nested) exists in `element` (dict).</span>
-<span class="sd">    You don&#39;t have to implement it like this.</span>
+<span class="sd">    Helper function to traverse nested dictionaries and lists using the provided keys.</span>
 
-<span class="sd">    [X] if response.get(&#39;json&#39;) and response[&#39;json&#39;].get(&#39;result&#39;) and response[&#39;json&#39;][&#39;result&#39;].get(&#39;tx_hash&#39;): \n</span>
-<span class="sd">    [O] if keys_exists(response, &#39;json&#39;, &#39;result&#39;, &#39;tx_hash&#39;): \n</span>
+<span class="sd">    :param element: The dictionary or list to traverse.</span>
+<span class="sd">    :param keys: The keys or indices to traverse in the dictionary or list.</span>
+<span class="sd">    :return: The value if all keys/indices exist, else raises an exception.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">current_element</span> <span class="o">=</span> <span class="n">element</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_element</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>  <span class="c1"># Convert key to int if the current element is a list</span>
+        <span class="n">current_element</span> <span class="o">=</span> <span class="n">current_element</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">current_element</span>
 
-<span class="sd">    :param element: dictionary value</span>
-<span class="sd">    :param keys: The keys you want to find in the dictionary.</span>
-<span class="sd">    :return:</span>
+
+<div class="viewcode-block" id="keys_exists"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.keys_exists">[docs]</a><span class="k">def</span> <span class="nf">keys_exists</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if **keys** (nested) exist in `element` (dict).</span>
+
+<span class="sd">    :param element: The dictionary to search.</span>
+<span class="sd">    :param keys: The keys to traverse in the dictionary.</span>
+<span class="sd">    :return: True if all keys exist, False otherwise.</span>
 
 <span class="sd">    Example:</span>
 
 <span class="sd">        .. code-block:: python</span>
-
-<span class="sd">            from pawnlib.typing.check import keys_exists</span>
 
 <span class="sd">            dict_example = {</span>
 <span class="sd">                &quot;name&quot;: &quot;example&quot;,</span>
@@ -754,7 +796,6 @@
 <span class="sd">                    &quot;description_3&quot;: &quot;333&quot;,</span>
 <span class="sd">                },</span>
 <span class="sd">                &quot;none_value_key&quot;: None,</span>
-
 <span class="sd">            }</span>
 
 <span class="sd">            keys_exists(dict_example, &#39;name&#39;, &#39;description&#39;)</span>
@@ -765,16 +806,61 @@
 
 <span class="sd">            keys_exists(dict_example, &#39;name&#39;, &#39;none_key&#39;)</span>
 <span class="sd">            # &gt;&gt; False</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_element</span> <span class="o">=</span> <span class="n">element</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">_element</span> <span class="o">=</span> <span class="n">_element</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_traverse_keys</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
-    <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="get_if_keys_exist"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.get_if_keys_exist">[docs]</a><span class="k">def</span> <span class="nf">get_if_keys_exist</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve the value from a nested dictionary if **keys** exists in `element`.</span>
+
+<span class="sd">    :param element: The dictionary to search.</span>
+<span class="sd">    :param keys: The keys to traverse in the dictionary.</span>
+<span class="sd">    :param default: The default value to return if the keys do not exist.</span>
+<span class="sd">    :return: The value if all keys exist, else the default value.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            dict_example = {</span>
+<span class="sd">                &quot;name&quot;: &quot;example&quot;,</span>
+<span class="sd">                &quot;description&quot;: {</span>
+<span class="sd">                    &quot;description_2&quot;: &quot;222&quot;,</span>
+<span class="sd">                    &quot;description_3&quot;: &quot;333&quot;,</span>
+<span class="sd">                },</span>
+<span class="sd">                &quot;none_value_key&quot;: None,</span>
+<span class="sd">                &quot;nested_list&quot;: [{&quot;key1&quot;: &quot;value1&quot;}, {&quot;key2&quot;: &quot;value2&quot;}]</span>
+<span class="sd">            }</span>
+
+<span class="sd">            get_if_keys_exist(dict_example, &#39;name&#39;)</span>
+<span class="sd">            # &gt;&gt; &#39;example&#39;</span>
+
+<span class="sd">            get_if_keys_exist(dict_example, &#39;description&#39;, &#39;description_2&#39;)</span>
+<span class="sd">            # &gt;&gt; &#39;222&#39;</span>
+
+<span class="sd">            get_if_keys_exist(dict_example, &#39;none_value_key&#39;)</span>
+<span class="sd">            # &gt;&gt; None</span>
+
+<span class="sd">            get_if_keys_exist(dict_example, &#39;name&#39;, &#39;none_key&#39;)</span>
+<span class="sd">            # &gt;&gt; None</span>
+
+<span class="sd">            get_if_keys_exist(dict_example, &#39;nested_list&#39;, &#39;1&#39;, &#39;key2&#39;)</span>
+<span class="sd">            # &gt;&gt; &#39;value2&#39;</span>
+
+<span class="sd">            get_if_keys_exist(dict_example, &#39;nested_list&#39;, &#39;0&#39;, &#39;key1&#39;)</span>
+<span class="sd">            # &gt;&gt; &#39;value1&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_traverse_keys</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">key_path</span> <span class="o">=</span> <span class="s1">&#39; -&gt; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error accessing key/index &#39;</span><span class="si">{</span><span class="n">key_path</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">default</span></div>
 
 
 <div class="viewcode-block" id="detect_encoding"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.check.detect_encoding">[docs]</a><span class="k">def</span> <span class="nf">detect_encoding</span><span class="p">(</span><span class="n">byte_data</span><span class="p">,</span> <span class="n">default_encode</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">):</span>

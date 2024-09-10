@@ -18,12 +18,12 @@ __description__ = "This command is used to measure server performance and verify
 __epilog__ = (
     "This tool is intended for checking and validating server resources.\n\n"
     "Usage examples:\n"
-    "  1. Measure disk performance:\n"
-    "     pawns server disk --file-path /path/to/testfile --file-size-mb 1024 --iterations 5 --block-size-kb 1024 --num-threads 1 --io-pattern sequential\n"
+    "  1. Measure disk performance:\n\n"
     "     - Measures write and read speed for a test file with specified parameters.\n\n"
-    "  2. Measure filesystem performance:\n"
-    "     pawns server fs server fs -i 5 --count 2000 \n"
-    "     -  Measure the filesystem performance 5 times with 2,000 files.\n\n"    
+    "     `pawns server disk --file-path /path/to/testfile --file-size-mb 1024 --iterations 5 --block-size-kb 1024 --num-threads 1 --io-pattern sequential`\n"
+    "  2. Measure filesystem performance:\n\n"
+    "     -  Measure the filesystem performance 5 times with 2,000 files.\n\n"
+    "     `pawns server fs server fs -i 5 --count 2000` \n"
     "For more detailed command usage and options, refer to the help documentation by running 'pawns server --help'."
 )
 
@@ -240,9 +240,9 @@ def main():
                 stdout_level="DEBUG",
             )
         )
-    
+
     print_banner()
-    
+
     all_args = find_all_arguments(parser)
     argument_dict = create_argument_dict(args, all_args)
 
@@ -277,6 +277,11 @@ def main():
         write_res = write_json(filename=args.write_file, data=test_results)
         pawn.console.log(write_res)
 
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 if __name__ == '__main__':
     try:

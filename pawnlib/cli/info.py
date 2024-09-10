@@ -27,20 +27,24 @@ __epilog__ = (
     "This tool provides a detailed overview of your server's system and network resources.\n\n"
     "Usage examples:\n"
     "  1. Display all resource information in verbose mode:\n"
-    "     pawns info -v\n"
     "     - Displays detailed information about system and network resources.\n\n"
+    "     `pawns info -v`\n"
+
 
     "  2. Run in quiet mode without displaying any output:\n"
-    "     pawns info -q\n"
     "     - Executes the script without showing any output, useful for logging purposes.\n\n"
+    "     `pawns info -q`\n"
+    
 
     "  3. Specify a custom base directory and configuration file:\n"
-    "     pawns info -b /path/to/base/dir --config-file my_config.ini\n"
     "     - Uses the specified base directory and configuration file for operations.\n\n"
+    "     `pawns info -b /path/to/base/dir --config-file my_config.ini`\n"
+    
 
     "  4. Write output to a specified file in quiet mode without displaying any output:\n"
-    "     pawns info -q --output-file output.json\n"
     "     - Writes the collected resource information to 'output.json'.\n\n"
+    "    `pawns info -q --output-file output.json`\n"
+
 
     "For more detailed command usage and options, refer to the help documentation by running 'pawns info --help'."
 )
@@ -204,6 +208,12 @@ def main():
     if args.write_file:
         write_res = write_json(filename=args.write_file, data=result)
         pawn.console.log(write_res)
+
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 
 if __name__ == '__main__':

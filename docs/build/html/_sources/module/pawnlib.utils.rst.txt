@@ -95,3 +95,15 @@ pawnlib.utils.in_memory_zip module
    :members:
    :undoc-members:
    :show-inheritance:
+
+pawnlib.utils.aws module
+-------------------------------------
+
+.. code-block:: python
+
+    from pawnlib.utils import aws
+
+.. automodule:: pawnlib.utils.aws
+   :members:
+   :undoc-members:
+   :show-inheritance:

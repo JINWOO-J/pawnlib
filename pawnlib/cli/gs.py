@@ -20,11 +20,11 @@ from pawnlib.typing.check import error_and_exit
 
 __description__ = "Genesis Tool"
 __epilog__ = (
-    "Usage examples:\n"
+    "\nUsage examples:\n\n"
     "1. Generate a genesis file from a genesis.json file:\n"
-    "     pawns gs gen -i genesis.json -o icon_genesis.zip\n\n"
+    "     `pawns gs gen -i genesis.json -o icon_genesis.zip`\n\n"
     "2. Display information about a genesis zip file: \n"
-    "     pawns gs info genesis.zip\n\n"
+    "     `pawns gs info genesis.zip`\n\n"
     "\n"
     "Note: \n"
     "  The 'gen' command generates a genesis file based on a provided genesis.json file.\n"
@@ -121,6 +121,12 @@ def main():
         color_print.print_kv("FileName", f"{args.genesis_zip_file} ({get_size(args.genesis_zip_file)})")
         color_print.print_kv("cid", get_hex_value(cid))
         color_print.print_kv("nid", get_hex_value(nid))
+
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 
 if __name__ == '__main__':

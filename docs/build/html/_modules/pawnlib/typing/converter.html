@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.typing.converter &mdash; Pawnlib v1.0.84</title>
+  <title>pawnlib.typing.converter &mdash; Pawnlib v2.0.32</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.84
+                2.0.32
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -52,7 +52,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
@@ -100,11 +102,12 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Type</span>
 <span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">MutableMapping</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">pawnlib</span> <span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span> <span class="nn">pawnlib.typing.constants</span> <span class="kn">import</span> <span class="n">const</span>
 <span class="kn">from</span> <span class="nn">pawnlib.config.__fix_import</span> <span class="kn">import</span> <span class="n">Null</span>
 <span class="kn">import</span> <span class="nn">statistics</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
@@ -153,6 +156,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="StackList.sum"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.StackList.sum">[docs]</a>    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="StackList.median"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.StackList.median">[docs]</a>    <span class="k">def</span> <span class="nf">median</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">statistics</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
@@ -578,6 +584,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
+    <span class="c1"># def __getitem__(self, key):</span>
+    <span class="c1">#     &quot;&quot;&quot;Get an item for the specified key, automatically dealing with</span>
+    <span class="c1">#     nested children.</span>
+    <span class="c1">#     :param mixed key: The key to use</span>
+    <span class="c1">#     :rtype: mixed</span>
+    <span class="c1">#     :raises: KeyError</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     values = self._values</span>
+    <span class="c1">#     key = [key] if isinstance(key, int) else key.split(self._delimiter)</span>
+    <span class="c1">#     for part in key:</span>
+    <span class="c1">#         values = values[part]</span>
+    <span class="c1">#     return values</span>
+
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an item for the specified key, automatically dealing with</span>
 <span class="sd">        nested children.</span>
@@ -586,9 +605,11 @@
 <span class="sd">        :raises: KeyError</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delimiter</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">part</span><span class="p">]</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delimiter</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_delimiter</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">values</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -617,26 +638,38 @@
         <span class="k">return</span> <span class="s1">&#39;&lt;</span><span class="si">{}</span><span class="s1"> id=</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&gt;&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
                                        <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
+    <span class="c1"># def __setitem__(self, key, value):</span>
+    <span class="c1">#     &quot;&quot;&quot;Assign the value to the key, dynamically building nested</span>
+    <span class="c1">#     FlatDict items where appropriate.</span>
+    <span class="c1">#     :param mixed key: The key for the item</span>
+    <span class="c1">#     :param mixed value: The value for the item</span>
+    <span class="c1">#     :raises: TypeError</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     if isinstance(value, self._COERCE) and not isinstance(value, FlatDict):</span>
+    <span class="c1">#         value = self.__class__(value, self._delimiter)</span>
+    <span class="c1">#     elif isinstance(value, list):</span>
+    <span class="c1">#         self._process_list(key, value)</span>
+    <span class="c1">#         return</span>
+    <span class="c1">#     if self._has_delimiter(key):</span>
+    <span class="c1">#         pk, ck = key.split(self._delimiter, 1)</span>
+    <span class="c1">#         if pk not in self._values:</span>
+    <span class="c1">#             self._values[pk] = self.__class__({ck: value}, self._delimiter)</span>
+    <span class="c1">#             return</span>
+    <span class="c1">#         elif not isinstance(self._values[pk], FlatDict):</span>
+    <span class="c1">#             raise TypeError(&#39;Assignment to invalid type for key {}&#39;.format(pk))</span>
+    <span class="c1">#         self._values[pk][ck] = value</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         self._values[key] = value</span>
+
     <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign the value to the key, dynamically building nested</span>
-<span class="sd">        FlatDict items where appropriate.</span>
-<span class="sd">        :param mixed key: The key for the item</span>
-<span class="sd">        :param mixed value: The value for the item</span>
-<span class="sd">        :raises: TypeError</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COERCE</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">FlatDict</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delimiter</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_process_list</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-            <span class="k">return</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_delimiter</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
             <span class="n">pk</span><span class="p">,</span> <span class="n">ck</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delimiter</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">pk</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">pk</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">({</span><span class="n">ck</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delimiter</span><span class="p">)</span>
-                <span class="k">return</span>
-            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">pk</span><span class="p">],</span> <span class="n">FlatDict</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Assignment to invalid type for key </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pk</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">pk</span><span class="p">][</span><span class="n">ck</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="n">pk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">pk</span><span class="p">],</span> <span class="p">(</span><span class="n">FlatDict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">pk</span><span class="p">]</span> <span class="o">=</span> <span class="n">FlatDict</span><span class="p">({</span><span class="n">ck</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delimiter</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">pk</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">pk</span><span class="p">]</span> <span class="o">=</span> <span class="n">FlatDict</span><span class="p">({</span><span class="n">ck</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delimiter</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">pk</span><span class="p">][</span><span class="n">ck</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -824,7 +857,45 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks to see if the key contains the delimiter.</span>
 <span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delimiter</span> <span class="ow">in</span> <span class="n">key</span></div>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delimiter</span> <span class="ow">in</span> <span class="n">key</span>
+
+<div class="viewcode-block" id="FlatDict.unflatten"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.FlatDict.unflatten">[docs]</a>    <span class="k">def</span> <span class="nf">unflatten</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unflatten the dictionary.</span>
+<span class="sd">        :return: unflattened dictionary</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                flat_dict = {&quot;a.b&quot;: 1, &quot;a.c&quot;: 2, &quot;d&quot;: 3}</span>
+<span class="sd">                flat = FlatDict(flat_dict)</span>
+
+<span class="sd">                unflatten_dict = flat.unflatten()</span>
+<span class="sd">                # &gt;&gt; {&quot;a&quot;: {&quot;b&quot;: 1, &quot;c&quot;: 2}, &quot;d&quot;: 3}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unflattened</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">flat_key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="n">flat_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delimiter</span><span class="p">)</span>
+            <span class="n">current_level</span> <span class="o">=</span> <span class="n">unflattened</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_level</span><span class="p">:</span>
+                    <span class="n">current_level</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">current_level</span> <span class="o">=</span> <span class="n">current_level</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">current_level</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">unflattened</span></div>
+
+<div class="viewcode-block" id="FlatDict.flatten"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.FlatDict.flatten">[docs]</a>    <span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a flattened dictionary.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flattened</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">flattened</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">flattened</span></div></div>
+
 
 
 <div class="viewcode-block" id="FlatterDict"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.FlatterDict">[docs]</a><span class="k">class</span> <span class="nc">FlatterDict</span><span class="p">(</span><span class="n">FlatDict</span><span class="p">):</span>
@@ -1187,6 +1258,58 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">converted_value</span></div>
 
+<div class="viewcode-block" id="int_to_loop_hex"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.int_to_loop_hex">[docs]</a><span class="k">def</span> <span class="nf">int_to_loop_hex</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rounding</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;floor&#39;</span><span class="p">,</span> <span class="s1">&#39;round&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;floor&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a float to a hexadecimal string representing the value multiplied by 10^18.</span>
+
+<span class="sd">    :param value: Float value to be converted. Must be non-negative.</span>
+<span class="sd">    :type value: float</span>
+<span class="sd">    :param rounding: Rounding method to use (&#39;floor&#39; or &#39;round&#39;). Defaults to &#39;floor&#39;.</span>
+<span class="sd">    :type rounding: Literal[&#39;floor&#39;, &#39;round&#39;]</span>
+<span class="sd">    :return: Hexadecimal string of the loop value.</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    :raises ValueError: If the input value is negative.</span>
+<span class="sd">    :raises TypeError: If the input value is not a numeric type.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">            from pawnlib.typing import int_to_loop_hex</span>
+
+<span class="sd">            int_to_loop_hex(1)</span>
+<span class="sd">            # &gt;&gt; &#39;0xde0b6b3a7640000&#39;</span>
+
+<span class="sd">            int_to_loop_hex(123)</span>
+<span class="sd">            # &gt;&gt; &#39;0x6f05b59d3b20000000&#39;</span>
+
+<span class="sd">            int_to_loop_hex(1.1, rounding=&#39;floor&#39;)</span>
+<span class="sd">            # &gt;&gt; &#39;0xf43fc2c04ee0000&#39;</span>
+
+<span class="sd">            int_to_loop_hex(1.1, rounding=&#39;round&#39;)</span>
+<span class="sd">            # &gt;&gt; &#39;0xf43fc2c04ee0000&#39;</span>
+
+<span class="sd">            int_to_loop_hex(0)</span>
+<span class="sd">            # &gt;&gt; &#39;0x0&#39;</span>
+
+<span class="sd">            int_to_loop_hex(-1)</span>
+<span class="sd">            # Raises ValueError: Negative values are not allowed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Value must be a numeric type (int or float).&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Negative values are not allowed.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rounding</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;floor&#39;</span><span class="p">,</span> <span class="s1">&#39;round&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Rounding must be either &#39;floor&#39; or &#39;round&#39;.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rounding</span> <span class="o">==</span> <span class="s1">&#39;floor&#39;</span><span class="p">:</span>
+        <span class="n">loop_value</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">18</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># rounding == &#39;round&#39;</span>
+        <span class="n">loop_value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">18</span><span class="p">)</span>
+
+    <span class="n">hex_value</span> <span class="o">=</span> <span class="nb">hex</span><span class="p">(</span><span class="n">loop_value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">hex_value</span></div>
+
 
 <div class="viewcode-block" id="get_size"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.get_size">[docs]</a><span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1231,6 +1354,51 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">return_size</span><span class="p">,</span> <span class="n">file_attr</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">return_size</span></div>
+
+
+<div class="viewcode-block" id="get_value_size"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.get_value_size">[docs]</a><span class="k">def</span> <span class="nf">get_value_size</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine the size of the value based on its type, handling nested lists and dictionaries recursively.</span>
+
+<span class="sd">    :param value: The value to determine the size of.</span>
+<span class="sd">    :type value: Any</span>
+<span class="sd">    :return: The size of the value.</span>
+<span class="sd">    :rtype: int</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            get_value_size(None)</span>
+<span class="sd">            # &gt;&gt; 0</span>
+
+<span class="sd">            get_value_size([1, 2, 3])</span>
+<span class="sd">            # &gt;&gt; 3</span>
+
+<span class="sd">            get_value_size({&quot;key1&quot;: &quot;value1&quot;, &quot;key2&quot;: &quot;value2&quot;})</span>
+<span class="sd">            # &gt;&gt; 2</span>
+
+<span class="sd">            get_value_size(&quot;Hello&quot;)</span>
+<span class="sd">            # &gt;&gt; 5</span>
+
+<span class="sd">            get_value_size(True)</span>
+<span class="sd">            # &gt;&gt; 1</span>
+
+<span class="sd">            get_value_size([1, [2, 3], {&quot;key&quot;: &quot;value&quot;}])</span>
+<span class="sd">            # &gt;&gt; 5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">get_value_size</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">get_value_size</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_value_size</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="convert_bytes"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.convert_bytes">[docs]</a><span class="k">def</span> <span class="nf">convert_bytes</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1380,31 +1548,49 @@
     <span class="k">return</span> <span class="n">ret</span></div>
 
 
-<div class="viewcode-block" id="dict_to_line"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.dict_to_line">[docs]</a><span class="k">def</span> <span class="nf">dict_to_line</span><span class="p">(</span><span class="n">dict_param</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">quotes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="n">end_separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="dict_to_line"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.dict_to_line">[docs]</a><span class="k">def</span> <span class="nf">dict_to_line</span><span class="p">(</span><span class="n">dict_param</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">quotes</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;strings_only&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span>
+                 <span class="n">end_separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">pad_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">key_pad_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alignment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span>
+                 <span class="n">key_alignment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="nb">callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function converts a dict to a line.</span>
+<span class="sd">    Converts a dictionary into a string with various formatting options. Optionally wraps values or string values in quotes.</span>
 
-<span class="sd">    :param dict_param:</span>
-<span class="sd">    :param quotes:</span>
-<span class="sd">    :param separator:</span>
-<span class="sd">    :param end_separator:</span>
-<span class="sd">    :return:</span>
-
-<span class="sd">    Example:</span>
-
-<span class="sd">        .. code-block:: python</span>
-
-<span class="sd">            # &gt;&gt; {&quot;a&quot;: &quot;1234&quot;, &quot;b&quot;: &quot;1235&quot;} =&gt; &quot;a=1234,b=1235&quot;</span>
-
+<span class="sd">    :param dict_param: The dictionary to convert.</span>
+<span class="sd">    :param quotes: &#39;all&#39; to wrap all values in quotes, &#39;strings_only&#39; to wrap only string values in quotes, or None.</span>
+<span class="sd">    :param separator: The separator between keys and values.</span>
+<span class="sd">    :param end_separator: The separator between key-value pairs.</span>
+<span class="sd">    :param pad_width: The minimum width for value alignment.</span>
+<span class="sd">    :param key_pad_width: The minimum width for key alignment.</span>
+<span class="sd">    :param alignment: The alignment of the values (&#39;left&#39;, &#39;right&#39;, &#39;center&#39;).</span>
+<span class="sd">    :param key_alignment: The alignment of the keys (&#39;left&#39;, &#39;right&#39;, &#39;center&#39;).</span>
+<span class="sd">    :param callback: An optional callback function to apply to each value.</span>
+<span class="sd">    :return: The formatted string.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">return_value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dict_param</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-        <span class="k">if</span> <span class="n">quotes</span><span class="p">:</span>
-            <span class="n">return_value</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}{</span><span class="n">separator</span><span class="si">}</span><span class="se">\&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\&quot;</span><span class="si">{</span><span class="n">end_separator</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">return_value</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}{</span><span class="n">separator</span><span class="si">}{</span><span class="n">v</span><span class="si">}{</span><span class="n">end_separator</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="k">return</span> <span class="n">return_value</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="n">end_separator</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">_format_with_alignment</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">alignment</span><span class="p">):</span>
+        <span class="n">formats</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&gt;</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s1">&#39;center&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;^</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+        <span class="n">format_spec</span> <span class="o">=</span> <span class="n">formats</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">alignment</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">:{</span><span class="n">format_spec</span><span class="si">}}</span><span class="s2">&quot;</span>  <span class="c1"># Convert to string before formatting</span>
 
+    <span class="n">formatted_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">dict_param</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dict_param</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">):</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># Apply the callback function to the value, if provided</span>
+
+        <span class="c1"># Apply alignment and padding to keys and values</span>
+        <span class="n">formatted_key</span> <span class="o">=</span> <span class="n">_format_with_alignment</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">key_pad_width</span><span class="p">,</span> <span class="n">key_alignment</span><span class="p">)</span>
+        <span class="n">formatted_value</span> <span class="o">=</span> <span class="n">_format_with_alignment</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">pad_width</span><span class="p">,</span> <span class="n">alignment</span><span class="p">)</span>
+
+        <span class="c1"># Handle quotes option for values</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">quotes</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">quotes</span> <span class="o">==</span> <span class="s1">&#39;strings_only&#39;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="n">formatted_value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="si">{</span><span class="n">formatted_value</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&quot;</span>
+
+        <span class="n">formatted_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">formatted_key</span><span class="si">}{</span><span class="n">separator</span><span class="si">}{</span><span class="n">formatted_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">end_separator</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted_pairs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="dict_none_to_zero"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.dict_none_to_zero">[docs]</a><span class="k">def</span> <span class="nf">dict_none_to_zero</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1534,6 +1720,35 @@
     <span class="k">return</span> <span class="n">s</span></div>
 
 
+<div class="viewcode-block" id="PrettyOrderedDict"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.PrettyOrderedDict">[docs]</a><span class="k">class</span> <span class="nc">PrettyOrderedDict</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     A subclass of OrderedDict that provides a pretty string representation.</span>
+
+<span class="sd">     Example:</span>
+
+<span class="sd">         .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing.converter import PrettyOrderedDict</span>
+
+<span class="sd">             pod = PrettyOrderedDict()</span>
+<span class="sd">             pod[&#39;one&#39;] = 1</span>
+<span class="sd">             pod[&#39;two&#39;] = 2</span>
+<span class="sd">             pod[&#39;three&#39;] = 3</span>
+
+<span class="sd">             print(pod)</span>
+<span class="sd">             # &gt;&gt; {&#39;one&#39;: 1, &#39;two&#39;: 2, &#39;three&#39;: 3}</span>
+
+<span class="sd">             repr(pod)</span>
+<span class="sd">             # &gt;&gt; &quot;{&#39;one&#39;: 1, &#39;two&#39;: 2, &#39;three&#39;: 3}&quot;</span>
+
+<span class="sd">     &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
+
+
 <div class="viewcode-block" id="ordereddict_to_dict"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.ordereddict_to_dict">[docs]</a><span class="k">def</span> <span class="nf">ordereddict_to_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Change the order of the keys in the dictionary.</span>
@@ -1547,6 +1762,7 @@
 <span class="sd">        .. code-block:: python</span>
 
 <span class="sd">            from collections import OrderedDict</span>
+<span class="sd">            from pawnlib.typing.converter import ordereddict_to_dict</span>
 
 <span class="sd">            # Create an ordered dictionary</span>
 <span class="sd">            od = OrderedDict([(&#39;c&#39;, 3), (&#39;b&#39;, 2), (&#39;a&#39;, 1)])</span>
@@ -2374,6 +2590,17 @@
                       <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)))</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
 
 
+<div class="viewcode-block" id="snake_case_to_title_case"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.snake_case_to_title_case">[docs]</a><span class="k">def</span> <span class="nf">snake_case_to_title_case</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a snake_case string to Title Case with a specified separator.</span>
+
+<span class="sd">    :param s: The input snake_case string to convert.</span>
+<span class="sd">    :param separator: The separator to use between words. Default is a space.</span>
+<span class="sd">    :return: The converted string in Title Case with the specified separator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">separator</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))</span></div>
+
+
 <div class="viewcode-block" id="camel_case_to_lower_case"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.camel_case_to_lower_case">[docs]</a><span class="k">def</span> <span class="nf">camel_case_to_lower_case</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a string from camelcase to spacecase.</span>
@@ -2507,6 +2734,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_origin_text</span><span class="p">[:</span><span class="n">width</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">placeholder</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">return</span> <span class="n">text</span></div>
+
 
 <div class="viewcode-block" id="remove_ascii_and_tags"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.remove_ascii_and_tags">[docs]</a><span class="k">def</span> <span class="nf">remove_ascii_and_tags</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">,</span> <span class="s2">&quot;both&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;lower&quot;</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">remove_ascii_color_codes</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
@@ -2769,6 +2997,104 @@
         <span class="k">return</span> <span class="s1">&#39;0x&#39;</span> <span class="o">+</span> <span class="n">input_str</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;0x&#39;</span> <span class="o">+</span> <span class="n">input_str</span></div>
+
+
+<div class="viewcode-block" id="decode_jwt"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.decode_jwt">[docs]</a><span class="k">def</span> <span class="nf">decode_jwt</span><span class="p">(</span><span class="n">jwt_token</span><span class="p">,</span> <span class="n">use_kst</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     Decode a JWT token and return its header, payload, and expiration details.</span>
+
+<span class="sd">     :param jwt_token: The JWT token to decode.</span>
+<span class="sd">     :param use_kst: Boolean indicating whether to convert expiration time to KST timezone.</span>
+<span class="sd">     :return: A dictionary containing the decoded header, payload, expiration time, remaining time, and remaining seconds.</span>
+
+<span class="sd">     Example:</span>
+
+<span class="sd">         .. code-block:: python</span>
+
+<span class="sd">             decoded = decode_jwt(&quot;eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhIiwicGVybWlzc2lvbnMiOiJ1c2VyIiwiZXhwIjoxNzIzNjAxMjI5fQ.OVkMM0MSH48qk25TN1LyJytfGa5QG4IyhBqVk9GyyzI&quot;)</span>
+<span class="sd">             print(decoded[&quot;header&quot;])</span>
+<span class="sd">             # &gt;&gt; {&#39;typ&#39;: &#39;JWT&#39;, &#39;alg&#39;: &#39;HS256&#39;}</span>
+
+<span class="sd">             print(decoded[&quot;payload&quot;])</span>
+<span class="sd">             # &gt;&gt; {&#39;sub&#39;: &#39;a&#39;, &#39;permissions&#39;: &#39;user&#39;, &#39;exp&#39;: 1723601229}</span>
+
+<span class="sd">             print(decoded[&quot;expiration_time&quot;])</span>
+<span class="sd">             # &gt;&gt; &#39;2024-08-14 02:07:09 UTC&#39;</span>
+
+<span class="sd">             print(decoded[&quot;remaining_time&quot;])</span>
+<span class="sd">             # &gt;&gt; &#39;Token has expired&#39;</span>
+
+<span class="sd">             print(decoded[&quot;remaining_seconds&quot;])</span>
+<span class="sd">             # &gt;&gt; 0</span>
+
+<span class="sd">     &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">header_base64</span><span class="p">,</span> <span class="n">payload_base64</span><span class="p">,</span> <span class="n">signature_base64</span> <span class="o">=</span> <span class="n">jwt_token</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+
+        <span class="n">header_bytes</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">header_base64</span> <span class="o">+</span> <span class="s1">&#39;==&#39;</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">header_bytes</span><span class="p">)</span>
+
+        <span class="n">payload_bytes</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">payload_base64</span> <span class="o">+</span> <span class="s1">&#39;==&#39;</span><span class="p">)</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">payload_bytes</span><span class="p">)</span>
+
+        <span class="n">iat_timestamp</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;iat&#39;</span><span class="p">)</span>
+        <span class="n">exp_timestamp</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;exp&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">iat_timestamp</span><span class="p">:</span>
+            <span class="n">iat_datetime_utc</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">iat_timestamp</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">use_kst</span><span class="p">:</span>
+                <span class="n">kst_timezone</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">9</span><span class="p">))</span>
+                <span class="n">iat_datetime</span> <span class="o">=</span> <span class="n">iat_datetime_utc</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">kst_timezone</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">iat_datetime</span> <span class="o">=</span> <span class="n">iat_datetime_utc</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">iat_datetime</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">exp_timestamp</span><span class="p">:</span>
+            <span class="n">exp_datetime_utc</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">exp_timestamp</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">use_kst</span><span class="p">:</span>
+                <span class="n">kst_timezone</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">9</span><span class="p">))</span>
+                <span class="n">exp_datetime</span> <span class="o">=</span> <span class="n">exp_datetime_utc</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">kst_timezone</span><span class="p">)</span>
+                <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">kst_timezone</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">exp_datetime</span> <span class="o">=</span> <span class="n">exp_datetime_utc</span>
+                <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+
+            <span class="n">time_difference</span> <span class="o">=</span> <span class="n">exp_datetime</span> <span class="o">-</span> <span class="n">current_time</span>
+            <span class="n">total_seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_difference</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
+
+            <span class="k">if</span> <span class="n">total_seconds</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">days</span> <span class="o">=</span> <span class="n">time_difference</span><span class="o">.</span><span class="n">days</span>
+                <span class="n">hours</span><span class="p">,</span> <span class="n">remainder</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">time_difference</span><span class="o">.</span><span class="n">seconds</span><span class="p">,</span> <span class="mi">3600</span><span class="p">)</span>
+                <span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">remainder</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+                <span class="n">remaining_time</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">days</span><span class="si">}</span><span class="s2"> days, </span><span class="si">{</span><span class="n">hours</span><span class="si">}</span><span class="s2"> hours, </span><span class="si">{</span><span class="n">minutes</span><span class="si">}</span><span class="s2"> minutes, </span><span class="si">{</span><span class="n">seconds</span><span class="si">}</span><span class="s2"> seconds&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">remaining_time</span> <span class="o">=</span> <span class="s2">&quot;Token has expired&quot;</span>
+                <span class="c1"># total_seconds = 0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">exp_datetime</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">remaining_time</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">total_seconds</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">,</span>
+            <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="n">payload</span><span class="p">,</span>
+            <span class="s2">&quot;issued_at&quot;</span><span class="p">:</span> <span class="n">iat_datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S %Z&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">iat_datetime</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;expiration_time&quot;</span><span class="p">:</span> <span class="n">exp_datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S %Z&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">exp_datetime</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;remaining_time&quot;</span><span class="p">:</span> <span class="n">remaining_time</span><span class="p">,</span>
+            <span class="s2">&quot;remaining_seconds&quot;</span><span class="p">:</span> <span class="n">total_seconds</span>
+        <span class="p">}</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error decoding JWT: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="escape_markdown"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.escape_markdown">[docs]</a><span class="k">def</span> <span class="nf">escape_markdown</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Escape Markdown special characters&quot;&quot;&quot;</span>
+    <span class="n">escape_chars</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;_*[]()~`&gt;#+-=|</span><span class="si">{}</span><span class="s1">.!&#39;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;([</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">escape_chars</span><span class="p">)</span><span class="si">}</span><span class="s1">])&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">\1&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">))</span></div>
+
+
 </pre></div>
 
            </div>

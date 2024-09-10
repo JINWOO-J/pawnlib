@@ -19,38 +19,39 @@ __description__ = 'Upload or download directories to/from AWS S3.'
 __epilog__ = (
     "This script allows you to upload or download directories to/from an AWS S3 bucket.\n\n"
     "Usage examples:\n"
-    "  1. Upload a directory to S3:\n"
-    "     pawns upload -d /path/to/directory -p your-aws-profile -b your-s3-bucket\n"
+    "  1. Upload a directory to S3:\n\n"
     "     - Uploads the specified directory to the S3 bucket using the provided AWS CLI profile.\n\n"
+    "     `pawns upload -d /path/to/directory -p your-aws-profile -b your-s3-bucket`\n"
 
-    "  2. Download a directory from S3:\n"
-    "     pawns download -d s3-directory -l /local/path -p your-aws-profile -b your-s3-bucket\n"
+    "  2. Download a directory from S3:\n\n"
     "     - Downloads the specified S3 directory to the local path using the provided AWS CLI profile.\n\n"
+    "     `pawns download -d s3-directory -l /local/path -p your-aws-profile -b your-s3-bucket`\n"
 
-    "  3. Upload with a suffix appended to file names:\n"
-    "     pawns upload -d /path/to/directory -p your-profile -b your-bucket --append-suffix '_backup'\n"
+    "  3. Upload with a suffix appended to file names:\n\n"
     "     - Uploads files with '_backup' appended to their names.\n\n"
+    "     `pawns upload -d /path/to/directory -p your-profile -b your-bucket --append-suffix '_backup'`\n"
 
-    "  4. Download using an info file:\n"
-    "     pawns download -p your-profile -b your-bucket --info-file path/to/info.json -l /local/path\n"
+    "  4. Download using an info file:\n\n"
     "     - Downloads files based on the structure specified in the info.json file.\n\n"
+    "     `pawns download -p your-profile -b your-bucket --info-file path/to/info.json -l /local/path`\n"
 
-    "  5. Upload or download with block height as suffix:\n"
-    "     pawns upload -d /path/to/directory -p your-profile -b your-bucket --use-block-height --block-height-script path/to/script.py\n"
+    "  5. Upload or download with block height as suffix:\n\n"
     "     - Uploads files with the current block height appended to their names. The block height is obtained from the specified script.\n\n"
+    "     `pawns upload -d /path/to/directory -p your-profile -b your-bucket --use-block-height --block-height-script path/to/script.py`\n"
 
-    "  6. Execute pre and post commands:\n"
-    "     pawns upload -d /path/to/directory -p your-profile -b your-bucket --pre-cmd 'echo Pre-upload' --post-cmd 'echo Post-upload'\n"
+    "  6. Execute pre and post commands:\n\n"
     "     - Executes the specified commands before and after the upload or download process.\n\n"
+    "     `pawns upload -d /path/to/directory -p your-profile -b your-bucket --pre-cmd 'echo Pre-upload' --post-cmd 'echo Post-upload'`\n"
 
-    "  7. Overwrite existing files:\n"
-    "     pawns upload -d /path/to/directory -p your-profile -b your-bucket --overwrite\n"
+
+    "  7. Overwrite existing files:\n\n"
     "     - Overwrites existing files in the S3 bucket.\n\n"
+    "     `pawns upload -d /path/to/directory -p your-profile -b your-bucket --overwrite`\n"
 
-    "  8. Use shorthand commands:\n"
-    "     pawns up -d /path/to/directory -p your-profile -b your-bucket\n"
-    "     pawns down -d s3-directory -l /local/path -p your-profile -b your-bucket\n"
+    "  8. Use shorthand commands:\n\n"
     "     - 'up' is shorthand for upload, 'down' for download.\n\n"
+    "     `pawns up -d /path/to/directory -p your-profile -b your-bucket`\n"
+    "     `pawns down -d s3-directory -l /local/path -p your-profile -b your-bucket`\n"
 
     "Note:\n"
     "  - The -p/--profile, -b/--bucket, and -d/--directory options are required for most operations.\n"
@@ -264,6 +265,11 @@ def main():
 
     if args.post_cmd:
         execute_command(args.post_cmd)
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 if __name__ == '__main__':
     main()

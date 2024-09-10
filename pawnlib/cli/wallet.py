@@ -20,17 +20,20 @@ __epilog__ = (
     "You can easily create a new wallet or load an existing one using a private key or a keystore file.\n\n"
 
     "Usage examples:\n"
-    "  1. Create a new wallet:\n"
-    "     pawns wallet create\n"
+    "  1. Create a new wallet:\n\n"
     "     - This command creates a new wallet and outputs the keystore file and address.\n\n"
+    "     `pawns wallet create`\n"
 
-    "  2. Load an existing wallet using a private key:\n"
-    "     pawns wallet load --private-key YOUR_PRIVATE_KEY\n"
+
+    "  2. Load an existing wallet using a private key:\n\n"
     "     - Loads a wallet from the provided private key.\n\n"
+    "     `pawns wallet load --private-key YOUR_PRIVATE_KEY`\n"
+    
 
-    "  3. Load an existing wallet from a keystore file:\n"
-    "     pawns wallet load --keystore /path/to/keystore --password YOUR_PASSWORD\n"
+    "  3. Load an existing wallet from a keystore file:\n\n"
     "     - Loads a wallet from a keystore file with the provided password.\n\n"
+    "     `pawns wallet load --keystore /path/to/keystore --password YOUR_PASSWORD`\n"
+    
 
     "Options:\n"
     "  - Use '--debug' to enable debug mode for more detailed logs.\n"
@@ -143,6 +146,11 @@ def main():
         is_store_file = not args.no_store
         wallet_cli.create(is_store_file=is_store_file)
 
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 if __name__ == '__main__':
     main()

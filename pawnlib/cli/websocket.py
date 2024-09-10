@@ -16,16 +16,16 @@ __epilog__ = (
     "This script allows you to connect to the Goloop network via WebSocket and receive real-time block information.\n\n"
     "Usage examples:\n"
     "  1. Connect to Goloop network via WebSocket:\n"
-    "     pawns websocket http://example.com/ws\n"
     "     - Connects to the Goloop network via WebSocket using the specified URL.\n\n"
+    "     `pawns websocket http://example.com/ws`\n"
 
     "  2. Specify the starting block height:\n"
-    "     pawns websocket https://example.com/ws -b 1000\n"
     "     - Specifies the starting block height as 1000.\n\n"
+    "     `pawns websocket https://example.com/ws -b 1000`\n"
 
     "  3. Adjust verbosity level:\n"
-    "     pawns websocket http://example.com/ws -v\n"
     "     - Increases verbosity level for more detailed output.\n\n"
+    "     `pawns websocket http://example.com/ws -v`\n"
 
     "For more information and options, use the -h or --help flag."
 )
@@ -102,6 +102,12 @@ def main():
         network_info=network_info,
     )
     goloop_websocket.run(api_url=websocket_path)
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
+
 
 
 if __name__ == "__main__":

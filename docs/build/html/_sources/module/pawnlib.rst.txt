@@ -11,6 +11,8 @@ Subpackages
    pawnlib.config
    pawnlib.output
    pawnlib.typing
+   pawnlib.resource
+   pawnlib.cli
    pawnlib.utils
 
 Module contents
