@@ -20,6 +20,22 @@ import os
 import configparser
 
 
+__description__ = 'Command Line Interface for managing Docker containers. This tool supports initialization, running, starting, stopping, and removing Docker containers.'
+
+__epilog__ = (
+    "This script provides various commands for Docker container management.\n\n"
+    "Usage examples:\n\n"
+    "    - Initialize configuration and generate sample files:\n"
+    "        `$ pawns docker init`\n\n"
+    "    - Run containers based on provided targets:\n"
+    "        `$ pawns docker run --count 10 --name my_container --image my_image`\n\n"
+    "    - Start, stop, or remove containers:\n"
+    "        `$ pawns docker start --name my_container`\n"
+    "        `$ pawns docker stop --name my_container`\n"
+    "        `$ pawns docker delete --name my_container`\n\n"
+    "For more information, visit the project repository or consult the documentation."
+)
+
 EXEC_PATH = os.getcwd()
 
 
@@ -287,6 +303,11 @@ def main():
         else:
             docker.control_container(method=args.command, filters={"Names": f"{args.name}.*"}, all=True)
 
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 if __name__ == "__main__":
     main()

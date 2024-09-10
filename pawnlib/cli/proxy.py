@@ -17,18 +17,18 @@ __description__ = "A Proxy Reflector Tool"
 __epilog__ = (
     "This script acts as a proxy reflector, forwarding traffic between a listening address and a forwarding address.\n\n"
     "Usage examples:\n"
-    "  1. To start proxying with default settings (listening on 0.0.0.0:8080):\n"
-    "     pawns proxy --forward ip_address:port\n"
+    "  1. To start proxying with default settings (listening on 0.0.0.0:8080):\n\n"
     "     - This forwards traffic from the default listening address to the specified forward address.\n\n"
-    "  2. To specify a listening address and port:\n"
-    "     pawns proxy --listen 127.0.0.1:9090 --forward ip_address:port\n"
+    "     `pawns proxy --forward ip_address:port`\n"
+    "  2. To specify a listening address and port:\n\n"
     "     - Listens on 127.0.0.1:9090 and forwards traffic to the specified forward address.\n\n"
-    "  3. To adjust buffer size and delay for socket operations:\n"
-    "     pawns proxy --listen ip_address:port --forward ip_address:port --buffer-size 5120 --delay 0.001\n"
+    "     `pawns proxy --listen 127.0.0.1:9090 --forward ip_address:port`\n"
+    "  3. To adjust buffer size and delay for socket operations:\n\n"
     "     - Uses a buffer size of 5120 bytes and a delay of 0.001 seconds for socket operations.\n\n"
+    "     `pawns proxy --listen ip_address:port --forward ip_address:port --buffer-size 5120 --delay 0.001`\n"
     "  4. To set a timeout for the proxy connections:\n"
-    "     pawns proxy --listen ip_address:port --forward ip_address:port --timeout 5\n"
     "     - Sets a timeout of 5 seconds for the proxy connections.\n\n"
+    "     `pawns proxy --listen ip_address:port --forward ip_address:port --timeout 5`\n"
     "For more detailed information on command options, use the -h or --help flag."
 )
 
@@ -409,6 +409,11 @@ def main():
         print("Ctrl C - Stopping server")
         sys.exit(1)
 
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 if __name__ == '__main__':
     main()

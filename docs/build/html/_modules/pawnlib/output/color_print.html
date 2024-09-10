@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.output.color_print &mdash; Pawnlib v1.0.97</title>
+  <title>pawnlib.output.color_print &mdash; Pawnlib v2.0.32</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.97
+                2.0.32
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -52,7 +52,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
@@ -96,20 +98,33 @@
 <span class="kn">import</span> <span class="nn">executing</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span><span class="p">,</span> <span class="n">AbstractContextManager</span>
 
-<span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">converter</span><span class="p">,</span> <span class="n">date_utils</span><span class="p">,</span> <span class="n">list_to_oneline_string</span><span class="p">,</span> <span class="n">const</span><span class="p">,</span> <span class="n">is_include_list</span><span class="p">,</span> <span class="n">remove_tags</span><span class="p">,</span> <span class="n">remove_ascii_color_codes</span><span class="p">,</span><span class="n">timestamp_to_string</span><span class="p">,</span> <span class="n">is_hex</span>
+<span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">converter</span><span class="p">,</span> <span class="n">date_utils</span><span class="p">,</span> <span class="n">list_to_oneline_string</span><span class="p">,</span> <span class="n">const</span><span class="p">,</span> <span class="n">is_include_list</span><span class="p">,</span> <span class="n">remove_tags</span><span class="p">,</span>
+    <span class="n">remove_ascii_color_codes</span><span class="p">,</span><span class="n">timestamp_to_string</span><span class="p">,</span> <span class="n">is_hex</span><span class="p">,</span> <span class="n">is_json</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pawnlib.config</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span><span class="p">,</span> <span class="n">global_verbose</span>
 <span class="kn">from</span> <span class="nn">pygments</span> <span class="kn">import</span> <span class="n">highlight</span>
 <span class="kn">from</span> <span class="nn">pygments.lexers</span> <span class="kn">import</span> <span class="n">get_lexer_by_name</span>
 <span class="kn">from</span> <span class="nn">pygments.formatters</span> <span class="kn">import</span> <span class="n">Terminal256Formatter</span>
 <span class="kn">from</span> <span class="nn">rich.syntax</span> <span class="kn">import</span> <span class="n">Syntax</span>
 <span class="kn">from</span> <span class="nn">rich.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">rich.pretty</span> <span class="kn">import</span> <span class="n">Pretty</span>
 <span class="kn">from</span> <span class="nn">rich.progress</span> <span class="kn">import</span> <span class="n">Progress</span><span class="p">,</span> <span class="n">SpinnerColumn</span><span class="p">,</span> <span class="n">TimeElapsedColumn</span>
+<span class="kn">from</span> <span class="nn">rich.panel</span> <span class="kn">import</span> <span class="n">Panel</span>
+<span class="kn">from</span> <span class="nn">rich.console</span> <span class="kn">import</span> <span class="n">Group</span><span class="p">,</span> <span class="n">Console</span>
 <span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="nb">print</span> <span class="k">as</span> <span class="n">rprint</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">textwrap</span>
 <span class="kn">from</span> <span class="nn">requests.structures</span> <span class="kn">import</span> <span class="n">CaseInsensitiveDict</span>
 
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Literal</span>  <span class="c1"># pragma: no cover</span>
+
+<span class="n">AlignMethod</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">]</span>
+<span class="n">VerticalAlignMethod</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;middle&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">]</span>
 
 <span class="n">_ATTRIBUTES</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
     <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span>
@@ -829,7 +844,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">bcolors</span><span class="o">.</span><span class="n">WARNING</span> <span class="o">+</span> <span class="s2">&quot;{:&gt;</span><span class="si">{key_value}</span><span class="s2">} &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">key_value</span><span class="o">=</span><span class="n">key_value</span><span class="p">)</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">ENDC</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="print_json"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.print_json">[docs]</a><span class="k">def</span> <span class="nf">print_json</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">syntax</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">line_indent</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;material&quot;</span><span class="p">,</span>  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="print_json"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.print_json">[docs]</a><span class="k">def</span> <span class="nf">print_json</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">syntax</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">line_indent</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">rich_syntax</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="n">style</span><span class="o">=</span><span class="s2">&quot;material&quot;</span><span class="p">,</span>  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Print a JSON object with optional syntax highlighting and indentation.</span>
 
@@ -860,7 +875,10 @@
 <span class="sd">            # &gt;&gt; {&quot;name&quot;: &quot;John&quot;, &quot;age&quot;: 30, &quot;city&quot;: &quot;New York&quot;}</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">pretty_json</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">syntax</span><span class="o">=</span><span class="n">syntax</span><span class="p">,</span> <span class="n">line_indent</span><span class="o">=</span><span class="n">line_indent</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+    <span class="k">if</span> <span class="n">rich_syntax</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">pretty_json</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">syntax</span><span class="o">=</span><span class="n">syntax</span><span class="p">,</span> <span class="n">rich_syntax</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">line_indent</span><span class="o">=</span><span class="n">line_indent</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">pretty_json</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">syntax</span><span class="o">=</span><span class="n">syntax</span><span class="p">,</span> <span class="n">rich_syntax</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">line_indent</span><span class="o">=</span><span class="n">line_indent</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="pretty_json"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.pretty_json">[docs]</a><span class="k">def</span> <span class="nf">pretty_json</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">syntax</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rich_syntax</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;one-dark&quot;</span><span class="p">,</span> <span class="n">line_indent</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -908,7 +926,7 @@
 
     <span class="k">if</span> <span class="n">syntax</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">rich_syntax</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Syntax</span><span class="p">(</span><span class="n">json_string</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">line_numbers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Syntax</span><span class="p">(</span><span class="n">json_string</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">line_numbers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">background_color</span><span class="o">=</span><span class="s2">&quot;rgb(40,40,40)&quot;</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">syntax_highlight</span><span class="p">(</span><span class="n">json_string</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">line_indent</span><span class="o">=</span><span class="n">line_indent</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1266,19 +1284,19 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">syntax_highlight</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">oneline_list</span><span class="p">,</span> <span class="n">line_indent</span><span class="p">))</span></div>
 
 
-
-<div class="viewcode-block" id="syntax_highlight"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.syntax_highlight">[docs]</a><span class="k">def</span> <span class="nf">syntax_highlight</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;material&quot;</span><span class="p">,</span> <span class="n">oneline_list</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">line_indent</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="syntax_highlight"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.syntax_highlight">[docs]</a><span class="k">def</span> <span class="nf">syntax_highlight</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;material&quot;</span><span class="p">,</span> <span class="n">oneline_list</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">line_indent</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">word_wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Syntax highlighting function</span>
 
-<span class="sd">    :param data:</span>
-<span class="sd">    :param name:</span>
-<span class="sd">    :param indent:</span>
-<span class="sd">    :param style:</span>
-<span class="sd">    :param oneline_list:</span>
-<span class="sd">    :param line_indent:</span>
-<span class="sd">    :param rich:</span>
-<span class="sd">    :return:</span>
+<span class="sd">    :param data: The data to be highlighted.</span>
+<span class="sd">    :param name: The name of the lexer to use for highlighting.</span>
+<span class="sd">    :param indent: The number of spaces to use for indentation.</span>
+<span class="sd">    :param style: The style to use for highlighting.</span>
+<span class="sd">    :param oneline_list: Whether to compact lists into one line.</span>
+<span class="sd">    :param line_indent: The string to use for line indentation.</span>
+<span class="sd">    :param rich: Whether to use rich text formatting.</span>
+<span class="sd">    :param word_wrap: Whether to enable word wrapping.</span>
+<span class="sd">    :return: The highlighted code as a string.</span>
 
 <span class="sd">    Example:</span>
 
@@ -1308,7 +1326,7 @@
         <span class="n">code_data</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">code_data</span><span class="p">,</span> <span class="n">line_indent</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">rich</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Syntax</span><span class="p">(</span><span class="n">code_data</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Syntax</span><span class="p">(</span><span class="n">code_data</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="n">word_wrap</span><span class="o">=</span><span class="n">word_wrap</span><span class="p">,</span>  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">highlight</span><span class="p">(</span>
             <span class="n">code</span><span class="o">=</span><span class="n">code_data</span><span class="p">,</span>
@@ -1495,15 +1513,31 @@
 
 <div class="viewcode-block" id="count_nested_dict_len"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.count_nested_dict_len">[docs]</a><span class="k">def</span> <span class="nf">count_nested_dict_len</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Count the length of a nested dictionary.</span>
+<span class="sd">   Count the total number of keys in a nested dictionary.</span>
 
-<span class="sd">    This function counts the number of items in a dictionary. If a value in the dictionary is also a dictionary, it recursively counts the number of items in that dictionary as well.</span>
+<span class="sd">   :param d: Dictionary to count keys in.</span>
+<span class="sd">   :type d: dict</span>
+<span class="sd">   :return: Total number of keys in the dictionary, including nested dictionaries.</span>
+<span class="sd">   :rtype: int</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        d (dict): The dictionary to count the length of.</span>
+<span class="sd">   Example:</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        int: The length of the dictionary.</span>
+<span class="sd">       .. code-block:: python</span>
+
+<span class="sd">           nested_dict = {</span>
+<span class="sd">               &#39;a&#39;: 1,</span>
+<span class="sd">               &#39;b&#39;: {&#39;c&#39;: 2, &#39;d&#39;: {&#39;e&#39;: 3}},</span>
+<span class="sd">               &#39;f&#39;: {&#39;g&#39;: 4}</span>
+<span class="sd">           }</span>
+
+<span class="sd">           count_nested_dict_len(nested_dict)</span>
+<span class="sd">           # &gt;&gt; 6</span>
+
+<span class="sd">           count_nested_dict_len({&#39;x&#39;: {&#39;y&#39;: {&#39;z&#39;: {}}}})</span>
+<span class="sd">           # &gt;&gt; 3</span>
+
+<span class="sd">           count_nested_dict_len({})</span>
+<span class="sd">           # &gt;&gt; 0</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
@@ -1513,76 +1547,322 @@
     <span class="k">return</span> <span class="n">length</span></div>
 
 
-<div class="viewcode-block" id="get_var_name"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.get_var_name">[docs]</a><span class="k">def</span> <span class="nf">get_var_name</span><span class="p">():</span>
+<div class="viewcode-block" id="get_var_name"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.get_var_name">[docs]</a><span class="k">def</span> <span class="nf">get_var_name</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the variable name from the call frame.</span>
+<span class="sd">    This function uses the inspect and ast modules to get the variable name from the call frame.</span>
 
-<span class="sd">    This function uses the sys._getframe() function to get the call frame, and then uses the executing library to get the variable name from the call frame.</span>
+<span class="sd">    :param var: The variable whose name is to be retrieved.</span>
+<span class="sd">    :return: The name of the variable as a string.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        str: The variable name if it can be found, otherwise an empty string.</span>
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            my_var = 10</span>
+<span class="sd">            get_var_name(my_var)</span>
+<span class="sd">            # &gt;&gt; &#39;my_var&#39;</span>
+
+<span class="sd">            class MyClass:</span>
+<span class="sd">                def __init__(self):</span>
+<span class="sd">                    self.attr = 5</span>
+
+<span class="sd">            instance = MyClass()</span>
+<span class="sd">            get_var_name(instance.attr)</span>
+<span class="sd">            # &gt;&gt; &#39;instance.attr&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="kn">import</span> <span class="nn">ast</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">call_frame</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="n">executing</span><span class="o">.</span><span class="n">Source</span><span class="o">.</span><span class="n">for_frame</span><span class="p">(</span><span class="n">call_frame</span><span class="p">)</span>
-        <span class="n">ex</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">executing</span><span class="p">(</span><span class="n">call_frame</span><span class="p">)</span>
-        <span class="n">func_ast</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">node</span>
-        <span class="k">for</span> <span class="n">ast</span> <span class="ow">in</span> <span class="n">func_ast</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ast</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">id</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span>
+        <span class="n">code_context</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getframeinfo</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span><span class="o">.</span><span class="n">code_context</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">code_context</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">call_line</span> <span class="o">=</span> <span class="n">code_context</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">call_line</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="nb">eval</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="p">)</span> <span class="ow">is</span> <span class="n">var</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="n">arg</span><span class="o">.</span><span class="n">id</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">):</span>
+                        <span class="n">attr_names</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">while</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">):</span>
+                            <span class="n">attr_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">attr</span><span class="p">)</span>
+                            <span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">value</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+                            <span class="n">attr_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                            <span class="n">full_name</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">attr_names</span><span class="p">))</span>
+                            <span class="k">if</span> <span class="nb">eval</span><span class="p">(</span><span class="n">full_name</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="p">)</span> <span class="ow">is</span> <span class="n">var</span><span class="p">:</span>
+                                <span class="k">return</span> <span class="n">full_name</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exception occurred in get_var_name: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="get_data_length"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.get_data_length">[docs]</a><span class="k">def</span> <span class="nf">get_data_length</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the length of the data.</span>
+<span class="sd">    Get the length of the data. If the data is a dictionary, it calculates the nested dictionary length.</span>
 
-<span class="sd">    This function tries to get the length of the data. If the data is a dictionary, it gets the nested dictionary length. If the data is not a dictionary, it gets the length of the data.</span>
+<span class="sd">    :param data: The input data which can be of any type.</span>
+<span class="sd">    :return: A string representing the length of the data.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        data (Any): The data to get the length of.</span>
+<span class="sd">    Example:</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        str: A string representing the length of the data. If the length cannot be found, it returns an empty string.</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">             get_data_length([1, 2, 3])</span>
+<span class="sd">             # &gt;&gt; &#39;len=3&#39;</span>
+
+<span class="sd">             get_data_length({&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: 2}})</span>
+<span class="sd">             # &gt;&gt; &#39;dict_len=2&#39;</span>
+
+<span class="sd">             get_data_length(&quot;hello&quot;)</span>
+<span class="sd">             # &gt;&gt; &#39;len=5&#39;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;nested_dict_len=</span><span class="si">{</span><span class="n">count_nested_dict_len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;dict_len=</span><span class="si">{</span><span class="n">count_nested_dict_len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;len=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="print_var"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.print_var">[docs]</a><span class="k">def</span> <span class="nf">print_var</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="print_var"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.print_var">[docs]</a><span class="k">def</span> <span class="nf">print_var</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">line_indent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="p">,</span>
+        <span class="n">detail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">title_align</span><span class="p">:</span> <span class="n">AlignMethod</span> <span class="o">=</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Print the variable.</span>
+<span class="sd">    Print the variable name and its value on the same line with optional details.</span>
 
-<span class="sd">    This function prints the variable with its name, type, and length. It also prints the data if it is a dictionary or a list.</span>
+<span class="sd">    :param data: The variable to be printed.</span>
+<span class="sd">    :param title: Optional title for the output.</span>
+<span class="sd">    :param line_indent: String used for indentation.</span>
+<span class="sd">    :param detail: Whether to include detailed information.</span>
+<span class="sd">    :param title_align: Alignment method for the title. Can be &quot;left&quot;, &quot;center&quot;, or &quot;right&quot;. Default is &quot;center&quot;.</span>
+<span class="sd">    :param kwargs: Additional keyword arguments.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        data (Any, optional): The data to print. Defaults to None.</span>
-<span class="sd">        title (str, optional): The title to print. Defaults to &#39;&#39;.</span>
-<span class="sd">        **kwargs: Arbitrary keyword arguments.</span>
+<span class="sd">    Example:</span>
 
-<span class="sd">    Keyword Args:</span>
-<span class="sd">        line_indent (str): The line indent to use when printing the data. Defaults to &#39;      &#39;.</span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">            dict_var = {&quot;key&quot;: &quot;value&quot;}</span>
+
+<span class="sd">            print_var(dict_var)</span>
+<span class="sd">            print_var(data={&quot;key&quot;: &quot;value&quot;}, title=&quot;Example Dict&quot;)</span>
+<span class="sd">            print_var(data=[1, 2, 3], title=&quot;Example List&quot;)</span>
+<span class="sd">            print_var(data=42, title=&quot;Example Int&quot;)</span>
+<span class="sd">            print_var(data=&quot;Hello, World!&quot;, title=&quot;Example String&quot;)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;line_indent&#39;</span><span class="p">,</span> <span class="s1">&#39;      &#39;</span><span class="p">)</span>
-    <span class="n">var_name</span> <span class="o">=</span> <span class="n">get_var_name</span><span class="p">()</span>
+    <span class="n">var_name</span> <span class="o">=</span> <span class="n">get_var_name</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">data_length</span> <span class="o">=</span> <span class="n">get_data_length</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">var_name</span>
+
     <span class="n">_title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[yellow bold]</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">[/yellow bold]&quot;</span> <span class="k">if</span> <span class="n">title</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
-    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🎁 [[blue bold]</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">[/blue bold]] </span><span class="si">{</span><span class="n">_title</span><span class="si">}</span><span class="s2">&quot;</span>
-                     <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[italic] (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">), </span><span class="si">{</span><span class="n">data_length</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">_stack_offset</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">syntax_highlight</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+    <span class="c1"># Print the variable name and its value on the same line</span>
+    <span class="n">bg_color</span> <span class="o">=</span> <span class="s2">&quot;rgb(40,40,40)&quot;</span>
+    <span class="n">styled_value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;style&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;native&quot;</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;background_color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bg_color</span>
+
+    <span class="n">details</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">):</span>  <span class="c1"># Check if it&#39;s an instance of a class</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">styled_attr_value</span> <span class="o">=</span> <span class="n">style_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">details</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">line_indent</span><span class="si">}</span><span class="s2">[cyan]</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">[/cyan] = </span><span class="si">{</span><span class="n">styled_attr_value</span><span class="si">}</span><span class="s2"> [italic](</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)[/italic]</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+        <span class="n">syntax_str</span> <span class="o">=</span> <span class="n">syntax_highlight</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="n">line_indent</span><span class="o">=</span><span class="n">line_indent</span><span class="p">,</span>  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">details</span> <span class="o">=</span> <span class="n">syntax_str</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[white bold]</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="n">styled_value</span> <span class="o">=</span> <span class="n">style_value</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">detail</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;🎁 [blue bold]</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">[/blue bold] = [italic]</span><span class="si">{</span><span class="n">styled_value</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">data_length</span><span class="si">}</span><span class="s2">[/italic]</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">styled_value</span>
+
+    <span class="k">if</span> <span class="n">details</span><span class="p">:</span>
+        <span class="n">panel_content</span> <span class="o">=</span> <span class="n">Group</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">panel_content</span> <span class="o">=</span> <span class="n">output</span>
+
+    <span class="n">panel</span> <span class="o">=</span> <span class="n">Panel</span><span class="p">(</span><span class="n">panel_content</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">_title</span><span class="p">,</span> <span class="n">title_align</span><span class="o">=</span><span class="n">title_align</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;on </span><span class="si">{</span><span class="n">bg_color</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="style_value"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.style_value">[docs]</a><span class="k">def</span> <span class="nf">style_value</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply different styles based on the value&#39;s type or value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[green]</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">[/green]&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;[red]</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">[/red]&quot;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[cyan]</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">[/cyan]&quot;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[yellow]</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">[/yellow]&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[white]</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">[/white]&quot;</span></div>
+
+
+<div class="viewcode-block" id="create_kv_table"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.create_kv_table">[docs]</a><span class="k">def</span> <span class="nf">create_kv_table</span><span class="p">(</span><span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">key_ratio</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">value_ratio</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">overflow</span><span class="o">=</span><span class="s2">&quot;fold&quot;</span><span class="p">):</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span>
+        <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+        <span class="n">pad_edge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># 테이블이 전체 화면에 맞춰 늘어나도록 설정</span>
+        <span class="n">show_header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">show_footer</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">show_edge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">show_lines</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">box</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Key&quot;</span><span class="p">,</span> <span class="n">no_wrap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold yellow&quot;</span><span class="p">,</span> <span class="n">min_width</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="n">key_ratio</span><span class="p">,</span> <span class="n">overflow</span><span class="o">=</span><span class="n">overflow</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Separator&quot;</span><span class="p">,</span> <span class="n">no_wrap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">,</span> <span class="n">no_wrap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="n">value_ratio</span><span class="p">,</span> <span class="n">max_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overflow</span><span class="o">=</span><span class="n">overflow</span><span class="p">)</span>  <span class="c1"># max_width 제한 해제</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Debug Info&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;grey84&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">table</span></div>
+
+<span class="c1"># def get_pretty_value(value):</span>
+<span class="c1">#     if isinstance(value, (dict, list)):</span>
+<span class="c1">#         pawn.console.log(value)</span>
+<span class="c1">#         return Syntax(json.dumps(value, indent=4), &quot;json&quot;, theme=&quot;material&quot;, line_numbers=False)</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         if value and is_json(value):</span>
+<span class="c1">#             __loaded_json = json.loads(value)</span>
+<span class="c1">#             return Pretty(json.loads(value))</span>
+<span class="c1">#         return value</span>
+
+
+<div class="viewcode-block" id="get_pretty_value"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.get_pretty_value">[docs]</a><span class="k">def</span> <span class="nf">get_pretty_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">is_force_syntax</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">is_force_syntax</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Syntax</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;material&quot;</span><span class="p">,</span> <span class="n">line_numbers</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">pretty_value</span> <span class="o">=</span> <span class="n">Pretty</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">expand_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">capture</span><span class="p">()</span> <span class="k">as</span> <span class="n">capture</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">pretty_value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">capture</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">and</span> <span class="n">is_json</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">__loaded_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">pretty_value</span> <span class="o">=</span> <span class="n">Pretty</span><span class="p">(</span><span class="n">__loaded_json</span><span class="p">,</span> <span class="n">expand_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">capture</span><span class="p">()</span> <span class="k">as</span> <span class="n">capture</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">pretty_value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">capture</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="print_kv"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.print_kv">[docs]</a><span class="k">def</span> <span class="nf">print_kv</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;░&quot;</span><span class="p">,</span>  <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">key_ratio</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">value_ratio</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">is_force_syntax</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a key-value pair with a symbol, padding, and value size information.</span>
+
+<span class="sd">    :param key: The key to print. Defaults to an empty string.</span>
+<span class="sd">    :param value: The value associated with the key. Defaults to an empty string.</span>
+<span class="sd">    :param symbol: A symbol to prepend to the key. Defaults to a star emoji.</span>
+<span class="sd">    :param separator: The separator between the key and the value. Defaults to a colon.</span>
+<span class="sd">    :param padding: The padding between columns. Defaults to 5.</span>
+<span class="sd">    :param key_ratio: The ratio of the table width allocated for keys. Defaults to 1z.</span>
+<span class="sd">    :param value_ratio: The ratio of the table width allocated for values. Defaults to 7.</span>
+<span class="sd">    :param is_force_syntax: Force the use of Syntax rendering for dictionaries/lists.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            print_kv(key=&quot;Name&quot;, value=&quot;John Doe&quot;, symbol=&quot;👤&quot;)</span>
+<span class="sd">            # Output:</span>
+<span class="sd">            # 👤 Name   :   John Doe   str[bright_black](8)[/bright_black]</span>
+
+<span class="sd">            print_kv(key=&quot;Age&quot;, value=30, symbol=&quot;🔢&quot;, padding=3)</span>
+<span class="sd">            # Output:</span>
+<span class="sd">            # 🔢 Age : 30   int[bright_black](2)[/bright_black]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">create_kv_table</span><span class="p">(</span><span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span> <span class="n">key_ratio</span><span class="o">=</span><span class="n">key_ratio</span><span class="p">,</span> <span class="n">value_ratio</span><span class="o">=</span><span class="n">value_ratio</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+        <span class="n">value_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">[bright_black](</span><span class="si">{</span><span class="n">converter</span><span class="o">.</span><span class="n">get_value_size</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">)[/bright_black]&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">value_info</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">is_force_syntax</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+        <span class="n">pretty_value</span> <span class="o">=</span> <span class="n">Syntax</span><span class="p">(</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;material&quot;</span><span class="p">,</span> <span class="n">line_numbers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">word_wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pretty_value</span> <span class="o">=</span> <span class="n">get_pretty_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">is_force_syntax</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">symbol</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;[grey69] </span><span class="si">{</span><span class="n">separator</span><span class="si">}</span><span class="s2"> [/grey69]&quot;</span><span class="p">,</span> <span class="n">pretty_value</span><span class="p">,</span> <span class="n">value_info</span><span class="p">)</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_grid"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.print_grid">[docs]</a><span class="k">def</span> <span class="nf">print_grid</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;░&quot;</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span>  <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">key_ratio</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">value_ratio</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+               <span class="n">key_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">key_postfix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">value_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">value_postfix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">is_value_type</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a grid layout with a title and optional padding and edge padding.</span>
+
+<span class="sd">    :param data: The data to display in the grid. Default is None.</span>
+<span class="sd">    :param title: The title of the grid. Default is an empty string.</span>
+<span class="sd">    :param symbol: The symbol used for the grid. Default is &#39;░&#39;.  or 🔘★⭐️ ■ ▓  ▒ ░</span>
+<span class="sd">    :param separator: The separator between the key and the value. Defaults to a colon.</span>
+<span class="sd">    :param padding: The padding around each cell. Default is 0.</span>
+<span class="sd">    :param key_ratio: The ratio of the table width allocated for keys. Defaults to 1.</span>
+<span class="sd">    :param value_ratio: The ratio of the table width allocated for values. Defaults to 7.</span>
+
+<span class="sd">    :param key_prefix: A prefix to add to each key. Default is an empty string.</span>
+<span class="sd">    :param key_postfix: A postfix to add to each key. Default is an empty string.</span>
+<span class="sd">    :param value_prefix: A prefix to add to each value. Default is an empty string.</span>
+<span class="sd">    :param value_postfix: A postfix to add to each value. Default is an empty string.</span>
+<span class="sd">    :param is_value_type: Flag to indicate if value type should be displayed.</span>
+
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            data = {&quot;Item 1&quot;: 123, &quot;Item 2&quot;: 456}</span>
+<span class="sd">            print_grid(data, title=&quot;Inventory&quot;, symbol=&quot;■&quot;, padding=1, pad_edge=False)</span>
+
+<span class="sd">            # Output will display a grid with the title &quot;Inventory&quot;, using &#39;■&#39; as the symbol,</span>
+<span class="sd">            # 1 padding around each cell, and no padding on the edge.</span>
+
+<span class="sd">            print_grid(data, title=&quot;Inventory&quot;, symbol=&quot;■&quot;, padding=1, key_prefix=&quot;[&quot;, key_postfix=&quot;]&quot;, value_prefix=&quot;(&quot;, value_postfix=&quot;)&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">create_kv_table</span><span class="p">(</span><span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span> <span class="n">key_ratio</span><span class="o">=</span><span class="n">key_ratio</span><span class="p">,</span> <span class="n">value_ratio</span><span class="o">=</span><span class="n">value_ratio</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; ✨✨</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">✨✨&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&#39; is not dict&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">is_value_type</span><span class="p">:</span>
+            <span class="n">value_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">[bright_black](</span><span class="si">{</span><span class="n">converter</span><span class="o">.</span><span class="n">get_value_size</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">)[/bright_black]&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value_info</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">symbol</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">key_prefix</span><span class="si">}{</span><span class="n">key</span><span class="si">}{</span><span class="n">key_postfix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;[grey69] </span><span class="si">{</span><span class="n">separator</span><span class="si">}</span><span class="s2"> [/grey69]&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value_prefix</span><span class="si">}{</span><span class="n">get_pretty_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}{</span><span class="n">value_postfix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">value_info</span>
+        <span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="print_aligned_text"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.print_aligned_text">[docs]</a><span class="k">def</span> <span class="nf">print_aligned_text</span><span class="p">(</span><span class="n">left_text</span><span class="p">,</span> <span class="n">right_text</span><span class="p">,</span> <span class="n">filler</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
@@ -1669,9 +1949,44 @@
         <span class="c1"># self.args = &quot;&lt;{0.__name__}&gt; ({2} line {2}): \n {3}&quot;.format(type(self), filename, line_no, msg),</span>
         <span class="c1"># self.args = &quot;{0}&lt;{1.__name__}&gt;{2} ({3} line {4}): \n {5}&quot;.format(bcolors.FAIL, type(self), bcolors.ENDC, filename, line_no, msg),</span>
         <span class="c1"># self.args = &quot;&lt;{0.__name__}&gt;({1} line {2}): \n {3}&quot;.format(type(self), filename, line_no, msg),</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="s2">&quot;&lt;</span><span class="si">{0.__name__}</span><span class="s2">&gt; </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">msg</span><span class="p">),</span>
         <span class="c1"># ex_type, ex_value, traceback = sys.exc_info()</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_color_by_threshold"><a class="viewcode-back" href="../../../module/pawnlib.output.html#pawnlib.output.color_print.get_color_by_threshold">[docs]</a><span class="k">def</span> <span class="nf">get_color_by_threshold</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">thresholds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine the color based on the value and thresholds.</span>
+
+<span class="sd">    :param value: The value to be evaluated.</span>
+<span class="sd">    :param limit: The limit to compare the value against. Default is 100.</span>
+<span class="sd">    :param unit: The unit to append to the value. Default is an empty string.</span>
+<span class="sd">    :param thresholds: A dictionary defining the thresholds and their corresponding colors.</span>
+<span class="sd">                       The keys are the threshold values (as a fraction of the limit) and the values are the colors.</span>
+<span class="sd">                       Example: {0.9: &quot;red&quot;, 0.8: &quot;orange1&quot;, 0.7: &quot;yellow&quot;}</span>
+<span class="sd">                       Default is {0.9: &quot;red&quot;, 0.8: &quot;orange1&quot;, 0.7: &quot;yellow&quot;, 0.0: &quot;white&quot;}.</span>
+<span class="sd">    :param return_tuple: If True, returns a tuple (color, formatted_value). Default is False.</span>
+<span class="sd">    :return: If return_tuple is False, returns a formatted string in rich text format.</span>
+<span class="sd">             If return_tuple is True, returns a tuple (color, formatted_value).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">thresholds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="p">{</span><span class="mf">0.9</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">:</span> <span class="s2">&quot;orange1&quot;</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">:</span> <span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">:</span> <span class="s2">&quot;white&quot;</span><span class="p">}</span>
+
+    <span class="n">percent</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="n">limit</span> <span class="k">if</span> <span class="n">limit</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+    <span class="k">for</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">threshold_color</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">thresholds</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">percent</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">threshold_color</span>
+            <span class="k">break</span>
+
+    <span class="n">formatted_value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}{</span><span class="n">unit</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">if</span> <span class="n">return_tuple</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">color</span><span class="p">,</span> <span class="n">formatted_value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="n">formatted_value</span><span class="si">}</span><span class="s2">[/</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">]&quot;</span></div>
 </pre></div>
 
            </div>

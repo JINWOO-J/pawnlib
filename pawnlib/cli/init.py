@@ -9,7 +9,16 @@ from rich.syntax import Syntax
 
 __description_shorten__ = "Advanced Python application builder"
 __description__ = f"{__description_shorten__}: \nEasily initialize your Python development environment with customizable templates and best practices."
-
+__epilog__ = (
+    "This script provides advanced features for building Python applications. \n\n"
+    "The script will generate a new application with default settings and print the generated code to the console.\n"
+    "Make sure to adjust the generated code according to your project's needs.\n\n"
+    "Usage examples:\n"
+    "  1. Initialize a new Python application with default settings:\n\n"
+    f"     `$ pawns init`\n\n"    
+    "For more details on available commands and options, use the `-h` or `--help` flag.\n"
+    "For additional support and documentation, visit the project repository or consult the documentation."
+)
 
 def get_parser():
     parser = argparse.ArgumentParser(description=__description__)
@@ -42,6 +51,12 @@ def main():
         with open(generated_file, "rt") as code_file:
             syntax = Syntax(code_file.read(), "python")
         console.print(syntax)
+
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 
 if __name__ == "__main__":

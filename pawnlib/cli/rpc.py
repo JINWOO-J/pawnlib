@@ -20,21 +20,21 @@ __description__ = "This tool uses JSON remote procedure calls, or RPCs, commonly
 __epilog__ = (
     "This utility offers a comprehensive suite for interacting with the ICON blockchain, leveraging JSON-RPC for efficient communication.\n\n"
     "Usage examples:\n"
-    "  1. Query network information:\n"
-    "     pawns rpc --url <RPC_ENDPOINT> --method icx_getBlockByHeight --params '{\"height\":\"0x1\"}'\n"
+    "  1. Query network information:\n\n"
     "     - Fetches block information by height.\n\n"
+    "     `pawns rpc --url <RPC_ENDPOINT> --method icx_getBlockByHeight --params '{\"height\":\"0x1\"}'`\n"
 
-    "  2. Send ICX transaction:\n"
-    "     pawns rpc --url <RPC_ENDPOINT> --method icx_sendTransaction --params <TRANSACTION_PARAMETERS>\n"
+    "  2. Send ICX transaction:\n\n"
     "     - Sends an ICX transaction to the network.\n\n"
+    "     `pawns rpc --url <RPC_ENDPOINT> --method icx_sendTransaction --params <TRANSACTION_PARAMETERS>`\n"
 
-    "  3. Configure network settings:\n"
-    "     pawns rpc --platform icon --network mainnet\n"
+    "  3. Configure network settings:\n\n"
     "     - Sets the network configuration for subsequent operations.\n\n"
+    "     `pawns rpc --platform icon --network mainnet`\n"
     
-    "  4. Configure custom network settings:\n"
-    "     pawns rpc config \n"
+    "  4. Configure custom network settings:\n\n"
     "      -  If you want to edit network information, create config.yaml with a parameter called config and then change it.\n\n"
+    "     `pawns rpc config` \n"
     "For detailed command usage and options, refer to the help documentation by running 'pawns rpc --help'."
 )
 
@@ -420,6 +420,11 @@ class RpcCommand:
 def main():
     cli = RpcCommand()
     cli.run()
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 
 if __name__ == '__main__':

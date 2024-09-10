@@ -15,19 +15,21 @@ __description__ = "This is a tool to measure your server's resources."
 __epilog__ = (
     "This script provides various options to check the network status.\n\n"
     "Usage examples:\n"
-    "  1. Network check in verbose mode:\n"
-    "     pawn net check --verbose\n"
+    "  1. Network check in verbose mode:\n\n"
     "     - Executes the 'check' command for network testing, with '--verbose' option for additional output.\n\n"
+    "     `pawns net check --verbose`\n"
 
-    "  2. Wait for a specific host and port to be available:\n"
-    "     pawn net wait --host 192.168.1.1 --port 80\n"
+
+    "  2. Wait for a specific host and port to be available:\n\n"
     "     - Uses the 'wait' command to wait until the port (80) on the specified host (192.168.1.1) is open.\n\n"
-
-    "  3. Scan a range of hosts and ports:\n"
-    "     pawn net scan --host-range 192.168.1.1-192.168.1.255 --port-range 20-80 --worker 50 --view-type open\n"
+    "     `pawns net wait --host 192.168.1.1 --port 80`\n"
+    
+    "  3. Scan a range of hosts and ports:\n\n"
     "     - Runs the 'scan' command to scan the specified host range (192.168.1.1 to 192.168.1.255) and port range (20 to 80).\n"
     "     - Sets the maximum number of concurrent workers to 50 with '--worker 50'.\n"
     "     - Outputs only open ports with the '--view-type open' option.\n\n"
+    "     `pawns net scan --host-range 192.168.1.1-192.168.1.255 --port-range 20-80 --worker 50 --view-type open`\n"
+    
 
     "For more details, use the -h or --help flag."
 )
@@ -183,6 +185,11 @@ def main():
         print("\n\n")
         scanner.print_scan_results(view=args.view_type)
 
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 if __name__ == '__main__':
     main()

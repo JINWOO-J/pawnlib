@@ -14,26 +14,29 @@ __epilog__ = (
     "This script retrieves metadata from AWS EC2 instances.\n\n"
     "Usage examples:\n"
     "  1. Retrieve AWS metadata in JSON format:\n"
-    "     pawns aws --metadata-ip 169.254.169.254 --output-format json\n"
-    "     - Retrieves metadata from the specified IP address (default: 169.254.169.254) and prints it in JSON format.\n\n"
-
+    "     - Retrieves metadata from the specified IP address (default: 169.254.169.254) and prints it in JSON format.\n\n"    
+    "     `pawns aws --metadata-ip 169.254.169.254 --output-format json`\n\n"
+    
     "  2. Retrieve AWS metadata in flattened format:\n"
-    "     pawns aws --output-format flat\n"
     "     - Retrieves metadata and prints it in a flattened format.\n\n"
-
+    "     `pawns aws --output-format flat`\n\n"
+    
     "  3. Specify a custom timeout for the request:\n"
-    "     pawns aws --timeout 5\n"
     "     - Sets the timeout for the request to 5 seconds.\n\n"
-
+    "     `pawns aws --timeout 5`\n\n"
+    
     "  4. Write AWS metadata to a file:\n"
-    "     pawns aws --output-file metadata.json\n"
     "     - Writes the retrieved metadata to a file named 'metadata.json'.\n\n"
+    
+    "     `pawns aws --output-file metadata.json`\n\n"
+
 
     "For more information and options, use the -h or --help flag."
 )
 
 
 def get_parser():
+    # pandoc:exclude
     parser = argparse.ArgumentParser(description='AWS', epilog=__epilog__)
     parser = get_arguments(parser)
     return parser
@@ -98,6 +101,10 @@ def main():
         write_res = write_json(filename=args.write_filename, data=res)
         pawn.console.log(write_res)
 
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+    )
 
 if __name__ == '__main__':
     main()

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.utils package &mdash; Pawnlib v1.0.97</title>
+  <title>pawnlib.utils package &mdash; Pawnlib v2.0.32</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -37,7 +37,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.97
+                2.0.32
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -54,7 +54,9 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.cli.html">pawnlib.cli package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.docker.html">pawnlib.docker package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.input.html">pawnlib.input package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.output.html">pawnlib.output package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pawnlib.resource.html">pawnlib.resource package</a></li>
@@ -113,6 +115,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.NetworkInfo.get_network_list"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.get_network_list()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.NetworkInfo.tuple"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.tuple()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.NetworkInfo.to_dict"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.to_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.NetworkInfo.fetch_network_info"><code class="docutils literal notranslate"><span class="pre">NetworkInfo.fetch_network_info()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.http.IconRpcTemplates"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates</span></code></a><ul>
@@ -126,12 +129,15 @@
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcTemplates.load_template"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates.load_template()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcTemplates.get_rpc"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates.get_rpc()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcTemplates.get_required_params"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates.get_required_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcTemplates.get_params_hint"><code class="docutils literal notranslate"><span class="pre">IconRpcTemplates.get_params_hint()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.initialize"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.initialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.initialize_wallet"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.initialize_wallet()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.rpc_call"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.rpc_call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.get_elapsed"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_elapsed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.get_total_elapsed"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_total_elapsed()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.print_error_message"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.print_error_message()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.print_response"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.print_response()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.print_request"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.print_request()</span></code></a></li>
@@ -147,10 +153,15 @@
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.get_fee"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_fee()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.get_score_api"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_score_api()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.name_to_params"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.name_to_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.make_params_hint"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.make_params_hint()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.get_governance_api"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_governance_api()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.get_balance"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_balance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.analyze_tx_block_time"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.analyze_tx_block_time()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.get_block"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.handle_response_with_key"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.handle_response_with_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.get_tx"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_tx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.get_tx_wait"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_tx_wait()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.check_transaction_loop"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.check_transaction_loop()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.get_debug_trace"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.get_debug_trace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.parse_tx_var"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.parse_tx_var()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.IconRpcHelper.auto_fill_parameter"><code class="docutils literal notranslate"><span class="pre">IconRpcHelper.auto_fill_parameter()</span></code></a></li>
@@ -204,7 +215,12 @@
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.GoloopWebsocket.parse_transfer_tx"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.parse_transfer_tx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.GoloopWebsocket.parse_blockheight"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.parse_blockheight()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.GoloopWebsocket.output_format"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.output_format()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.GoloopWebsocket.get_response_content"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.get_response_content()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.GoloopWebsocket.get_last_blockheight"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.get_last_blockheight()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.GoloopWebsocket.get_preps"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.get_preps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.GoloopWebsocket.get_validator_info"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.get_validator_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.GoloopWebsocket.fetch_and_store_preps_info"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.fetch_and_store_preps_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.GoloopWebsocket.execute_rpc_call"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.execute_rpc_call()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.http.GoloopWebsocket.get_block_hash"><code class="docutils literal notranslate"><span class="pre">GoloopWebsocket.get_block_hash()</span></code></a></li>
 </ul>
 </li>
@@ -243,6 +259,20 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pawnlib-utils-notify-module">pawnlib.utils.notify module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot"><code class="docutils literal notranslate"><span class="pre">TelegramBot</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.escape_markdown"><code class="docutils literal notranslate"><span class="pre">TelegramBot.escape_markdown()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_html_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_html_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_plain_text_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_plain_text_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_dict_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_dict_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.get_chat_id"><code class="docutils literal notranslate"><span class="pre">TelegramBot.get_chat_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.save_chat_id"><code class="docutils literal notranslate"><span class="pre">TelegramBot.save_chat_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.load_chat_id"><code class="docutils literal notranslate"><span class="pre">TelegramBot.load_chat_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_auto_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_auto_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.is_html"><code class="docutils literal notranslate"><span class="pre">TelegramBot.is_html()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.is_markdown"><code class="docutils literal notranslate"><span class="pre">TelegramBot.is_markdown()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.notify.get_level_color"><code class="docutils literal notranslate"><span class="pre">get_level_color()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.notify.send_slack"><code class="docutils literal notranslate"><span class="pre">send_slack()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.notify.send_slack_token"><code class="docutils literal notranslate"><span class="pre">send_slack_token()</span></code></a></li>
@@ -254,6 +284,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.run"><code class="docutils literal notranslate"><span class="pre">ThreadPoolRunner.run()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.log_results"><code class="docutils literal notranslate"><span class="pre">ThreadPoolRunner.log_results()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run"><code class="docutils literal notranslate"><span class="pre">ThreadPoolRunner.forever_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.stop"><code class="docutils literal notranslate"><span class="pre">ThreadPoolRunner.stop()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.operate_handler.Daemon"><code class="docutils literal notranslate"><span class="pre">Daemon</span></code></a><ul>
@@ -319,6 +350,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.get_hx_address"><code class="docutils literal notranslate"><span class="pre">IcxSigner.get_hx_address()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.sign_tx"><code class="docutils literal notranslate"><span class="pre">IcxSigner.sign_tx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.sign"><code class="docutils literal notranslate"><span class="pre">IcxSigner.sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.create_key_store_content"><code class="docutils literal notranslate"><span class="pre">IcxSigner.create_key_store_content()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.store"><code class="docutils literal notranslate"><span class="pre">IcxSigner.store()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.sign_recoverable"><code class="docutils literal notranslate"><span class="pre">IcxSigner.sign_recoverable()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.icx_signer.IcxSigner.from_bytes"><code class="docutils literal notranslate"><span class="pre">IcxSigner.from_bytes()</span></code></a></li>
@@ -349,6 +381,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.genesis.GenesisGenerator.initialize"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.initialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.genesis.GenesisGenerator.run"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.run()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.genesis.GenesisGenerator.log_initialization_info"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.log_initialization_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.genesis.GenesisGenerator.create_cid"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.create_cid()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.genesis.GenesisGenerator.parse_and_write_genesis_json"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.parse_and_write_genesis_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.genesis.GenesisGenerator.write_genesis_zip"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.write_genesis_zip()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.genesis.GenesisGenerator.extract_content_pattern"><code class="docutils literal notranslate"><span class="pre">GenesisGenerator.extract_content_pattern()</span></code></a></li>
@@ -361,6 +394,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.genesis.create_cid"><code class="docutils literal notranslate"><span class="pre">create_cid()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.genesis.create_cid_from_genesis_file"><code class="docutils literal notranslate"><span class="pre">create_cid_from_genesis_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.genesis.create_cid_from_genesis_zip"><code class="docutils literal notranslate"><span class="pre">create_cid_from_genesis_zip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.genesis.validate_genesis_json"><code class="docutils literal notranslate"><span class="pre">validate_genesis_json()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.genesis.genesis_generator"><code class="docutils literal notranslate"><span class="pre">genesis_generator()</span></code></a></li>
 </ul>
 </li>
@@ -371,6 +405,22 @@
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.in_memory_zip.InMemoryZip"><code class="docutils literal notranslate"><span class="pre">InMemoryZip</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.in_memory_zip.InMemoryZip.data"><code class="docutils literal notranslate"><span class="pre">InMemoryZip.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.in_memory_zip.InMemoryZip.zip_in_memory"><code class="docutils literal notranslate"><span class="pre">InMemoryZip.zip_in_memory()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-utils-aws-module">pawnlib.utils.aws module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.aws.Uploader"><code class="docutils literal notranslate"><span class="pre">Uploader</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.aws.Uploader.upload_directory"><code class="docutils literal notranslate"><span class="pre">Uploader.upload_directory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.aws.Uploader.upload_file"><code class="docutils literal notranslate"><span class="pre">Uploader.upload_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.aws.Uploader.calculate_directory_size"><code class="docutils literal notranslate"><span class="pre">Uploader.calculate_directory_size()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.aws.Uploader.upload_latest_info"><code class="docutils literal notranslate"><span class="pre">Uploader.upload_latest_info()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.aws.Downloader"><code class="docutils literal notranslate"><span class="pre">Downloader</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.aws.Downloader.download_file"><code class="docutils literal notranslate"><span class="pre">Downloader.download_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.aws.Downloader.download_directory"><code class="docutils literal notranslate"><span class="pre">Downloader.download_directory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.aws.Downloader.download_from_info"><code class="docutils literal notranslate"><span class="pre">Downloader.download_from_info()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -536,11 +586,11 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pawnlib.utils.http.NetworkInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NetworkInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mainnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'icon'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_api</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planet_api</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#NetworkInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.NetworkInfo" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NetworkInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'icon'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_api</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planet_api</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_network</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#NetworkInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.NetworkInfo" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pawnlib.utils.http.NetworkInfo.network_name">
-<span class="sig-name descname"><span class="pre">network_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mainnet'</span></em><a class="headerlink" href="#pawnlib.utils.http.NetworkInfo.network_name" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">network_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#pawnlib.utils.http.NetworkInfo.network_name" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -668,6 +718,11 @@
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#NetworkInfo.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.NetworkInfo.to_dict" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.NetworkInfo.fetch_network_info">
+<span class="sig-name descname"><span class="pre">fetch_network_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#NetworkInfo.fetch_network_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.NetworkInfo.fetch_network_info" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -724,11 +779,16 @@
 <span class="sig-name descname"><span class="pre">get_required_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcTemplates.get_required_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcTemplates.get_required_params" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcTemplates.get_params_hint">
+<span class="sig-name descname"><span class="pre">get_params_hint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcTemplates.get_params_hint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcTemplates.get_params_hint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IconRpcHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wallet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_on_failure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_sign_methods</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IconRpcHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wallet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_on_failure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_sign_methods</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_sleep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'icx_getTransactionResult'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.initialize">
@@ -742,13 +802,23 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.rpc_call">
-<span class="sig-name descname"><span class="pre">rpc_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_on_failure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_request_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'post'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.rpc_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.rpc_call" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rpc_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_on_failure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_request_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'post'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.rpc_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.rpc_call" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.get_elapsed">
+<span class="sig-name descname"><span class="pre">get_elapsed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'elapsed'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.get_elapsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.get_elapsed" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.get_total_elapsed">
+<span class="sig-name descname"><span class="pre">get_total_elapsed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.get_total_elapsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.get_total_elapsed" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.print_error_message">
@@ -772,12 +842,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.create_governance_payload">
-<span class="sig-name descname"><span class="pre">create_governance_payload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.create_governance_payload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.create_governance_payload" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">create_governance_payload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.create_governance_payload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.create_governance_payload" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.governance_call">
-<span class="sig-name descname"><span class="pre">governance_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">governance_address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_request_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0x0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.governance_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.governance_call" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">governance_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">governance_address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_request_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0x0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'result'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.governance_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.governance_call" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -818,7 +888,12 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.get_score_api">
 <span class="sig-name descname"><span class="pre">get_score_api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.get_score_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.get_score_api" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.name_to_params">
@@ -826,13 +901,33 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.make_params_hint">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_params_hint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.make_params_hint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.make_params_hint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.get_governance_api">
-<span class="sig-name descname"><span class="pre">get_governance_api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.get_governance_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.get_governance_api" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_governance_api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_method_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.get_governance_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.get_governance_api" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.get_balance">
 <span class="sig-name descname"><span class="pre">get_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_comma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.get_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.get_balance" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.analyze_tx_block_time">
+<span class="sig-name descname"><span class="pre">analyze_tx_block_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.analyze_tx_block_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.analyze_tx_block_time" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.get_block">
+<span class="sig-name descname"><span class="pre">get_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.get_block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.get_block" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.handle_response_with_key">
+<span class="sig-name descname"><span class="pre">handle_response_with_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.handle_response_with_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.handle_response_with_key" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -842,7 +937,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.get_tx_wait">
-<span class="sig-name descname"><span class="pre">get_tx_wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx_hash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_compact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.get_tx_wait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.get_tx_wait" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_tx_wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx_hash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_compact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_block_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.get_tx_wait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.get_tx_wait" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.check_transaction_loop">
+<span class="sig-name descname"><span class="pre">check_transaction_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tx_hash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_compact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_block_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.check_transaction_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.check_transaction_loop" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -877,7 +977,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.IconRpcHelper.sign_send">
-<span class="sig-name descname"><span class="pre">sign_send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_compact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.sign_send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.sign_send" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sign_send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_compact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_block_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#IconRpcHelper.sign_send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.IconRpcHelper.sign_send" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -976,7 +1076,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pawnlib.utils.http.CallHttp">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CallHttp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'get'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_ssl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success_criteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'__DEFAULT__'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success_operator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'and'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success_syntax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_on_failure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#CallHttp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.CallHttp" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CallHttp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'get'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_ssl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success_criteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'__DEFAULT__'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success_operator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'and'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success_syntax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_on_failure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#CallHttp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.CallHttp" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pawnlib.utils.http.CallHttp.SHORTEN_MESSAGE_DICT">
@@ -1062,7 +1162,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.CallWebsocket.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'api/v3/icon_dex/block'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_console</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#CallWebsocket.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.CallWebsocket.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/api/v3/icon_dex/block'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_console</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#CallWebsocket.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.CallWebsocket.run" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1074,7 +1174,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pawnlib.utils.http.GoloopWebsocket">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GoloopWebsocket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blockheight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sec_thresholds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitoring_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_ssl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#GoloopWebsocket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.GoloopWebsocket" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GoloopWebsocket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blockheight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sec_thresholds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitoring_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_ssl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#GoloopWebsocket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.GoloopWebsocket" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pawnlib.utils.http.CallWebsocket" title="pawnlib.utils.http.CallWebsocket"><code class="xref py py-class docutils literal notranslate"><span class="pre">CallWebsocket</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.GoloopWebsocket.request_blockheight_callback">
@@ -1097,8 +1197,38 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.GoloopWebsocket.get_response_content">
+<span class="sig-name descname"><span class="pre">get_response_content</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#GoloopWebsocket.get_response_content"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.GoloopWebsocket.get_response_content" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.http.GoloopWebsocket.get_last_blockheight">
 <span class="sig-name descname"><span class="pre">get_last_blockheight</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#GoloopWebsocket.get_last_blockheight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.GoloopWebsocket.get_last_blockheight" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.GoloopWebsocket.get_preps">
+<span class="sig-name descname"><span class="pre">get_preps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#GoloopWebsocket.get_preps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.GoloopWebsocket.get_preps" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.GoloopWebsocket.get_validator_info">
+<span class="sig-name descname"><span class="pre">get_validator_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#GoloopWebsocket.get_validator_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.GoloopWebsocket.get_validator_info" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.GoloopWebsocket.fetch_and_store_preps_info">
+<span class="sig-name descname"><span class="pre">fetch_and_store_preps_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#GoloopWebsocket.fetch_and_store_preps_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.GoloopWebsocket.fetch_and_store_preps_info" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.http.GoloopWebsocket.execute_rpc_call">
+<span class="sig-name descname"><span class="pre">execute_rpc_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">governance_address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/http.html#GoloopWebsocket.execute_rpc_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.http.GoloopWebsocket.execute_rpc_call" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1158,7 +1288,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.utils.http.icon_rpc_call">
-<span class="sig-name descname"><span class="pre">icon_rpc_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_on_failure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_request_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'post'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pawnlib.utils.http.icon_rpc_call" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">icon_rpc_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_on_failure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_request_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'post'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pawnlib.utils.http.icon_rpc_call" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
@@ -1419,7 +1549,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pawnlib.utils.log.TightLevelRichHandler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TightLevelRichHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_repeated_times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_link_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highlighter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rich_tracebacks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_extra_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_theme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_word_wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_show_locals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_suppress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locals_max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locals_max_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'[%x</span> <span class="pre">%X]'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keywords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/log.html#TightLevelRichHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.log.TightLevelRichHandler" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TightLevelRichHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_repeated_times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_link_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highlighter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rich_tracebacks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_code_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">88</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_extra_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_theme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_word_wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_show_locals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_suppress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebacks_max_frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locals_max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locals_max_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_time_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'[%x</span> <span class="pre">%X]'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keywords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/log.html#TightLevelRichHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.log.TightLevelRichHandler" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RichHandler</span></code></p>
 <p>Initializes the instance - basically setting the formatter to None
 and the filter list to empty.</p>
@@ -1448,7 +1578,177 @@ and the filter list to empty.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.utils</span> <span class="kn">import</span> <span class="n">notify</span>
 </pre></div>
 </div>
-<span class="target" id="module-pawnlib.utils.notify"></span><dl class="py function">
+<span class="target" id="module-pawnlib.utils.notify"></span><dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TelegramBot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bot_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to interact with the Telegram Bot API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bot_token</strong> (<em>optional</em>) – Telegram bot token. If not provided, it will be fetched from the ‘TELEGRAM_BOT_TOKEN’ environment variable.
+<a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>chat_id</strong> (<em>optional</em>) – Chat ID to send messages to. If not provided, it will be fetched from the ‘TELEGRAM_CHAT_ID’ environment variable or determined dynamically.
+<a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the bot token is not provided either as an argument or an environment variable.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">send_html_message</span><span class="p">(</span><span class="s2">&quot;&lt;b&gt;Hello, world!&lt;/b&gt;&quot;</span><span class="p">)</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">send_plain_text_message</span><span class="p">(</span><span class="s2">&quot;Just plain text.&quot;</span><span class="p">)</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">send_dict_message</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.escape_markdown">
+<span class="sig-name descname"><span class="pre">escape_markdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.escape_markdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.escape_markdown" title="Permalink to this definition"></a></dt>
+<dd><p>Escape Markdown special characters for MarkdownV2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> – The text to escape.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The escaped text.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
+<span class="n">escaped_text</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">escape_markdown</span><span class="p">(</span><span class="s2">&quot;Hello *world*!&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">escaped_text</span><span class="p">)</span>  <span class="c1"># Output: Hello \*world\*!</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_message">
+<span class="sig-name descname"><span class="pre">send_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Markdown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_web_page_preview</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_message" title="Permalink to this definition"></a></dt>
+<dd><p>Send a message to the Telegram chat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> – The message to send.</p></li>
+<li><p><strong>parse_mode</strong> (<em>optional</em>) – The parse mode for the message (‘MarkdownV2’ or ‘HTML’).
+<a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'Markdown'</span></code></p></li>
+<li><p><strong>disable_web_page_preview</strong> (<em>optional</em>) – Whether to disable web page preview.
+<a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The response from the Telegram API if successful, None otherwise.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_html_message">
+<span class="sig-name descname"><span class="pre">send_html_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_html_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_html_message" title="Permalink to this definition"></a></dt>
+<dd><p>Send a message using HTML formatting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> – The message to send.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The response from the Telegram API if successful, None otherwise.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_html_message</span><span class="p">(</span><span class="s2">&quot;&lt;b&gt;Hello, world!&lt;/b&gt;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_plain_text_message">
+<span class="sig-name descname"><span class="pre">send_plain_text_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_plain_text_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_plain_text_message" title="Permalink to this definition"></a></dt>
+<dd><p>Send a plain text message without any formatting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> – The message to send.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The response from the Telegram API if successful, None otherwise.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_plain_text_message</span><span class="p">(</span><span class="s2">&quot;Just plain text.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_dict_message">
+<span class="sig-name descname"><span class="pre">send_dict_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_dict_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_dict_message" title="Permalink to this definition"></a></dt>
+<dd><p>Send a dictionary as a JSON formatted message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message_dict</strong> – The dictionary to send.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The response from the Telegram API if successful, None otherwise.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_dict_message</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.get_chat_id">
+<span class="sig-name descname"><span class="pre">get_chat_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.get_chat_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.get_chat_id" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve chat_id by getting updates from the Telegram bot API</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.save_chat_id">
+<span class="sig-name descname"><span class="pre">save_chat_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'chat_id.txt'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.save_chat_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.save_chat_id" title="Permalink to this definition"></a></dt>
+<dd><p>Save the chat_id to a file for later use</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.load_chat_id">
+<span class="sig-name descname"><span class="pre">load_chat_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'chat_id.txt'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.load_chat_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.load_chat_id" title="Permalink to this definition"></a></dt>
+<dd><p>Load the chat_id from a file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_auto_message">
+<span class="sig-name descname"><span class="pre">send_auto_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_auto_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_auto_message" title="Permalink to this definition"></a></dt>
+<dd><p>Automatically detect the type of message and send it appropriately</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.is_html">
+<span class="sig-name descname"><span class="pre">is_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.is_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.is_html" title="Permalink to this definition"></a></dt>
+<dd><p>Check if the string contains HTML tags</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.is_markdown">
+<span class="sig-name descname"><span class="pre">is_markdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.is_markdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.is_markdown" title="Permalink to this definition"></a></dt>
+<dd><p>Check if the string contains MarkdownV2 special characters</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.get_level_color">
 <span class="sig-name descname"><span class="pre">get_level_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c_level</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#get_level_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.get_level_color" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -1462,9 +1762,9 @@ and the filter list to empty.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> – webhook url</p></li>
 <li><p><strong>msg_text</strong> – </p></li>
-<li><p><strong>title</strong> (<em>optional</em>) – <a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>send_user_name</strong> (<em>optional</em>) – <a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'CtxBot'</span></code></p></li>
-<li><p><strong>msg_level</strong> (<em>optional</em>) – <a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'info'</span></code></p></li>
+<li><p><strong>title</strong> (<em>optional</em>) – <a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>send_user_name</strong> (<em>optional</em>) – <a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'CtxBot'</span></code></p></li>
+<li><p><strong>msg_level</strong> (<em>optional</em>) – <a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'info'</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1493,15 +1793,15 @@ and the filter list to empty.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> (<em>function</em><em>, </em><em>optional</em>) – The function to run in parallel.
-<a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>tasks</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of arguments to pass to the function.
-<a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p></li>
+<a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p></li>
 <li><p><strong>max_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of worker threads to use.
-<a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">20</span></code></p></li>
+<a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">20</span></code></p></li>
 <li><p><strong>verbose</strong> (<em>int</em><em>, </em><em>optional</em>) – Whether to print the results of each task as they complete.
-<a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<a href="#id67"><span class="problematic" id="id68">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
 <li><p><strong>sleep</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of seconds to sleep between runs when using <a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run" title="pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forever_run</span></code></a>.
-<a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<a href="#id69"><span class="problematic" id="id70">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -1548,6 +1848,12 @@ and the filter list to empty.</p>
 <dd><p>Run the function with the given arguments in parallel using a thread pool indefinitely.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.operate_handler.ThreadPoolRunner.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/operate_handler.html#ThreadPoolRunner.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.stop" title="Permalink to this definition"></a></dt>
+<dd><p>Stop the forever_run loop.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1562,23 +1868,23 @@ Usage 2: subclass the Daemon class and use func parameter</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pidfile</strong> – pid file location</p></li>
 <li><p><strong>func</strong> (<em>optional</em>) – function to run as daemon
-<a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id71"><span class="problematic" id="id72">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>stdin</strong> (<em>optional</em>) – standard input , The default is sys.stdin, and providing a filename will output to a file.
-<a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>stdout</strong> (<em>optional</em>) – standard output, The default is sys.stdout, and  providing a filename will output to a file.
-<a href="#id67"><span class="problematic" id="id68">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>stderr</strong> (<em>optional</em>) – standard error, The default is sys.stderr, and providing a filename will output to a file.
-<a href="#id69"><span class="problematic" id="id70">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>home_dir</strong> (<em>optional</em>) – home directory
-<a href="#id71"><span class="problematic" id="id72">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
+<a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
 <li><p><strong>umask</strong> (<em>optional</em>) – umask
-<a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">18</span></code></p></li>
+<a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">18</span></code></p></li>
 <li><p><strong>verbose</strong> (<em>optional</em>) – verbosity level
-<a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
 <li><p><strong>use_gevent</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – use gevent
-<a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 <li><p><strong>use_eventlet</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – use eventlet
-<a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -1706,15 +2012,15 @@ daemonized by start() or restart().</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> (<em>optional</em>) – just a title name
-<a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id89"><span class="problematic" id="id90">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>cmd</strong> (<em>optional</em>) – command to be executed
-<a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id91"><span class="problematic" id="id92">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>cwd</strong> (<em>optional</em>) – the function changes the working directory to cwd
-<a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>check_output</strong> (<em>optional</em>) – <a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>capture_output</strong> (<em>optional</em>) – <a href="#id89"><span class="problematic" id="id90">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>hook_function</strong> (<em>optional</em>) – <a href="#id91"><span class="problematic" id="id92">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>debug</strong> (<em>optional</em>) – <a href="#id93"><span class="problematic" id="id94">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<a href="#id93"><span class="problematic" id="id94">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>check_output</strong> (<em>optional</em>) – <a href="#id95"><span class="problematic" id="id96">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>capture_output</strong> (<em>optional</em>) – <a href="#id97"><span class="problematic" id="id98">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>hook_function</strong> (<em>optional</em>) – <a href="#id99"><span class="problematic" id="id100">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>debug</strong> (<em>optional</em>) – <a href="#id101"><span class="problematic" id="id102">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1749,9 +2055,9 @@ daemonized by start() or restart().</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> (<em>optional</em>) – text
-<a href="#id95"><span class="problematic" id="id96">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<a href="#id103"><span class="problematic" id="id104">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
 <li><p><strong>delay</strong> (<em>optional</em>) – sleep time
-<a href="#id97"><span class="problematic" id="id98">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0.1</span></code></p></li>
+<a href="#id105"><span class="problematic" id="id106">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0.1</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -1805,11 +2111,11 @@ daemonized by start() or restart().</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>loop_function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – function to run continuously</p></li>
 <li><p><strong>exit_function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – function to exit the loop</p></li>
-<li><p><strong>timeout</strong> (<em>optional</em>) – <a href="#id99"><span class="problematic" id="id100">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">30</span></code></p></li>
+<li><p><strong>timeout</strong> (<em>optional</em>) – <a href="#id107"><span class="problematic" id="id108">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">30</span></code></p></li>
 <li><p><strong>delay</strong> (<em>optional</em>) – sleep time
-<a href="#id101"><span class="problematic" id="id102">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0.5</span></code></p></li>
+<a href="#id109"><span class="problematic" id="id110">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0.5</span></code></p></li>
 <li><p><strong>text</strong> (<em>optional</em>) – text message
-<a href="#id103"><span class="problematic" id="id104">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'WaitStateLoop'</span></code></p></li>
+<a href="#id111"><span class="problematic" id="id112">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'WaitStateLoop'</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -1953,7 +2259,7 @@ If the wallet type cannot be determined, None is returned.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.utils.icx_signer.generate_wallet">
-<span class="sig-name descname"><span class="pre">generate_wallet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#generate_wallet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.generate_wallet" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_wallet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_store_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#generate_wallet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.generate_wallet" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -2047,9 +2353,9 @@ If the wallet type cannot be determined, None is returned.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>object</em><em>, </em><em>optional</em>) – bytes or der
-<a href="#id105"><span class="problematic" id="id106">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id113"><span class="problematic" id="id114">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – True(bytes) False(der)
-<a href="#id107"><span class="problematic" id="id108">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<a href="#id115"><span class="problematic" id="id116">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -2061,9 +2367,9 @@ If the wallet type cannot be determined, None is returned.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>object</em><em>, </em><em>optional</em>) – bytes or der
-<a href="#id109"><span class="problematic" id="id110">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<a href="#id117"><span class="problematic" id="id118">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><strong>raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – True(bytes) False(der)
-<a href="#id111"><span class="problematic" id="id112">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<a href="#id119"><span class="problematic" id="id120">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -2150,6 +2456,11 @@ address is made from pubkey.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.create_key_store_content">
+<span class="sig-name descname"><span class="pre">create_key_store_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16384</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'scrypt'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/icx_signer.html#IcxSigner.create_key_store_content"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.icx_signer.IcxSigner.create_key_store_content" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.icx_signer.IcxSigner.store">
@@ -2325,7 +2636,7 @@ address is made from pubkey.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>params</strong> (<em>dict</em><em>, </em><em>optional</em>) – the value of ‘params’ key in jsonrpc
-<a href="#id113"><span class="problematic" id="id114">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+<a href="#id121"><span class="problematic" id="id122">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>sha3_256 hash value
@@ -2424,6 +2735,11 @@ For example, data like <code class="xref py py-obj docutils literal notranslate"
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.genesis.GenesisGenerator.create_cid">
+<span class="sig-name descname"><span class="pre">create_cid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/genesis.html#GenesisGenerator.create_cid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.genesis.GenesisGenerator.create_cid" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.genesis.GenesisGenerator.parse_and_write_genesis_json">
 <span class="sig-name descname"><span class="pre">parse_and_write_genesis_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/genesis.html#GenesisGenerator.parse_and_write_genesis_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.genesis.GenesisGenerator.parse_and_write_genesis_json" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -2474,6 +2790,11 @@ For example, data like <code class="xref py py-obj docutils literal notranslate"
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.utils.genesis.create_cid_from_genesis_zip">
 <span class="sig-name descname"><span class="pre">create_cid_from_genesis_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zip_file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/genesis.html#create_cid_from_genesis_zip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.genesis.create_cid_from_genesis_zip" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.utils.genesis.validate_genesis_json">
+<span class="sig-name descname"><span class="pre">validate_genesis_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">genesis_json</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/genesis.html#validate_genesis_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.genesis.validate_genesis_json" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -2544,6 +2865,62 @@ For example, data like <code class="xref py py-obj docutils literal notranslate"
 <dd class="field-odd"><p><strong>_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The path of the directory to be zipped.</p>
 </dd>
 </dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="pawnlib-utils-aws-module">
+<h2>pawnlib.utils.aws module<a class="headerlink" href="#pawnlib-utils-aws-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.utils</span> <span class="kn">import</span> <span class="n">aws</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.utils.aws"></span><dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.utils.aws.Uploader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Uploader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/aws.html#Uploader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.aws.Uploader" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.aws.Uploader.upload_directory">
+<span class="sig-name descname"><span class="pre">upload_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/aws.html#Uploader.upload_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.aws.Uploader.upload_directory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.aws.Uploader.upload_file">
+<span class="sig-name descname"><span class="pre">upload_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/aws.html#Uploader.upload_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.aws.Uploader.upload_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.aws.Uploader.calculate_directory_size">
+<span class="sig-name descname"><span class="pre">calculate_directory_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/aws.html#Uploader.calculate_directory_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.aws.Uploader.calculate_directory_size" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.aws.Uploader.upload_latest_info">
+<span class="sig-name descname"><span class="pre">upload_latest_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/aws.html#Uploader.upload_latest_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.aws.Uploader.upload_latest_info" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.utils.aws.Downloader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Downloader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/aws.html#Downloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.aws.Downloader" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.aws.Downloader.download_file">
+<span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s3_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/aws.html#Downloader.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.aws.Downloader.download_file" title="Permalink to this definition"></a></dt>
+<dd><p>Download a single file from S3.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.aws.Downloader.download_directory">
+<span class="sig-name descname"><span class="pre">download_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s3_directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/aws.html#Downloader.download_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.aws.Downloader.download_directory" title="Permalink to this definition"></a></dt>
+<dd><p>Download an entire directory from S3.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.aws.Downloader.download_from_info">
+<span class="sig-name descname"><span class="pre">download_from_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s3_info_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/aws.html#Downloader.download_from_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.aws.Downloader.download_from_info" title="Permalink to this definition"></a></dt>
+<dd><p>Download files as specified in the info.json file from S3.</p>
 </dd></dl>
 
 </dd></dl>

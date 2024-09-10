@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.utils.notify &mdash; Pawnlib v1.0.20</title>
+  <title>pawnlib.utils.notify &mdash; Pawnlib v2.0.32</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.20
+                2.0.32
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -52,7 +52,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
@@ -85,12 +87,204 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pawnlib.utils.notify</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
 <span class="kn">from</span> <span class="nn">pawnlib.output</span> <span class="kn">import</span> <span class="n">color_print</span>
 <span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
 <span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">date_utils</span><span class="p">,</span> <span class="n">shorten_text</span>
 <span class="kn">from</span> <span class="nn">pawnlib.utils</span> <span class="kn">import</span> <span class="n">http</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<div class="viewcode-block" id="TelegramBot"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot">[docs]</a><span class="k">class</span> <span class="nc">TelegramBot</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to interact with the Telegram Bot API.</span>
+
+<span class="sd">    :param bot_token: Telegram bot token. If not provided, it will be fetched from the &#39;TELEGRAM_BOT_TOKEN&#39; environment variable.</span>
+<span class="sd">    :param chat_id: Chat ID to send messages to. If not provided, it will be fetched from the &#39;TELEGRAM_CHAT_ID&#39; environment variable or determined dynamically.</span>
+
+<span class="sd">    :raises ValueError: If the bot token is not provided either as an argument or an environment variable.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            bot = TelegramBot(bot_token=&quot;your_bot_token&quot;, chat_id=&quot;your_chat_id&quot;)</span>
+<span class="sd">            bot.send_message(&quot;Hello, world!&quot;)</span>
+<span class="sd">            bot.send_html_message(&quot;&lt;b&gt;Hello, world!&lt;/b&gt;&quot;)</span>
+<span class="sd">            bot.send_plain_text_message(&quot;Just plain text.&quot;)</span>
+<span class="sd">            bot.send_dict_message({&quot;key&quot;: &quot;value&quot;})</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bot_token</span> <span class="o">=</span> <span class="p">(</span><span class="n">bot_token</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;TELEGRAM_BOT_TOKEN&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">bot_token</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Telegram bot token is required. Please set it as an argument or in the &#39;TELEGRAM_BOT_TOKEN&#39; environment variable.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">chat_id</span> <span class="o">=</span> <span class="n">chat_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://api.telegram.org/bot</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bot_token</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chat_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">chat_id</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;TELEGRAM_CHAT_ID&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">chat_id</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_chat_id</span><span class="p">()</span>
+
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bot_token=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bot_token</span><span class="si">}</span><span class="s2">, chat_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">chat_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TelegramBot.escape_markdown"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.escape_markdown">[docs]</a>    <span class="k">def</span> <span class="nf">escape_markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Escape Markdown special characters for MarkdownV2.</span>
+
+<span class="sd">        :param text: The text to escape.</span>
+<span class="sd">        :return: The escaped text.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                bot = TelegramBot(bot_token=&quot;your_bot_token&quot;, chat_id=&quot;your_chat_id&quot;)</span>
+<span class="sd">                escaped_text = bot.escape_markdown(&quot;Hello *world*!&quot;)</span>
+<span class="sd">                print(escaped_text)  # Output: Hello \*world\*!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">escape_chars</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;_*[]()~`&gt;#+-=|</span><span class="si">{}</span><span class="s1">.!&#39;</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;([</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">escape_chars</span><span class="p">)</span><span class="si">}</span><span class="s1">])&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">\1&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TelegramBot.send_message"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_message">[docs]</a>    <span class="k">def</span> <span class="nf">send_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">parse_mode</span><span class="o">=</span><span class="s2">&quot;Markdown&quot;</span><span class="p">,</span> <span class="n">disable_web_page_preview</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a message to the Telegram chat.</span>
+
+<span class="sd">        :param message: The message to send.</span>
+<span class="sd">        :param parse_mode: The parse mode for the message (&#39;MarkdownV2&#39; or &#39;HTML&#39;).</span>
+<span class="sd">        :param disable_web_page_preview: Whether to disable web page preview.</span>
+<span class="sd">        :return: The response from the Telegram API if successful, None otherwise.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                bot = TelegramBot(bot_token=&quot;your_bot_token&quot;, chat_id=&quot;your_chat_id&quot;)</span>
+<span class="sd">                response = bot.send_message(&quot;Hello, world!&quot;)</span>
+<span class="sd">                print(response)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;chat_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chat_id</span><span class="p">,</span>
+            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">escape_markdown</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="k">if</span> <span class="n">parse_mode</span> <span class="o">==</span> <span class="s2">&quot;MarkdownV2&quot;</span> <span class="k">else</span> <span class="n">message</span><span class="p">,</span>
+            <span class="s2">&quot;parse_mode&quot;</span><span class="p">:</span> <span class="n">parse_mode</span><span class="p">,</span>
+            <span class="s2">&quot;disable_web_page_preview&quot;</span><span class="p">:</span> <span class="n">disable_web_page_preview</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_url</span><span class="si">}</span><span class="s2">/sendMessage&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>  <span class="c1"># 성공적으로 메시지를 보낸 경우</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to send message: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="TelegramBot.send_html_message"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_html_message">[docs]</a>    <span class="k">def</span> <span class="nf">send_html_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a message using HTML formatting.</span>
+
+<span class="sd">        :param message: The message to send.</span>
+<span class="sd">        :return: The response from the Telegram API if successful, None otherwise.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                bot = TelegramBot(bot_token=&quot;your_bot_token&quot;, chat_id=&quot;your_chat_id&quot;)</span>
+<span class="sd">                response = bot.send_html_message(&quot;&lt;b&gt;Hello, world!&lt;/b&gt;&quot;)</span>
+<span class="sd">                print(response)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parse_mode</span><span class="o">=</span><span class="s2">&quot;HTML&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TelegramBot.send_plain_text_message"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_plain_text_message">[docs]</a>    <span class="k">def</span> <span class="nf">send_plain_text_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a plain text message without any formatting.</span>
+
+<span class="sd">        :param message: The message to send.</span>
+<span class="sd">        :return: The response from the Telegram API if successful, None otherwise.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                bot = TelegramBot(bot_token=&quot;your_bot_token&quot;, chat_id=&quot;your_chat_id&quot;)</span>
+<span class="sd">                response = bot.send_plain_text_message(&quot;Just plain text.&quot;)</span>
+<span class="sd">                print(response)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TelegramBot.send_dict_message"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_dict_message">[docs]</a>    <span class="k">def</span> <span class="nf">send_dict_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a dictionary as a JSON formatted message.</span>
+
+<span class="sd">        :param message_dict: The dictionary to send.</span>
+<span class="sd">        :return: The response from the Telegram API if successful, None otherwise.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                bot = TelegramBot(bot_token=&quot;your_bot_token&quot;, chat_id=&quot;your_chat_id&quot;)</span>
+<span class="sd">                response = bot.send_dict_message({&quot;key&quot;: &quot;value&quot;})</span>
+<span class="sd">                print(response)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message_dict</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_plain_text_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TelegramBot.get_chat_id"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.get_chat_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_chat_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve chat_id by getting updates from the Telegram bot API&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_url</span><span class="si">}</span><span class="s2">/getUpdates&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">&quot;result&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">chat_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;message&quot;</span><span class="p">][</span><span class="s2">&quot;chat&quot;</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrieved chat_id: </span><span class="si">{</span><span class="n">chat_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">chat_id</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No messages found in bot updates to retrieve chat_id.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ConnectionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to retrieve updates: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TelegramBot.save_chat_id"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.save_chat_id">[docs]</a>    <span class="k">def</span> <span class="nf">save_chat_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chat_id_file</span><span class="o">=</span><span class="s2">&quot;chat_id.txt&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the chat_id to a file for later use&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">chat_id_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chat_id</span><span class="p">))</span>  <span class="c1"># chat_id를 문자열로 변환하여 저장</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;chat_id saved to </span><span class="si">{</span><span class="n">chat_id_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TelegramBot.load_chat_id"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.load_chat_id">[docs]</a>    <span class="k">def</span> <span class="nf">load_chat_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chat_id_file</span><span class="o">=</span><span class="s2">&quot;chat_id.txt&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load the chat_id from a file&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">chat_id_file</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">chat_id_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chat_id</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded chat_id from </span><span class="si">{</span><span class="n">chat_id_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;chat_id file </span><span class="si">{</span><span class="n">chat_id_file</span><span class="si">}</span><span class="s2"> not found. Retrieving chat_id using getUpdates...&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_chat_id</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TelegramBot.send_auto_message"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_auto_message">[docs]</a>    <span class="k">def</span> <span class="nf">send_auto_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Automatically detect the type of message and send it appropriately&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_dict_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_html</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">send_html_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_markdown</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parse_mode</span><span class="o">=</span><span class="s2">&quot;Markdown&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">send_plain_text_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported message type&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TelegramBot.is_html"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.is_html">[docs]</a>    <span class="k">def</span> <span class="nf">is_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the string contains HTML tags&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&lt;[^&gt;]+&gt;&#39;</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TelegramBot.is_markdown"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.is_markdown">[docs]</a>    <span class="k">def</span> <span class="nf">is_markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the string contains MarkdownV2 special characters&quot;&quot;&quot;</span>
+        <span class="c1"># MarkdownV2에서 사용하는 특수 문자를 검사</span>
+        <span class="n">markdown_special_chars</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[_*[\]()~`&gt;#+-=|</span><span class="si">{}</span><span class="s1">.!]&#39;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">markdown_special_chars</span><span class="p">)</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span></div></div>
 
 
 <div class="viewcode-block" id="get_level_color"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.notify.get_level_color">[docs]</a><span class="k">def</span> <span class="nf">get_level_color</span><span class="p">(</span><span class="n">c_level</span><span class="p">):</span>

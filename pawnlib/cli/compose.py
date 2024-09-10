@@ -7,14 +7,15 @@ from pawnlib.typing.check import sys_exit
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
 from pawnlib.docker.compose import DockerComposeBuilder
 
-_description__ = 'An interactive Docker Compose builder for creating and managing services.'
+__description__ = 'An interactive Docker Compose builder for creating and managing services.'
 __epilog__ = (
     "This tool helps to build a Docker Compose file interactively. You can add multiple services, configure ports, "
     "environment variables, and volumes.\n\n"
     "Usage examples:\n"
     "  1. Create a Docker Compose file:\n"
-    "     pawns compose  init\n"
     "     - This will start the interactive wizard to create a docker-compose.yml file.\n\n"
+    "     `pawns compose  init` \n"
+
 
 )
 
@@ -75,6 +76,11 @@ def main():
     if args.command == "init":
         builder.create_docker_compose()
         builder.save_docker_compose()
+
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 if __name__ == '__main__':
     main()

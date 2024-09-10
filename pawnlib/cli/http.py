@@ -21,8 +21,10 @@ script_name = "pawns"
 __description__ = 'This is a tool to measure RTT on HTTP/S requests.'
 
 http_config_example = """
+    # The configuration options are provided below. You can customize these settings in the 'http_config.ini' file.
+    
     [default]
-    success = status_code==200
+    success = status_code==200 
     slack_url = 
     interval = 3
     method = get
@@ -49,20 +51,23 @@ http_config_example = """
 __epilog__ = (
     f"This script provides various options to check the HTTP status of URLs. \n\n"
     f"Usage examples:\n"
-    f"  1. Basic usage:  \n\t{script_name} http https://example.com\n\n"
-    f"  2. Verbose mode: \n\t{script_name} http https://example.com -v\n\n"
-    f"  3. Using custom headers and POST method: \n\t{script_name} http https://example.com -m POST --headers '{{\"Content-Type\": \"application/json\"}}' --data '{{\"param\": \"value\"}}'\n\n"
-    f"  4. Ignoring SSL verification and setting a custom timeout: \n\t{script_name} http https://example.com --ignore-ssl True --timeout 5\n\n"
-    f"  5. Checking with specific success criteria and logical operator: \n\t{script_name} http https://example.com --success 'status_code==200' 'response_time<2' --logical-operator and\n\n"
-    f"  6. Running with a custom config file and interval: \n\t{script_name} http https://example.com -c http_config.ini -i 3\n"
-    f" \n    http_config.ini "
-    f"{http_config_example}\n\n"
+    f"  1. Basic usage:  \n\t`{script_name} http https://example.com`\n\n"
+    f"  2. Verbose mode: \n\t`{script_name} http https://example.com -v`\n\n"
+    f"  3. Using custom headers and POST method: \n\t`{script_name} http https://example.com -m POST --headers '{{\"Content-Type\": \"application/json\"}}' --data '{{\"param\": \"value\"}}'` \n\n"
+    f"  4. Ignoring SSL verification and setting a custom timeout: \n\t`{script_name} http https://example.com --ignore-ssl True --timeout 5`\n\n"
+    f"  5. Checking with specific success criteria and logical operator: \n\t`{script_name} http https://example.com --success 'status_code==200' 'response_time<2' --logical-operator and`\n\n"
+    f"  6. Running with a custom config file and interval: \n\t`{script_name} http https://example.com -c http_config.ini -i 3`\n"
     f"  7. Setting maximum workers and stack limit: \n\t{script_name} http https://example.com -w 5 --stack-limit 10\n\n"
     f"  8. Dry run without actual HTTP request: \n\t{script_name} http https://example.com --dry-run\n\n"
     f"  9. Sending notifications to a Slack URL on failure: \n\t{script_name} http https://example.com --slack-url 'https://hooks.slack.com/services/...'\n\n\n"
 
-    f" 10. Checking blockheight increase: \n\t{script_name} http http://test-node-01:26657/status --blockheight-key \"result.sync_info.latest_block_height\" -i 5\n"
+    f" 10. Checking blockheight increase: \n\t`{script_name} http http://test-node-01:26657/status --blockheight-key \"result.sync_info.latest_block_height\" -i 5`\n"
 
+    "Note:  \n"
+    "   .. line-block:: \n"
+    
+    f"\n{http_config_example}\n\n\n"
+    
     f"For more details, use the -h or --help flag."
 )
 
@@ -543,6 +548,10 @@ def main():
         #     runner.stop()
         #     print("Runner stopped.")
 
+main.__doc__ = (
+    f"{__description__} \n"
+    f"{__epilog__}"
+)
 
 if __name__ == '__main__':
     try:

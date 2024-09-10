@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.utils.http &mdash; Pawnlib v1.0.97</title>
+  <title>pawnlib.utils.http &mdash; Pawnlib v2.0.32</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                1.0.97
+                2.0.32
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -52,7 +52,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
@@ -92,6 +94,7 @@
 <span class="kn">import</span> <span class="nn">ssl</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
 <span class="kn">from</span> <span class="nn">pawnlib.config.globalconfig</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span><span class="p">,</span> <span class="n">global_verbose</span><span class="p">,</span> <span class="n">pconf</span><span class="p">,</span> <span class="n">SimpleNamespace</span><span class="p">,</span> <span class="n">Null</span>
 <span class="kn">from</span> <span class="nn">pawnlib.output</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">NoTraceBackException</span><span class="p">,</span>
@@ -100,7 +103,7 @@
     <span class="n">print_json</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
 <span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">date_utils</span>
-<span class="kn">from</span> <span class="nn">pawnlib.typing.converter</span> <span class="kn">import</span> <span class="n">append_suffix</span><span class="p">,</span> <span class="n">append_prefix</span><span class="p">,</span> <span class="n">hex_to_number</span><span class="p">,</span> <span class="n">FlatDict</span><span class="p">,</span> <span class="n">FlatterDict</span><span class="p">,</span> <span class="n">flatten</span><span class="p">,</span> <span class="n">const</span><span class="p">,</span> <span class="n">shorten_text</span>
+<span class="kn">from</span> <span class="nn">pawnlib.typing.converter</span> <span class="kn">import</span> <span class="n">append_suffix</span><span class="p">,</span> <span class="n">append_prefix</span><span class="p">,</span> <span class="n">hex_to_number</span><span class="p">,</span> <span class="n">FlatDict</span><span class="p">,</span> <span class="n">FlatterDict</span><span class="p">,</span> <span class="n">flatten</span><span class="p">,</span> <span class="n">const</span><span class="p">,</span> <span class="n">shorten_text</span><span class="p">,</span> <span class="n">StackList</span>
 <span class="kn">from</span> <span class="nn">pawnlib.typing.constants</span> <span class="kn">import</span> <span class="n">const</span>
 <span class="kn">from</span> <span class="nn">pawnlib.typing.generator</span> <span class="kn">import</span> <span class="n">json_rpc</span><span class="p">,</span> <span class="n">random_token_address</span><span class="p">,</span> <span class="n">generate_json_rpc</span>
 <span class="kn">from</span> <span class="nn">pawnlib.typing.check</span> <span class="kn">import</span> <span class="n">keys_exists</span><span class="p">,</span> <span class="n">is_int</span><span class="p">,</span> <span class="n">is_float</span><span class="p">,</span> <span class="n">list_depth</span><span class="p">,</span> <span class="n">is_valid_token_address</span><span class="p">,</span> <span class="n">sys_exit</span><span class="p">,</span> <span class="n">is_hex</span><span class="p">,</span> <span class="n">is_valid_tx_hash</span>
@@ -108,6 +111,8 @@
 <span class="kn">from</span> <span class="nn">pawnlib.output</span> <span class="kn">import</span> <span class="n">pretty_json</span><span class="p">,</span> <span class="n">align_text</span><span class="p">,</span> <span class="n">get_file_extension</span><span class="p">,</span> <span class="n">is_directory</span><span class="p">,</span> <span class="n">is_file</span>
 <span class="kn">from</span> <span class="nn">pawnlib.utils.in_memory_zip</span> <span class="kn">import</span> <span class="n">gen_deploy_data_content</span>
 <span class="kn">from</span> <span class="nn">websocket</span> <span class="kn">import</span> <span class="n">create_connection</span><span class="p">,</span> <span class="n">WebSocket</span><span class="p">,</span> <span class="n">enableTrace</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">pawnlib.utils</span> <span class="kn">import</span> <span class="n">icx_signer</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -320,7 +325,7 @@
 
 <div class="viewcode-block" id="NetworkInfo"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.NetworkInfo">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">NetworkInfo</span><span class="p">:</span>
-    <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mainnet&quot;</span>
+    <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">platform</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;icon&quot;</span>
     <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">network_api</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -486,10 +491,29 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span></div>
 
+<div class="viewcode-block" id="NetworkInfo.fetch_network_info"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.NetworkInfo.fetch_network_info">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_network_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mandatory_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;platform&quot;</span><span class="p">,</span> <span class="s2">&quot;nid&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_api</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Try fetching network info&quot;</span><span class="p">)</span>
+                <span class="n">api_url</span> <span class="o">=</span> <span class="n">append_http</span><span class="p">(</span><span class="n">append_api_v3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_api</span><span class="p">))</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">IconRpcHelper</span><span class="p">()</span><span class="o">.</span><span class="n">rpc_call</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">api_url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;icx_getNetworkInfo&quot;</span><span class="p">,</span> <span class="n">return_key</span><span class="o">=</span><span class="s2">&quot;result&quot;</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mandatory_keys</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+                <span class="n">platform_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_platform_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">platform_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;symbol&#39;</span><span class="p">,</span> <span class="s1">&#39;Unknown&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]Exception:[/red] </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
     <span class="k">def</span> <span class="nf">_extract_network_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mandatory_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;platform&quot;</span><span class="p">,</span> <span class="s2">&quot;network_api&quot;</span><span class="p">,</span> <span class="s2">&quot;nid&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">nid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fetch_network_info</span><span class="p">()</span>
         <span class="n">_static_network_info</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;_platform_info&#39;</span><span class="p">,</span> <span class="s1">&#39;static_values&#39;</span><span class="p">,</span> <span class="s1">&#39;network_info&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;_platform_info&#39;</span><span class="p">,</span> <span class="s1">&#39;static_values&#39;</span><span class="p">,</span> <span class="s1">&#39;network_info&#39;</span><span class="p">])</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mandatory_keys</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">_static_network_info</span>
 
@@ -552,6 +576,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_category</span> <span class="o">=</span> <span class="n">category</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_method</span> <span class="o">=</span> <span class="n">method</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params_hint</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_rpc</span><span class="p">()</span>
 
 <div class="viewcode-block" id="IconRpcTemplates.update_template"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.update_template">[docs]</a>    <span class="k">def</span> <span class="nf">update_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_template</span><span class="p">):</span>
@@ -606,6 +631,10 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Template Error] Required method -&gt;  category=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_category</span><span class="si">}</span><span class="s2">, method=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">_arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">_arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params_hint&#39;</span><span class="p">,</span> <span class="s2">&quot;__NOT_DEFINED__&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;__NOT_DEFINED__&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_params_hint</span> <span class="o">=</span> <span class="n">_arguments</span><span class="p">[</span><span class="s1">&#39;params_hint&#39;</span><span class="p">]</span>
+                    <span class="k">del</span> <span class="n">_arguments</span><span class="p">[</span><span class="s1">&#39;params_hint&#39;</span><span class="p">]</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">return_rpc</span> <span class="o">=</span> <span class="n">json_rpc</span><span class="p">(</span><span class="o">**</span><span class="n">_arguments</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_method</span> <span class="o">=</span> <span class="n">_arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="p">)</span>
@@ -616,11 +645,15 @@
         <span class="k">return</span> <span class="p">{}</span></div>
 
 <div class="viewcode-block" id="IconRpcTemplates.get_required_params"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.get_required_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_required_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span></div>
+
+<div class="viewcode-block" id="IconRpcTemplates.get_params_hint"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcTemplates.get_params_hint">[docs]</a>    <span class="k">def</span> <span class="nf">get_params_hint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params_hint</span></div></div>
 
 
 <div class="viewcode-block" id="IconRpcHelper"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper">[docs]</a><span class="k">class</span> <span class="nc">IconRpcHelper</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">wallet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">network_info</span><span class="p">:</span> <span class="n">NetworkInfo</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">raise_on_failure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">required_sign_methods</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">wallet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">network_info</span><span class="p">:</span> <span class="n">NetworkInfo</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">raise_on_failure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">required_sign_methods</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wait_sleep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">tx_method</span><span class="o">=</span><span class="s2">&quot;icx_getTransactionResult&quot;</span><span class="p">,</span>   <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wallet</span> <span class="o">=</span> <span class="n">wallet</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">governance_address</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">request_payload</span> <span class="o">=</span> <span class="kc">None</span>
@@ -628,6 +661,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span> <span class="o">=</span> <span class="n">network_info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raise_on_failure</span> <span class="o">=</span> <span class="n">raise_on_failure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait_sleep</span> <span class="o">=</span> <span class="n">wait_sleep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tx_method</span> <span class="o">=</span> <span class="n">tx_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
         <span class="k">if</span> <span class="n">required_sign_methods</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">required_sign_methods</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">required_sign_methods</span> <span class="o">=</span> <span class="n">required_sign_methods</span>
         <span class="k">else</span><span class="p">:</span>
@@ -646,13 +683,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_use_global_request_payload</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">global_request_payload</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">score_api</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elapsed_stack</span> <span class="o">=</span> <span class="n">StackList</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timing_stack</span> <span class="o">=</span> <span class="n">StackList</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;stepLimit&quot;</span><span class="p">:</span> <span class="nb">hex</span><span class="p">(</span><span class="mi">2500000</span><span class="p">)</span>
         <span class="p">}</span>
 
 <div class="viewcode-block" id="IconRpcHelper.initialize"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># self._set_governance_address()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_governance_address</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="p">:</span>
             <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -667,11 +708,25 @@
 
     <span class="k">def</span> <span class="nf">_set_governance_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">governance_address</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;havah&quot;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">method</span> <span class="ow">and</span> <span class="n">method</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;get&quot;</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">governance_address</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">CHAIN_SCORE_ADDRESS</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;havah&quot;</span> <span class="ow">and</span> <span class="n">method</span> <span class="ow">and</span> <span class="n">method</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;get&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">governance_address</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">CHAIN_SCORE_ADDRESS</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">governance_address</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">GOVERNANCE_ADDRESS</span>
+
+        <span class="c1"># If governance_address is still not set, default to GOVERNANCE_ADDRESS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">governance_address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">governance_address</span> <span class="ow">or</span> <span class="n">const</span><span class="o">.</span><span class="n">CHAIN_SCORE_ADDRESS</span>
+
+    <span class="k">def</span> <span class="nf">_set_governance_address_with_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="n">rpc_api_methods</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;havah&quot;</span><span class="p">:</span>
+            <span class="n">rpc_api_methods</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">HAVAH_METHODS</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;icon&quot;</span><span class="p">:</span>
+            <span class="n">rpc_api_methods</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">ICON_METHODS</span>
+
+        <span class="k">if</span> <span class="n">rpc_api_methods</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">score_address</span><span class="p">,</span> <span class="n">score_methods</span> <span class="ow">in</span> <span class="n">rpc_api_methods</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">score_methods</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">governance_address</span> <span class="o">=</span> <span class="n">score_address</span>
 
     <span class="k">def</span> <span class="nf">_decorator_enforce_kwargs</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">from_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -719,6 +774,7 @@
                  <span class="n">reset_error</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">raise_on_failure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">store_request_payload</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">return_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">http_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="s2">&quot;delete&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;post&#39;</span><span class="p">,</span>
                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">url</span><span class="p">:</span>
@@ -752,7 +808,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">on_error</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">print_error_message</span><span class="p">(</span><span class="n">print_error</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">)</span></div>
+        <span class="c1"># pawn.console.log(self.response.get(&#39;elapsed&#39;), self.response.get(&#39;timing&#39;))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elapsed_stack</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;elapsed&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timing_stack</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timing&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_response_with_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">),</span> <span class="n">return_key</span><span class="o">=</span><span class="n">return_key</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IconRpcHelper.get_elapsed"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_elapsed">[docs]</a>    <span class="k">def</span> <span class="nf">get_elapsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;elapsed&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;elapsed&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elapsed_stack</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;timing&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_stack</span></div>
+
+<div class="viewcode-block" id="IconRpcHelper.get_total_elapsed"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_total_elapsed">[docs]</a>    <span class="k">def</span> <span class="nf">get_total_elapsed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IconRpcHelper.print_error_message"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.print_error_message">[docs]</a>    <span class="k">def</span> <span class="nf">print_error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">print_error</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">print_error</span><span class="p">:</span>
@@ -788,7 +856,7 @@
             <span class="n">params</span><span class="o">=</span><span class="n">params</span>
         <span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_is_signable_governance_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_is_signable_governance_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># if self.network_info.platform == &quot;havah&quot; or self.network_info.platform == &quot;icon&quot; and method:</span>
         <span class="k">if</span> <span class="n">method</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">required_sign_method</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_sign_methods</span><span class="p">:</span>
@@ -797,7 +865,7 @@
                     <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="IconRpcHelper.create_governance_payload"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.create_governance_payload">[docs]</a>    <span class="k">def</span> <span class="nf">create_governance_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="IconRpcHelper.create_governance_payload"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.create_governance_payload">[docs]</a>    <span class="k">def</span> <span class="nf">create_governance_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_can_be_signed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_can_be_signed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_signable_governance_method</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
@@ -820,11 +888,11 @@
         <span class="k">return</span> <span class="n">_request_payload</span></div>
 
 <div class="viewcode-block" id="IconRpcHelper.governance_call"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.governance_call">[docs]</a>    <span class="k">def</span> <span class="nf">governance_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{},</span> <span class="n">governance_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                        <span class="n">sign</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">store_request_payload</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;0x0&quot;</span><span class="p">,</span> <span class="n">step_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                        <span class="n">sign</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">store_request_payload</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;0x0&quot;</span><span class="p">,</span> <span class="n">step_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_key</span><span class="o">=</span><span class="s2">&quot;result&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">governance_address</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">governance_address</span> <span class="o">=</span> <span class="n">governance_address</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_governance_address</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_governance_address_with_const</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">sign</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_can_be_signed</span> <span class="o">=</span> <span class="n">sign</span>
@@ -843,8 +911,9 @@
                 <span class="n">payload</span><span class="o">=</span><span class="n">_request_payload</span><span class="p">,</span>
                 <span class="n">print_error</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">store_request_payload</span><span class="o">=</span><span class="n">store_request_payload</span><span class="p">,</span>
+                <span class="n">return_key</span><span class="o">=</span><span class="n">return_key</span>
             <span class="p">)</span>
-            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">,</span> <span class="p">{})</span></div>
+            <span class="k">return</span> <span class="n">response</span></div>
 
 <div class="viewcode-block" id="IconRpcHelper.create_deploy_payload"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.create_deploy_payload">[docs]</a>    <span class="k">def</span> <span class="nf">create_deploy_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{},</span> <span class="n">governance_address</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">governance_address</span> <span class="o">=</span> <span class="n">governance_address</span> <span class="k">if</span> <span class="n">governance_address</span> <span class="k">else</span> <span class="n">const</span><span class="o">.</span><span class="n">CHAIN_SCORE_ADDRESS</span>
@@ -938,7 +1007,6 @@
             <span class="k">if</span> <span class="n">_tx</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;__NOT_DEFINED__&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;__NOT_DEFINED__&quot;</span><span class="p">:</span>
                 <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Remove the unnecessary &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; in payload&quot;</span><span class="p">)</span>
                 <span class="k">del</span> <span class="n">_tx</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
-
         <span class="n">estimate_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_estimate_step</span><span class="p">(</span><span class="n">tx</span><span class="o">=</span><span class="n">_tx</span><span class="p">)</span>
         <span class="n">_guess_step_kind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_guess_step_kind</span><span class="p">(</span><span class="n">tx</span><span class="o">=</span><span class="n">_tx</span><span class="p">)</span>
         <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;guess step_kind = </span><span class="si">{</span><span class="n">_guess_step_kind</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -997,7 +1065,7 @@
         <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;step_limit = </span><span class="si">{</span><span class="n">step_limit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fee</span></div>
 
-<div class="viewcode-block" id="IconRpcHelper.get_score_api"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_score_api">[docs]</a>    <span class="k">def</span> <span class="nf">get_score_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="IconRpcHelper.get_score_api"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_score_api">[docs]</a>    <span class="k">def</span> <span class="nf">get_score_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_token_address</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;cx&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid token address - </span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -1011,16 +1079,31 @@
         <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
-            <span class="k">return</span> <span class="mi">0</span>
-
-        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">,</span> <span class="p">[])</span></div>
 
 <div class="viewcode-block" id="IconRpcHelper.name_to_params"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.name_to_params">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">name_to_params</span><span class="p">(</span><span class="n">list_data</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span> <span class="s2">&quot;&quot;</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">list_data</span><span class="p">}</span></div>
 
-    <span class="k">def</span> <span class="nf">_convert_score_api_to_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">address</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+<div class="viewcode-block" id="IconRpcHelper.make_params_hint"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.make_params_hint">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">make_params_hint</span><span class="p">(</span><span class="n">list_data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">list_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="n">formatted_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">list_data</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="n">data_type</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">formatted_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="n">formatted_data</span></div>
+
+    <span class="k">def</span> <span class="nf">_convert_score_api_to_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">address</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">return_method_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">return_method_only</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+
         <span class="k">for</span> <span class="n">_input</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;function&quot;</span><span class="p">:</span>
                 <span class="k">continue</span>
@@ -1028,29 +1111,33 @@
             <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;icx_call&quot;</span> <span class="k">if</span> <span class="n">_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;readonly&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;0x1&quot;</span> <span class="k">else</span> <span class="s2">&quot;icx_sendTransaction&quot;</span>
             <span class="n">score_method</span> <span class="o">=</span> <span class="n">_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
 
-            <span class="n">result</span><span class="p">[</span><span class="n">score_method</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-                <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
-                <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
-                    <span class="n">dataType</span><span class="o">=</span><span class="s2">&quot;call&quot;</span><span class="p">,</span>
-                    <span class="n">to</span><span class="o">=</span><span class="n">address</span><span class="p">,</span>
-                    <span class="n">data</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
-                        <span class="n">method</span><span class="o">=</span><span class="n">score_method</span><span class="p">,</span>
-                        <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name_to_params</span><span class="p">(</span><span class="n">_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inputs&#39;</span><span class="p">))</span>
-                    <span class="p">)</span>
+            <span class="k">if</span> <span class="n">return_method_only</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score_method</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">score_method</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                    <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                        <span class="n">dataType</span><span class="o">=</span><span class="s2">&quot;call&quot;</span><span class="p">,</span>
+                        <span class="n">to</span><span class="o">=</span><span class="n">address</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                            <span class="n">method</span><span class="o">=</span><span class="n">score_method</span><span class="p">,</span>
+                            <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name_to_params</span><span class="p">(</span><span class="n">_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inputs&#39;</span><span class="p">))</span>
+                        <span class="p">)</span>
+                    <span class="p">),</span>
+                    <span class="n">params_hint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">make_params_hint</span><span class="p">(</span><span class="n">_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inputs&#39;</span><span class="p">))</span>
                 <span class="p">)</span>
-            <span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;icx_sendTransaction&quot;</span> <span class="ow">and</span> <span class="n">_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;payable&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;0x1&quot;</span><span class="p">:</span>
-                <span class="n">result</span><span class="p">[</span><span class="n">score_method</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0x0&quot;</span>
+                <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;icx_sendTransaction&quot;</span> <span class="ow">and</span> <span class="n">_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;payable&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;0x1&quot;</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">score_method</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0x0&quot;</span>
             <span class="c1"># pawn.console.log(f&quot;{_input.get(&#39;type&#39;)} {score_method} , {_input.get(&#39;inputs&#39;)}, {_input.get(&#39;readonly&#39;)}&quot;)</span>
         <span class="k">return</span> <span class="n">result</span>
 
-<div class="viewcode-block" id="IconRpcHelper.get_governance_api"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_governance_api">[docs]</a>    <span class="k">def</span> <span class="nf">get_governance_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="IconRpcHelper.get_governance_api"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_governance_api">[docs]</a>    <span class="k">def</span> <span class="nf">get_governance_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_method_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">score_api</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="p">[</span><span class="n">const</span><span class="o">.</span><span class="n">GOVERNANCE_ADDRESS</span><span class="p">,</span> <span class="n">const</span><span class="o">.</span><span class="n">CHAIN_SCORE_ADDRESS</span><span class="p">]:</span>
             <span class="n">_api_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_score_api</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">_api_result</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">score_api</span><span class="p">[</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_score_api_to_params</span><span class="p">(</span><span class="n">_api_result</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_api</span><span class="p">[</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_score_api_to_params</span><span class="p">(</span><span class="n">_api_result</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">,</span> <span class="n">return_method_only</span><span class="o">=</span><span class="n">return_method_only</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_api</span></div>
 
@@ -1073,6 +1160,53 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid token address - </span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="IconRpcHelper.analyze_tx_block_time"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.analyze_tx_block_time">[docs]</a>    <span class="k">def</span> <span class="nf">analyze_tx_block_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction</span><span class="p">):</span>
+        <span class="c1"># transaction = self.get_tx(tx_hash, return_key=&quot;result&quot;)</span>
+        <span class="c1"># pawn.console.log(transaction)</span>
+        <span class="n">tx_timestamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">transaction</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="n">block_height</span> <span class="o">=</span> <span class="n">transaction</span><span class="p">[</span><span class="s1">&#39;blockHeight&#39;</span><span class="p">]</span>
+        <span class="n">block_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_block</span><span class="p">(</span><span class="n">block_height</span><span class="p">,</span> <span class="n">return_key</span><span class="o">=</span><span class="s2">&quot;result.time_stamp&quot;</span><span class="p">)</span>
+
+        <span class="c1"># pawn.console.log(f&quot;diff_time={(tx_timestamp-block_timestamp)/1_000_000}&quot;)</span>
+        <span class="n">elapsed_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">tx_timestamp</span><span class="o">-</span><span class="n">block_timestamp</span><span class="p">)</span><span class="o">/</span><span class="mi">1_000_000</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="c1"># &quot;tx_hash&quot;: tx_hash,</span>
+            <span class="s2">&quot;tx_timestamp&quot;</span><span class="p">:</span> <span class="n">tx_timestamp</span><span class="p">,</span>
+            <span class="s2">&quot;block_height&quot;</span><span class="p">:</span> <span class="n">block_height</span><span class="p">,</span>
+            <span class="s2">&quot;block_timestamp&quot;</span><span class="p">:</span> <span class="n">block_timestamp</span><span class="p">,</span>
+            <span class="s2">&quot;elapsed_time&quot;</span><span class="p">:</span> <span class="n">elapsed_time</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="IconRpcHelper.get_block"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_block">[docs]</a>    <span class="k">def</span> <span class="nf">get_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">block_height</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="s2">&quot;Required block_height for get_block()&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_int</span><span class="p">(</span><span class="n">block_height</span><span class="p">):</span>
+            <span class="n">_block_height</span> <span class="o">=</span> <span class="nb">hex</span><span class="p">(</span><span class="n">block_height</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">is_hex</span><span class="p">(</span><span class="n">block_height</span><span class="p">):</span>
+            <span class="n">_block_height</span> <span class="o">=</span> <span class="n">block_height</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_call</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;icx_getBlockByHeight&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">_block_height</span><span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">return_key</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">FlatDict</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">return_key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IconRpcHelper.handle_response_with_key"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.handle_response_with_key">[docs]</a>    <span class="k">def</span> <span class="nf">handle_response_with_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">return_key</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">FlatDict</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">return_key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="IconRpcHelper.get_tx"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_tx">[docs]</a>    <span class="k">def</span> <span class="nf">get_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">tx_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="n">return_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">tx_hash</span><span class="p">:</span>
             <span class="n">tx_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_tx_hash</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">)</span>
@@ -1081,7 +1215,8 @@
 
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_call</span><span class="p">(</span>
             <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
-            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;icx_getTransactionResult&quot;</span><span class="p">,</span>
+            <span class="c1"># method=&quot;icx_getTransactionResult&quot;,</span>
+            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tx_method</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;txHash&quot;</span><span class="p">:</span> <span class="n">tx_hash</span><span class="p">}</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -1090,32 +1225,56 @@
             <span class="k">return</span> <span class="n">response</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IconRpcHelper.get_tx_wait"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_tx_wait">[docs]</a>    <span class="k">def</span> <span class="nf">get_tx_wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">tx_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="n">is_compact</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="IconRpcHelper.get_tx_wait"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.get_tx_wait">[docs]</a>    <span class="k">def</span> <span class="nf">get_tx_wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">tx_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="n">is_compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_block_time</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">tx_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_tx_hash</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">tx_hash</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_error</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">_live</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pawn</span><span class="p">,</span> <span class="s2">&quot;console_status&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console_status</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pawn</span><span class="p">,</span> <span class="s2">&quot;console_status&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_transaction_loop</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">is_compact</span><span class="p">,</span> <span class="n">pawn</span><span class="o">.</span><span class="n">console_status</span><span class="p">,</span> <span class="n">is_block_time</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">&quot;[magenta] Wait for transaction to be generated.&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_transaction_loop</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">is_compact</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">is_block_time</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span></div>
+
+<div class="viewcode-block" id="IconRpcHelper.check_transaction_loop"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.check_transaction_loop">[docs]</a>    <span class="k">def</span> <span class="nf">check_transaction_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="n">is_compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_block_time</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">with</span> <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">&quot;[magenta] Wait for transaction to be generated.&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">status</span><span class="p">:</span>
-            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_transaction</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">):</span>
-                    <span class="n">text</span><span class="p">,</span> <span class="n">exit_loop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_error_response</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">):</span>
-                    <span class="n">text</span><span class="p">,</span> <span class="n">exit_loop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_success_response</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_transaction</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">):</span>
+                <span class="n">text</span><span class="p">,</span> <span class="n">exit_loop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_error_response</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">is_block_time</span><span class="p">:</span>
+                    <span class="n">block_elapsed_time</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">analyze_tx_block_time</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;elapsed_time&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&gt; &quot;</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">text</span> <span class="o">=</span> <span class="n">resp</span>
+                    <span class="n">block_elapsed_time</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">text</span><span class="p">,</span> <span class="n">exit_loop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_success_response</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">,</span> <span class="n">prefix_text</span><span class="o">=</span><span class="n">block_elapsed_time</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">resp</span>
+
+            <span class="n">wait_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;wait_callback&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">wait_callback</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">wait_callback</span><span class="p">):</span>
+                <span class="n">wait_callback</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                     <span class="n">status</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
                     <span class="n">spinner_style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="n">exit_loop</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_print_final_result</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">is_compact</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
-                    <span class="k">break</span>
-                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_error</span> <span class="ow">and</span> <span class="n">tx_hash</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_debug_trace</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">,</span> <span class="n">reset_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">exit_loop</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_print_final_result</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">is_compact</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wait_sleep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_error</span> <span class="ow">and</span> <span class="n">tx_hash</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_debug_trace</span><span class="p">(</span><span class="n">tx_hash</span><span class="p">,</span> <span class="n">reset_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">resp</span></div>
 
     <span class="k">def</span> <span class="nf">_get_tx_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">):</span>
@@ -1151,7 +1310,7 @@
         <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix_text</span><span class="si">}{</span><span class="n">exit_msg</span><span class="si">}</span><span class="s2">[white] &#39;</span><span class="si">{</span><span class="n">_error_message</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">return</span> <span class="n">text</span><span class="p">,</span> <span class="n">exit_loop</span>
 
-    <span class="k">def</span> <span class="nf">_handle_success_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resp</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_handle_success_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resp</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">tx_hash</span><span class="p">,</span> <span class="n">prefix_text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;logsBloom&#39;</span><span class="p">):</span>
             <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">][</span><span class="s1">&#39;logsBloom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">resp</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">][</span><span class="s1">&#39;logsBloom&#39;</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;failure&#39;</span><span class="p">):</span>
@@ -1161,7 +1320,7 @@
             <span class="n">_resp_status</span> <span class="o">=</span> <span class="s2">&quot;[green][OK][/green]&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_error</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">exit_loop</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">prefix_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[cyan][Wait TX][</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">][/cyan] Check a transaction by [i cyan]</span><span class="si">{</span><span class="n">tx_hash</span><span class="si">}</span><span class="s2">[/i cyan] &quot;</span>
+        <span class="n">prefix_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[cyan][Wait TX][</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">][/cyan] </span><span class="si">{</span><span class="n">prefix_text</span><span class="si">}</span><span class="s2">Check a transaction by [i cyan]</span><span class="si">{</span><span class="n">tx_hash</span><span class="si">}</span><span class="s2">[/i cyan] &quot;</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">align_text</span><span class="p">(</span><span class="n">prefix_text</span><span class="p">,</span> <span class="n">_resp_status</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">text</span><span class="p">,</span> <span class="n">exit_loop</span>
 
@@ -1295,14 +1454,14 @@
                 <span class="n">sys_exit</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">exception</span></div>
 
-<div class="viewcode-block" id="IconRpcHelper.sign_send"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.sign_send">[docs]</a>    <span class="k">def</span> <span class="nf">sign_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_compact</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IconRpcHelper.sign_send"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.IconRpcHelper.sign_send">[docs]</a>    <span class="k">def</span> <span class="nf">sign_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_compact</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_block_time</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">signed_tx</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_call</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">signed_tx</span><span class="p">,</span> <span class="n">print_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">is_wait</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">response</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">):</span>
-                <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tx_wait</span><span class="p">(</span><span class="n">tx_hash</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">],</span> <span class="n">is_compact</span><span class="o">=</span><span class="n">is_compact</span><span class="p">)</span>
+                <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tx_wait</span><span class="p">(</span><span class="n">tx_hash</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">],</span> <span class="n">is_compact</span><span class="o">=</span><span class="n">is_compact</span><span class="p">,</span> <span class="n">is_block_time</span><span class="o">=</span><span class="n">is_block_time</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">resp</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Required signed transaction&quot;</span><span class="p">)</span></div>
@@ -1372,7 +1531,7 @@
 
 <div class="viewcode-block" id="append_api_v3"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.append_api_v3">[docs]</a><span class="k">def</span> <span class="nf">append_api_v3</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
     <span class="k">if</span> <span class="s2">&quot;/api/v3&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">/api/v3&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/api/v3&quot;</span>
     <span class="k">return</span> <span class="n">append_http</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></div>
 
 
@@ -1513,11 +1672,13 @@
                  <span class="n">payload</span><span class="o">=</span><span class="p">{},</span>
                  <span class="n">timeout</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span>
                  <span class="n">ignore_ssl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">verify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
                  <span class="n">success_criteria</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;__DEFAULT__&quot;</span><span class="p">,</span>
                  <span class="n">success_operator</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;and&quot;</span><span class="p">,</span> <span class="s2">&quot;or&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;and&quot;</span><span class="p">,</span>
                  <span class="n">success_syntax</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;operator&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
                  <span class="n">raise_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+
                  <span class="n">auto_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span>
                  <span class="p">):</span>
@@ -1527,6 +1688,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span> <span class="o">/</span> <span class="mi">1000</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_ssl</span> <span class="o">=</span> <span class="n">ignore_ssl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verify</span> <span class="o">=</span> <span class="n">verify</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_ssl</span><span class="p">:</span>
+            <span class="n">disable_ssl_warnings</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
 
         <span class="n">_default_criteria</span> <span class="o">=</span> <span class="p">[</span><span class="n">AllowsKey</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="mi">399</span><span class="p">]</span>
@@ -1640,9 +1806,9 @@
 
             <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">requests</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;get&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_failure</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
@@ -1888,6 +2054,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">http_url</span> <span class="o">=</span> <span class="n">append_http</span><span class="p">(</span><span class="n">connect_url</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status_console</span> <span class="o">=</span> <span class="n">Null</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_use_status_console</span> <span class="o">=</span> <span class="n">use_status_console</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc_helper</span> <span class="o">=</span> <span class="n">IconRpcHelper</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">http_url</span><span class="si">}</span><span class="s2">/api/v3&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_ws</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1895,10 +2062,17 @@
             <span class="n">enableTrace</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CallWebsocket.connect_websocket"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.CallWebsocket.connect_websocket">[docs]</a>    <span class="k">def</span> <span class="nf">connect_websocket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ws</span> <span class="o">=</span> <span class="n">create_connection</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ws_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">api_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="n">sslopt</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cert_reqs&quot;</span><span class="p">:</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_NONE</span><span class="p">})</span>
+        <span class="n">parsed_url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ws_url</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">parsed_url</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">_ws_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ws_url</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_ws_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ws_url</span><span class="si">}{</span><span class="n">api_url</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ws</span> <span class="o">=</span> <span class="n">create_connection</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_ws_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="n">sslopt</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cert_reqs&quot;</span><span class="p">:</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_NONE</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ws</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CallWebsocket.run"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.CallWebsocket.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;api/v3/icon_dex/block&quot;</span><span class="p">,</span> <span class="n">status_console</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="CallWebsocket.run"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.CallWebsocket.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;/api/v3/icon_dex/block&quot;</span><span class="p">,</span> <span class="n">status_console</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connect_websocket</span><span class="p">(</span><span class="n">api_url</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_status_console</span> <span class="ow">or</span> <span class="n">status_console</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">&quot;Call WebSocket&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_console</span><span class="p">:</span>
@@ -1926,6 +2100,7 @@
                  <span class="n">sec_thresholds</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                  <span class="n">monitoring_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ignore_ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">network_info</span><span class="p">:</span> <span class="n">NetworkInfo</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">connect_url</span> <span class="o">=</span> <span class="n">connect_url</span>
@@ -1945,6 +2120,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tx_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tx_timestamp</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tx_timestamp_dt</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preps_info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span> <span class="o">=</span> <span class="n">network_info</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">blockheight_now</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -1968,7 +2145,14 @@
 <div class="viewcode-block" id="GoloopWebsocket.request_blockheight_callback"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.request_blockheight_callback">[docs]</a>    <span class="k">def</span> <span class="nf">request_blockheight_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blockheight</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">blockheight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_last_blockheight</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">blockheight</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to retrieve the block height. blockheight: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blockheight</span><span class="si">}</span><span class="s2">,  response: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_response_content</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call request_blockheight_callback - blockheight: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blockheight</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fetch_and_store_preps_info</span><span class="p">()</span>
+
         <span class="n">send_data</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="nb">hex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blockheight</span><span class="p">)</span>
         <span class="p">}</span>
@@ -1980,20 +2164,17 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">keys_exists</span><span class="p">(</span><span class="n">dict_items</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
+
 <div class="viewcode-block" id="GoloopWebsocket.parse_transfer_tx"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.parse_transfer_tx">[docs]</a>    <span class="k">def</span> <span class="nf">parse_transfer_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confirmed_transaction_list</span><span class="o">=</span><span class="p">[]):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">confirmed_transaction_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">transaction</span> <span class="ow">in</span> <span class="n">confirmed_transaction_list</span><span class="p">:</span>
-                <span class="n">_from</span> <span class="o">=</span> <span class="n">shorten_text</span><span class="p">(</span><span class="n">transaction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;to&#39;</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shorten_middle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">_to</span> <span class="o">=</span> <span class="n">shorten_text</span><span class="p">(</span><span class="n">transaction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;from&#39;</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shorten_middle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">_from</span> <span class="o">=</span> <span class="n">shorten_text</span><span class="p">(</span><span class="n">transaction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;from&#39;</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shorten_middle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">_to</span> <span class="o">=</span> <span class="n">shorten_text</span><span class="p">(</span><span class="n">transaction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;to&#39;</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shorten_middle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="n">_value</span> <span class="o">=</span> <span class="n">transaction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">_from</span> <span class="ow">and</span> <span class="n">_to</span>  <span class="ow">and</span> <span class="n">_value</span><span class="p">:</span>
-                <span class="c1"># if self._multiple_keys_exists(transaction, &quot;to&quot;, &quot;from&quot;):</span>
                     <span class="n">_value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_value</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">TINT</span>
-                    <span class="k">if</span> <span class="n">_value</span> <span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
-                        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[TRANSFER] </span><span class="si">{</span><span class="n">_from</span><span class="si">}</span><span class="s2"> 👉 </span><span class="si">{</span><span class="n">_to</span><span class="si">}</span><span class="s2"> 💰 </span><span class="si">{</span><span class="n">_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-                        <span class="c1"># pawn.console.log(transaction)</span>
-                    <span class="c1"># else:</span>
-                    <span class="c1">#     pawn.console.log(transaction)</span>
+                    <span class="k">if</span> <span class="n">_value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[TRANSFER] </span><span class="si">{</span><span class="n">_from</span><span class="si">}</span><span class="s2"> 👉 </span><span class="si">{</span><span class="n">_to</span><span class="si">}</span><span class="s2"> 💰 </span><span class="si">{</span><span class="n">_value</span><span class="si">}</span><span class="s2"> ICX&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GoloopWebsocket.parse_blockheight"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.parse_blockheight">[docs]</a>    <span class="k">def</span> <span class="nf">parse_blockheight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">response_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
@@ -2001,24 +2182,34 @@
 
         <span class="k">if</span> <span class="n">response_json</span> <span class="ow">and</span> <span class="n">response_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hash&#39;</span><span class="p">):</span>
             <span class="n">hash_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_block_hash</span><span class="p">(</span><span class="n">response_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hash&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">hash_result</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">hash_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;confirmed_transaction_list&#39;</span><span class="p">):</span>
+                <span class="k">return</span>
+
             <span class="n">confirmed_transaction_list</span> <span class="o">=</span> <span class="n">hash_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;confirmed_transaction_list&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">confirmed_transaction_list</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">parse_transfer_tx</span><span class="p">(</span><span class="n">confirmed_transaction_list</span><span class="p">)</span>
 
-
             <span class="bp">self</span><span class="o">.</span><span class="n">blockheight_now</span> <span class="o">=</span> <span class="n">hash_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">)</span>
             <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">LAST_EXECUTE_POINT</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">blockheight_now</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">block_timestamp</span> <span class="o">=</span> <span class="n">hash_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time_stamp&quot;</span><span class="p">)</span>
-
-            <span class="n">_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[bold][📦 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blockheight_now</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">][/bold] 📅 </span><span class="si">{</span><span class="n">date_utils</span><span class="o">.</span><span class="n">timestamp_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">block_timestamp</span><span class="p">)</span><span class="si">}</span><span class="s2">, tx_hash: </span><span class="si">{</span><span class="n">hash_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;block_hash&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_message</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">status_console</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_message</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_timestamp_prev</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">compare_diff_time</span><span class="p">[</span><span class="s1">&#39;block&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">block_timestamp_prev</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_timestamp</span><span class="p">)</span>
 
             <span class="n">tx_list</span> <span class="o">=</span> <span class="n">hash_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;confirmed_transaction_list&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tx_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tx_list</span><span class="p">)</span>
+
+            <span class="n">peer_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preps_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">hash_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;peer_id&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">peer_id</span><span class="p">:</span>
+                <span class="n">peer_name</span> <span class="o">=</span> <span class="n">shorten_text</span><span class="p">(</span><span class="n">peer_id</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;..&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">peer_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="n">_message</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[[bold dodger_blue1]📦 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blockheight_now</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">[/bold dodger_blue1]] 📅 </span><span class="si">{</span><span class="n">date_utils</span><span class="o">.</span><span class="n">timestamp_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">block_timestamp</span><span class="p">)</span><span class="si">}</span><span class="s2">, &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;tx_cnt: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tx_count</span><span class="si">}</span><span class="s2">, tx_hash: </span><span class="si">{</span><span class="n">shorten_text</span><span class="p">(</span><span class="n">hash_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;block_hash&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">width</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">placeholder</span><span class="o">=</span><span class="s1">&#39;..&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">shorten_middle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">}</span><span class="s2">, Validator: </span><span class="si">{</span><span class="n">peer_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_message</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_console</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_message</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">tx</span> <span class="ow">in</span> <span class="n">tx_list</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">tx_timestamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;0x0&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># 16진수, timestamp가 string이여야한다.</span>
@@ -2054,11 +2245,58 @@
             <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
-<div class="viewcode-block" id="GoloopWebsocket.get_last_blockheight"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.get_last_blockheight">[docs]</a>    <span class="k">def</span> <span class="nf">get_last_blockheight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="n">jequest</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">http_url</span><span class="si">}</span><span class="s2">/api/v3&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">generate_json_rpc</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;icx_getLastBlock&quot;</span><span class="p">))</span>
-        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;json&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;json&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;json&#39;</span><span class="p">][</span><span class="s1">&#39;result&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;height&#39;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="GoloopWebsocket.get_response_content"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.get_response_content">[docs]</a>    <span class="k">def</span> <span class="nf">get_response_content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc_helper</span><span class="o">.</span><span class="n">response</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GoloopWebsocket.get_last_blockheight"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.get_last_blockheight">[docs]</a>    <span class="k">def</span> <span class="nf">get_last_blockheight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_rpc_call</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;icx_getLastBlock&#39;</span><span class="p">,</span> <span class="n">return_key</span><span class="o">=</span><span class="s2">&quot;result.height&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GoloopWebsocket.get_preps"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.get_preps">[docs]</a>    <span class="k">def</span> <span class="nf">get_preps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_rpc_call</span><span class="p">(</span><span class="n">governance_address</span><span class="o">=</span><span class="n">const</span><span class="o">.</span><span class="n">CHAIN_SCORE_ADDRESS</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;getPReps&#39;</span><span class="p">,</span> <span class="n">return_key</span><span class="o">=</span><span class="s2">&quot;result.preps&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GoloopWebsocket.get_validator_info"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.get_validator_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_validator_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_rpc_call</span><span class="p">(</span>
+            <span class="n">governance_address</span><span class="o">=</span><span class="n">const</span><span class="o">.</span><span class="n">CHAIN_SCORE_ADDRESS</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="s1">&#39;getValidatorsInfo&#39;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataType&quot;</span><span class="p">:</span> <span class="s2">&quot;all&quot;</span><span class="p">},</span>
+            <span class="n">return_key</span><span class="o">=</span><span class="s2">&quot;result.validators&quot;</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="GoloopWebsocket.fetch_and_store_preps_info"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.fetch_and_store_preps_info">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_and_store_preps_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">platform_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="p">,</span> <span class="s2">&quot;platform&quot;</span><span class="p">,</span> <span class="s2">&quot;icon&quot;</span><span class="p">)</span>
+
+            <span class="n">platform_methods</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;icon&quot;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_preps</span><span class="p">,</span> <span class="s2">&quot;nodeAddress&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;havah&quot;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_validator_info</span><span class="p">,</span> <span class="s2">&quot;node&quot;</span><span class="p">)</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">platform_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">platform_methods</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported platform&quot;</span><span class="p">)</span>
+
+            <span class="n">fetch_method</span><span class="p">,</span> <span class="n">key_name</span> <span class="o">=</span> <span class="n">platform_methods</span><span class="p">[</span><span class="n">platform_name</span><span class="p">]</span>
+
+            <span class="n">preps_list</span> <span class="o">=</span> <span class="n">fetch_method</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">prep</span> <span class="ow">in</span> <span class="n">preps_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prep</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key_name</span> <span class="ow">in</span> <span class="n">prep</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">preps_info</span><span class="p">[</span><span class="n">prep</span><span class="p">[</span><span class="n">key_name</span><span class="p">]]</span> <span class="o">=</span> <span class="n">prep</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">error</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GoloopWebsocket.execute_rpc_call"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.execute_rpc_call">[docs]</a>    <span class="k">def</span> <span class="nf">execute_rpc_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{},</span><span class="n">return_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">governance_address</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">governance_address</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc_helper</span><span class="o">.</span><span class="n">governance_call</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">governance_address</span><span class="o">=</span><span class="n">governance_address</span><span class="p">,</span> <span class="n">return_key</span><span class="o">=</span><span class="n">return_key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc_helper</span><span class="o">.</span><span class="n">rpc_call</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">return_key</span><span class="o">=</span><span class="n">return_key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[yellow]\[warn][/yellow] Response  is None. method=&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;return_key=&#39;</span><span class="si">{</span><span class="n">return_key</span><span class="si">}</span><span class="s2">&#39;, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_response_content</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">response</span></div>
 
 <div class="viewcode-block" id="GoloopWebsocket.get_block_hash"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.http.GoloopWebsocket.get_block_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_block_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">):</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">jequest</span><span class="p">(</span>
