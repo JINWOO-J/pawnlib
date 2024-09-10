@@ -1635,7 +1635,7 @@ def create_kv_table(padding=0, key_ratio=2, value_ratio=7, overflow="fold"):
     table = Table(
         padding=padding,
         pad_edge=False,
-        expand=True,
+        expand=True,  # 테이블이 전체 화면에 맞춰 늘어나도록 설정
         show_header=False,
         show_footer=False,
         show_edge=False,
@@ -1645,11 +1645,10 @@ def create_kv_table(padding=0, key_ratio=2, value_ratio=7, overflow="fold"):
 
     table.add_column("Key", no_wrap=False, justify="left", style="bold yellow", min_width=padding, ratio=key_ratio, overflow=overflow)
     table.add_column("Separator", no_wrap=False, justify="left", width=3)
-    table.add_column("Value", no_wrap=True, justify="left", ratio=value_ratio, max_width=50, overflow=overflow)
+    table.add_column("Value", no_wrap=False, justify="left", ratio=value_ratio, max_width=None, overflow=overflow)  # max_width 제한 해제
     table.add_column("Debug Info", justify="right", style="grey84")
 
     return table
-
 
 # def get_pretty_value(value):
 #     if isinstance(value, (dict, list)):
@@ -1662,9 +1661,10 @@ def create_kv_table(padding=0, key_ratio=2, value_ratio=7, overflow="fold"):
 #         return value
 
 
-def get_pretty_value(value):
+def get_pretty_value(value, is_force_syntax=False):
     if isinstance(value, (dict, list)):
-        pawn.console.log(value)
+        if is_force_syntax:
+            return Syntax(json.dumps(value, indent=4), "json", theme="material", line_numbers=False)
         pretty_value = Pretty(value, expand_all=True)
         with pawn.console.capture() as capture:
             pawn.console.print(pretty_value)
@@ -1679,7 +1679,7 @@ def get_pretty_value(value):
         return value
 
 
-def print_kv(key="", value="", symbol="░",  separator=":", padding=1, key_ratio=1, value_ratio=7):
+def print_kv(key="", value="", symbol="░",  separator=":", padding=1, key_ratio=1, value_ratio=7, is_force_syntax=True):
     """
     Print a key-value pair with a symbol, padding, and value size information.
 
@@ -1690,6 +1690,7 @@ def print_kv(key="", value="", symbol="░",  separator=":", padding=1, key_rati
     :param padding: The padding between columns. Defaults to 5.
     :param key_ratio: The ratio of the table width allocated for keys. Defaults to 1z.
     :param value_ratio: The ratio of the table width allocated for values. Defaults to 7.
+    :param is_force_syntax: Force the use of Syntax rendering for dictionaries/lists.
 
     Example:
 
@@ -1705,8 +1706,19 @@ def print_kv(key="", value="", symbol="░",  separator=":", padding=1, key_rati
 
     """
     table = create_kv_table(padding=padding, key_ratio=key_ratio, value_ratio=value_ratio)
-    value_info = f"{type(value).__name__}[bright_black]({converter.get_value_size(value)})[/bright_black]"
-    table.add_row(f"{symbol} {key}", f"[grey69] {separator} [/grey69]", get_pretty_value(value), value_info)
+    if value:
+        value_info = f"{type(value).__name__}[bright_black]({converter.get_value_size(value)})[/bright_black]"
+    else:
+        value_info = ""
+
+    if is_force_syntax and isinstance(value, (dict, list)):
+        pretty_value = Syntax(
+            json.dumps(value, indent=4), "json", theme="material", line_numbers=False, word_wrap=True, padding=1
+        )
+    else:
+        pretty_value = get_pretty_value(value, is_force_syntax)
+    table.add_row(f"{symbol} {key}", f"[grey69] {separator} [/grey69]", pretty_value, value_info)
+
     pawn.console.print(table)
 
 

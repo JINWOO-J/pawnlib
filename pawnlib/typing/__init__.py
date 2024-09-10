@@ -15,6 +15,7 @@ from .check import (
     is_valid_icon_keystore_file,
     guess_type,
     return_guess_type,
+    error_and_exit,
     sys_exit,
     is_include_list,
     detect_encoding,
