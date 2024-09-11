@@ -5,8 +5,12 @@ from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output import color_print
 from pawnlib.resource import net
 from pawnlib.typing import date_utils, shorten_text
-from pawnlib.utils import http
+from pawnlib.utils import http, disable_ssl_warnings
 import json
+import aiohttp
+import asyncio
+import time
+
 
 class TelegramBot:
     """
@@ -14,6 +18,11 @@ class TelegramBot:
 
     :param bot_token: Telegram bot token. If not provided, it will be fetched from the 'TELEGRAM_BOT_TOKEN' environment variable.
     :param chat_id: Chat ID to send messages to. If not provided, it will be fetched from the 'TELEGRAM_CHAT_ID' environment variable or determined dynamically.
+    :param verify_ssl: Whether to verify the SSL certificate for HTTPS requests. (default: True).
+    :param ignore_ssl_warning: Whether to ignore SSL warnings. If True, SSL warnings will be suppressed.
+    :param async_mode: Whether to use asynchronous mode. If False, synchronous mode will be used. (default: True)
+    :param max_retries: Maximum number of retries for 429 Too Many Requests errors. (default: 5)
+    :param retry_delay: Delay in seconds between retries for 429 Too Many Requests errors. (default: 5)
 
     :raises ValueError: If the bot token is not provided either as an argument or an environment variable.
 
@@ -21,7 +30,7 @@ class TelegramBot:
 
         .. code-block:: python
 
-            bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
+            bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id", async_mode=False)
             bot.send_message("Hello, world!")
             bot.send_html_message("<b>Hello, world!</b>")
             bot.send_plain_text_message("Just plain text.")
@@ -29,7 +38,7 @@ class TelegramBot:
 
     """
 
-    def __init__(self, bot_token=None, chat_id=None):
+    def __init__(self, bot_token=None, chat_id=None, verify_ssl=True, ignore_ssl_warning=False, async_mode=False, max_retries=5, retry_delay=5):
         self.bot_token = (bot_token or os.getenv('TELEGRAM_BOT_TOKEN', '')).strip('\'"')
         if not self.bot_token:
             raise ValueError("Telegram bot token is required. Please set it as an argument or in the 'TELEGRAM_BOT_TOKEN' environment variable.")
@@ -37,11 +46,18 @@ class TelegramBot:
         self.chat_id = chat_id
         self.api_url = f"https://api.telegram.org/bot{self.bot_token}"
         self.chat_id = (chat_id or os.getenv('TELEGRAM_CHAT_ID', '')).strip('\'"')
+        self.verify_ssl = verify_ssl
+        self.async_mode = async_mode
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
+
+        if ignore_ssl_warning:
+            disable_ssl_warnings()
 
         if not self.chat_id:
             self.chat_id = self.get_chat_id()
 
-        pawn.console.debug(f"bot_token={self.bot_token}, chat_id={self.chat_id}")
+        pawn.console.debug(f"bot_token={self.bot_token}, chat_id={self.chat_id}, async_mode={self.async_mode}")
 
     def escape_markdown(self, text):
         """
@@ -58,113 +74,140 @@ class TelegramBot:
                 escaped_text = bot.escape_markdown("Hello *world*!")
                 print(escaped_text)  # Output: Hello \*world\*!
         """
-        escape_chars = r'_*[]()~`>#+-=|{}.!'
+        # escape_chars = r'_*[]()~`>#+-=|{}.!'
+        escape_chars = r'_*[`'
         return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', str(text))
 
+    async def send_multiple_messages_async(self, messages):
+        """
+        Send multiple messages asynchronously.
+
+        :param messages: A list of messages to send.
+        :return: A list of responses from the Telegram API.
+        """
+        tasks = [self.send_auto_message_async(message) for message in messages]
+        return await asyncio.gather(*tasks)
+
+    def send_multiple_messages(self, messages):
+        """
+        Send multiple messages synchronously.
+
+        :param messages: A list of messages to send.
+        :return: A list of responses from the Telegram API.
+        """
+        if self.async_mode:
+            return asyncio.run(self.send_multiple_messages_async(messages))
+        else:
+            return [self.send_message_sync(message) for message in messages]
+
     def send_message(self, message, parse_mode="Markdown", disable_web_page_preview=False):
-        """
-        Send a message to the Telegram chat.
+        if self.async_mode:
+            # return asyncio.run(self.send_message_async(message, parse_mode, disable_web_page_preview))
+            return self.send_message_async(message, parse_mode, disable_web_page_preview)
+        else:
+            return self.send_message_sync(message, parse_mode, disable_web_page_preview)
 
-        :param message: The message to send.
-        :param parse_mode: The parse mode for the message ('MarkdownV2' or 'HTML').
-        :param disable_web_page_preview: Whether to disable web page preview.
-        :return: The response from the Telegram API if successful, None otherwise.
+    def send_message_sync(self, message, parse_mode="Markdown", disable_web_page_preview=False):
+        pawn.console.debug(f"escaped_markdown -> {self.escape_markdown(message)}")
 
-        Example:
-
-            .. code-block:: python
-
-                bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
-                response = bot.send_message("Hello, world!")
-                print(response)
-        """
         payload = {
             "chat_id": self.chat_id,
-            "text": self.escape_markdown(message) if parse_mode == "MarkdownV2" else message,
+            "text": self.escape_markdown(message) if parse_mode == "Markdown" else message,
             "parse_mode": parse_mode,
             "disable_web_page_preview": disable_web_page_preview
         }
-        response = requests.post(f"{self.api_url}/sendMessage", json=payload)
-        if response.status_code == 200:
-            return response.json()  # 성공적으로 메시지를 보낸 경우
-        else:
-            print(f"Failed to send message: {response.status_code} - {response.text}")
-            return None
+
+        retries = 0
+        while retries < self.max_retries:
+            try:
+                response = requests.post(f"{self.api_url}/sendMessage", json=payload, verify=self.verify_ssl)
+                if response.status_code == 200:
+                    return response.json()  # 성공적으로 메시지를 보낸 경우
+                elif response.status_code == 429:
+                    retries += 1
+                    pawn.console.log(f"429 Too Many Requests error. Retrying in {self.retry_delay} seconds...")
+                    time.sleep(self.retry_delay)
+                else:
+                    pawn.console.log(f"Failed to send message: {response.status_code} - {response.text}")
+                    return None
+            except requests.exceptions.RequestException as e:
+                pawn.console.log(f"Error sending message: {e}")
+                retries += 1
+                time.sleep(self.retry_delay)
+
+        pawn.console.log("Maximum number of retries reached. Failed to send message.")
+        return None
+
+    async def send_message_async(self, message, parse_mode="Markdown", disable_web_page_preview=False):
+        payload = {
+            "chat_id": self.chat_id,
+            "text": self.escape_markdown(message) if parse_mode == "Markdown" else message,
+            "parse_mode": parse_mode,
+            "disable_web_page_preview": disable_web_page_preview
+        }
+
+        retries = 0
+        while retries < self.max_retries:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(f"{self.api_url}/sendMessage", json=payload, ssl=self.verify_ssl) as response:
+                        if response.status == 200:
+                            return await response.json()  # 성공적으로 메시지를 보낸 경우
+                        elif response.status == 429:
+                            retries += 1
+                            pawn.console.log(f"429 Too Many Requests error. Retrying in {self.retry_delay} seconds...")
+                            await asyncio.sleep(self.retry_delay)
+                        else:
+                            pawn.console.log(f"Failed to send message: {response.status} - {await response.text()}")
+                            return None
+            except aiohttp.ClientError as e:
+                pawn.console.log(f"Error sending message: {e}")
+                retries += 1
+                await asyncio.sleep(self.retry_delay)
+
+        pawn.console.log("Maximum number of retries reached. Failed to send message.")
+        return None
 
     def send_html_message(self, message):
-        """
-        Send a message using HTML formatting.
-
-        :param message: The message to send.
-        :return: The response from the Telegram API if successful, None otherwise.
-
-        Example:
-
-            .. code-block:: python
-
-                bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
-                response = bot.send_html_message("<b>Hello, world!</b>")
-                print(response)
-        """
         return self.send_message(message, parse_mode="HTML")
 
+    async def send_html_message_async(self, message):
+        return await self.send_message_async(message, parse_mode="HTML")
+
     def send_plain_text_message(self, message):
-        """
-        Send a plain text message without any formatting.
-
-        :param message: The message to send.
-        :return: The response from the Telegram API if successful, None otherwise.
-
-        Example:
-
-            .. code-block:: python
-
-                bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
-                response = bot.send_plain_text_message("Just plain text.")
-                print(response)
-        """
         return self.send_message(message)
 
+    async def send_plain_text_message_async(self, message):
+        return await self.send_message_async(message)
+
     def send_dict_message(self, message_dict):
-        """
-        Send a dictionary as a JSON formatted message.
-
-        :param message_dict: The dictionary to send.
-        :return: The response from the Telegram API if successful, None otherwise.
-
-        Example:
-
-            .. code-block:: python
-
-                bot = TelegramBot(bot_token="your_bot_token", chat_id="your_chat_id")
-                response = bot.send_dict_message({"key": "value"})
-                print(response)
-        """
         message = json.dumps(message_dict, indent=2)
         return self.send_plain_text_message(message)
 
-    def get_chat_id(self):
-        """Retrieve chat_id by getting updates from the Telegram bot API"""
-        response = requests.get(f"{self.api_url}/getUpdates")
-        if response.status_code == 200:
-            data = response.json()
-            if "result" in data and len(data["result"]) > 0:
-                chat_id = data["result"][-1]["message"]["chat"]["id"]
-                pawn.console.debug(f"Retrieved chat_id: {chat_id}")
-                return chat_id
-            else:
-                raise ValueError("No messages found in bot updates to retrieve chat_id.")
-        else:
-            raise ConnectionError(f"Failed to retrieve updates: {response.status_code} - {response.text}")
+    async def send_dict_message_async(self, message_dict):
+        message = json.dumps(message_dict, indent=2)
+        return await self.send_plain_text_message_async(message)
+
+    async def get_chat_id(self):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{self.api_url}/getUpdates", ssl=self.verify_ssl) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if "result" in data and len(data["result"]) > 0:
+                        chat_id = data["result"][-1]["message"]["chat"]["id"]
+                        pawn.console.debug(f"Retrieved chat_id: {chat_id}")
+                        return chat_id
+                    else:
+                        raise ValueError("No messages found in bot updates to retrieve chat_id.")
+                else:
+                    raise ConnectionError(f"Failed to retrieve updates: {response.status} - {await response.text()}")
 
     def save_chat_id(self, chat_id_file="chat_id.txt"):
-        """Save the chat_id to a file for later use"""
         with open(chat_id_file, "w") as file:
-            file.write(str(self.chat_id))  # chat_id를 문자열로 변환하여 저장
+            file.write(str(self.chat_id))
         pawn.console.debug(f"chat_id saved to {chat_id_file}")
 
     def load_chat_id(self, chat_id_file="chat_id.txt"):
-        """Load the chat_id from a file"""
         if os.path.exists(chat_id_file):
             with open(chat_id_file, "r") as file:
                 self.chat_id = file.read().strip()
@@ -174,7 +217,6 @@ class TelegramBot:
             self.chat_id = self.get_chat_id()
 
     def send_auto_message(self, message):
-        """Automatically detect the type of message and send it appropriately"""
         if isinstance(message, dict):
             self.send_dict_message(message)
         elif isinstance(message, str):
@@ -187,8 +229,20 @@ class TelegramBot:
         else:
             raise ValueError("Unsupported message type")
 
+    async def send_auto_message_async(self, message):
+        if isinstance(message, dict):
+            await self.send_dict_message_async(message)
+        elif isinstance(message, str):
+            if self.is_html(message):
+                await self.send_html_message_async(message)
+            elif self.is_markdown(message):
+                await self.send_message_async(message, parse_mode="Markdown")
+            else:
+                await self.send_plain_text_message_async(message)
+        else:
+            raise ValueError("Unsupported message type")
+
     def is_html(self, message):
-        """Check if the string contains HTML tags"""
         return bool(re.search(r'<[^>]+>', message))
 
     def is_markdown(self, message):
