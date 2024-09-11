@@ -188,19 +188,19 @@ class TelegramBot:
         message = json.dumps(message_dict, indent=2)
         return await self.send_plain_text_message_async(message)
 
-    async def get_chat_id(self):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f"{self.api_url}/getUpdates", ssl=self.verify_ssl) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    if "result" in data and len(data["result"]) > 0:
-                        chat_id = data["result"][-1]["message"]["chat"]["id"]
-                        pawn.console.debug(f"Retrieved chat_id: {chat_id}")
-                        return chat_id
-                    else:
-                        raise ValueError("No messages found in bot updates to retrieve chat_id.")
-                else:
-                    raise ConnectionError(f"Failed to retrieve updates: {response.status} - {await response.text()}")
+    def get_chat_id(self):
+        """Retrieve chat_id by getting updates from the Telegram bot API"""
+        response = requests.get(f"{self.api_url}/getUpdates", verify=self.verify_ssl)
+        if response.status_code == 200:
+            data = response.json()
+            if "result" in data and len(data["result"]) > 0:
+                chat_id = data["result"][-1]["message"]["chat"]["id"]
+                pawn.console.debug(f"Retrieved chat_id: {chat_id}")
+                return chat_id
+            else:
+                raise ValueError("No messages found in bot updates to retrieve chat_id.")
+        else:
+            raise ConnectionError(f"Failed to retrieve updates: {response.status_code} - {response.text}")
 
     def save_chat_id(self, chat_id_file="chat_id.txt"):
         with open(chat_id_file, "w") as file:
