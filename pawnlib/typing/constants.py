@@ -1,3 +1,135 @@
+class SpecialCharacterConstants:
+    SPECIAL_CHARACTERS = r"_*[]()~`>#+-=|{}.!\\"
+    ALL_SPECIAL_CHARACTERS = r"!@#$%^&*()_+-=[]{}|;:'\",.<>?/"
+
+
+class HTTPConstants:
+    class Headers:
+        CONTENT_TYPE = "Content-Type"
+        AUTHORIZATION = "Authorization"
+        USER_AGENT = "User-Agent"
+        ACCEPT = "Accept"
+        ACCEPT_LANGUAGE = "Accept-Language"
+        CACHE_CONTROL = "Cache-Control"
+        SET_COOKIE = "Set-Cookie"
+        REFERER = "Referer"
+        ORIGIN = "Origin"
+        HOST = "Host"
+        CONNECTION = "Connection"
+
+    class MIMEType:
+        APPLICATION_JSON = "application/json"
+        APPLICATION_XML = "application/xml"
+        APPLICATION_PDF = "application/pdf"
+        APPLICATION_OCTET_STREAM = "application/octet-stream"
+
+        TEXT_PLAIN = "text/plain"
+        TEXT_HTML = "text/html"
+        TEXT_CSS = "text/css"
+        TEXT_JAVASCRIPT = "text/javascript"
+
+        IMAGE_JPEG = "image/jpeg"
+        IMAGE_PNG = "image/png"
+        IMAGE_GIF = "image/gif"
+        IMAGE_SVG = "image/svg+xml"
+
+        AUDIO_MP3 = "audio/mpeg"
+        AUDIO_WAV = "audio/wav"
+
+        VIDEO_MP4 = "video/mp4"
+        VIDEO_WEBM = "video/webm"
+
+        MULTIPART_FORM_DATA = "multipart/form-data"
+        APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded"
+
+    class HTTPStatusCodes:
+        OK = 200
+        CREATED = 201
+        ACCEPTED = 202
+        NO_CONTENT = 204
+        BAD_REQUEST = 400
+        UNAUTHORIZED = 401
+        FORBIDDEN = 403
+        NOT_FOUND = 404
+        METHOD_NOT_ALLOWED = 405
+        CONFLICT = 409
+        INTERNAL_SERVER_ERROR = 500
+        BAD_GATEWAY = 502
+        SERVICE_UNAVAILABLE = 503
+
+
+class DateFormatConstants:
+    ISO_8601 = "%Y-%m-%dT%H:%M:%S"       # Standard ISO 8601 format (e.g., 2023-09-10T14:32:00)
+    ISO_8601_WITH_MS = "%Y-%m-%dT%H:%M:%S.%f"  # ISO 8601 with milliseconds (e.g., 2023-09-10T14:32:00.123456)
+    ISO_8601_WITH_TZ = "%Y-%m-%dT%H:%M:%S%z"  # ISO 8601 with timezone (e.g., 2023-09-10T14:32:00+0200)
+
+    HUMAN_READABLE = "%A, %d %B %Y %I:%M %p"  # Human-readable format (e.g., Sunday, 10 September 2023 02:32 PM)
+    SIMPLE_DATE = "%Y-%m-%d"              # Simple date format (e.g., 2023-09-10)
+    SIMPLE_TIME = "%H:%M:%S"              # Simple time format (e.g., 14:32:00)
+    SIMPLE_DATETIME = "%Y-%m-%d %H:%M:%S"  # Simple date and time (e.g., 2023-09-10 14:32:00)
+
+    DATE_WITHOUT_YEAR = "%d-%m"           # Date without the year (e.g., 10-09)
+    TIME_WITHOUT_SECONDS = "%H:%M"        # Time without seconds (e.g., 14:32)
+
+    US_DATE = "%m/%d/%Y"                  # U.S. style date (e.g., 09/10/2023)
+    US_DATE_TIME = "%m/%d/%Y %I:%M %p"    # U.S. style date with 12-hour time (e.g., 09/10/2023 02:32 PM)
+
+    UK_DATE = "%d/%m/%Y"                  # UK style date (e.g., 10/09/2023)
+    UK_DATE_TIME = "%d/%m/%Y %H:%M:%S"    # UK style date with time (e.g., 10/09/2023 14:32:00)
+
+    # Unix Timestamp Formats
+    UNIX_TIMESTAMP_SECONDS = "%s"         # Unix timestamp (seconds since epoch)
+    UNIX_TIMESTAMP_MS = "%f"              # Unix timestamp with milliseconds
+
+    # Custom Formats
+    YEAR_ONLY = "%Y"                      # Year only (e.g., 2023)
+    MONTH_YEAR = "%B %Y"                  # Month and year (e.g., September 2023)
+    DAY_MONTH = "%d %B"                   # Day and month (e.g., 10 September)
+    TIME_12_HOUR = "%I:%M %p"             # 12-hour format time (e.g., 02:32 PM)
+    TIME_24_HOUR = "%H:%M:%S"             # 24-hour format time (e.g., 14:32:00)
+
+
+class StringConstants:
+    EMPTY_STRING = ""
+    SPACE = " "
+    UNDERSCORE = "_"
+    DASH = "-"
+    COLON = ":"
+    SEMICOLON = ";"
+    COMMA = ","
+    PERIOD = "."
+    PIPE = "|"
+    NEWLINE = "\n"
+    TAB = "\t"
+
+
+class FilePermissionConstants:
+    READ_ONLY = "r"
+    WRITE_ONLY = "w"
+    READ_WRITE = "r+"
+    APPEND = "a"
+    BINARY_READ = "rb"
+    BINARY_WRITE = "wb"
+    BINARY_READ_WRITE = "r+b"
+    BINARY_APPEND = "ab"
+
+
+class RegexPatternConstants:
+    EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    URL_PATTERN = r"^(https?|ftp)://[^\s/$.?#].[^\s]*$"
+    PHONE_PATTERN = r"^\+?1?\d{9,15}$"
+    POSTAL_CODE_PATTERN = r"^\d{5}(?:[-\s]\d{4})?$"
+    IP_ADDRESS_PATTERN = r"^(?:\d{1,3}\.){3}\d{1,3}$"
+    CREDIT_CARD_PATTERN = r"^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})$"
+    IPV6_ADDRESS_PATTERN = r"^([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)$"
+    HTML_TAG_PATTERN = r"<(\"[^\"]*\"|'[^']*'|[^'\">])*>"
+    SLUG_PATTERN = r"^[a-z0-9]+(?:-[a-z0-9]+)*$"  # Matches URL slugs (e.g., valid-slug, another-slug)
+    INTEGER_PATTERN = r"^-?\d+$" # Matches integers, both positive and negative (e.g., 123, -456)
+    FLOAT_PATTERN = r"^-?\d*(\.\d+)?$" # Matches floating point numbers, both positive and negative (e.g., 123.45, -678.90)
+    DATE_YYYY_MM_DD_PATTERN = r"^\d{4}-\d{2}-\d{2}$" # Matches date format YYYY-MM-DD (e.g., 2023-09-10)
+    TIME_HH_MM_SS_PATTERN = r"^\d{2}:\d{2}:\d{2}$" # Matches time format HH:MM:SS (e.g., 14:32:00)
+
+
 class TimeConstants:
     MINUTE_IN_SECONDS = 60
     HOUR_IN_SECONDS = 60 * MINUTE_IN_SECONDS
@@ -237,7 +369,15 @@ class YesNoConstants:
 
 
 class AllConstants(
+    SpecialCharacterConstants,
+    # HTTPStatusCodes,
+    RegexPatternConstants,
+    HTTPConstants,
+    DateFormatConstants,
+    StringConstants,
+    FilePermissionConstants,
     TimeConstants,
+    # MediaTypeConstants,
     BooleanConstants,
     NumericConstants,
     AddressConstants,

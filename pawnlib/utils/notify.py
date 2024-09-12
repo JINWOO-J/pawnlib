@@ -4,7 +4,7 @@ import requests
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output import color_print
 from pawnlib.resource import net
-from pawnlib.typing import date_utils, shorten_text
+from pawnlib.typing import date_utils, shorten_text, escape_markdown, escape_non_markdown
 from pawnlib.utils import http, disable_ssl_warnings
 import json
 import aiohttp
@@ -59,7 +59,8 @@ class TelegramBot:
 
         pawn.console.debug(f"bot_token={self.bot_token}, chat_id={self.chat_id}, async_mode={self.async_mode}")
 
-    def escape_markdown(self, text):
+    @staticmethod
+    def escape_markdown(text):
         """
         Escape Markdown special characters for MarkdownV2.
 
@@ -75,7 +76,7 @@ class TelegramBot:
                 print(escaped_text)  # Output: Hello \*world\*!
         """
         # escape_chars = r'_*[]()~`>#+-=|{}.!'
-        escape_chars = r'_*[`'
+        escape_chars = r'_*`.()-'
         return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', str(text))
 
     async def send_multiple_messages_async(self, messages):
@@ -107,15 +108,23 @@ class TelegramBot:
         else:
             return self.send_message_sync(message, parse_mode, disable_web_page_preview)
 
-    def send_message_sync(self, message, parse_mode="Markdown", disable_web_page_preview=False):
-        pawn.console.debug(f"escaped_markdown -> {self.escape_markdown(message)}")
 
+    def build_payload(self, message, parse_mode="Markdown", disable_web_page_preview=False, pass_escape=False):
+        """
+        Build the payload for sending a message.
+        """
+        _message = self.escape_markdown(message) if parse_mode == "MarkdownV2" and not pass_escape else message
+        pawn.console.debug(f"_message -> {_message}")
         payload = {
             "chat_id": self.chat_id,
-            "text": self.escape_markdown(message) if parse_mode == "Markdown" else message,
+            "text": _message,
             "parse_mode": parse_mode,
             "disable_web_page_preview": disable_web_page_preview
         }
+        return payload
+
+    def send_message_sync(self, message, parse_mode="Markdown", disable_web_page_preview=False, pass_escape=False):
+        payload = self.build_payload(message, parse_mode, disable_web_page_preview, pass_escape)
 
         retries = 0
         while retries < self.max_retries:
@@ -138,13 +147,8 @@ class TelegramBot:
         pawn.console.log("Maximum number of retries reached. Failed to send message.")
         return None
 
-    async def send_message_async(self, message, parse_mode="Markdown", disable_web_page_preview=False):
-        payload = {
-            "chat_id": self.chat_id,
-            "text": self.escape_markdown(message) if parse_mode == "Markdown" else message,
-            "parse_mode": parse_mode,
-            "disable_web_page_preview": disable_web_page_preview
-        }
+    async def send_message_async(self, message, parse_mode="MarkdownV2", disable_web_page_preview=False, pass_escape=False):
+        payload = self.build_payload(message, parse_mode, disable_web_page_preview, pass_escape)
 
         retries = 0
         while retries < self.max_retries:
@@ -174,11 +178,11 @@ class TelegramBot:
     async def send_html_message_async(self, message):
         return await self.send_message_async(message, parse_mode="HTML")
 
-    def send_plain_text_message(self, message):
-        return self.send_message(message)
+    def send_plain_text_message(self, message, parse_mode="Markdown"):
+        return self.send_message(message, parse_mode=parse_mode)
 
-    async def send_plain_text_message_async(self, message):
-        return await self.send_message_async(message)
+    async def send_plain_text_message_async(self, message, parse_mode="Markdown"):
+        return await self.send_message_async(message, parse_mode=parse_mode)
 
     def send_dict_message(self, message_dict):
         message = json.dumps(message_dict, indent=2)
