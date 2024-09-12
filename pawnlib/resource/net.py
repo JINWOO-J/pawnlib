@@ -578,3 +578,20 @@ def get_location(ipaddress=""):
         return {}
 
 
+def get_location_with_ip_api():
+    try:
+        response = requests.get(
+            f"http://ip-api.com/json",
+            headers={
+                'content-type': 'application/json',
+            },
+            timeout=2,
+        )
+        return response.json()
+    except Exception as e:
+        pawn.console.debug(f"Error getting location - {e}")
+        return {}
+
+
+
+

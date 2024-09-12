@@ -88,7 +88,8 @@ from .converter import (
     hexadecimal_to_json,
     format_hex,
     escape_markdown,
-    escape_non_markdown
+    escape_non_markdown,
+    analyze_jail_flags
 )
 
 from .constants import (
