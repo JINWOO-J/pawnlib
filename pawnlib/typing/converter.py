@@ -3075,3 +3075,15 @@ def escape_non_markdown(text):
         text = text.replace(f"MARKDOWNPLACEHOLDER{i}", original)
 
     return text
+
+def analyze_jail_flags(value: int = 0, return_type="list"):
+    flags = const.ICONJailFlagsConstants.FLAGS
+    analysis_result = []
+
+    for flag_name, flag_value in flags.items():
+        if value & flag_value:
+            analysis_result.append(flag_name)
+
+    if return_type == "str":
+        return ", ".join(analysis_result)
+    return analysis_result

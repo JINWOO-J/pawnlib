@@ -1,3 +1,95 @@
+class ICONPRepStatusConstants:
+    PREP_STATUS_ACTIVE = 0
+    PREP_STATUS_UNREGISTERED = 1
+    PREP_STATUS_DISQUALIFIED = 2
+
+    PREP_LAST_STATE_NONE = 0
+    PREP_LAST_STATE_READY = 1
+    PREP_LAST_STATE_SUCCESS = 2
+    PREP_LAST_STATE_FAILURE = 3
+
+    PREP_STATUS_DESCRIPTIONS = {
+        PREP_STATUS_ACTIVE: "active",
+        PREP_STATUS_UNREGISTERED: "unregistered",
+        PREP_STATUS_DISQUALIFIED: "disqualified"
+    }
+
+    PREP_LAST_STATE_DESCRIPTIONS = {
+        PREP_LAST_STATE_NONE:  None,
+        PREP_LAST_STATE_READY: "Ready",
+        PREP_LAST_STATE_SUCCESS: "Success",
+        PREP_LAST_STATE_FAILURE: "Failure"
+    }
+
+    @classmethod
+    def get_status(cls, status_type):
+        """Return the description of the given P-Rep status type."""
+        return cls.PREP_STATUS_DESCRIPTIONS.get(status_type, "Unknown P-Rep status")
+
+    @classmethod
+    def get_last_state(cls, state):
+        """Return the description of the given P-Rep last state type."""
+        return cls.PREP_LAST_STATE_DESCRIPTIONS.get(state, "Unknown P-Rep last state")
+
+
+class ICONPenaltyTypeConstants:
+    PENALTY_TYPE_NO_PENALTY = 0
+    PENALTY_TYPE_PREP_DISQUALIFICATION = 1
+    PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE = 2
+    PENALTY_TYPE_VALIDATION_FAILURE = 3
+    PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE = 4
+    PENALTY_TYPE_DOUBLE_SIGN = 5
+
+    PENALTY_TYPE_DESCRIPTIONS = {
+        PENALTY_TYPE_NO_PENALTY: "No penalty",
+        PENALTY_TYPE_PREP_DISQUALIFICATION: "P-Rep disqualification penalty",
+        PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE: "Accumulated block validation failure penalty",
+        PENALTY_TYPE_VALIDATION_FAILURE: "Validation failure penalty",
+        PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE: "Missed Network Proposal vote penalty",
+        PENALTY_TYPE_DOUBLE_SIGN: "Double sign penalty"
+    }
+
+    @staticmethod
+    def get_penalty(penalty_type):
+        """
+        Return the description of the given penalty type.
+        :param penalty_type: The penalty type ID.
+        :return: Description string of the penalty type.
+        """
+        return ICONPenaltyTypeConstants.PENALTY_TYPE_DESCRIPTIONS.get(
+            penalty_type, "Unknown penalty type"
+        )
+
+
+class ICONJailFlags:
+    ICON_IN_JAIL = 1
+    ICON_UN_JAILING = 2
+    ICON_ACCUMULATED_VALIDATION_FAILURE = 4
+    ICON_DOUBLE_SIGN = 8
+
+    FLAGS = {
+        'inJail': ICON_IN_JAIL,
+        'unJailing': ICON_UN_JAILING,
+        'accumulatedValidationFailure': ICON_ACCUMULATED_VALIDATION_FAILURE,
+        'doubleSign': ICON_DOUBLE_SIGN
+    }
+
+    @classmethod
+    def get_jail_flags(cls, value: int = 0, return_type="list"):
+        """
+        Analyze the given value for jail flags and return the result as a list or string.
+
+        :param value: Integer value representing the jail flags.
+        :param return_type: Return type, either "list" (default) or "str".
+        :return: A list of flag names or a comma-separated string.
+        """
+        analysis_result = [flag_name for flag_name, flag_value in cls.FLAGS.items() if value & flag_value]
+
+        if return_type == "str":
+            return ", ".join(analysis_result)
+        return analysis_result
+
+
 class SpecialCharacterConstants:
     SPECIAL_CHARACTERS = r"_*[]()~`>#+-=|{}.!\\"
     ALL_SPECIAL_CHARACTERS = r"!@#$%^&*()_+-=[]{}|;:'\",.<>?/"
@@ -369,6 +461,8 @@ class YesNoConstants:
 
 
 class AllConstants(
+    ICONPRepStatusConstants,
+    ICONJailFlags,
     SpecialCharacterConstants,
     # HTTPStatusCodes,
     RegexPatternConstants,
@@ -394,6 +488,11 @@ class AllConstants(
 
     def __setattr__(self, name, value):
         raise TypeError("Constants are read-only")
+
+    def __getattr__(self, name):
+        if name in globals():
+            return globals()[name]
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
     def get_aws_region_name(self, code: str = "") -> str:
         return self.region_name(code)

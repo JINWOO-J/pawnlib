@@ -15,7 +15,7 @@ from pawnlib.resource import (
     get_rlimit_nofile,
     get_mem_info,
     get_location,
-
+    get_location_with_ip_api,
     DiskUsage
 )
 
@@ -63,6 +63,7 @@ def get_arguments(parser):
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
     parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
     parser.add_argument('-d', '--debug',  action='count', help='base dir for httping (default: %(default)s)', default=0)
+    parser.add_argument('--ip-api-provider', type=str, help='API provider to fetch public IP information (e.g., ip-api.com, another-api.com)', default="ip-api.com")
     # parser.add_argument( "-o", "--output-file", type=str, help="The name of the file to write the output to.", default="", )
     parser.add_argument(
         '-w', '--write-file',
@@ -163,15 +164,30 @@ def main():
     print_unless_quiet_mode("")
 
     network_tree = Tree("[bold]🛜 Network Interface[/bold]")
-    result['network']['public_ip'] = {"ip":  get_public_ip()}
-    public_ip_tree= network_tree.add(f"[bold] Public IP[/bold]: {result['network']['public_ip']['ip']}")
 
-    if result['network']['public_ip']:
-        _location = get_location(result['network']['public_ip']['ip'])
-        if _location:
-            result['network']['public_ip'].update(_location)
-            public_ip_tree.add(f"[bold] Region : {_location.get('region')}, TimezonLoe={_location.get('timezone')}")
-            public_ip_tree.add(f"[bold] ASN : {dict_to_line(_location.get('asn'), end_separator=', ')}")
+    if args.ip_api_provider == "ip-api.com":
+        public_ip_info = get_location_with_ip_api()
+        if  public_ip_info.get('status'):
+            del public_ip_info['status']
+        result['network']['public_ip'] = {"ip":  public_ip_info.get('query')}
+        public_ip_tree = network_tree.add(f"[bold] Public IP[/bold]: {result['network']['public_ip']['ip']}")
+
+        if result['network']['public_ip']:
+            result['network']['public_ip'].update(public_ip_info)
+            public_ip_tree.add(f"[bold] Region : {public_ip_info.get('countryCode')}, {public_ip_info.get('regionName')}, {public_ip_info.get('city')}, "
+                               f"{public_ip_info.get('country')}, Timezone={public_ip_info.get('timezone')}")
+            public_ip_tree.add(f"[bold] ASN : {public_ip_info.get('as')}, ISP: {public_ip_info.get('isp')}, ORG: {public_ip_info.get('org')}")
+
+    else:
+        result['network']['public_ip'] = {"ip":  get_public_ip()}
+        public_ip_tree= network_tree.add(f"[bold] Public IP[/bold]: {result['network']['public_ip']['ip']}")
+
+        if result['network']['public_ip']:
+            _location = get_location(result['network']['public_ip']['ip'])
+            if _location:
+                result['network']['public_ip'].update(_location)
+                public_ip_tree.add(f"[bold] Region : {_location.get('region')}, Timezone={_location.get('timezone')}")
+                public_ip_tree.add(f"[bold] ASN : {dict_to_line(_location.get('asn'), end_separator=', ')}")
 
     local_tree = network_tree.add("[bold] Local IP[/bold]")
     interface_list = get_interface_ips(ignore_interfaces=['lo0', 'lo'], detail=True)

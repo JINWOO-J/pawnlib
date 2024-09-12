@@ -51,7 +51,7 @@ dependencies = [
     "httpx~=0.24.0",
     "websocket-client>=0.59.0",
     "tabulate>=0.8.7",
-    "aiohttp~=3.10.3",
+    "aiohttp>=3.8.6",
 ]
 dynamic = ["readme", "version"]
 

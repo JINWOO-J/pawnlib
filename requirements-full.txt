@@ -28,4 +28,4 @@ httpx~=0.24.0
 websocket-client~=0.59.0
 aiodocker~=0.21.0
 boto3>=1.28.3
-aiohttp~=3.10.3
+aiohttp>=3.8.6

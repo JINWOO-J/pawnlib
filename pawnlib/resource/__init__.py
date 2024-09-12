@@ -8,6 +8,7 @@ from .net import (
     wait_for_port_open,
     AsyncPortScanner,
     get_location,
+    get_location_with_ip_api,
 )
 
 from .server import (
