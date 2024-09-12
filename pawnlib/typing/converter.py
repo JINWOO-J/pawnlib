@@ -3001,8 +3001,77 @@ def decode_jwt(jwt_token, use_kst=False):
 
 
 def escape_markdown(text):
-    """Escape Markdown special characters"""
-    escape_chars = r'_*[]()~`>#+-=|{}.!'
-    return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', str(text))
+    """
+    Escape Markdown special characters for Telegram's MarkdownV2 format.
+
+    Converts input to string if it's not already a string and escapes necessary characters.
+
+    :param text: The text to escape for MarkdownV2, can be a number or string.
+    :return: Escaped text for safe MarkdownV2 usage in Telegram.
+    """
+    # Convert input to string if it's not a string
+    if not isinstance(text, str):
+        text = str(text)
+
+    special_characters = r"_*[]()~`>#+-=|{}.!"
+    return re.sub(r"([{}])".format(re.escape(special_characters)), r"\\\1", text)
 
 
+def escape_non_markdown(text):
+    """
+    Escapes special characters only in non-markdown parts of the input text.
+
+    :param text: Input text with markdown content.
+    :return: Text where special characters are escaped outside markdown syntax.
+    """
+    if not isinstance(text, str):
+        text = str(text)
+
+    # Markdown syntax patterns (to identify markdown content)
+    markdown_patterns = [
+        r"\*\*.*?\*\*",       # **bold**
+        r"__.*?__",           # __bold__
+        r"(?<![a-zA-Z0-9])_[^_]+_(?![a-zA-Z0-9])",   # _italic_
+        r"(?<![a-zA-Z0-9])\*[^*]+\*(?![a-zA-Z0-9])", # *italic*
+        r"`[^`]*?`",          # `inline code`
+        r"```[^`]*```",       # ```code block```
+        r"\[.*?\]\(.*?\)",    # [link](url)
+        r"!\[.*?\]\(.*?\)",   # ![image](url)
+        r"^# .+",             # # Heading 1
+        r"^## .+",            # ## Heading 2
+        r"^### .+",           # ### Heading 3
+        r"^#### .+",          # #### Heading 4
+        r"^##### .+",         # ##### Heading 5
+        r"^###### .+",        # ###### Heading 6
+        r"^> .*",             # Blockquote
+        r"^(?!.*[~`$]).*(\*|-) .+", # Unordered list (Avoid special characters within the line)
+        r"^([0-9]+\.) .+"     # Ordered list
+    ]
+
+    # List to store matched markdown parts
+    markdown_store = []
+
+    # Function to replace markdown parts with placeholders
+    def store_markdown(match):
+        placeholder = f"MARKDOWNPLACEHOLDER{len(markdown_store)}"
+        markdown_store.append(match.group(0))  # Store the markdown part
+        return placeholder  # Replace with a placeholder
+
+    # Replace markdown syntax with placeholders
+    for pattern in markdown_patterns:
+        text = re.sub(pattern, store_markdown, text)
+
+    # Function to escape special characters in non-markdown text
+    def escape_non_markdown_text(match):
+        return re.sub(f"([{re.escape(const.ALL_SPECIAL_CHARACTERS)}])", r"\\\1", match.group(0))
+
+    pawn.console.log(markdown_store)
+
+    # Escape special characters outside markdown placeholders
+    text = re.sub(r"(?!MARKDOWNPLACEHOLDER\d+)[^\n]+", escape_non_markdown_text, text)
+
+    # Restore original markdown syntax from placeholders
+    for i, original in enumerate(markdown_store):
+        text = text.replace(f"MARKDOWNPLACEHOLDER{i}", original)
+
+    return text

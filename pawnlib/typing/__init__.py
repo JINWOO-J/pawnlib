@@ -87,7 +87,8 @@ from .converter import (
     json_to_hexadecimal,
     hexadecimal_to_json,
     format_hex,
-    escape_markdown
+    escape_markdown,
+    escape_non_markdown
 )
 
 from .constants import (

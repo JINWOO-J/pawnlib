@@ -742,7 +742,7 @@ class IconRpcHelper:
                 pawn.console.log(f"[red][ERROR][/red] {self.response.get('error')}")
                 # self.exit_on_failure(f"[red][ERROR][/red] {self.response.get('error')}")
             else:
-                pawn.console.log(f"[red][ERROR][/red] status_code={self.response.get('status_code')}, text={self.response.get('text')}")
+                pawn.console.log(f"[red][ERROR][/red] url={self.response.get('url')}, status_code={self.response.get('status_code')}, text={self.response.get('text')}")
 
     def print_response(self, hex_to_int=False, message=""):
         if self.response.get('status_code') != 200:
@@ -1110,10 +1110,10 @@ class IconRpcHelper:
         return response.get('text')
 
     def handle_response_with_key(self, response=None, return_key=None):
-        if not response:
+        if response is None:
             response = self.response
         if isinstance(response, dict):
-            if return_key:
+            if return_key and response:
                 return FlatDict(response).get(return_key)
             return response
         return response.get('text')
