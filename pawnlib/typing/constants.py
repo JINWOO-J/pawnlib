@@ -1,4 +1,4 @@
-class ICONPRepStatusConstants:
+class ICONPRepStatus:
     PREP_STATUS_ACTIVE = 0
     PREP_STATUS_UNREGISTERED = 1
     PREP_STATUS_DISQUALIFIED = 2
@@ -32,7 +32,7 @@ class ICONPRepStatusConstants:
         return cls.PREP_LAST_STATE_DESCRIPTIONS.get(state, "Unknown P-Rep last state")
 
 
-class ICONPenaltyTypeConstants:
+class ICONPenaltyType:
     PENALTY_TYPE_NO_PENALTY = 0
     PENALTY_TYPE_PREP_DISQUALIFICATION = 1
     PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE = 2
@@ -50,15 +50,22 @@ class ICONPenaltyTypeConstants:
     }
 
     @staticmethod
-    def get_penalty(penalty_type):
+    def get_penalty(penalty_type: int = 0):
         """
         Return the description of the given penalty type.
         :param penalty_type: The penalty type ID.
         :return: Description string of the penalty type.
         """
-        return ICONPenaltyTypeConstants.PENALTY_TYPE_DESCRIPTIONS.get(
+        penalty_type = ICONPenaltyType.convert_to_int(penalty_type)
+        return ICONPenaltyType.PENALTY_TYPE_DESCRIPTIONS.get(
             penalty_type, "Unknown penalty type"
         )
+
+    @staticmethod
+    def convert_to_int(value):
+        if isinstance(value, str) and value.startswith("0x"):
+            return int(value, 16)
+        return value
 
 
 class ICONJailFlags:
@@ -83,12 +90,12 @@ class ICONJailFlags:
         :param return_type: Return type, either "list" (default) or "str".
         :return: A list of flag names or a comma-separated string.
         """
+        value = ICONPenaltyType.convert_to_int(value)
         analysis_result = [flag_name for flag_name, flag_value in cls.FLAGS.items() if value & flag_value]
 
         if return_type == "str":
             return ", ".join(analysis_result)
         return analysis_result
-
 
 class SpecialCharacterConstants:
     SPECIAL_CHARACTERS = r"_*[]()~`>#+-=|{}.!\\"
@@ -461,7 +468,7 @@ class YesNoConstants:
 
 
 class AllConstants(
-    ICONPRepStatusConstants,
+    ICONPRepStatus,
     ICONJailFlags,
     SpecialCharacterConstants,
     # HTTPStatusCodes,
