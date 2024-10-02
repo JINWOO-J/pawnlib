@@ -1,6 +1,6 @@
 from pawnlib.utils.icx_signer import __make_params_serialized as make_params_serialized
 from hashlib import sha3_256
-from pawnlib.typing import format_hex, keys_exists, token_hex, get_size, sys_exit, FlatDict, error_and_exit
+from pawnlib.typing import format_hex, keys_exists, token_hex, get_size, sys_exit, FlatDict, error_and_exit, get_file_detail
 from pawnlib.output.file import open_json, is_file, is_directory, is_json, write_json
 from pawnlib.utils.in_memory_zip import read_file_from_zip, read_genesis_dict_from_zip
 from pawnlib.config import pawn
@@ -115,6 +115,7 @@ class GenesisGenerator:
         self.cid = None
         self.nid = None
         self.genesis_json = None
+        self.genesis_zip_info = {}
 
     def make_temp_dir(self):
         """
@@ -213,9 +214,10 @@ class GenesisGenerator:
         # genesis_zip_file = f"{self.base_dir}/{self.genesis_filename}"
         genesis_zip_file = self.genesis_filename
         make_zip_without(self.final_temp_dir, genesis_zip_file, ['tests'])
-        file_info = get_size(genesis_zip_file, attr=True)
-        pawn.console.debug(f"Generated {genesis_zip_file} => {file_info}")
-        return file_info
+        # self.genesis_zip_info = get_size(genesis_zip_file, attr=True)
+        self.genesis_zip_info = get_file_detail(genesis_zip_file)
+        pawn.console.debug(f"Generated {genesis_zip_file} => {self.genesis_zip_info.get('size_pretty')}")
+        return self.genesis_zip_info
 
     @staticmethod
     def extract_content_pattern(string):

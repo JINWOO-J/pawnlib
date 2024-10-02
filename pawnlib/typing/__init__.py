@@ -41,6 +41,7 @@ from .converter import (
     hex_to_number,
     int_to_loop_hex,
     get_size,
+    get_file_detail,
     get_value_size,
     convert_bytes,
     str2bool,
