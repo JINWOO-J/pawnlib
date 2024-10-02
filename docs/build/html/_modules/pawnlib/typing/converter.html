@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.typing.converter &mdash; Pawnlib v2.0.32</title>
+  <title>pawnlib.typing.converter &mdash; Pawnlib v2.0.45</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -35,7 +35,7 @@
             pawnlib
           </a>
               <div class="version">
-                2.0.32
+                2.0.45
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -3090,11 +3090,92 @@
 
 
 <div class="viewcode-block" id="escape_markdown"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.escape_markdown">[docs]</a><span class="k">def</span> <span class="nf">escape_markdown</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Escape Markdown special characters&quot;&quot;&quot;</span>
-    <span class="n">escape_chars</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;_*[]()~`&gt;#+-=|</span><span class="si">{}</span><span class="s1">.!&#39;</span>
-    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;([</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">escape_chars</span><span class="p">)</span><span class="si">}</span><span class="s1">])&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">\1&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">))</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Escape Markdown special characters for Telegram&#39;s MarkdownV2 format.</span>
+
+<span class="sd">    Converts input to string if it&#39;s not already a string and escapes necessary characters.</span>
+
+<span class="sd">    :param text: The text to escape for MarkdownV2, can be a number or string.</span>
+<span class="sd">    :return: Escaped text for safe MarkdownV2 usage in Telegram.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Convert input to string if it&#39;s not a string</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="n">special_characters</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;_*[]()~`&gt;#+-=|</span><span class="si">{}</span><span class="s2">.!&quot;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([</span><span class="si">{}</span><span class="s2">])&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">special_characters</span><span class="p">)),</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">\1&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="escape_non_markdown"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.escape_non_markdown">[docs]</a><span class="k">def</span> <span class="nf">escape_non_markdown</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Escapes special characters only in non-markdown parts of the input text.</span>
+
+<span class="sd">    :param text: Input text with markdown content.</span>
+<span class="sd">    :return: Text where special characters are escaped outside markdown syntax.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="c1"># Markdown syntax patterns (to identify markdown content)</span>
+    <span class="n">markdown_patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">r</span><span class="s2">&quot;\*\*.*?\*\*&quot;</span><span class="p">,</span>       <span class="c1"># **bold**</span>
+        <span class="sa">r</span><span class="s2">&quot;__.*?__&quot;</span><span class="p">,</span>           <span class="c1"># __bold__</span>
+        <span class="sa">r</span><span class="s2">&quot;(?&lt;![a-zA-Z0-9])_[^_]+_(?![a-zA-Z0-9])&quot;</span><span class="p">,</span>   <span class="c1"># _italic_</span>
+        <span class="sa">r</span><span class="s2">&quot;(?&lt;![a-zA-Z0-9])\*[^*]+\*(?![a-zA-Z0-9])&quot;</span><span class="p">,</span> <span class="c1"># *italic*</span>
+        <span class="sa">r</span><span class="s2">&quot;`[^`]*?`&quot;</span><span class="p">,</span>          <span class="c1"># `inline code`</span>
+        <span class="sa">r</span><span class="s2">&quot;```[^`]*```&quot;</span><span class="p">,</span>       <span class="c1"># ```code block```</span>
+        <span class="sa">r</span><span class="s2">&quot;\[.*?\]\(.*?\)&quot;</span><span class="p">,</span>    <span class="c1"># [link](url)</span>
+        <span class="sa">r</span><span class="s2">&quot;!\[.*?\]\(.*?\)&quot;</span><span class="p">,</span>   <span class="c1"># ![image](url)</span>
+        <span class="sa">r</span><span class="s2">&quot;^# .+&quot;</span><span class="p">,</span>             <span class="c1"># # Heading 1</span>
+        <span class="sa">r</span><span class="s2">&quot;^## .+&quot;</span><span class="p">,</span>            <span class="c1"># ## Heading 2</span>
+        <span class="sa">r</span><span class="s2">&quot;^### .+&quot;</span><span class="p">,</span>           <span class="c1"># ### Heading 3</span>
+        <span class="sa">r</span><span class="s2">&quot;^#### .+&quot;</span><span class="p">,</span>          <span class="c1"># #### Heading 4</span>
+        <span class="sa">r</span><span class="s2">&quot;^##### .+&quot;</span><span class="p">,</span>         <span class="c1"># ##### Heading 5</span>
+        <span class="sa">r</span><span class="s2">&quot;^###### .+&quot;</span><span class="p">,</span>        <span class="c1"># ###### Heading 6</span>
+        <span class="sa">r</span><span class="s2">&quot;^&gt; .*&quot;</span><span class="p">,</span>             <span class="c1"># Blockquote</span>
+        <span class="sa">r</span><span class="s2">&quot;^(?!.*[~`$]).*(\*|-) .+&quot;</span><span class="p">,</span> <span class="c1"># Unordered list (Avoid special characters within the line)</span>
+        <span class="sa">r</span><span class="s2">&quot;^([0-9]+\.) .+&quot;</span>     <span class="c1"># Ordered list</span>
+    <span class="p">]</span>
+
+    <span class="c1"># List to store matched markdown parts</span>
+    <span class="n">markdown_store</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Function to replace markdown parts with placeholders</span>
+    <span class="k">def</span> <span class="nf">store_markdown</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+        <span class="n">placeholder</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;MARKDOWNPLACEHOLDER</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">markdown_store</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">markdown_store</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>  <span class="c1"># Store the markdown part</span>
+        <span class="k">return</span> <span class="n">placeholder</span>  <span class="c1"># Replace with a placeholder</span>
+
+    <span class="c1"># Replace markdown syntax with placeholders</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">markdown_patterns</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">store_markdown</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+    <span class="c1"># Function to escape special characters in non-markdown text</span>
+    <span class="k">def</span> <span class="nf">escape_non_markdown_text</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;([</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">ALL_SPECIAL_CHARACTERS</span><span class="p">)</span><span class="si">}</span><span class="s2">])&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">\1&quot;</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">markdown_store</span><span class="p">)</span>
+
+    <span class="c1"># Escape special characters outside markdown placeholders</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?!MARKDOWNPLACEHOLDER\d+)[^\n]+&quot;</span><span class="p">,</span> <span class="n">escape_non_markdown_text</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+    <span class="c1"># Restore original markdown syntax from placeholders</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">original</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">markdown_store</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MARKDOWNPLACEHOLDER</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">original</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">text</span></div>
+
+<div class="viewcode-block" id="analyze_jail_flags"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.converter.analyze_jail_flags">[docs]</a><span class="k">def</span> <span class="nf">analyze_jail_flags</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">):</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">ICONJailFlagsConstants</span><span class="o">.</span><span class="n">FLAGS</span>
+    <span class="n">analysis_result</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">flag_name</span><span class="p">,</span> <span class="n">flag_value</span> <span class="ow">in</span> <span class="n">flags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&amp;</span> <span class="n">flag_value</span><span class="p">:</span>
+            <span class="n">analysis_result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flag_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_type</span> <span class="o">==</span> <span class="s2">&quot;str&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">analysis_result</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">analysis_result</span></div>
 </pre></div>
 
            </div>

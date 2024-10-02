@@ -34,7 +34,7 @@ __epilog__ = (
     
     "  4. Configure custom network settings:\n\n"
     "      -  If you want to edit network information, create config.yaml with a parameter called config and then change it.\n\n"
-    "     `pawns rpc config` \n"
+    "     `pawns rpc config` \n\n"
     "For detailed command usage and options, refer to the help documentation by running 'pawns rpc --help'."
 )
 

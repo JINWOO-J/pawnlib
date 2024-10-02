@@ -28,7 +28,7 @@ __epilog__ = (
     "     - Runs the 'scan' command to scan the specified host range (192.168.1.1 to 192.168.1.255) and port range (20 to 80).\n"
     "     - Sets the maximum number of concurrent workers to 50 with '--worker 50'.\n"
     "     - Outputs only open ports with the '--view-type open' option.\n\n"
-    "     `pawns net scan --host-range 192.168.1.1-192.168.1.255 --port-range 20-80 --worker 50 --view-type open`\n"
+    "     `pawns net scan --host-range 192.168.1.1-192.168.1.255 --port-range 20-80 --worker 50 --view-type open`\n\n"
     
 
     "For more details, use the -h or --help flag."

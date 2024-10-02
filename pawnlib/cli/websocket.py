@@ -25,7 +25,7 @@ __epilog__ = (
 
     "  3. Adjust verbosity level:\n"
     "     - Increases verbosity level for more detailed output.\n\n"
-    "     `pawns websocket http://example.com/ws -v`\n"
+    "     `pawns websocket http://example.com/ws -v`\n\n"
 
     "For more information and options, use the -h or --help flag."
 )

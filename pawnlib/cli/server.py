@@ -23,7 +23,7 @@ __epilog__ = (
     "     `pawns server disk --file-path /path/to/testfile --file-size-mb 1024 --iterations 5 --block-size-kb 1024 --num-threads 1 --io-pattern sequential`\n"
     "  2. Measure filesystem performance:\n\n"
     "     -  Measure the filesystem performance 5 times with 2,000 files.\n\n"
-    "     `pawns server fs server fs -i 5 --count 2000` \n"
+    "     `pawns server fs server fs -i 5 --count 2000` \n\n"
     "For more detailed command usage and options, refer to the help documentation by running 'pawns server --help'."
 )
 

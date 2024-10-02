@@ -28,7 +28,7 @@ __epilog__ = (
     "     `pawns proxy --listen ip_address:port --forward ip_address:port --buffer-size 5120 --delay 0.001`\n"
     "  4. To set a timeout for the proxy connections:\n"
     "     - Sets a timeout of 5 seconds for the proxy connections.\n\n"
-    "     `pawns proxy --listen ip_address:port --forward ip_address:port --timeout 5`\n"
+    "     `pawns proxy --listen ip_address:port --forward ip_address:port --timeout 5`\n\n"
     "For more detailed information on command options, use the -h or --help flag."
 )
 
