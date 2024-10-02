@@ -138,7 +138,7 @@ class GenesisGenerator:
             raise ValueError(f"Invalid genesis_json_or_dict: {type(self.genesis_json)}")
         self.make_temp_dir()
 
-    def run(self, genesis_json_or_dict=None, base_dir=None, genesis_filename="icon_genesis.zip"):
+    def run(self, genesis_json_or_dict=None, base_dir=None, genesis_filename=None):
         """
         Main method to execute the genesis generation process. It initializes the data, logs relevant information,
         parses the genesis JSON, writes the zip file, and generates the CID.
