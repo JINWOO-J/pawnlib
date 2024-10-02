@@ -19,6 +19,7 @@ from pawnlib.typing.constants import const
 from pawnlib.config.__fix_import import Null
 import statistics
 from datetime import datetime, timedelta, timezone
+import time
 
 try:
     from typing import Literal
@@ -1185,7 +1186,6 @@ def int_to_loop_hex(value: float, rounding: Literal['floor', 'round'] = 'floor')
     Example:
 
         .. code-block:: python
-
             from pawnlib.typing import int_to_loop_hex
 
             int_to_loop_hex(1)
@@ -1267,6 +1267,66 @@ def get_size(file_path: str = '', attr=False):
 
     return return_size
 
+
+def get_file_detail(file_path, time_format: str = '%Y-%m-%d %H:%M:%S'):
+    """
+    Returns detailed information about the given file or directory.
+
+    :param file_path: The path to the file or directory.
+    :type file_path: str
+    :param time_format: The format for displaying time (default: 'YYYY-MM-DD HH:MM:SS').
+    :type time_format: str
+    :raises FileNotFoundError: If the specified file or directory does not exist.
+    :return: A dictionary containing detailed information about the file or directory.
+    :rtype: dict
+
+    The returned dictionary contains the following keys:
+        - file_path (str): The absolute path of the file or directory.
+        - size_in_bytes (int): The size of the file in bytes. 0 if it is a directory.
+        - size_pretty (str): The human-readable size of the file (KB, MB, GB, etc.).
+        - creation_time (str): The creation time of the file, formatted based on the provided `time_format`.
+        - modification_time (str): The last modification time of the file, formatted based on the provided `time_format`.
+        - is_file (bool): True if the path is a file, False otherwise.
+        - is_directory (bool): True if the path is a directory, False otherwise.
+
+    Example:
+
+        .. code-block:: python
+
+            file_info = get_file_detail("genesis.zip")
+            print(file_info)
+
+    Example output:
+
+        {
+            "file_path": "/absolute/path/to/genesis.zip",
+            "size_in_bytes": 1048576,
+            "size_pretty": "1.0 MB",
+            "creation_time": "2024-01-23 23:23:23",
+            "modification_time": "2024-01-23 23:23:23",
+            "is_file": True,
+            "is_directory": False
+        }
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"The file '{file_path}' does not exist.")
+
+    def format_time(epoch_time):
+        """Helper function to format epoch time to the specified `time_format`."""
+        return datetime.fromtimestamp(epoch_time).strftime(time_format)
+
+    size_in_bytes = os.path.getsize(file_path) if os.path.isfile(file_path) else 0
+    file_info = {
+        "file_path": os.path.abspath(file_path),  # 절대 경로
+        "size_in_bytes": size_in_bytes,  # 파일 크기 (바이트 단위)
+        "size_pretty": convert_bytes(size_in_bytes),  # 파일 크기 (KB, MB 등 사람이 읽기 쉬운 형식)
+        "creation_time": format_time(os.path.getctime(file_path)),  # 파일 생성 시간
+        "modification_time": format_time(os.path.getmtime(file_path)),  # 파일 수정 시간
+        "is_file": os.path.isfile(file_path),  # 파일 여부
+        "is_directory": os.path.isdir(file_path)  # 디렉토리 여부
+    }
+
+    return file_info
 
 def get_value_size(value):
     """
@@ -1602,13 +1662,14 @@ def list_to_oneline_string(list_param: list, split_str: str = "."):
 
 def long_to_bytes(val, endianness='big'):
     """
-    Use string formatting and :func:`~binascii.unhexlify` to
+
+    Use :ref:`string formatting` and :func:`~binascii.unhexlify` to
     convert ``val``, a :func:`long`, to a byte :func:`str`.
 
     :param long val: The value to pack
     :param str endianness: The endianness of the result. ``'big'`` for big-endian, ``'little'`` for little-endian.
         If you want byte- and word-ordering to differ, you're on your own.
-        Using string formatting lets us use Python's C innards.
+        Using :ref:`string formatting` lets us use Python's C innards.
 
     """
     # one (1) hex digit per four (4) bits
