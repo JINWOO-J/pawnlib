@@ -210,7 +210,8 @@ class GenesisGenerator:
         :return: Information about the generated zip file, including its size and attributes.
         :rtype: dict
         """
-        genesis_zip_file = f"{self.base_dir}/{self.genesis_filename}"
+        # genesis_zip_file = f"{self.base_dir}/{self.genesis_filename}"
+        genesis_zip_file = self.genesis_filename
         make_zip_without(self.final_temp_dir, genesis_zip_file, ['tests'])
         file_info = get_size(genesis_zip_file, attr=True)
         pawn.console.debug(f"Generated {genesis_zip_file} => {file_info}")
