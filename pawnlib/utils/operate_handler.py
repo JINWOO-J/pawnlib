@@ -153,6 +153,7 @@ class Daemon(object):
     :param verbose: verbosity level
     :param use_gevent: use gevent
     :param use_eventlet: use eventlet
+    \
     Example:
 
         .. code-block:: python

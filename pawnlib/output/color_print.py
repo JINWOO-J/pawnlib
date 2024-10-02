@@ -1563,6 +1563,7 @@ def print_var(
     Example:
 
         .. code-block:: python
+
             dict_var = {"key": "value"}
 
             print_var(dict_var)
