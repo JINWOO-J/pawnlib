@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.typing package &mdash; Pawnlib v2.0.32</title>
+  <title>pawnlib.typing package &mdash; Pawnlib v2.0.45</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -38,7 +38,7 @@
             pawnlib
           </a>
               <div class="version">
-                2.0.32
+                2.0.45
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -204,6 +204,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.converter.format_hex"><code class="docutils literal notranslate"><span class="pre">format_hex()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.converter.decode_jwt"><code class="docutils literal notranslate"><span class="pre">decode_jwt()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.converter.escape_markdown"><code class="docutils literal notranslate"><span class="pre">escape_markdown()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.converter.escape_non_markdown"><code class="docutils literal notranslate"><span class="pre">escape_non_markdown()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.converter.analyze_jail_flags"><code class="docutils literal notranslate"><span class="pre">analyze_jail_flags()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pawnlib-typing-date-utils-module">pawnlib.typing.date_utils module</a><ul>
@@ -224,6 +226,116 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pawnlib-typing-constants-module">pawnlib.typing.constants module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_ACTIVE"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_STATUS_ACTIVE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_UNREGISTERED"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_STATUS_UNREGISTERED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_DISQUALIFIED"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_STATUS_DISQUALIFIED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_NONE"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_LAST_STATE_NONE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_READY"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_LAST_STATE_READY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_SUCCESS"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_LAST_STATE_SUCCESS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_FAILURE"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_LAST_STATE_FAILURE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_STATUS_DESCRIPTIONS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_LAST_STATE_DESCRIPTIONS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.get_status"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.get_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus.get_last_state"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.get_last_state()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.constants.ICONPenaltyType"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_NO_PENALTY"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_NO_PENALTY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_PREP_DISQUALIFICATION"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_PREP_DISQUALIFICATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_VALIDATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_VALIDATION_FAILURE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_DOUBLE_SIGN"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_DOUBLE_SIGN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_DESCRIPTIONS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPenaltyType.get_penalty"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.get_penalty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONPenaltyType.convert_to_int"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.convert_to_int()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.constants.ICONJailFlags"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONJailFlags.ICON_IN_JAIL"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.ICON_IN_JAIL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONJailFlags.ICON_UN_JAILING"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.ICON_UN_JAILING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONJailFlags.ICON_ACCUMULATED_VALIDATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.ICON_ACCUMULATED_VALIDATION_FAILURE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONJailFlags.ICON_DOUBLE_SIGN"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.ICON_DOUBLE_SIGN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONJailFlags.FLAGS"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.FLAGS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.ICONJailFlags.get_jail_flags"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.get_jail_flags()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.constants.SpecialCharacterConstants"><code class="docutils literal notranslate"><span class="pre">SpecialCharacterConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.SpecialCharacterConstants.SPECIAL_CHARACTERS"><code class="docutils literal notranslate"><span class="pre">SpecialCharacterConstants.SPECIAL_CHARACTERS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.SpecialCharacterConstants.ALL_SPECIAL_CHARACTERS"><code class="docutils literal notranslate"><span class="pre">SpecialCharacterConstants.ALL_SPECIAL_CHARACTERS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.constants.HTTPConstants"><code class="docutils literal notranslate"><span class="pre">HTTPConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.HTTPConstants.Headers"><code class="docutils literal notranslate"><span class="pre">HTTPConstants.Headers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.HTTPConstants.MIMEType"><code class="docutils literal notranslate"><span class="pre">HTTPConstants.MIMEType</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes"><code class="docutils literal notranslate"><span class="pre">HTTPConstants.HTTPStatusCodes</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.ISO_8601"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.ISO_8601</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.ISO_8601_WITH_MS"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.ISO_8601_WITH_MS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.ISO_8601_WITH_TZ"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.ISO_8601_WITH_TZ</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.HUMAN_READABLE"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.HUMAN_READABLE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.SIMPLE_DATE"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.SIMPLE_DATE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.SIMPLE_TIME"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.SIMPLE_TIME</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.SIMPLE_DATETIME"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.SIMPLE_DATETIME</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.DATE_WITHOUT_YEAR"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.DATE_WITHOUT_YEAR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.TIME_WITHOUT_SECONDS"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.TIME_WITHOUT_SECONDS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.US_DATE"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.US_DATE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.US_DATE_TIME"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.US_DATE_TIME</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.UK_DATE"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.UK_DATE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.UK_DATE_TIME"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.UK_DATE_TIME</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.UNIX_TIMESTAMP_SECONDS"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.UNIX_TIMESTAMP_SECONDS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.UNIX_TIMESTAMP_MS"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.UNIX_TIMESTAMP_MS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.YEAR_ONLY"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.YEAR_ONLY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.MONTH_YEAR"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.MONTH_YEAR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.DAY_MONTH"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.DAY_MONTH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.TIME_12_HOUR"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.TIME_12_HOUR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants.TIME_24_HOUR"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.TIME_24_HOUR</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants"><code class="docutils literal notranslate"><span class="pre">StringConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.EMPTY_STRING"><code class="docutils literal notranslate"><span class="pre">StringConstants.EMPTY_STRING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.SPACE"><code class="docutils literal notranslate"><span class="pre">StringConstants.SPACE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.UNDERSCORE"><code class="docutils literal notranslate"><span class="pre">StringConstants.UNDERSCORE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.DASH"><code class="docutils literal notranslate"><span class="pre">StringConstants.DASH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.COLON"><code class="docutils literal notranslate"><span class="pre">StringConstants.COLON</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.SEMICOLON"><code class="docutils literal notranslate"><span class="pre">StringConstants.SEMICOLON</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.COMMA"><code class="docutils literal notranslate"><span class="pre">StringConstants.COMMA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.PERIOD"><code class="docutils literal notranslate"><span class="pre">StringConstants.PERIOD</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.PIPE"><code class="docutils literal notranslate"><span class="pre">StringConstants.PIPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.NEWLINE"><code class="docutils literal notranslate"><span class="pre">StringConstants.NEWLINE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.StringConstants.TAB"><code class="docutils literal notranslate"><span class="pre">StringConstants.TAB</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.constants.FilePermissionConstants"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.FilePermissionConstants.READ_ONLY"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.READ_ONLY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.FilePermissionConstants.WRITE_ONLY"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.WRITE_ONLY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.FilePermissionConstants.READ_WRITE"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.READ_WRITE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.FilePermissionConstants.APPEND"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.APPEND</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.FilePermissionConstants.BINARY_READ"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.BINARY_READ</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.FilePermissionConstants.BINARY_WRITE"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.BINARY_WRITE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.FilePermissionConstants.BINARY_READ_WRITE"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.BINARY_READ_WRITE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.FilePermissionConstants.BINARY_APPEND"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.BINARY_APPEND</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.EMAIL_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.EMAIL_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.URL_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.URL_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.PHONE_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.PHONE_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.POSTAL_CODE_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.POSTAL_CODE_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.IP_ADDRESS_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.IP_ADDRESS_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.CREDIT_CARD_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.CREDIT_CARD_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.IPV6_ADDRESS_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.IPV6_ADDRESS_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.HTML_TAG_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.HTML_TAG_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.SLUG_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.SLUG_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.INTEGER_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.INTEGER_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.FLOAT_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.FLOAT_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.DATE_YYYY_MM_DD_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.DATE_YYYY_MM_DD_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants.TIME_HH_MM_SS_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.TIME_HH_MM_SS_PATTERN</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.typing.constants.TimeConstants"><code class="docutils literal notranslate"><span class="pre">TimeConstants</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.TimeConstants.MINUTE_IN_SECONDS"><code class="docutils literal notranslate"><span class="pre">TimeConstants.MINUTE_IN_SECONDS</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.typing.constants.TimeConstants.HOUR_IN_SECONDS"><code class="docutils literal notranslate"><span class="pre">TimeConstants.HOUR_IN_SECONDS</span></code></a></li>
@@ -660,8 +772,7 @@ If so, True is returned; otherwise False.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> – (str) url to check</p></li>
-<li><p><strong>strict</strong> (<em>optional</em>) – If False, URLs without a TLD (e.g., “<a class="reference external" href="http://example">http://example</a>”) are considered valid. Defaults to True.
-<a href="#id1"><span class="problematic" id="id2">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>strict</strong> – If False, URLs without a TLD (e.g., “<a class="reference external" href="http://example">http://example</a>”) are considered valid. Defaults to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -690,8 +801,7 @@ If so, True is returned; otherwise False.</p>
 <dd><p>Validates the Private Key</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>text</strong> (<em>str</em><em>, </em><em>optional</em>) – A string of private key text.
-<a href="#id3"><span class="problematic" id="id4">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+<dd class="field-odd"><p><strong>text</strong> (<em>str</em>) – A string of private key text.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A boolean value indicating whether the private key is valid or not.</p>
@@ -717,10 +827,8 @@ If so, True is returned; otherwise False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>text</strong> (<em>optional</em>) – A string representing the token address to be validated.
-<a href="#id5"><span class="problematic" id="id6">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>prefix</strong> (<em>optional</em>) – A string representing the prefix of the token address. Default value is “hx”.
-<a href="#id7"><span class="problematic" id="id8">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'hx'</span></code></p></li>
+<li><p><strong>text</strong> – A string representing the token address to be validated.</p></li>
+<li><p><strong>prefix</strong> – A string representing the prefix of the token address. Default value is “hx”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -743,8 +851,7 @@ If so, True is returned; otherwise False.</p>
 <dd><p>Validates the txHash</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>text</strong> (<em>str</em><em>, </em><em>optional</em>) – A string of txHash text.
-<a href="#id9"><span class="problematic" id="id10">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+<dd class="field-odd"><p><strong>text</strong> (<em>str</em>) – A string of txHash text.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A boolean value indicating whether the txHash is valid or not.</p>
@@ -847,10 +954,8 @@ If so, True is returned; otherwise False.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>message</strong> – The error message to display.</p></li>
-<li><p><strong>title</strong> (<em>optional</em>) – The error title to display.
-<a href="#id11"><span class="problematic" id="id12">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'Error</span> <span class="pre">Occurred'</span></code></p></li>
-<li><p><strong>exit_code</strong> (<em>optional</em>) – The exit code to use when terminating the program (default is 1).
-<a href="#id13"><span class="problematic" id="id14">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>title</strong> – The error title to display.</p></li>
+<li><p><strong>exit_code</strong> – The exit code to use when terminating the program (default is 1).</p></li>
 </ul>
 </dd>
 </dl>
@@ -863,10 +968,8 @@ If so, True is returned; otherwise False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>message</strong> (<em>str</em><em>, </em><em>optional</em>) – A message to be printed before exiting. (default=””)
-<a href="#id15"><span class="problematic" id="id16">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>return_code</strong> (<em>int</em><em>, </em><em>optional</em>) – An exit code to be returned. (default=-1)
-<a href="#id17"><span class="problematic" id="id18">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">-1</span></code></p></li>
+<li><p><strong>message</strong> (<em>str</em>) – A message to be printed before exiting. (default=””)</p></li>
+<li><p><strong>return_code</strong> (<em>int</em>) – An exit code to be returned. (default=-1)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -890,12 +993,9 @@ If so, True is returned; otherwise False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> (<em>str</em><em>, </em><em>optional</em>) – Target string to check.
-<a href="#id19"><span class="problematic" id="id20">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>include_list</strong> (<em>list</em><em>, </em><em>optional</em>) – List of strings to check.
-<a href="#id21"><span class="problematic" id="id22">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p></li>
-<li><p><strong>ignore_case</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, ignore case sensitive. Default is True.
-<a href="#id23"><span class="problematic" id="id24">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>target</strong> (<em>str</em>) – Target string to check.</p></li>
+<li><p><strong>include_list</strong> (<em>list</em>) – List of strings to check.</p></li>
+<li><p><strong>ignore_case</strong> (<em>bool</em>) – If True, ignore case sensitive. Default is True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -964,8 +1064,7 @@ If so, True is returned; otherwise False.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>element</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – The dictionary to search.</p></li>
 <li><p><strong>keys</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The keys to traverse in the dictionary.</p></li>
-<li><p><strong>default</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>], <em>optional</em>) – The default value to return if the keys do not exist.
-<a href="#id25"><span class="problematic" id="id26">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>default</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]) – The default value to return if the keys do not exist.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1015,8 +1114,7 @@ If so, True is returned; otherwise False.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>byte_data</strong> (<em>bytes</em>) – The byte data to be decoded.</p></li>
-<li><p><strong>default_encode</strong> (<em>str</em><em>, </em><em>optional</em>) – The default encoding to be used if no suitable encoding is found. Defaults to “utf8”.
-<a href="#id27"><span class="problematic" id="id28">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'utf8'</span></code></p></li>
+<li><p><strong>default_encode</strong> (<em>str</em>) – The default encoding to be used if no suitable encoding is found. Defaults to “utf8”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1059,8 +1157,7 @@ If so, True is returned; otherwise False.</p>
 <p>Stack List</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>max_length</strong> (<em>optional</em>) – max length size for list
-<a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1000</span></code></p>
+<dd class="field-odd"><p><strong>max_length</strong> – max length size for list</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -1132,12 +1229,9 @@ If so, True is returned; otherwise False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>max_consecutive_count</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of consecutive errors allowed. Default is 10.
-<a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
-<li><p><strong>increase_index</strong> (<em>float</em><em>, </em><em>optional</em>) – Index for calculating dynamic count. Default is 0.5.
-<a href="#id33"><span class="problematic" id="id34">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0.5</span></code></p></li>
-<li><p><strong>reset_threshold_rate</strong> (<em>int</em><em>, </em><em>optional</em>) – Threshold rate for resetting the counter. Default is 80.
-<a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">80</span></code></p></li>
+<li><p><strong>max_consecutive_count</strong> (<em>int</em>) – Maximum number of consecutive errors allowed. Default is 10.</p></li>
+<li><p><strong>increase_index</strong> (<em>float</em>) – Index for calculating dynamic count. Default is 0.5.</p></li>
+<li><p><strong>reset_threshold_rate</strong> (<em>int</em>) – Threshold rate for resetting the counter. Default is 80.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1153,8 +1247,7 @@ If so, True is returned; otherwise False.</p>
 <dd><p>Pushes an error boolean to the stack and updates counts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>error_boolean</strong> (<em>bool</em><em>, </em><em>optional</em>) – Boolean indicating if an error occurred. Default is True.
-<a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p>
+<dd class="field-odd"><p><strong>error_boolean</strong> (<em>bool</em>) – Boolean indicating if an error occurred. Default is True.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
@@ -1203,8 +1296,7 @@ If so, True is returned; otherwise False.</p>
 <dd><p>Pushes an error boolean to the stack and checks if it is ok.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>error_boolean</strong> (<em>bool</em><em>, </em><em>optional</em>) – Boolean indicating if an error occurred. Default is True.
-<a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p>
+<dd class="field-odd"><p><strong>error_boolean</strong> (<em>bool</em>) – Boolean indicating if an error occurred. Default is True.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if it is ok, False otherwise.</p>
@@ -1222,8 +1314,7 @@ If so, True is returned; otherwise False.</p>
 <dd><p>Pushes an error boolean to the stack and returns the last hit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>error_boolean</strong> (<em>bool</em><em>, </em><em>optional</em>) – Boolean indicating if an error occurred. Default is True.
-<a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p>
+<dd class="field-odd"><p><strong>error_boolean</strong> (<em>bool</em>) – Boolean indicating if an error occurred. Default is True.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if it is a hit, False otherwise.</p>
@@ -1609,8 +1700,7 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – data</p></li>
-<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – human-readable notation
-<a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – human-readable notation</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1635,9 +1725,9 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – </p></li>
-<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id45"><span class="problematic" id="id46">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>ignore_keys</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <em>optional</em>) – <a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p></li>
+<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>ignore_keys</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1660,12 +1750,12 @@ the implementation added in v1.2 of FlatDict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ansi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>hex_value</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>change</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>is_tint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>ansi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>hex_value</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>is_comma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>change</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
+<li><p><strong>is_tint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1695,8 +1785,7 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> (<em>float</em>) – Float value to be converted. Must be non-negative.</p></li>
-<li><p><strong>rounding</strong> (<em>Literal</em><em>[</em><em>'floor'</em><em>, </em><em>'round'</em><em>]</em>) – Rounding method to use (‘floor’ or ‘round’). Defaults to ‘floor’.
-<a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'floor'</span></code></p></li>
+<li><p><strong>rounding</strong> (<em>Literal</em><em>[</em><em>'floor'</em><em>, </em><em>'round'</em><em>]</em>) – Rounding method to use (‘floor’ or ‘round’). Defaults to ‘floor’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1722,8 +1811,8 @@ the implementation added in v1.2 of FlatDict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>attr</strong> (<em>optional</em>) – <a href="#id67"><span class="problematic" id="id68">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>file_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>attr</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1831,10 +1920,8 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dictionary</strong> – The dictionary to flatten</p></li>
-<li><p><strong>parent_key</strong> (<em>optional</em>) – The string to prepend to dictionary’s keys
-<a href="#id69"><span class="problematic" id="id70">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>separator</strong> (<em>optional</em>) – The string used to separate flattened keys
-<a href="#id71"><span class="problematic" id="id72">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
+<li><p><strong>parent_key</strong> – The string to prepend to dictionary’s keys</p></li>
+<li><p><strong>separator</strong> – The string used to separate flattened keys</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1851,7 +1938,7 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>list_items</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – </p></li>
-<li><p><strong>uniq</strong> (<em>optional</em>) – <a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>uniq</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1875,8 +1962,8 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>init</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – </p></li>
-<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'｡'</span></code></p></li>
-<li><p><strong>lkey</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>lkey</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1908,22 +1995,14 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dict_param</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – The dictionary to convert.</p></li>
-<li><p><strong>quotes</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[None, ‘all’, ‘strings_only’]], <em>optional</em>) – ‘all’ to wrap all values in quotes, ‘strings_only’ to wrap only string values in quotes, or None.
-<a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The separator between keys and values.
-<a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'='</span></code></p></li>
-<li><p><strong>end_separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The separator between key-value pairs.
-<a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">','</span></code></p></li>
-<li><p><strong>pad_width</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The minimum width for value alignment.
-<a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
-<li><p><strong>key_pad_width</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The minimum width for key alignment.
-<a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
-<li><p><strong>alignment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The alignment of the values (‘left’, ‘right’, ‘center’).
-<a href="#id89"><span class="problematic" id="id90">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'left'</span></code></p></li>
-<li><p><strong>key_alignment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The alignment of the keys (‘left’, ‘right’, ‘center’).
-<a href="#id91"><span class="problematic" id="id92">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'right'</span></code></p></li>
-<li><p><strong>callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span></code>], <em>optional</em>) – An optional callback function to apply to each value.
-<a href="#id93"><span class="problematic" id="id94">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>quotes</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[None, ‘all’, ‘strings_only’]]) – ‘all’ to wrap all values in quotes, ‘strings_only’ to wrap only string values in quotes, or None.</p></li>
+<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The separator between keys and values.</p></li>
+<li><p><strong>end_separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The separator between key-value pairs.</p></li>
+<li><p><strong>pad_width</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The minimum width for value alignment.</p></li>
+<li><p><strong>key_pad_width</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The minimum width for key alignment.</p></li>
+<li><p><strong>alignment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The alignment of the values (‘left’, ‘right’, ‘center’).</p></li>
+<li><p><strong>key_alignment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The alignment of the keys (‘left’, ‘right’, ‘center’).</p></li>
+<li><p><strong>callback</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span></code>]) – An optional callback function to apply to each value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1962,8 +2041,8 @@ the implementation added in v1.2 of FlatDict.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source_dict</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>], <em>optional</em>) – <a href="#id95"><span class="problematic" id="id96">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>target_dict</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>], <em>optional</em>) – <a href="#id97"><span class="problematic" id="id98">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>source_dict</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – </p></li>
+<li><p><strong>target_dict</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2009,8 +2088,7 @@ the implementation added in v1.2 of FlatDict.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>list_param</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List</p></li>
-<li><p><strong>split_str</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – String to separate
-<a href="#id99"><span class="problematic" id="id100">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
+<li><p><strong>split_str</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – String to separate</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2070,8 +2148,7 @@ Using <span class="xref std std-ref">string formatting</span> lets us use Python
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – (OrderedDict) The dictionary to change the order of keys.</p></li>
-<li><p><strong>reverse</strong> (<em>optional</em>) – (bool) Whether to sort in reverse order. Default is False.
-<a href="#id101"><span class="problematic" id="id102">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>reverse</strong> – (bool) Whether to sort in reverse order. Default is False.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2103,7 +2180,7 @@ Using <span class="xref std std-ref">string formatting</span> lets us use Python
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – </p></li>
 <li><p><strong>fn</strong> – </p></li>
-<li><p><strong>target</strong> (<em>optional</em>) – <a href="#id103"><span class="problematic" id="id104">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'key'</span></code></p></li>
+<li><p><strong>target</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2240,8 +2317,7 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> (<em>str</em><em> or </em><em>any</em>) – The value to remove spaces from.</p></li>
-<li><p><strong>replace_str</strong> (<em>str</em><em>, </em><em>optional</em>) – The string to replace the spaces with. Default is “_”.
-<a href="#id105"><span class="problematic" id="id106">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'_'</span></code></p></li>
+<li><p><strong>replace_str</strong> (<em>str</em>) – The string to replace the spaces with. Default is “_”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2275,10 +2351,8 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> (<em>str</em><em>, </em><em>float</em><em>, or </em><em>int</em>) – A value to remove ignoring characters.</p></li>
-<li><p><strong>patterns</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of ignoring characters to remove. Default is [” “, “,”].
-<a href="#id107"><span class="problematic" id="id108">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>replace_str</strong> (<em>str</em><em>, </em><em>optional</em>) – A string to replace the ignoring characters. Default is “_”.
-<a href="#id109"><span class="problematic" id="id110">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'_'</span></code></p></li>
+<li><p><strong>patterns</strong> (<em>list</em>) – A list of ignoring characters to remove. Default is [” “, “,”].</p></li>
+<li><p><strong>replace_str</strong> (<em>str</em>) – A string to replace the ignoring characters. Default is “_”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2343,8 +2417,8 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key_values</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – </p></li>
-<li><p><strong>sep</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id111"><span class="problematic" id="id112">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">','</span></code></p></li>
-<li><p><strong>operator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id113"><span class="problematic" id="id114">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'='</span></code></p></li>
+<li><p><strong>sep</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>operator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2374,7 +2448,7 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – </p></li>
-<li><p><strong>list_of_dicts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <em>optional</em>) – <a href="#id115"><span class="problematic" id="id116">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p></li>
+<li><p><strong>list_of_dicts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2441,8 +2515,7 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> (<em>list</em><em> or </em><em>object</em>) – A list of objects or a single object.</p></li>
-<li><p><strong>attr_name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the attribute to extract. Default is “name”.
-<a href="#id117"><span class="problematic" id="id118">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'name'</span></code></p></li>
+<li><p><strong>attr_name</strong> (<em>str</em>) – The name of the attribute to extract. Default is “name”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2504,10 +2577,8 @@ InfluxDB does not allow spaces</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>text</strong> (<em>optional</em>) – (str) The text to which the suffix will be appended.
-<a href="#id119"><span class="problematic" id="id120">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>suffix</strong> (<em>optional</em>) – (str) The suffix to be appended to the text.
-<a href="#id121"><span class="problematic" id="id122">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>text</strong> – (str) The text to which the suffix will be appended.</p></li>
+<li><p><strong>suffix</strong> – (str) The suffix to be appended to the text.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2535,10 +2606,8 @@ InfluxDB does not allow spaces</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>text</strong> (<em>optional</em>) – (str) The text to add prefix to.
-<a href="#id123"><span class="problematic" id="id124">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>prefix</strong> (<em>optional</em>) – (str) The prefix to add to the text.
-<a href="#id125"><span class="problematic" id="id126">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>text</strong> – (str) The text to add prefix to.</p></li>
+<li><p><strong>prefix</strong> – (str) The prefix to add to the text.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2675,8 +2744,7 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>s</strong> – The input snake_case string to convert.</p></li>
-<li><p><strong>separator</strong> (<em>optional</em>) – The separator to use between words. Default is a space.
-<a href="#id127"><span class="problematic" id="id128">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'</span> <span class="pre">'</span></code></p></li>
+<li><p><strong>separator</strong> – The separator to use between words. Default is a space.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2772,16 +2840,11 @@ InfluxDB does not allow spaces</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>text</strong> (<em>optional</em>) – text to shorten
-<a href="#id129"><span class="problematic" id="id130">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>width</strong> (<em>optional</em>) – maximum width of the string
-<a href="#id131"><span class="problematic" id="id132">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>placeholder</strong> (<em>optional</em>) – placeholder string of the text
-<a href="#id133"><span class="problematic" id="id134">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'[...]'</span></code></p></li>
-<li><p><strong>shorten_middle</strong> (<em>optional</em>) – True if the text is to be shortened in the middle
-<a href="#id135"><span class="problematic" id="id136">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>use_tags</strong> (<em>optional</em>) – True if ASCII and tags need to be removed from text
-<a href="#id137"><span class="problematic" id="id138">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>text</strong> – text to shorten</p></li>
+<li><p><strong>width</strong> – maximum width of the string</p></li>
+<li><p><strong>placeholder</strong> – placeholder string of the text</p></li>
+<li><p><strong>shorten_middle</strong> – True if the text is to be shortened in the middle</p></li>
+<li><p><strong>use_tags</strong> – True if ASCII and tags need to be removed from text</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2813,8 +2876,7 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>number</strong> – float number to be truncated.</p></li>
-<li><p><strong>digits</strong> (<em>optional</em>) – number of decimal places to truncate to. Default is 2.
-<a href="#id139"><span class="problematic" id="id140">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>digits</strong> – number of decimal places to truncate to. Default is 2.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2844,8 +2906,7 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>number</strong> – The decimal number to be truncated.</p></li>
-<li><p><strong>digits</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The number of decimal places to truncate the number to. Default is 2.
-<a href="#id141"><span class="problematic" id="id142">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>digits</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of decimal places to truncate the number to. Default is 2.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2897,10 +2958,8 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> – The input text from which tags need to be removed.</p></li>
-<li><p><strong>case_sensitive</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘lower’, ‘upper’, ‘both’], <em>optional</em>) – The case sensitivity option for tags, default is “lower”. Available options are “lower”, “upper”, and “both”.
-<a href="#id143"><span class="problematic" id="id144">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'lower'</span></code></p></li>
-<li><p><strong>tag_style</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘angle’, ‘square’], <em>optional</em>) – The tag style to be removed, default is “square”. Available options are “angle” and “square”.
-<a href="#id145"><span class="problematic" id="id146">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'square'</span></code></p></li>
+<li><p><strong>case_sensitive</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘lower’, ‘upper’, ‘both’]) – The case sensitivity option for tags, default is “lower”. Available options are “lower”, “upper”, and “both”.</p></li>
+<li><p><strong>tag_style</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘angle’, ‘square’]) – The tag style to be removed, default is “square”. Available options are “angle” and “square”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2992,8 +3051,7 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>jwt_token</strong> – The JWT token to decode.</p></li>
-<li><p><strong>use_kst</strong> (<em>optional</em>) – Boolean indicating whether to convert expiration time to KST timezone.
-<a href="#id147"><span class="problematic" id="id148">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>use_kst</strong> – Boolean indicating whether to convert expiration time to KST timezone.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -3023,8 +3081,36 @@ InfluxDB does not allow spaces</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pawnlib.typing.converter.escape_markdown">
 <span class="sig-name descname"><span class="pre">escape_markdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/converter.html#escape_markdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.converter.escape_markdown" title="Permalink to this definition"></a></dt>
-<dd><p>Escape Markdown special characters</p>
+<dd><p>Escape Markdown special characters for Telegram’s MarkdownV2 format.</p>
+<p>Converts input to string if it’s not already a string and escapes necessary characters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> – The text to escape for MarkdownV2, can be a number or string.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Escaped text for safe MarkdownV2 usage in Telegram.</p>
+</dd>
+</dl>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.typing.converter.escape_non_markdown">
+<span class="sig-name descname"><span class="pre">escape_non_markdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/converter.html#escape_non_markdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.converter.escape_non_markdown" title="Permalink to this definition"></a></dt>
+<dd><p>Escapes special characters only in non-markdown parts of the input text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> – Input text with markdown content.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Text where special characters are escaped outside markdown syntax.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.typing.converter.analyze_jail_flags">
+<span class="sig-name descname"><span class="pre">analyze_jail_flags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'list'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/converter.html#analyze_jail_flags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.converter.analyze_jail_flags" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </section>
 <section id="pawnlib-typing-date-utils-module">
@@ -3039,8 +3125,7 @@ InfluxDB does not allow spaces</p>
 <p>A class that converts seconds to a string format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>seconds</strong> (<em>optional</em>) – The number of seconds to be converted.
-<a href="#id149"><span class="problematic" id="id150">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
+<dd class="field-odd"><p><strong>seconds</strong> – The number of seconds to be converted.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -3147,7 +3232,7 @@ InfluxDB does not allow spaces</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>year</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
 <li><p><strong>month</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
-<li><p><strong>return_unix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id151"><span class="problematic" id="id152">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>return_unix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -3170,8 +3255,7 @@ InfluxDB does not allow spaces</p>
 <dd><p>This functions will be returned today date string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>date_type</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘file’, ‘time’, ‘time_sec’, ‘hour’, ‘ms’, ‘log’, ‘log_ms’, ‘ms_text’, ‘unix’, ‘ms_unix’]], <em>optional</em>) – file, time, time_sec, hour, ms, ms_text, unix, ms_unix
-<a href="#id153"><span class="problematic" id="id154">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+<dd class="field-odd"><p><strong>date_type</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘file’, ‘time’, ‘time_sec’, ‘hour’, ‘ms’, ‘log’, ‘log_ms’, ‘ms_text’, ‘unix’, ‘ms_unix’]]) – file, time, time_sec, hour, ms, ms_text, unix, ms_unix</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -3198,7 +3282,7 @@ InfluxDB does not allow spaces</p>
 <dd><p>This functions will be returned seconds to hh:mm:ss format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>seconds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id155"><span class="problematic" id="id156">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
+<dd class="field-odd"><p><strong>seconds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
@@ -3221,8 +3305,7 @@ InfluxDB does not allow spaces</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>unix_timestamp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – unix_timestamp</p></li>
-<li><p><strong>str_format</strong> (<em>optional</em>) – string format
-<a href="#id157"><span class="problematic" id="id158">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M:%S'</span></code></p></li>
+<li><p><strong>str_format</strong> – string format</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -3245,7 +3328,7 @@ InfluxDB does not allow spaces</p>
 <dd><p>This functions will be returned unix timestamp to days hh:mm:ss format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>seconds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id159"><span class="problematic" id="id160">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p>
+<dd class="field-odd"><p><strong>seconds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
@@ -3268,6 +3351,706 @@ InfluxDB does not allow spaces</p>
 </pre></div>
 </div>
 <span class="target" id="module-pawnlib.typing.constants"></span><dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ICONPRepStatus</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#ICONPRepStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_ACTIVE">
+<span class="sig-name descname"><span class="pre">PREP_STATUS_ACTIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_ACTIVE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_UNREGISTERED">
+<span class="sig-name descname"><span class="pre">PREP_STATUS_UNREGISTERED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_UNREGISTERED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_DISQUALIFIED">
+<span class="sig-name descname"><span class="pre">PREP_STATUS_DISQUALIFIED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_DISQUALIFIED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_NONE">
+<span class="sig-name descname"><span class="pre">PREP_LAST_STATE_NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_NONE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_READY">
+<span class="sig-name descname"><span class="pre">PREP_LAST_STATE_READY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_READY" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_SUCCESS">
+<span class="sig-name descname"><span class="pre">PREP_LAST_STATE_SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_SUCCESS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_FAILURE">
+<span class="sig-name descname"><span class="pre">PREP_LAST_STATE_FAILURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_FAILURE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_DESCRIPTIONS">
+<span class="sig-name descname"><span class="pre">PREP_STATUS_DESCRIPTIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{0:</span> <span class="pre">'active',</span> <span class="pre">1:</span> <span class="pre">'unregistered',</span> <span class="pre">2:</span> <span class="pre">'disqualified'}</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_DESCRIPTIONS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_DESCRIPTIONS">
+<span class="sig-name descname"><span class="pre">PREP_LAST_STATE_DESCRIPTIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{0:</span> <span class="pre">None,</span> <span class="pre">1:</span> <span class="pre">'Ready',</span> <span class="pre">2:</span> <span class="pre">'Success',</span> <span class="pre">3:</span> <span class="pre">'Failure'}</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_DESCRIPTIONS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.get_status">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#ICONPRepStatus.get_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.get_status" title="Permalink to this definition"></a></dt>
+<dd><p>Return the description of the given P-Rep status type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPRepStatus.get_last_state">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_last_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#ICONPRepStatus.get_last_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.ICONPRepStatus.get_last_state" title="Permalink to this definition"></a></dt>
+<dd><p>Return the description of the given P-Rep last state type.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPenaltyType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ICONPenaltyType</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#ICONPenaltyType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.ICONPenaltyType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_NO_PENALTY">
+<span class="sig-name descname"><span class="pre">PENALTY_TYPE_NO_PENALTY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_NO_PENALTY" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_PREP_DISQUALIFICATION">
+<span class="sig-name descname"><span class="pre">PENALTY_TYPE_PREP_DISQUALIFICATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_PREP_DISQUALIFICATION" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE">
+<span class="sig-name descname"><span class="pre">PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_VALIDATION_FAILURE">
+<span class="sig-name descname"><span class="pre">PENALTY_TYPE_VALIDATION_FAILURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_VALIDATION_FAILURE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE">
+<span class="sig-name descname"><span class="pre">PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_DOUBLE_SIGN">
+<span class="sig-name descname"><span class="pre">PENALTY_TYPE_DOUBLE_SIGN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_DOUBLE_SIGN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_DESCRIPTIONS">
+<span class="sig-name descname"><span class="pre">PENALTY_TYPE_DESCRIPTIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{0:</span> <span class="pre">'No</span> <span class="pre">penalty',</span> <span class="pre">1:</span> <span class="pre">'P-Rep</span> <span class="pre">disqualification</span> <span class="pre">penalty',</span> <span class="pre">2:</span> <span class="pre">'Accumulated</span> <span class="pre">block</span> <span class="pre">validation</span> <span class="pre">failure</span> <span class="pre">penalty',</span> <span class="pre">3:</span> <span class="pre">'Validation</span> <span class="pre">failure</span> <span class="pre">penalty',</span> <span class="pre">4:</span> <span class="pre">'Missed</span> <span class="pre">Network</span> <span class="pre">Proposal</span> <span class="pre">vote</span> <span class="pre">penalty',</span> <span class="pre">5:</span> <span class="pre">'Double</span> <span class="pre">sign</span> <span class="pre">penalty'}</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_DESCRIPTIONS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPenaltyType.get_penalty">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">penalty_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#ICONPenaltyType.get_penalty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.ICONPenaltyType.get_penalty" title="Permalink to this definition"></a></dt>
+<dd><p>Return the description of the given penalty type.
+:type penalty_type: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
+:param penalty_type: The penalty type ID.
+:return: Description string of the penalty type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONPenaltyType.convert_to_int">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_to_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#ICONPenaltyType.convert_to_int"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.ICONPenaltyType.convert_to_int" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONJailFlags">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ICONJailFlags</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#ICONJailFlags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.ICONJailFlags" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONJailFlags.ICON_IN_JAIL">
+<span class="sig-name descname"><span class="pre">ICON_IN_JAIL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONJailFlags.ICON_IN_JAIL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONJailFlags.ICON_UN_JAILING">
+<span class="sig-name descname"><span class="pre">ICON_UN_JAILING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONJailFlags.ICON_UN_JAILING" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONJailFlags.ICON_ACCUMULATED_VALIDATION_FAILURE">
+<span class="sig-name descname"><span class="pre">ICON_ACCUMULATED_VALIDATION_FAILURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONJailFlags.ICON_ACCUMULATED_VALIDATION_FAILURE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONJailFlags.ICON_DOUBLE_SIGN">
+<span class="sig-name descname"><span class="pre">ICON_DOUBLE_SIGN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONJailFlags.ICON_DOUBLE_SIGN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONJailFlags.FLAGS">
+<span class="sig-name descname"><span class="pre">FLAGS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'accumulatedValidationFailure':</span> <span class="pre">4,</span> <span class="pre">'doubleSign':</span> <span class="pre">8,</span> <span class="pre">'inJail':</span> <span class="pre">1,</span> <span class="pre">'unJailing':</span> <span class="pre">2}</span></em><a class="headerlink" href="#pawnlib.typing.constants.ICONJailFlags.FLAGS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.ICONJailFlags.get_jail_flags">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_jail_flags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'list'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#ICONJailFlags.get_jail_flags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.ICONJailFlags.get_jail_flags" title="Permalink to this definition"></a></dt>
+<dd><p>Analyze the given value for jail flags and return the result as a list or string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Integer value representing the jail flags.</p></li>
+<li><p><strong>return_type</strong> – Return type, either “list” (default) or “str”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of flag names or a comma-separated string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.SpecialCharacterConstants">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpecialCharacterConstants</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#SpecialCharacterConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.SpecialCharacterConstants" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.SpecialCharacterConstants.SPECIAL_CHARACTERS">
+<span class="sig-name descname"><span class="pre">SPECIAL_CHARACTERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_*[]()~`&gt;#+-=|{}.!\\\\'</span></em><a class="headerlink" href="#pawnlib.typing.constants.SpecialCharacterConstants.SPECIAL_CHARACTERS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.SpecialCharacterConstants.ALL_SPECIAL_CHARACTERS">
+<span class="sig-name descname"><span class="pre">ALL_SPECIAL_CHARACTERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'!&#64;#$%^&amp;*()_+-=[]{}|;:\'\\&quot;,.&lt;&gt;?/'</span></em><a class="headerlink" href="#pawnlib.typing.constants.SpecialCharacterConstants.ALL_SPECIAL_CHARACTERS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HTTPConstants</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#HTTPConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Headers</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#HTTPConstants.Headers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.CONTENT_TYPE">
+<span class="sig-name descname"><span class="pre">CONTENT_TYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Content-Type'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.CONTENT_TYPE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.AUTHORIZATION">
+<span class="sig-name descname"><span class="pre">AUTHORIZATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Authorization'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.AUTHORIZATION" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.USER_AGENT">
+<span class="sig-name descname"><span class="pre">USER_AGENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'User-Agent'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.USER_AGENT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.ACCEPT">
+<span class="sig-name descname"><span class="pre">ACCEPT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Accept'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.ACCEPT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.ACCEPT_LANGUAGE">
+<span class="sig-name descname"><span class="pre">ACCEPT_LANGUAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Accept-Language'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.ACCEPT_LANGUAGE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.CACHE_CONTROL">
+<span class="sig-name descname"><span class="pre">CACHE_CONTROL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Cache-Control'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.CACHE_CONTROL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.SET_COOKIE">
+<span class="sig-name descname"><span class="pre">SET_COOKIE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Set-Cookie'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.SET_COOKIE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.REFERER">
+<span class="sig-name descname"><span class="pre">REFERER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Referer'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.REFERER" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.ORIGIN">
+<span class="sig-name descname"><span class="pre">ORIGIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Origin'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.ORIGIN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.HOST">
+<span class="sig-name descname"><span class="pre">HOST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Host'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.HOST" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.Headers.CONNECTION">
+<span class="sig-name descname"><span class="pre">CONNECTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Connection'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.Headers.CONNECTION" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MIMEType</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#HTTPConstants.MIMEType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.APPLICATION_JSON">
+<span class="sig-name descname"><span class="pre">APPLICATION_JSON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'application/json'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.APPLICATION_JSON" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.APPLICATION_XML">
+<span class="sig-name descname"><span class="pre">APPLICATION_XML</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'application/xml'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.APPLICATION_XML" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.APPLICATION_PDF">
+<span class="sig-name descname"><span class="pre">APPLICATION_PDF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'application/pdf'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.APPLICATION_PDF" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.APPLICATION_OCTET_STREAM">
+<span class="sig-name descname"><span class="pre">APPLICATION_OCTET_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'application/octet-stream'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.APPLICATION_OCTET_STREAM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.TEXT_PLAIN">
+<span class="sig-name descname"><span class="pre">TEXT_PLAIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'text/plain'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.TEXT_PLAIN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.TEXT_HTML">
+<span class="sig-name descname"><span class="pre">TEXT_HTML</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'text/html'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.TEXT_HTML" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.TEXT_CSS">
+<span class="sig-name descname"><span class="pre">TEXT_CSS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'text/css'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.TEXT_CSS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.TEXT_JAVASCRIPT">
+<span class="sig-name descname"><span class="pre">TEXT_JAVASCRIPT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'text/javascript'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.TEXT_JAVASCRIPT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.IMAGE_JPEG">
+<span class="sig-name descname"><span class="pre">IMAGE_JPEG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'image/jpeg'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.IMAGE_JPEG" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.IMAGE_PNG">
+<span class="sig-name descname"><span class="pre">IMAGE_PNG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'image/png'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.IMAGE_PNG" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.IMAGE_GIF">
+<span class="sig-name descname"><span class="pre">IMAGE_GIF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'image/gif'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.IMAGE_GIF" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.IMAGE_SVG">
+<span class="sig-name descname"><span class="pre">IMAGE_SVG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'image/svg+xml'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.IMAGE_SVG" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.AUDIO_MP3">
+<span class="sig-name descname"><span class="pre">AUDIO_MP3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'audio/mpeg'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.AUDIO_MP3" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.AUDIO_WAV">
+<span class="sig-name descname"><span class="pre">AUDIO_WAV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'audio/wav'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.AUDIO_WAV" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.VIDEO_MP4">
+<span class="sig-name descname"><span class="pre">VIDEO_MP4</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'video/mp4'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.VIDEO_MP4" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.VIDEO_WEBM">
+<span class="sig-name descname"><span class="pre">VIDEO_WEBM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'video/webm'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.VIDEO_WEBM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.MULTIPART_FORM_DATA">
+<span class="sig-name descname"><span class="pre">MULTIPART_FORM_DATA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'multipart/form-data'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.MULTIPART_FORM_DATA" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.MIMEType.APPLICATION_FORM_URLENCODED">
+<span class="sig-name descname"><span class="pre">APPLICATION_FORM_URLENCODED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'application/x-www-form-urlencoded'</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.MIMEType.APPLICATION_FORM_URLENCODED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HTTPStatusCodes</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#HTTPConstants.HTTPStatusCodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.OK">
+<span class="sig-name descname"><span class="pre">OK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">200</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.OK" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.CREATED">
+<span class="sig-name descname"><span class="pre">CREATED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">201</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.CREATED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.ACCEPTED">
+<span class="sig-name descname"><span class="pre">ACCEPTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">202</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.ACCEPTED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.NO_CONTENT">
+<span class="sig-name descname"><span class="pre">NO_CONTENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">204</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.NO_CONTENT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.BAD_REQUEST">
+<span class="sig-name descname"><span class="pre">BAD_REQUEST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">400</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.BAD_REQUEST" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.UNAUTHORIZED">
+<span class="sig-name descname"><span class="pre">UNAUTHORIZED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">401</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.UNAUTHORIZED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.FORBIDDEN">
+<span class="sig-name descname"><span class="pre">FORBIDDEN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">403</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.FORBIDDEN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.NOT_FOUND">
+<span class="sig-name descname"><span class="pre">NOT_FOUND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">404</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.NOT_FOUND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.METHOD_NOT_ALLOWED">
+<span class="sig-name descname"><span class="pre">METHOD_NOT_ALLOWED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">405</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.METHOD_NOT_ALLOWED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.CONFLICT">
+<span class="sig-name descname"><span class="pre">CONFLICT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">409</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.CONFLICT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.INTERNAL_SERVER_ERROR">
+<span class="sig-name descname"><span class="pre">INTERNAL_SERVER_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">500</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.INTERNAL_SERVER_ERROR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.BAD_GATEWAY">
+<span class="sig-name descname"><span class="pre">BAD_GATEWAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">502</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.BAD_GATEWAY" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.SERVICE_UNAVAILABLE">
+<span class="sig-name descname"><span class="pre">SERVICE_UNAVAILABLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">503</span></em><a class="headerlink" href="#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes.SERVICE_UNAVAILABLE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DateFormatConstants</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#DateFormatConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.ISO_8601">
+<span class="sig-name descname"><span class="pre">ISO_8601</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%Y-%m-%dT%H:%M:%S'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.ISO_8601" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.ISO_8601_WITH_MS">
+<span class="sig-name descname"><span class="pre">ISO_8601_WITH_MS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%Y-%m-%dT%H:%M:%S.%f'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.ISO_8601_WITH_MS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.ISO_8601_WITH_TZ">
+<span class="sig-name descname"><span class="pre">ISO_8601_WITH_TZ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%Y-%m-%dT%H:%M:%S%z'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.ISO_8601_WITH_TZ" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.HUMAN_READABLE">
+<span class="sig-name descname"><span class="pre">HUMAN_READABLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%A,</span> <span class="pre">%d</span> <span class="pre">%B</span> <span class="pre">%Y</span> <span class="pre">%I:%M</span> <span class="pre">%p'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.HUMAN_READABLE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.SIMPLE_DATE">
+<span class="sig-name descname"><span class="pre">SIMPLE_DATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%Y-%m-%d'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.SIMPLE_DATE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.SIMPLE_TIME">
+<span class="sig-name descname"><span class="pre">SIMPLE_TIME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%H:%M:%S'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.SIMPLE_TIME" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.SIMPLE_DATETIME">
+<span class="sig-name descname"><span class="pre">SIMPLE_DATETIME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M:%S'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.SIMPLE_DATETIME" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.DATE_WITHOUT_YEAR">
+<span class="sig-name descname"><span class="pre">DATE_WITHOUT_YEAR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%d-%m'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.DATE_WITHOUT_YEAR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.TIME_WITHOUT_SECONDS">
+<span class="sig-name descname"><span class="pre">TIME_WITHOUT_SECONDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%H:%M'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.TIME_WITHOUT_SECONDS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.US_DATE">
+<span class="sig-name descname"><span class="pre">US_DATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%m/%d/%Y'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.US_DATE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.US_DATE_TIME">
+<span class="sig-name descname"><span class="pre">US_DATE_TIME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%m/%d/%Y</span> <span class="pre">%I:%M</span> <span class="pre">%p'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.US_DATE_TIME" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.UK_DATE">
+<span class="sig-name descname"><span class="pre">UK_DATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%d/%m/%Y'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.UK_DATE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.UK_DATE_TIME">
+<span class="sig-name descname"><span class="pre">UK_DATE_TIME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%d/%m/%Y</span> <span class="pre">%H:%M:%S'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.UK_DATE_TIME" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.UNIX_TIMESTAMP_SECONDS">
+<span class="sig-name descname"><span class="pre">UNIX_TIMESTAMP_SECONDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%s'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.UNIX_TIMESTAMP_SECONDS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.UNIX_TIMESTAMP_MS">
+<span class="sig-name descname"><span class="pre">UNIX_TIMESTAMP_MS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%f'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.UNIX_TIMESTAMP_MS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.YEAR_ONLY">
+<span class="sig-name descname"><span class="pre">YEAR_ONLY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%Y'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.YEAR_ONLY" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.MONTH_YEAR">
+<span class="sig-name descname"><span class="pre">MONTH_YEAR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%B</span> <span class="pre">%Y'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.MONTH_YEAR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.DAY_MONTH">
+<span class="sig-name descname"><span class="pre">DAY_MONTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%d</span> <span class="pre">%B'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.DAY_MONTH" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.TIME_12_HOUR">
+<span class="sig-name descname"><span class="pre">TIME_12_HOUR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%I:%M</span> <span class="pre">%p'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.TIME_12_HOUR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.DateFormatConstants.TIME_24_HOUR">
+<span class="sig-name descname"><span class="pre">TIME_24_HOUR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%H:%M:%S'</span></em><a class="headerlink" href="#pawnlib.typing.constants.DateFormatConstants.TIME_24_HOUR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StringConstants</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#StringConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.StringConstants" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.EMPTY_STRING">
+<span class="sig-name descname"><span class="pre">EMPTY_STRING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.EMPTY_STRING" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.SPACE">
+<span class="sig-name descname"><span class="pre">SPACE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'</span> <span class="pre">'</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.SPACE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.UNDERSCORE">
+<span class="sig-name descname"><span class="pre">UNDERSCORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_'</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.UNDERSCORE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.DASH">
+<span class="sig-name descname"><span class="pre">DASH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'-'</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.DASH" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.COLON">
+<span class="sig-name descname"><span class="pre">COLON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">':'</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.COLON" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.SEMICOLON">
+<span class="sig-name descname"><span class="pre">SEMICOLON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">';'</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.SEMICOLON" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.COMMA">
+<span class="sig-name descname"><span class="pre">COMMA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">','</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.COMMA" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.PERIOD">
+<span class="sig-name descname"><span class="pre">PERIOD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.'</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.PERIOD" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.PIPE">
+<span class="sig-name descname"><span class="pre">PIPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'|'</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.PIPE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.NEWLINE">
+<span class="sig-name descname"><span class="pre">NEWLINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n'</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.NEWLINE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.StringConstants.TAB">
+<span class="sig-name descname"><span class="pre">TAB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\t'</span></em><a class="headerlink" href="#pawnlib.typing.constants.StringConstants.TAB" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.FilePermissionConstants">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FilePermissionConstants</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#FilePermissionConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.FilePermissionConstants" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.FilePermissionConstants.READ_ONLY">
+<span class="sig-name descname"><span class="pre">READ_ONLY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'r'</span></em><a class="headerlink" href="#pawnlib.typing.constants.FilePermissionConstants.READ_ONLY" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.FilePermissionConstants.WRITE_ONLY">
+<span class="sig-name descname"><span class="pre">WRITE_ONLY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'w'</span></em><a class="headerlink" href="#pawnlib.typing.constants.FilePermissionConstants.WRITE_ONLY" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.FilePermissionConstants.READ_WRITE">
+<span class="sig-name descname"><span class="pre">READ_WRITE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'r+'</span></em><a class="headerlink" href="#pawnlib.typing.constants.FilePermissionConstants.READ_WRITE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.FilePermissionConstants.APPEND">
+<span class="sig-name descname"><span class="pre">APPEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'a'</span></em><a class="headerlink" href="#pawnlib.typing.constants.FilePermissionConstants.APPEND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.FilePermissionConstants.BINARY_READ">
+<span class="sig-name descname"><span class="pre">BINARY_READ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'rb'</span></em><a class="headerlink" href="#pawnlib.typing.constants.FilePermissionConstants.BINARY_READ" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.FilePermissionConstants.BINARY_WRITE">
+<span class="sig-name descname"><span class="pre">BINARY_WRITE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'wb'</span></em><a class="headerlink" href="#pawnlib.typing.constants.FilePermissionConstants.BINARY_WRITE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.FilePermissionConstants.BINARY_READ_WRITE">
+<span class="sig-name descname"><span class="pre">BINARY_READ_WRITE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'r+b'</span></em><a class="headerlink" href="#pawnlib.typing.constants.FilePermissionConstants.BINARY_READ_WRITE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.FilePermissionConstants.BINARY_APPEND">
+<span class="sig-name descname"><span class="pre">BINARY_APPEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ab'</span></em><a class="headerlink" href="#pawnlib.typing.constants.FilePermissionConstants.BINARY_APPEND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RegexPatternConstants</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#RegexPatternConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.EMAIL_PATTERN">
+<span class="sig-name descname"><span class="pre">EMAIL_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^[a-zA-Z0-9_.+-]+&#64;[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.EMAIL_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.URL_PATTERN">
+<span class="sig-name descname"><span class="pre">URL_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^(https?|ftp)://[^\\s/$.?#].[^\\s]*$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.URL_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.PHONE_PATTERN">
+<span class="sig-name descname"><span class="pre">PHONE_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^\\+?1?\\d{9,15}$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.PHONE_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.POSTAL_CODE_PATTERN">
+<span class="sig-name descname"><span class="pre">POSTAL_CODE_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^\\d{5}(?:[-\\s]\\d{4})?$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.POSTAL_CODE_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.IP_ADDRESS_PATTERN">
+<span class="sig-name descname"><span class="pre">IP_ADDRESS_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^(?:\\d{1,3}\\.){3}\\d{1,3}$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.IP_ADDRESS_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.CREDIT_CARD_PATTERN">
+<span class="sig-name descname"><span class="pre">CREDIT_CARD_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.CREDIT_CARD_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.IPV6_ADDRESS_PATTERN">
+<span class="sig-name descname"><span class="pre">IPV6_ADDRESS_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.IPV6_ADDRESS_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.HTML_TAG_PATTERN">
+<span class="sig-name descname"><span class="pre">HTML_TAG_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;(\\&quot;[^\\&quot;]*\\&quot;|\'[^\']*\'|[^\'\\&quot;&gt;])*&gt;'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.HTML_TAG_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.SLUG_PATTERN">
+<span class="sig-name descname"><span class="pre">SLUG_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^[a-z0-9]+(?:-[a-z0-9]+)*$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.SLUG_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.INTEGER_PATTERN">
+<span class="sig-name descname"><span class="pre">INTEGER_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^-?\\d+$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.INTEGER_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.FLOAT_PATTERN">
+<span class="sig-name descname"><span class="pre">FLOAT_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^-?\\d*(\\.\\d+)?$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.FLOAT_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.DATE_YYYY_MM_DD_PATTERN">
+<span class="sig-name descname"><span class="pre">DATE_YYYY_MM_DD_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^\\d{4}-\\d{2}-\\d{2}$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.DATE_YYYY_MM_DD_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.typing.constants.RegexPatternConstants.TIME_HH_MM_SS_PATTERN">
+<span class="sig-name descname"><span class="pre">TIME_HH_MM_SS_PATTERN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'^\\d{2}:\\d{2}:\\d{2}$'</span></em><a class="headerlink" href="#pawnlib.typing.constants.RegexPatternConstants.TIME_HH_MM_SS_PATTERN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="pawnlib.typing.constants.TimeConstants">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TimeConstants</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#TimeConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.TimeConstants" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -3768,7 +4551,7 @@ InfluxDB does not allow spaces</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pawnlib.typing.constants.AllConstants">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AllConstants</span></span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#AllConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.AllConstants" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pawnlib.typing.constants.TimeConstants" title="pawnlib.typing.constants.TimeConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.BooleanConstants" title="pawnlib.typing.constants.BooleanConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">BooleanConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.NumericConstants" title="pawnlib.typing.constants.NumericConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumericConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.AddressConstants" title="pawnlib.typing.constants.AddressConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.TimeStampDigits" title="pawnlib.typing.constants.TimeStampDigits"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeStampDigits</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.ICONConstants" title="pawnlib.typing.constants.ICONConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">ICONConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.HAVAHConstants" title="pawnlib.typing.constants.HAVAHConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">HAVAHConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.CryptographicConstants" title="pawnlib.typing.constants.CryptographicConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">CryptographicConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.NetworkConstants" title="pawnlib.typing.constants.NetworkConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">NetworkConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.AWSRegionConstants" title="pawnlib.typing.constants.AWSRegionConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">AWSRegionConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.GradeMappingConstants" title="pawnlib.typing.constants.GradeMappingConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">GradeMappingConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.YesNoConstants" title="pawnlib.typing.constants.YesNoConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">YesNoConstants</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pawnlib.typing.constants.ICONPRepStatus" title="pawnlib.typing.constants.ICONPRepStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">ICONPRepStatus</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.ICONJailFlags" title="pawnlib.typing.constants.ICONJailFlags"><code class="xref py py-class docutils literal notranslate"><span class="pre">ICONJailFlags</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.SpecialCharacterConstants" title="pawnlib.typing.constants.SpecialCharacterConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpecialCharacterConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.RegexPatternConstants" title="pawnlib.typing.constants.RegexPatternConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegexPatternConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.HTTPConstants" title="pawnlib.typing.constants.HTTPConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">HTTPConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.DateFormatConstants" title="pawnlib.typing.constants.DateFormatConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">DateFormatConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.StringConstants" title="pawnlib.typing.constants.StringConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.FilePermissionConstants" title="pawnlib.typing.constants.FilePermissionConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">FilePermissionConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.TimeConstants" title="pawnlib.typing.constants.TimeConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.BooleanConstants" title="pawnlib.typing.constants.BooleanConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">BooleanConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.NumericConstants" title="pawnlib.typing.constants.NumericConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumericConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.AddressConstants" title="pawnlib.typing.constants.AddressConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.TimeStampDigits" title="pawnlib.typing.constants.TimeStampDigits"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeStampDigits</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.ICONConstants" title="pawnlib.typing.constants.ICONConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">ICONConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.HAVAHConstants" title="pawnlib.typing.constants.HAVAHConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">HAVAHConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.CryptographicConstants" title="pawnlib.typing.constants.CryptographicConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">CryptographicConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.NetworkConstants" title="pawnlib.typing.constants.NetworkConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">NetworkConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.AWSRegionConstants" title="pawnlib.typing.constants.AWSRegionConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">AWSRegionConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.GradeMappingConstants" title="pawnlib.typing.constants.GradeMappingConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">GradeMappingConstants</span></code></a>, <a class="reference internal" href="#pawnlib.typing.constants.YesNoConstants" title="pawnlib.typing.constants.YesNoConstants"><code class="xref py py-class docutils literal notranslate"><span class="pre">YesNoConstants</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.typing.constants.AllConstants.get_aws_region_name">
 <span class="sig-name descname"><span class="pre">get_aws_region_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/typing/constants.html#AllConstants.get_aws_region_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.typing.constants.AllConstants.get_aws_region_name" title="Permalink to this definition"></a></dt>
@@ -3823,9 +4606,9 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>namespace</strong> (<em>optional</em>) – <a href="#id161"><span class="problematic" id="id162">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>key</strong> (<em>optional</em>) – <a href="#id163"><span class="problematic" id="id164">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>default</strong> (<em>optional</em>) – <a href="#id165"><span class="problematic" id="id166">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>namespace</strong> – </p></li>
+<li><p><strong>key</strong> – </p></li>
+<li><p><strong>default</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -3856,8 +4639,7 @@ string representation.</p>
 <dd><p>Fill the required data arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>required</strong> (<em>dict</em><em>, </em><em>optional</em>) – A dictionary of required arguments.
-<a href="#id167"><span class="problematic" id="id168">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">{}</span></code></p>
+<dd class="field-odd"><p><strong>required</strong> (<em>dict</em>) – A dictionary of required arguments.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The filled arguments.</p>
@@ -3904,16 +4686,11 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Start Number ( float or int )
-<a href="#id169"><span class="problematic" id="id170">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Stop Number ( float or int )
-<a href="#id171"><span class="problematic" id="id172">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
-<li><p><strong>step</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Step Number ( float or int )
-<a href="#id173"><span class="problematic" id="id174">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>convert_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>, <em>optional</em>) – Functions to execute on increment
-<a href="#id175"><span class="problematic" id="id176">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;</span></code></p></li>
-<li><p><strong>kwargs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>], <em>optional</em>) – Arguments to the function to be executed on increment
-<a href="#id177"><span class="problematic" id="id178">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Start Number ( float or int )</p></li>
+<li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Stop Number ( float or int )</p></li>
+<li><p><strong>step</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Step Number ( float or int )</p></li>
+<li><p><strong>convert_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – Functions to execute on increment</p></li>
+<li><p><strong>kwargs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>]) – Arguments to the function to be executed on increment</p></li>
 </ul>
 </dd>
 </dl>
@@ -3944,16 +4721,11 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Start Number ( float or int )
-<a href="#id179"><span class="problematic" id="id180">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Stop Number ( float or int )
-<a href="#id181"><span class="problematic" id="id182">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
-<li><p><strong>step</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Step Number ( float or int )
-<a href="#id183"><span class="problematic" id="id184">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>convert_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>, <em>optional</em>) – Functions to execute on increment
-<a href="#id185"><span class="problematic" id="id186">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;</span></code></p></li>
-<li><p><strong>kwargs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>], <em>optional</em>) – Arguments to the function to be executed on increment
-<a href="#id187"><span class="problematic" id="id188">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>start</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Start Number ( float or int )</p></li>
+<li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Stop Number ( float or int )</p></li>
+<li><p><strong>step</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Step Number ( float or int )</p></li>
+<li><p><strong>convert_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – Functions to execute on increment</p></li>
+<li><p><strong>kwargs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>]) – Arguments to the function to be executed on increment</p></li>
 </ul>
 </dd>
 </dl>
@@ -4004,12 +4776,9 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<em>optional</em>) – (int) Starting number (default: 10000)
-<a href="#id189"><span class="problematic" id="id190">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10000</span></code></p></li>
-<li><p><strong>count</strong> (<em>optional</em>) – (int) Number of numbers to generate (default: 100)
-<a href="#id191"><span class="problematic" id="id192">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">100</span></code></p></li>
-<li><p><strong>convert_func</strong> (<em>optional</em>) – (function) Function to convert the numbers (default: int)
-<a href="#id193"><span class="problematic" id="id194">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;</span></code></p></li>
+<li><p><strong>start</strong> – (int) Starting number (default: 10000)</p></li>
+<li><p><strong>count</strong> – (int) Number of numbers to generate (default: 100)</p></li>
+<li><p><strong>convert_func</strong> – (function) Function to convert the numbers (default: int)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -4033,8 +4802,8 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<em>optional</em>) – <a href="#id195"><span class="problematic" id="id196">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">8</span></code></p></li>
-<li><p><strong>chars</strong> (<em>optional</em>) – <a href="#id197"><span class="problematic" id="id198">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'</span></code></p></li>
+<li><p><strong>size</strong> – </p></li>
+<li><p><strong>chars</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -4056,9 +4825,9 @@ string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id199"><span class="problematic" id="id200">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">8</span></code></p></li>
-<li><p><strong>count</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – <a href="#id201"><span class="problematic" id="id202">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">4</span></code></p></li>
-<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id203"><span class="problematic" id="id204">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'-'</span></code></p></li>
+<li><p><strong>size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>count</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>separator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -4080,8 +4849,7 @@ string representation.</p>
 e.g. 1, 2, 3, .. 9, 10, 11, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – start: The first value to start with.
-<a href="#id205"><span class="problematic" id="id206">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p>
+<dd class="field-odd"><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – start: The first value to start with.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
@@ -4099,8 +4867,7 @@ e.g. 1, 2, 3, .. 9, 10, 11, etc.</p>
 e.g. 1, 2, 3, .. 9, a, b, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The first value to start with.
-<a href="#id207"><span class="problematic" id="id208">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p>
+<dd class="field-odd"><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The first value to start with.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
@@ -4163,11 +4930,10 @@ e.g. 1, 2, 3, .. 9, a, b, etc.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>method</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – <a href="#id209"><span class="problematic" id="id210">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>params</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>], <em>optional</em>) – <a href="#id211"><span class="problematic" id="id212">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <em>optional</em>) – <a href="#id213"><span class="problematic" id="id214">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'&lt;NO_ID&gt;'</span></code></p></li>
-<li><p><strong>dumps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – to json string
-<a href="#id215"><span class="problematic" id="id216">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>method</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>params</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – </p></li>
+<li><p><strong>id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – </p></li>
+<li><p><strong>dumps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – to json string</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -4198,13 +4964,10 @@ e.g. 1, 2, 3, .. 9, a, b, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> (<em>optional</em>) – itertools.count()
-<a href="#id217"><span class="problematic" id="id218">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">count(0)</span></code></p></li>
-<li><p><strong>prefix</strong> (<em>optional</em>) – <a href="#id219"><span class="problematic" id="id220">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>zfill</strong> (<em>optional</em>) – adds zeros (0) at the beginning of the string, until it reaches the specified length.
-<a href="#id221"><span class="problematic" id="id222">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
-<li><p><strong>remove_prefix</strong> (<em>optional</em>) – remove prefix ‘0x’ string
-<a href="#id223"><span class="problematic" id="id224">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>c</strong> – itertools.count()</p></li>
+<li><p><strong>prefix</strong> – </p></li>
+<li><p><strong>zfill</strong> – adds zeros (0) at the beginning of the string, until it reaches the specified length.</p></li>
+<li><p><strong>remove_prefix</strong> – remove prefix ‘0x’ string</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -4240,14 +5003,10 @@ e.g. 1, 2, 3, .. 9, a, b, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> (<em>optional</em>) – itertools.count()
-<a href="#id225"><span class="problematic" id="id226">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">count(0)</span></code></p></li>
-<li><p><strong>prefix</strong> (<em>optional</em>) – prefix address
-<a href="#id227"><span class="problematic" id="id228">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'hx'</span></code></p></li>
-<li><p><strong>zfill</strong> (<em>optional</em>) – adds zeros (0) at the beginning of the string, until it reaches the specified length.
-<a href="#id229"><span class="problematic" id="id230">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">40</span></code></p></li>
-<li><p><strong>remove_prefix</strong> (<em>optional</em>) – remove prefix ‘0x’ string
-<a href="#id231"><span class="problematic" id="id232">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>c</strong> – itertools.count()</p></li>
+<li><p><strong>prefix</strong> – prefix address</p></li>
+<li><p><strong>zfill</strong> – adds zeros (0) at the beginning of the string, until it reaches the specified length.</p></li>
+<li><p><strong>remove_prefix</strong> – remove prefix ‘0x’ string</p></li>
 </ul>
 </dd>
 </dl>

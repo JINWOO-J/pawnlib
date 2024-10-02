@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.output package &mdash; Pawnlib v2.0.32</title>
+  <title>pawnlib.output package &mdash; Pawnlib v2.0.45</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -38,7 +38,7 @@
             pawnlib
           </a>
               <div class="version">
-                2.0.32
+                2.0.45
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -226,9 +226,9 @@ It accepts arguments of print function.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> – </p></li>
-<li><p><strong>color</strong> (<em>optional</em>) – <a href="#id1"><span class="problematic" id="id2">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>on_color</strong> (<em>optional</em>) – <a href="#id3"><span class="problematic" id="id4">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>attrs</strong> (<em>optional</em>) – <a href="#id5"><span class="problematic" id="id6">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>color</strong> – </p></li>
+<li><p><strong>on_color</strong> – </p></li>
+<li><p><strong>attrs</strong> – </p></li>
 <li><p><strong>kwargs</strong> – </p></li>
 </ul>
 </dd>
@@ -331,22 +331,14 @@ It accepts arguments of print function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>title</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – Title of table
-<a href="#id7"><span class="problematic" id="id8">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>], <em>optional</em>) – Data of table
-<a href="#id9"><span class="problematic" id="id10">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>columns</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>], <em>optional</em>) – Columns of table. Print only column parameter values.
-<a href="#id11"><span class="problematic" id="id12">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>with_idx</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Print the row count.
-<a href="#id13"><span class="problematic" id="id14">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>call_value_func</strong> (<em>optional</em>) – The row value must be a string. If you want to perform other tasks, please add the function name.
-<a href="#id15"><span class="problematic" id="id16">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;class</span> <span class="pre">'str'&gt;</span></code></p></li>
-<li><p><strong>call_desc_func</strong> (<em>optional</em>) – Invoke a function that describes the value.
-<a href="#id17"><span class="problematic" id="id18">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>display_output</strong> (<em>optional</em>) – Determines whether to print output (default: True)
-<a href="#id19"><span class="problematic" id="id20">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>justify</strong> (<em>optional</em>) – Alignment value of the console. (default: left)
-<a href="#id21"><span class="problematic" id="id22">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'left'</span></code></p></li>
+<li><p><strong>title</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Title of table</p></li>
+<li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Data of table</p></li>
+<li><p><strong>columns</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – Columns of table. Print only column parameter values.</p></li>
+<li><p><strong>with_idx</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Print the row count.</p></li>
+<li><p><strong>call_value_func</strong> – The row value must be a string. If you want to perform other tasks, please add the function name.</p></li>
+<li><p><strong>call_desc_func</strong> – Invoke a function that describes the value.</p></li>
+<li><p><strong>display_output</strong> – Determines whether to print output (default: True)</p></li>
+<li><p><strong>justify</strong> – Alignment value of the console. (default: left)</p></li>
 </ul>
 </dd>
 </dl>
@@ -406,16 +398,13 @@ It accepts arguments of print function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmt</strong> (<em>optional</em>) – <p>list of tuple(heading, key, width)
-<a href="#id23"><span class="problematic" id="id24">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p>
+<li><p><strong>fmt</strong> – <p>list of tuple(heading, key, width)</p>
 <p>heading: str, column label</p>
 <p>key: dictionary key to value to print</p>
 <p>width: int, column width in chars</p>
 </p></li>
-<li><p><strong>sep</strong> (<em>optional</em>) – string, separation between columns
-<a href="#id25"><span class="problematic" id="id26">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'</span>&#160; <span class="pre">'</span></code></p></li>
-<li><p><strong>ul</strong> (<em>optional</em>) – string, character to underline column label, or None for no underlining
-<a href="#id27"><span class="problematic" id="id28">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'-'</span></code></p></li>
+<li><p><strong>sep</strong> – string, separation between columns</p></li>
+<li><p><strong>ul</strong> – string, character to underline column label, or None for no underlining</p></li>
 </ul>
 </dd>
 </dl>
@@ -458,16 +447,13 @@ It accepts arguments of print function.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmt</strong> (<em>optional</em>) – <p>list of tuple(heading, key, width)
-<a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p>
+<li><p><strong>fmt</strong> – <p>list of tuple(heading, key, width)</p>
 <p>heading: str, column label</p>
 <p>key: dictionary key to value to print</p>
 <p>width: int, column width in chars</p>
 </p></li>
-<li><p><strong>sep</strong> (<em>optional</em>) – string, separation between columns
-<a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'</span>&#160; <span class="pre">'</span></code></p></li>
-<li><p><strong>ul</strong> (<em>optional</em>) – string, character to underline column label, or None for no underlining
-<a href="#id33"><span class="problematic" id="id34">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'-'</span></code></p></li>
+<li><p><strong>sep</strong> – string, separation between columns</p></li>
+<li><p><strong>ul</strong> – string, character to underline column label, or None for no underlining</p></li>
 </ul>
 </dd>
 </dl>
@@ -527,9 +513,9 @@ It accepts arguments of print function.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> – </p></li>
 <li><p><strong>color</strong> – </p></li>
-<li><p><strong>bold</strong> (<em>optional</em>) – <a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>underline</strong> (<em>optional</em>) – <a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>width</strong> (<em>optional</em>) – <a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>bold</strong> – </p></li>
+<li><p><strong>underline</strong> – </p></li>
+<li><p><strong>width</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -556,13 +542,13 @@ It accepts arguments of print function.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – </p></li>
-<li><p><strong>nested_level</strong> (<em>optional</em>) – <a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
-<li><p><strong>output</strong> (<em>optional</em>) – <a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></code></p></li>
-<li><p><strong>hex_to_int</strong> (<em>optional</em>) – <a href="#id45"><span class="problematic" id="id46">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>debug</strong> (<em>optional</em>) – <a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>_is_list</strong> (<em>optional</em>) – <a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>_last_key</strong> (<em>optional</em>) – <a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>is_compact</strong> (<em>optional</em>) – <a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>nested_level</strong> – </p></li>
+<li><p><strong>output</strong> – </p></li>
+<li><p><strong>hex_to_int</strong> – </p></li>
+<li><p><strong>debug</strong> – </p></li>
+<li><p><strong>_is_list</strong> – </p></li>
+<li><p><strong>_last_key</strong> – </p></li>
+<li><p><strong>is_compact</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -611,12 +597,9 @@ It accepts arguments of print function.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – The JSON object to print.</p></li>
-<li><p><strong>syntax</strong> (<em>optional</em>) – Whether to use syntax highlighting (default: True).
-<a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>line_indent</strong> (<em>optional</em>) – The indentation for each line (default: “”).
-<a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>style</strong> (<em>optional</em>) – Style for syntax highlighting (default: “material”)
-<a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'material'</span></code></p></li>
+<li><p><strong>syntax</strong> – Whether to use syntax highlighting (default: True).</p></li>
+<li><p><strong>line_indent</strong> – The indentation for each line (default: “”).</p></li>
+<li><p><strong>style</strong> – Style for syntax highlighting (default: “material”)</p></li>
 <li><p><strong>kwargs</strong> – Additional keyword arguments for json.dumps().</p></li>
 </ul>
 </dd>
@@ -649,14 +632,10 @@ It accepts arguments of print function.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – JSON object to prettify</p></li>
-<li><p><strong>syntax</strong> (<em>optional</em>) – If True, apply syntax highlighting (default: True)
-<a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>rich_syntax</strong> (<em>optional</em>) – If True, use rich library for syntax highlighting (default: False)
-<a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>style</strong> (<em>optional</em>) – Style name for syntax highlighting (default: “one-dark”)
-<a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'one-dark'</span></code></p></li>
-<li><p><strong>line_indent</strong> (<em>optional</em>) – Custom line indentation (default: “”)
-<a href="#id67"><span class="problematic" id="id68">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>syntax</strong> – If True, apply syntax highlighting (default: True)</p></li>
+<li><p><strong>rich_syntax</strong> – If True, use rich library for syntax highlighting (default: False)</p></li>
+<li><p><strong>style</strong> – Style name for syntax highlighting (default: “one-dark”)</p></li>
+<li><p><strong>line_indent</strong> – Custom line indentation (default: “”)</p></li>
 <li><p><strong>kwargs</strong> – Additional keyword arguments for json.dumps</p></li>
 </ul>
 </dd>
@@ -684,7 +663,7 @@ It accepts arguments of print function.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>message</strong> – </p></li>
-<li><p><strong>dump_message</strong> (<em>optional</em>) – <a href="#id69"><span class="problematic" id="id70">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>dump_message</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -710,11 +689,11 @@ It accepts arguments of print function.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>iteration</strong> – </p></li>
 <li><p><strong>total</strong> – </p></li>
-<li><p><strong>prefix</strong> (<em>optional</em>) – <a href="#id71"><span class="problematic" id="id72">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>suffix</strong> (<em>optional</em>) – <a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>decimals</strong> (<em>optional</em>) – <a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>bar_length</strong> (<em>optional</em>) – <a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">100</span></code></p></li>
-<li><p><strong>overlay</strong> (<em>optional</em>) – <a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>prefix</strong> – </p></li>
+<li><p><strong>suffix</strong> – </p></li>
+<li><p><strong>decimals</strong> – </p></li>
+<li><p><strong>bar_length</strong> – </p></li>
+<li><p><strong>overlay</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -806,18 +785,12 @@ representation as available.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The data to print.</p></li>
-<li><p><strong>name</strong> (<em>optional</em>) – The name of the syntax. Default is “json”.
-<a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'json'</span></code></p></li>
-<li><p><strong>indent</strong> (<em>optional</em>) – The number of spaces for indentation. Default is 4.
-<a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">4</span></code></p></li>
-<li><p><strong>style</strong> (<em>optional</em>) – The style of the syntax. Default is “material”.
-<a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'material'</span></code></p></li>
-<li><p><strong>oneline_list</strong> (<em>optional</em>) – Whether to print the list in one line. Default is True.
-<a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>line_indent</strong> (<em>optional</em>) – The indentation for each line. Default is ‘’.
-<a href="#id89"><span class="problematic" id="id90">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>rich</strong> (<em>optional</em>) – Whether to use rich for printing. Default is True.
-<a href="#id91"><span class="problematic" id="id92">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>name</strong> – The name of the syntax. Default is “json”.</p></li>
+<li><p><strong>indent</strong> – The number of spaces for indentation. Default is 4.</p></li>
+<li><p><strong>style</strong> – The style of the syntax. Default is “material”.</p></li>
+<li><p><strong>oneline_list</strong> – Whether to print the list in one line. Default is True.</p></li>
+<li><p><strong>line_indent</strong> – The indentation for each line. Default is ‘’.</p></li>
+<li><p><strong>rich</strong> – Whether to use rich for printing. Default is True.</p></li>
 <li><p><strong>kwargs</strong> – Other keyword arguments.</p></li>
 </ul>
 </dd>
@@ -847,20 +820,13 @@ representation as available.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The data to be highlighted.</p></li>
-<li><p><strong>name</strong> (<em>optional</em>) – The name of the lexer to use for highlighting.
-<a href="#id93"><span class="problematic" id="id94">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'json'</span></code></p></li>
-<li><p><strong>indent</strong> (<em>optional</em>) – The number of spaces to use for indentation.
-<a href="#id95"><span class="problematic" id="id96">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">4</span></code></p></li>
-<li><p><strong>style</strong> (<em>optional</em>) – The style to use for highlighting.
-<a href="#id97"><span class="problematic" id="id98">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'material'</span></code></p></li>
-<li><p><strong>oneline_list</strong> (<em>optional</em>) – Whether to compact lists into one line.
-<a href="#id99"><span class="problematic" id="id100">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>line_indent</strong> (<em>optional</em>) – The string to use for line indentation.
-<a href="#id101"><span class="problematic" id="id102">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>rich</strong> (<em>optional</em>) – Whether to use rich text formatting.
-<a href="#id103"><span class="problematic" id="id104">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>word_wrap</strong> (<em>optional</em>) – Whether to enable word wrapping.
-<a href="#id105"><span class="problematic" id="id106">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>name</strong> – The name of the lexer to use for highlighting.</p></li>
+<li><p><strong>indent</strong> – The number of spaces to use for indentation.</p></li>
+<li><p><strong>style</strong> – The style to use for highlighting.</p></li>
+<li><p><strong>oneline_list</strong> – Whether to compact lists into one line.</p></li>
+<li><p><strong>line_indent</strong> – The string to use for line indentation.</p></li>
+<li><p><strong>rich</strong> – Whether to use rich text formatting.</p></li>
+<li><p><strong>word_wrap</strong> – Whether to enable word wrapping.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -906,8 +872,7 @@ representation as available.</p>
 <dd><p>Retrieve the name of var.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>var</strong> (<em>optional</em>) – variable to get name from
-<a href="#id107"><span class="problematic" id="id108">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+<dd class="field-odd"><p><strong>var</strong> – variable to get name from</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>name of var</p>
@@ -927,8 +892,7 @@ representation as available.</p>
 <dd><p>Retrieve the name of the variable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>var</strong> (<em>Any</em><em>, </em><em>optional</em>) – variable to get the name from, defaults to None
-<a href="#id109"><span class="problematic" id="id110">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+<dd class="field-odd"><p><strong>var</strong> (<em>Any</em><em>, </em><em>optional</em>) – variable to get the name from, defaults to None</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>name of the variable</p>
@@ -1116,16 +1080,11 @@ This function uses the inspect and ast modules to get the variable name from the
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>optional</em>) – The variable to be printed.
-<a href="#id111"><span class="problematic" id="id112">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>title</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – Optional title for the output.
-<a href="#id113"><span class="problematic" id="id114">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>line_indent</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – String used for indentation.
-<a href="#id115"><span class="problematic" id="id116">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'</span> <span class="pre">'</span></code></p></li>
-<li><p><strong>detail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Whether to include detailed information.
-<a href="#id117"><span class="problematic" id="id118">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>title_align</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘left’, ‘center’, ‘right’], <em>optional</em>) – Alignment method for the title. Can be “left”, “center”, or “right”. Default is “center”.
-<a href="#id119"><span class="problematic" id="id120">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'center'</span></code></p></li>
+<li><p><strong>data</strong> – The variable to be printed.</p></li>
+<li><p><strong>title</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Optional title for the output.</p></li>
+<li><p><strong>line_indent</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – String used for indentation.</p></li>
+<li><p><strong>detail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to include detailed information.</p></li>
+<li><p><strong>title_align</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘left’, ‘center’, ‘right’]) – Alignment method for the title. Can be “left”, “center”, or “right”. Default is “center”.</p></li>
 <li><p><strong>kwargs</strong> – Additional keyword arguments.</p></li>
 </ul>
 </dd>
@@ -1156,22 +1115,14 @@ This function uses the inspect and ast modules to get the variable name from the
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> (<em>optional</em>) – The key to print. Defaults to an empty string.
-<a href="#id121"><span class="problematic" id="id122">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>value</strong> (<em>optional</em>) – The value associated with the key. Defaults to an empty string.
-<a href="#id123"><span class="problematic" id="id124">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>symbol</strong> (<em>optional</em>) – A symbol to prepend to the key. Defaults to a star emoji.
-<a href="#id125"><span class="problematic" id="id126">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'░'</span></code></p></li>
-<li><p><strong>separator</strong> (<em>optional</em>) – The separator between the key and the value. Defaults to a colon.
-<a href="#id127"><span class="problematic" id="id128">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">':'</span></code></p></li>
-<li><p><strong>padding</strong> (<em>optional</em>) – The padding between columns. Defaults to 5.
-<a href="#id129"><span class="problematic" id="id130">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>key_ratio</strong> (<em>optional</em>) – The ratio of the table width allocated for keys. Defaults to 1z.
-<a href="#id131"><span class="problematic" id="id132">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>value_ratio</strong> (<em>optional</em>) – The ratio of the table width allocated for values. Defaults to 7.
-<a href="#id133"><span class="problematic" id="id134">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">7</span></code></p></li>
-<li><p><strong>is_force_syntax</strong> (<em>optional</em>) – Force the use of Syntax rendering for dictionaries/lists.
-<a href="#id135"><span class="problematic" id="id136">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>key</strong> – The key to print. Defaults to an empty string.</p></li>
+<li><p><strong>value</strong> – The value associated with the key. Defaults to an empty string.</p></li>
+<li><p><strong>symbol</strong> – A symbol to prepend to the key. Defaults to a star emoji.</p></li>
+<li><p><strong>separator</strong> – The separator between the key and the value. Defaults to a colon.</p></li>
+<li><p><strong>padding</strong> – The padding between columns. Defaults to 5.</p></li>
+<li><p><strong>key_ratio</strong> – The ratio of the table width allocated for keys. Defaults to 1z.</p></li>
+<li><p><strong>value_ratio</strong> – The ratio of the table width allocated for values. Defaults to 7.</p></li>
+<li><p><strong>is_force_syntax</strong> – Force the use of Syntax rendering for dictionaries/lists.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1194,30 +1145,18 @@ This function uses the inspect and ast modules to get the variable name from the
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>], <em>optional</em>) – The data to display in the grid. Default is None.
-<a href="#id137"><span class="problematic" id="id138">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>title</strong> (<em>optional</em>) – The title of the grid. Default is an empty string.
-<a href="#id139"><span class="problematic" id="id140">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>symbol</strong> (<em>optional</em>) – The symbol used for the grid. Default is ‘░’.  or 🔘★⭐️ ■ ▓  ▒ ░
-<a href="#id141"><span class="problematic" id="id142">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'░'</span></code></p></li>
-<li><p><strong>separator</strong> (<em>optional</em>) – The separator between the key and the value. Defaults to a colon.
-<a href="#id143"><span class="problematic" id="id144">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">':'</span></code></p></li>
-<li><p><strong>padding</strong> (<em>optional</em>) – The padding around each cell. Default is 0.
-<a href="#id145"><span class="problematic" id="id146">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
-<li><p><strong>key_ratio</strong> (<em>optional</em>) – The ratio of the table width allocated for keys. Defaults to 1.
-<a href="#id147"><span class="problematic" id="id148">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>value_ratio</strong> (<em>optional</em>) – The ratio of the table width allocated for values. Defaults to 7.
-<a href="#id149"><span class="problematic" id="id150">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">7</span></code></p></li>
-<li><p><strong>key_prefix</strong> (<em>optional</em>) – A prefix to add to each key. Default is an empty string.
-<a href="#id151"><span class="problematic" id="id152">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>key_postfix</strong> (<em>optional</em>) – A postfix to add to each key. Default is an empty string.
-<a href="#id153"><span class="problematic" id="id154">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>value_prefix</strong> (<em>optional</em>) – A prefix to add to each value. Default is an empty string.
-<a href="#id155"><span class="problematic" id="id156">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>value_postfix</strong> (<em>optional</em>) – A postfix to add to each value. Default is an empty string.
-<a href="#id157"><span class="problematic" id="id158">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>is_value_type</strong> (<em>optional</em>) – Flag to indicate if value type should be displayed.
-<a href="#id159"><span class="problematic" id="id160">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – The data to display in the grid. Default is None.</p></li>
+<li><p><strong>title</strong> – The title of the grid. Default is an empty string.</p></li>
+<li><p><strong>symbol</strong> – The symbol used for the grid. Default is ‘░’.  or 🔘★⭐️ ■ ▓  ▒ ░</p></li>
+<li><p><strong>separator</strong> – The separator between the key and the value. Defaults to a colon.</p></li>
+<li><p><strong>padding</strong> – The padding around each cell. Default is 0.</p></li>
+<li><p><strong>key_ratio</strong> – The ratio of the table width allocated for keys. Defaults to 1.</p></li>
+<li><p><strong>value_ratio</strong> – The ratio of the table width allocated for values. Defaults to 7.</p></li>
+<li><p><strong>key_prefix</strong> – A prefix to add to each key. Default is an empty string.</p></li>
+<li><p><strong>key_postfix</strong> – A postfix to add to each key. Default is an empty string.</p></li>
+<li><p><strong>value_prefix</strong> – A prefix to add to each value. Default is an empty string.</p></li>
+<li><p><strong>value_postfix</strong> – A postfix to add to each value. Default is an empty string.</p></li>
+<li><p><strong>is_value_type</strong> – Flag to indicate if value type should be displayed.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1242,8 +1181,7 @@ This function uses the inspect and ast modules to get the variable name from the
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>left_text</strong> – The text to be aligned on the left side.</p></li>
 <li><p><strong>right_text</strong> – The text to be aligned on the right side.</p></li>
-<li><p><strong>filler</strong> (<em>optional</em>) – The character used to fill the space between left and right text. Default is ‘.’.
-<a href="#id161"><span class="problematic" id="id162">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
+<li><p><strong>filler</strong> – The character used to fill the space between left and right text. Default is ‘.’.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1264,14 +1202,10 @@ This function uses the inspect and ast modules to get the variable name from the
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>left_text</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The text to align to the left.
-<a href="#id163"><span class="problematic" id="id164">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>right_text</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The text to align to the right.
-<a href="#id165"><span class="problematic" id="id166">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>filler</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The character to use as filler between the left and right text.
-<a href="#id167"><span class="problematic" id="id168">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
-<li><p><strong>offset</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The number of spaces to offset the right text from the right edge.
-<a href="#id169"><span class="problematic" id="id170">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>left_text</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The text to align to the left.</p></li>
+<li><p><strong>right_text</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The text to align to the right.</p></li>
+<li><p><strong>filler</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The character to use as filler between the left and right text.</p></li>
+<li><p><strong>offset</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of spaces to offset the right text from the right edge.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1305,17 +1239,13 @@ This function uses the inspect and ast modules to get the variable name from the
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – The value to be evaluated.</p></li>
-<li><p><strong>limit</strong> (<em>optional</em>) – The limit to compare the value against. Default is 100.
-<a href="#id171"><span class="problematic" id="id172">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">100</span></code></p></li>
-<li><p><strong>unit</strong> (<em>optional</em>) – The unit to append to the value. Default is an empty string.
-<a href="#id173"><span class="problematic" id="id174">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>thresholds</strong> (<em>optional</em>) – A dictionary defining the thresholds and their corresponding colors.
+<li><p><strong>limit</strong> – The limit to compare the value against. Default is 100.</p></li>
+<li><p><strong>unit</strong> – The unit to append to the value. Default is an empty string.</p></li>
+<li><p><strong>thresholds</strong> – A dictionary defining the thresholds and their corresponding colors.
 The keys are the threshold values (as a fraction of the limit) and the values are the colors.
 Example: {0.9: “red”, 0.8: “orange1”, 0.7: “yellow”}
-Default is {0.9: “red”, 0.8: “orange1”, 0.7: “yellow”, 0.0: “white”}.
-<a href="#id175"><span class="problematic" id="id176">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>return_tuple</strong> (<em>optional</em>) – If True, returns a tuple (color, formatted_value). Default is False.
-<a href="#id177"><span class="problematic" id="id178">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+Default is {0.9: “red”, 0.8: “orange1”, 0.7: “yellow”, 0.0: “white”}.</p></li>
+<li><p><strong>return_tuple</strong> – If True, returns a tuple (color, formatted_value). Default is False.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1339,7 +1269,7 @@ If return_tuple is True, returns a tuple (color, formatted_value).</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> – </p></li>
-<li><p><strong>answer</strong> (<em>optional</em>) – <a href="#id179"><span class="problematic" id="id180">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>answer</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1425,12 +1355,9 @@ If return_tuple is True, returns a tuple (color, formatted_value).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>optional</em>) – The path of the directory to search. Default is current directory.
-<a href="#id181"><span class="problematic" id="id182">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'./'</span></code></p></li>
-<li><p><strong>pattern</strong> (<em>optional</em>) – The pattern to match. Default is “*”, which matches all files.
-<a href="#id183"><span class="problematic" id="id184">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'*'</span></code></p></li>
-<li><p><strong>recursive</strong> (<em>optional</em>) – Whether to search subdirectories recursively. Default is False.
-<a href="#id185"><span class="problematic" id="id186">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>path</strong> – The path of the directory to search. Default is current directory.</p></li>
+<li><p><strong>pattern</strong> – The pattern to match. Default is “*”, which matches all files.</p></li>
+<li><p><strong>recursive</strong> – Whether to search subdirectories recursively. Default is False.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1453,8 +1380,7 @@ If return_tuple is True, returns a tuple (color, formatted_value).</p>
 <dd><p>Returns the parent path</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>run_path</strong> (<em>optional</em>) – (str) Path of the file to get the parent path of.
-<a href="#id187"><span class="problematic" id="id188">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'/Users/jinwoo/work/python_prj/pawnlib/pawnlib/output/file.py'</span></code></p>
+<dd class="field-odd"><p><strong>run_path</strong> – (str) Path of the file to get the parent path of.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -1476,8 +1402,7 @@ If return_tuple is True, returns a tuple (color, formatted_value).</p>
 <dd><p>Returns the script path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>run_path</strong> (<em>optional</em>) – (str) Path of the file to get the script path of.
-<a href="#id189"><span class="problematic" id="id190">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'/Users/jinwoo/work/python_prj/pawnlib/pawnlib/output/file.py'</span></code></p>
+<dd class="field-odd"><p><strong>run_path</strong> – (str) Path of the file to get the script path of.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(str) Script path of the given file path.</p>
@@ -1496,8 +1421,7 @@ If return_tuple is True, returns a tuple (color, formatted_value).</p>
 <dd><p>Returns the real path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>run_path</strong> (<em>optional</em>) – (str) Path of the file to get the real path of.
-<a href="#id191"><span class="problematic" id="id192">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'/Users/jinwoo/work/python_prj/pawnlib/pawnlib/output/file.py'</span></code></p>
+<dd class="field-odd"><p><strong>run_path</strong> – (str) Path of the file to get the real path of.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(str) Real path of the given file path.</p>
@@ -1650,8 +1574,7 @@ If return_tuple is True, returns a tuple (color, formatted_value).</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – str, the name of the JSON file to be read.</p></li>
-<li><p><strong>encoding</strong> (<em>optional</em>) – str, the encoding to use when opening the file.
-<a href="#id193"><span class="problematic" id="id194">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'utf-8-sig'</span></code></p></li>
+<li><p><strong>encoding</strong> – str, the encoding to use when opening the file.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1701,8 +1624,7 @@ If return_tuple is True, returns a tuple (color, formatted_value).</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – str, the name of the YAML file to be read.</p></li>
-<li><p><strong>encoding</strong> (<em>optional</em>) – str, the encoding to use when opening the file.
-<a href="#id195"><span class="problematic" id="id196">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>encoding</strong> – str, the encoding to use when opening the file.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1725,10 +1647,8 @@ If return_tuple is True, returns a tuple (color, formatted_value).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the file to write.</p></li>
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The data to write to the file.</p></li>
-<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The write mode. Default is ‘w’.
-<a href="#id197"><span class="problematic" id="id198">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
-<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The permission of the file. Default is ‘664’.
-<a href="#id199"><span class="problematic" id="id200">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
+<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The write mode. Default is ‘w’.</p></li>
+<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The permission of the file. Default is ‘664’.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1753,14 +1673,10 @@ If return_tuple is True, returns a tuple (color, formatted_value).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the file to write.</p></li>
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – The JSON data to write to the file.</p></li>
-<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The write mode. Default is ‘w’.
-<a href="#id201"><span class="problematic" id="id202">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
-<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The permission of the file. Default is ‘664’.
-<a href="#id203"><span class="problematic" id="id204">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
-<li><p><strong>force_write</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Whether to force the write operation. Default is True.
-<a href="#id205"><span class="problematic" id="id206">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>json_default</strong> (<em>optional</em>) – A function to convert non-serializable objects to a serializable format. Default is None.
-<a href="#id207"><span class="problematic" id="id208">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The write mode. Default is ‘w’.</p></li>
+<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The permission of the file. Default is ‘664’.</p></li>
+<li><p><strong>force_write</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to force the write operation. Default is True.</p></li>
+<li><p><strong>json_default</strong> – A function to convert non-serializable objects to a serializable format. Default is None.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1820,10 +1736,8 @@ If return_tuple is True, returns a tuple (color, formatted_value).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the file to write.</p></li>
 <li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – The YAML data to write to the file.</p></li>
-<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The write mode. Default is ‘w’.
-<a href="#id209"><span class="problematic" id="id210">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'w'</span></code></p></li>
-<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The permission of the file. Default is ‘664’.
-<a href="#id211"><span class="problematic" id="id212">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'664'</span></code></p></li>
+<li><p><strong>option</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The write mode. Default is ‘w’.</p></li>
+<li><p><strong>permit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The permission of the file. Default is ‘664’.</p></li>
 </ul>
 </dd>
 </dl>

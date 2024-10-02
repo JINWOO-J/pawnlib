@@ -43,7 +43,7 @@ __epilog__ = (
 
     "  4. Write output to a specified file in quiet mode without displaying any output:\n"
     "     - Writes the collected resource information to 'output.json'.\n\n"
-    "    `pawns info -q --output-file output.json`\n"
+    "    `pawns info -q --output-file output.json`\n\n"
 
 
     "For more detailed command usage and options, refer to the help documentation by running 'pawns info --help'."

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.asyncio package &mdash; Pawnlib v2.0.32</title>
+  <title>pawnlib.asyncio package &mdash; Pawnlib v2.0.45</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -38,7 +38,7 @@
             pawnlib
           </a>
               <div class="version">
-                2.0.32
+                2.0.45
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -136,16 +136,11 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>max_at_once</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Limit maximum number of concurrently running tasks.
-<a href="#id1"><span class="problematic" id="id2">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
-<li><p><strong>max_per_second</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Limit request rate to not overload the server.
-<a href="#id3"><span class="problematic" id="id4">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
-<li><p><strong>title</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – Title of the tasks
-<a href="#id5"><span class="problematic" id="id6">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'Working</span> <span class="pre">on</span> <span class="pre">async</span> <span class="pre">tasks</span> <span class="pre">...'</span></code></p></li>
-<li><p><strong>status</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Status of the tasks
-<a href="#id7"><span class="problematic" id="id8">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Whether to use debug
-<a href="#id9"><span class="problematic" id="id10">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>max_at_once</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Limit maximum number of concurrently running tasks.</p></li>
+<li><p><strong>max_per_second</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Limit request rate to not overload the server.</p></li>
+<li><p><strong>title</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Title of the tasks</p></li>
+<li><p><strong>status</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Status of the tasks</p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use debug</p></li>
 <li><p><strong>kwargs</strong> – </p></li>
 </ul>
 </dd>
@@ -166,16 +161,11 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>max_at_once</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Limit maximum number of concurrently running tasks.
-<a href="#id11"><span class="problematic" id="id12">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
-<li><p><strong>max_per_second</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Limit request rate to not overload the server.
-<a href="#id13"><span class="problematic" id="id14">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
-<li><p><strong>title</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – Title of the tasks
-<a href="#id15"><span class="problematic" id="id16">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'Working</span> <span class="pre">on</span> <span class="pre">async</span> <span class="pre">tasks</span> <span class="pre">...'</span></code></p></li>
-<li><p><strong>status</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Status of the tasks
-<a href="#id17"><span class="problematic" id="id18">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Whether to use debug
-<a href="#id19"><span class="problematic" id="id20">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>max_at_once</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Limit maximum number of concurrently running tasks.</p></li>
+<li><p><strong>max_per_second</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Limit request rate to not overload the server.</p></li>
+<li><p><strong>title</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Title of the tasks</p></li>
+<li><p><strong>status</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Status of the tasks</p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use debug</p></li>
 <li><p><strong>kwargs</strong> – </p></li>
 </ul>
 </dd>
@@ -203,10 +193,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>target_list</strong> (<em>optional</em>) – List of targets for asynchronous execution
-<a href="#id21"><span class="problematic" id="id22">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>function</strong> (<em>optional</em>) – Name of the function to execute
-<a href="#id23"><span class="problematic" id="id24">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>target_list</strong> – List of targets for asynchronous execution</p></li>
+<li><p><strong>function</strong> – Name of the function to execute</p></li>
 <li><p><strong>kwargs</strong> – </p></li>
 </ul>
 </dd>
@@ -314,16 +302,11 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>max_at_once</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Limit maximum number of concurrently running tasks.
-<a href="#id25"><span class="problematic" id="id26">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
-<li><p><strong>max_per_second</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Limit request rate to not overload the server.
-<a href="#id27"><span class="problematic" id="id28">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
-<li><p><strong>title</strong> (<em>optional</em>) – Title of the tasks
-<a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'Working</span> <span class="pre">on</span> <span class="pre">async</span> <span class="pre">tasks</span> <span class="pre">...'</span></code></p></li>
-<li><p><strong>status</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Status of the tasks
-<a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Whether to use debug
-<a href="#id33"><span class="problematic" id="id34">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>max_at_once</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Limit maximum number of concurrently running tasks.</p></li>
+<li><p><strong>max_per_second</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Limit request rate to not overload the server.</p></li>
+<li><p><strong>title</strong> – Title of the tasks</p></li>
+<li><p><strong>status</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Status of the tasks</p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use debug</p></li>
 <li><p><strong>kwargs</strong> – </p></li>
 </ul>
 </dd>
@@ -358,16 +341,11 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>) – The URL to fetch.</p></li>
-<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – The HTTP method to use. Default is “get”.
-<a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'get'</span></code></p></li>
-<li><p><strong>timeout</strong> (<em>int</em><em>, </em><em>optional</em>) – The timeout for the request in seconds. Default is 4.
-<a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">4</span></code></p></li>
-<li><p><strong>info</strong> (<em>str</em><em>, </em><em>optional</em>) – Additional information for the request. Default is an empty string.
-<a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>max_keepalive_connections</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of keep-alive connections. Default is 10.
-<a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
-<li><p><strong>max_connections</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of connections. Default is 20.
-<a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">20</span></code></p></li>
+<li><p><strong>method</strong> (<em>str</em>) – The HTTP method to use. Default is “get”.</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>) – The timeout for the request in seconds. Default is 4.</p></li>
+<li><p><strong>info</strong> (<em>str</em>) – Additional information for the request. Default is an empty string.</p></li>
+<li><p><strong>max_keepalive_connections</strong> (<em>int</em>) – The maximum number of keep-alive connections. Default is 10.</p></li>
+<li><p><strong>max_connections</strong> (<em>int</em>) – The maximum number of connections. Default is 20.</p></li>
 <li><p><strong>**kwargs</strong> – Additional keyword arguments for the httpx request.</p></li>
 </ul>
 </dd>

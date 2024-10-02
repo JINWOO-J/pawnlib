@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib package &mdash; Pawnlib v2.0.32</title>
+  <title>pawnlib package &mdash; Pawnlib v2.0.45</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -36,7 +36,7 @@
             pawnlib
           </a>
               <div class="version">
-                2.0.32
+                2.0.45
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -452,6 +452,8 @@
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.format_hex"><code class="docutils literal notranslate"><span class="pre">format_hex()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.decode_jwt"><code class="docutils literal notranslate"><span class="pre">decode_jwt()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.escape_markdown"><code class="docutils literal notranslate"><span class="pre">escape_markdown()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.escape_non_markdown"><code class="docutils literal notranslate"><span class="pre">escape_non_markdown()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.converter.analyze_jail_flags"><code class="docutils literal notranslate"><span class="pre">analyze_jail_flags()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pawnlib.typing.html#pawnlib-typing-date-utils-module">pawnlib.typing.date_utils module</a><ul>
@@ -472,6 +474,116 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pawnlib.typing.html#pawnlib-typing-constants-module">pawnlib.typing.constants module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_ACTIVE"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_STATUS_ACTIVE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_UNREGISTERED"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_STATUS_UNREGISTERED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_DISQUALIFIED"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_STATUS_DISQUALIFIED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_NONE"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_LAST_STATE_NONE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_READY"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_LAST_STATE_READY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_SUCCESS"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_LAST_STATE_SUCCESS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_FAILURE"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_LAST_STATE_FAILURE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.PREP_STATUS_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_STATUS_DESCRIPTIONS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.PREP_LAST_STATE_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.PREP_LAST_STATE_DESCRIPTIONS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.get_status"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.get_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.get_last_state"><code class="docutils literal notranslate"><span class="pre">ICONPRepStatus.get_last_state()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_NO_PENALTY"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_NO_PENALTY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_PREP_DISQUALIFICATION"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_PREP_DISQUALIFICATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_VALIDATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_VALIDATION_FAILURE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_DOUBLE_SIGN"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_DOUBLE_SIGN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.PENALTY_TYPE_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.PENALTY_TYPE_DESCRIPTIONS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.get_penalty"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.get_penalty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.convert_to_int"><code class="docutils literal notranslate"><span class="pre">ICONPenaltyType.convert_to_int()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONJailFlags"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONJailFlags.ICON_IN_JAIL"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.ICON_IN_JAIL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONJailFlags.ICON_UN_JAILING"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.ICON_UN_JAILING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONJailFlags.ICON_ACCUMULATED_VALIDATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.ICON_ACCUMULATED_VALIDATION_FAILURE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONJailFlags.ICON_DOUBLE_SIGN"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.ICON_DOUBLE_SIGN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONJailFlags.FLAGS"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.FLAGS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.ICONJailFlags.get_jail_flags"><code class="docutils literal notranslate"><span class="pre">ICONJailFlags.get_jail_flags()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.SpecialCharacterConstants"><code class="docutils literal notranslate"><span class="pre">SpecialCharacterConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.SpecialCharacterConstants.SPECIAL_CHARACTERS"><code class="docutils literal notranslate"><span class="pre">SpecialCharacterConstants.SPECIAL_CHARACTERS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.SpecialCharacterConstants.ALL_SPECIAL_CHARACTERS"><code class="docutils literal notranslate"><span class="pre">SpecialCharacterConstants.ALL_SPECIAL_CHARACTERS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.HTTPConstants"><code class="docutils literal notranslate"><span class="pre">HTTPConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.HTTPConstants.Headers"><code class="docutils literal notranslate"><span class="pre">HTTPConstants.Headers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.HTTPConstants.MIMEType"><code class="docutils literal notranslate"><span class="pre">HTTPConstants.MIMEType</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes"><code class="docutils literal notranslate"><span class="pre">HTTPConstants.HTTPStatusCodes</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.ISO_8601"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.ISO_8601</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.ISO_8601_WITH_MS"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.ISO_8601_WITH_MS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.ISO_8601_WITH_TZ"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.ISO_8601_WITH_TZ</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.HUMAN_READABLE"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.HUMAN_READABLE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.SIMPLE_DATE"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.SIMPLE_DATE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.SIMPLE_TIME"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.SIMPLE_TIME</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.SIMPLE_DATETIME"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.SIMPLE_DATETIME</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.DATE_WITHOUT_YEAR"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.DATE_WITHOUT_YEAR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.TIME_WITHOUT_SECONDS"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.TIME_WITHOUT_SECONDS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.US_DATE"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.US_DATE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.US_DATE_TIME"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.US_DATE_TIME</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.UK_DATE"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.UK_DATE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.UK_DATE_TIME"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.UK_DATE_TIME</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.UNIX_TIMESTAMP_SECONDS"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.UNIX_TIMESTAMP_SECONDS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.UNIX_TIMESTAMP_MS"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.UNIX_TIMESTAMP_MS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.YEAR_ONLY"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.YEAR_ONLY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.MONTH_YEAR"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.MONTH_YEAR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.DAY_MONTH"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.DAY_MONTH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.TIME_12_HOUR"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.TIME_12_HOUR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants.TIME_24_HOUR"><code class="docutils literal notranslate"><span class="pre">DateFormatConstants.TIME_24_HOUR</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants"><code class="docutils literal notranslate"><span class="pre">StringConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.EMPTY_STRING"><code class="docutils literal notranslate"><span class="pre">StringConstants.EMPTY_STRING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.SPACE"><code class="docutils literal notranslate"><span class="pre">StringConstants.SPACE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.UNDERSCORE"><code class="docutils literal notranslate"><span class="pre">StringConstants.UNDERSCORE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.DASH"><code class="docutils literal notranslate"><span class="pre">StringConstants.DASH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.COLON"><code class="docutils literal notranslate"><span class="pre">StringConstants.COLON</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.SEMICOLON"><code class="docutils literal notranslate"><span class="pre">StringConstants.SEMICOLON</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.COMMA"><code class="docutils literal notranslate"><span class="pre">StringConstants.COMMA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.PERIOD"><code class="docutils literal notranslate"><span class="pre">StringConstants.PERIOD</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.PIPE"><code class="docutils literal notranslate"><span class="pre">StringConstants.PIPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.NEWLINE"><code class="docutils literal notranslate"><span class="pre">StringConstants.NEWLINE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.StringConstants.TAB"><code class="docutils literal notranslate"><span class="pre">StringConstants.TAB</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.FilePermissionConstants"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.FilePermissionConstants.READ_ONLY"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.READ_ONLY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.FilePermissionConstants.WRITE_ONLY"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.WRITE_ONLY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.FilePermissionConstants.READ_WRITE"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.READ_WRITE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.FilePermissionConstants.APPEND"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.APPEND</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.FilePermissionConstants.BINARY_READ"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.BINARY_READ</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.FilePermissionConstants.BINARY_WRITE"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.BINARY_WRITE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.FilePermissionConstants.BINARY_READ_WRITE"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.BINARY_READ_WRITE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.FilePermissionConstants.BINARY_APPEND"><code class="docutils literal notranslate"><span class="pre">FilePermissionConstants.BINARY_APPEND</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.EMAIL_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.EMAIL_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.URL_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.URL_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.PHONE_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.PHONE_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.POSTAL_CODE_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.POSTAL_CODE_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.IP_ADDRESS_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.IP_ADDRESS_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.CREDIT_CARD_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.CREDIT_CARD_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.IPV6_ADDRESS_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.IPV6_ADDRESS_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.HTML_TAG_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.HTML_TAG_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.SLUG_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.SLUG_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.INTEGER_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.INTEGER_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.FLOAT_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.FLOAT_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.DATE_YYYY_MM_DD_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.DATE_YYYY_MM_DD_PATTERN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants.TIME_HH_MM_SS_PATTERN"><code class="docutils literal notranslate"><span class="pre">RegexPatternConstants.TIME_HH_MM_SS_PATTERN</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.TimeConstants"><code class="docutils literal notranslate"><span class="pre">TimeConstants</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.TimeConstants.MINUTE_IN_SECONDS"><code class="docutils literal notranslate"><span class="pre">TimeConstants.MINUTE_IN_SECONDS</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.typing.html#pawnlib.typing.constants.TimeConstants.HOUR_IN_SECONDS"><code class="docutils literal notranslate"><span class="pre">TimeConstants.HOUR_IN_SECONDS</span></code></a></li>
@@ -682,6 +794,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.resource.html#pawnlib.resource.net.listen_socket"><code class="docutils literal notranslate"><span class="pre">listen_socket()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.resource.html#pawnlib.resource.net.wait_for_port_open"><code class="docutils literal notranslate"><span class="pre">wait_for_port_open()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.resource.html#pawnlib.resource.net.get_location"><code class="docutils literal notranslate"><span class="pre">get_location()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pawnlib.resource.html#pawnlib.resource.net.get_location_with_ip_api"><code class="docutils literal notranslate"><span class="pre">get_location_with_ip_api()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pawnlib.resource.html#pawnlib-resource-server-module">pawnlib.resource.server module</a><ul>
@@ -1214,14 +1327,23 @@
 <li class="toctree-l2"><a class="reference internal" href="pawnlib.utils.html#pawnlib-utils-notify-module">pawnlib.utils.notify module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot"><code class="docutils literal notranslate"><span class="pre">TelegramBot</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.escape_markdown"><code class="docutils literal notranslate"><span class="pre">TelegramBot.escape_markdown()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_multiple_messages_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_multiple_messages_async()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_multiple_messages"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_multiple_messages()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.build_payload"><code class="docutils literal notranslate"><span class="pre">TelegramBot.build_payload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_message_sync"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_message_sync()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_message_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_message_async()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_html_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_html_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_html_message_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_html_message_async()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_plain_text_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_plain_text_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_plain_text_message_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_plain_text_message_async()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_dict_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_dict_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_dict_message_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_dict_message_async()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.get_chat_id"><code class="docutils literal notranslate"><span class="pre">TelegramBot.get_chat_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.save_chat_id"><code class="docutils literal notranslate"><span class="pre">TelegramBot.save_chat_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.load_chat_id"><code class="docutils literal notranslate"><span class="pre">TelegramBot.load_chat_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_auto_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_auto_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.send_auto_message_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_auto_message_async()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.is_html"><code class="docutils literal notranslate"><span class="pre">TelegramBot.is_html()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pawnlib.utils.html#pawnlib.utils.notify.TelegramBot.is_markdown"><code class="docutils literal notranslate"><span class="pre">TelegramBot.is_markdown()</span></code></a></li>
 </ul>

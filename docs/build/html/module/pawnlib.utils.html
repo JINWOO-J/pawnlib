@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pawnlib.utils package &mdash; Pawnlib v2.0.32</title>
+  <title>pawnlib.utils package &mdash; Pawnlib v2.0.45</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -37,7 +37,7 @@
             pawnlib
           </a>
               <div class="version">
-                2.0.32
+                2.0.45
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -261,14 +261,23 @@
 <li class="toctree-l2"><a class="reference internal" href="#pawnlib-utils-notify-module">pawnlib.utils.notify module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot"><code class="docutils literal notranslate"><span class="pre">TelegramBot</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.escape_markdown"><code class="docutils literal notranslate"><span class="pre">TelegramBot.escape_markdown()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_multiple_messages_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_multiple_messages_async()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_multiple_messages"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_multiple_messages()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.build_payload"><code class="docutils literal notranslate"><span class="pre">TelegramBot.build_payload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_message_sync"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_message_sync()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_message_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_message_async()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_html_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_html_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_html_message_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_html_message_async()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_plain_text_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_plain_text_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_plain_text_message_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_plain_text_message_async()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_dict_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_dict_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_dict_message_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_dict_message_async()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.get_chat_id"><code class="docutils literal notranslate"><span class="pre">TelegramBot.get_chat_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.save_chat_id"><code class="docutils literal notranslate"><span class="pre">TelegramBot.save_chat_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.load_chat_id"><code class="docutils literal notranslate"><span class="pre">TelegramBot.load_chat_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_auto_message"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_auto_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.send_auto_message_async"><code class="docutils literal notranslate"><span class="pre">TelegramBot.send_auto_message_async()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.is_html"><code class="docutils literal notranslate"><span class="pre">TelegramBot.is_html()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pawnlib.utils.notify.TelegramBot.is_markdown"><code class="docutils literal notranslate"><span class="pre">TelegramBot.is_markdown()</span></code></a></li>
 </ul>
@@ -1266,14 +1275,12 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> – </p></li>
-<li><p><strong>method</strong> (<em>optional</em>) – <a href="#id1"><span class="problematic" id="id2">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'get'</span></code></p></li>
-<li><p><strong>payload</strong> (<em>optional</em>) – <a href="#id3"><span class="problematic" id="id4">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">{}</span></code></p></li>
-<li><p><strong>elapsed</strong> (<em>optional</em>) – <a href="#id5"><span class="problematic" id="id6">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>print_error</strong> (<em>optional</em>) – <a href="#id7"><span class="problematic" id="id8">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>timeout</strong> (<em>optional</em>) – Timeout seconds
-<a href="#id9"><span class="problematic" id="id10">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>ipaddr</strong> (<em>optional</em>) – Change the request IP address in http request
-<a href="#id11"><span class="problematic" id="id12">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>method</strong> – </p></li>
+<li><p><strong>payload</strong> – </p></li>
+<li><p><strong>elapsed</strong> – </p></li>
+<li><p><strong>print_error</strong> – </p></li>
+<li><p><strong>timeout</strong> – Timeout seconds</p></li>
+<li><p><strong>ipaddr</strong> – Change the request IP address in http request</p></li>
 <li><p><strong>**kwargs</strong> – Optional arguments that <code class="docutils literal notranslate"><span class="pre">request</span></code> takes.</p></li>
 </ul>
 </dd>
@@ -1420,16 +1427,12 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>level</strong> (<em>optional</em>) – <a href="#id13"><span class="problematic" id="id14">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'DEBUG'</span></code></p></li>
-<li><p><strong>filename</strong> (<em>optional</em>) – <a href="#id15"><span class="problematic" id="id16">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'./log.txt'</span></code></p></li>
-<li><p><strong>when</strong> (<em>optional</em>) – 저장 주기
-<a href="#id17"><span class="problematic" id="id18">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'M'</span></code></p></li>
-<li><p><strong>interval</strong> (<em>optional</em>) – 저장 주기에서 어떤 간격으로 저장할지
-<a href="#id19"><span class="problematic" id="id20">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>backup_count</strong> (<em>optional</em>) – 5
-<a href="#id21"><span class="problematic" id="id22">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">4</span></code></p></li>
-<li><p><strong>atTime</strong> (<em>optional</em>) – datetime.time(0, 0, 0)
-<a href="#id23"><span class="problematic" id="id24">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">datetime.time(0,</span> <span class="pre">0)</span></code></p></li>
+<li><p><strong>level</strong> – </p></li>
+<li><p><strong>filename</strong> – </p></li>
+<li><p><strong>when</strong> – 저장 주기</p></li>
+<li><p><strong>interval</strong> – 저장 주기에서 어떤 간격으로 저장할지</p></li>
+<li><p><strong>backup_count</strong> – 5</p></li>
+<li><p><strong>atTime</strong> – datetime.time(0, 0, 0)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1447,27 +1450,17 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>app_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – application name(=file name)
-<a href="#id25"><span class="problematic" id="id26">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'default'</span></code></p></li>
-<li><p><strong>log_level</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘INFO’, ‘WARN’, ‘DEBUG’], <em>optional</em>) – log level
-<a href="#id27"><span class="problematic" id="id28">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'INFO'</span></code></p></li>
-<li><p><strong>log_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – log file path
-<a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'./logs'</span></code></p></li>
-<li><p><strong>stdout</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Enable stdout, Adding Hook for another library logging.
-<a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>markup</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Enable markup for stdout logging.
-<a href="#id33"><span class="problematic" id="id34">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>stdout_level</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘INFO’, ‘WARN’, ‘DEBUG’, ‘NOTSET’], <em>optional</em>) – stdout log level
-<a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'INFO'</span></code></p></li>
-<li><p><strong>stdout_log_formatter</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>, <em>optional</em>) – stdout log formatter (function)
-<a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'%H:%M:%S,%f'</span></code></p></li>
-<li><p><strong>log_format</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <em>optional</em>) – log format / [%(asctime)s] %(name)s::” “%(filename)s/%(funcName)s(%(lineno)d) %(message)s
-<a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>use_hook_exception</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Select whether to log exception errors.
-<a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>exception_handler</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>, <em>optional</em>) – Exception handling function
-<a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – <a href="#id45"><span class="problematic" id="id46">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>app_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – application name(=file name)</p></li>
+<li><p><strong>log_level</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘INFO’, ‘WARN’, ‘DEBUG’]) – log level</p></li>
+<li><p><strong>log_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – log file path</p></li>
+<li><p><strong>stdout</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Enable stdout, Adding Hook for another library logging.</p></li>
+<li><p><strong>markup</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Enable markup for stdout logging.</p></li>
+<li><p><strong>stdout_level</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[‘INFO’, ‘WARN’, ‘DEBUG’, ‘NOTSET’]) – stdout log level</p></li>
+<li><p><strong>stdout_log_formatter</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – stdout log formatter (function)</p></li>
+<li><p><strong>log_format</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – log format / [%(asctime)s] %(name)s::” “%(filename)s/%(funcName)s(%(lineno)d) %(message)s</p></li>
+<li><p><strong>use_hook_exception</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Select whether to log exception errors.</p></li>
+<li><p><strong>exception_handler</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – Exception handling function</p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1580,16 +1573,19 @@ and the filter list to empty.</p>
 </div>
 <span class="target" id="module-pawnlib.utils.notify"></span><dl class="py class">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TelegramBot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bot_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TelegramBot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bot_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify_ssl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_ssl_warning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class to interact with the Telegram Bot API.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>bot_token</strong> (<em>optional</em>) – Telegram bot token. If not provided, it will be fetched from the ‘TELEGRAM_BOT_TOKEN’ environment variable.
-<a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>chat_id</strong> (<em>optional</em>) – Chat ID to send messages to. If not provided, it will be fetched from the ‘TELEGRAM_CHAT_ID’ environment variable or determined dynamically.
-<a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>bot_token</strong> – Telegram bot token. If not provided, it will be fetched from the ‘TELEGRAM_BOT_TOKEN’ environment variable.</p></li>
+<li><p><strong>chat_id</strong> – Chat ID to send messages to. If not provided, it will be fetched from the ‘TELEGRAM_CHAT_ID’ environment variable or determined dynamically.</p></li>
+<li><p><strong>verify_ssl</strong> – Whether to verify the SSL certificate for HTTPS requests. (default: True).</p></li>
+<li><p><strong>ignore_ssl_warning</strong> – Whether to ignore SSL warnings. If True, SSL warnings will be suppressed.</p></li>
+<li><p><strong>async_mode</strong> – Whether to use asynchronous mode. If False, synchronous mode will be used. (default: True)</p></li>
+<li><p><strong>max_retries</strong> – Maximum number of retries for 429 Too Many Requests errors. (default: 5)</p></li>
+<li><p><strong>retry_delay</strong> – Delay in seconds between retries for 429 Too Many Requests errors. (default: 5)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -1597,7 +1593,7 @@ and the filter list to empty.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">,</span> <span class="n">async_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
 <span class="n">bot</span><span class="o">.</span><span class="n">send_html_message</span><span class="p">(</span><span class="s2">&quot;&lt;b&gt;Hello, world!&lt;/b&gt;&quot;</span><span class="p">)</span>
 <span class="n">bot</span><span class="o">.</span><span class="n">send_plain_text_message</span><span class="p">(</span><span class="s2">&quot;Just plain text.&quot;</span><span class="p">)</span>
@@ -1606,7 +1602,7 @@ and the filter list to empty.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.escape_markdown">
-<span class="sig-name descname"><span class="pre">escape_markdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.escape_markdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.escape_markdown" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">escape_markdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.escape_markdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.escape_markdown" title="Permalink to this definition"></a></dt>
 <dd><p>Escape Markdown special characters for MarkdownV2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1625,90 +1621,83 @@ and the filter list to empty.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_message">
-<span class="sig-name descname"><span class="pre">send_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Markdown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_web_page_preview</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_message" title="Permalink to this definition"></a></dt>
-<dd><p>Send a message to the Telegram chat.</p>
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_multiple_messages_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_multiple_messages_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_multiple_messages_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_multiple_messages_async" title="Permalink to this definition"></a></dt>
+<dd><p>Send multiple messages asynchronously.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>message</strong> – The message to send.</p></li>
-<li><p><strong>parse_mode</strong> (<em>optional</em>) – The parse mode for the message (‘MarkdownV2’ or ‘HTML’).
-<a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'Markdown'</span></code></p></li>
-<li><p><strong>disable_web_page_preview</strong> (<em>optional</em>) – Whether to disable web page preview.
-<a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-</ul>
+<dd class="field-odd"><p><strong>messages</strong> – A list of messages to send.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The response from the Telegram API if successful, None otherwise.</p>
+<dd class="field-even"><p>A list of responses from the Telegram API.</p>
 </dd>
 </dl>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-</pre></div>
-</div>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_multiple_messages">
+<span class="sig-name descname"><span class="pre">send_multiple_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_multiple_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_multiple_messages" title="Permalink to this definition"></a></dt>
+<dd><p>Send multiple messages synchronously.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>messages</strong> – A list of messages to send.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of responses from the Telegram API.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_message">
+<span class="sig-name descname"><span class="pre">send_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Markdown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_web_page_preview</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_message" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.build_payload">
+<span class="sig-name descname"><span class="pre">build_payload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Markdown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_web_page_preview</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pass_escape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.build_payload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.build_payload" title="Permalink to this definition"></a></dt>
+<dd><p>Build the payload for sending a message.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_message_sync">
+<span class="sig-name descname"><span class="pre">send_message_sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Markdown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_web_page_preview</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pass_escape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_message_sync"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_message_sync" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_message_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_message_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MarkdownV2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_web_page_preview</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pass_escape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_message_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_message_async" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_html_message">
 <span class="sig-name descname"><span class="pre">send_html_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_html_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_html_message" title="Permalink to this definition"></a></dt>
-<dd><p>Send a message using HTML formatting.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>message</strong> – The message to send.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The response from the Telegram API if successful, None otherwise.</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_html_message</span><span class="p">(</span><span class="s2">&quot;&lt;b&gt;Hello, world!&lt;/b&gt;&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_html_message_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_html_message_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_html_message_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_html_message_async" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_plain_text_message">
-<span class="sig-name descname"><span class="pre">send_plain_text_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_plain_text_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_plain_text_message" title="Permalink to this definition"></a></dt>
-<dd><p>Send a plain text message without any formatting.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>message</strong> – The message to send.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The response from the Telegram API if successful, None otherwise.</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_plain_text_message</span><span class="p">(</span><span class="s2">&quot;Just plain text.&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">send_plain_text_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Markdown'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_plain_text_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_plain_text_message" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_plain_text_message_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_plain_text_message_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Markdown'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_plain_text_message_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_plain_text_message_async" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_dict_message">
 <span class="sig-name descname"><span class="pre">send_dict_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_dict_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_dict_message" title="Permalink to this definition"></a></dt>
-<dd><p>Send a dictionary as a JSON formatted message.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>message_dict</strong> – The dictionary to send.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The response from the Telegram API if successful, None otherwise.</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bot</span> <span class="o">=</span> <span class="n">TelegramBot</span><span class="p">(</span><span class="n">bot_token</span><span class="o">=</span><span class="s2">&quot;your_bot_token&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="s2">&quot;your_chat_id&quot;</span><span class="p">)</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">send_dict_message</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_dict_message_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_dict_message_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_dict_message_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_dict_message_async" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.get_chat_id">
@@ -1719,26 +1708,27 @@ and the filter list to empty.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.save_chat_id">
 <span class="sig-name descname"><span class="pre">save_chat_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'chat_id.txt'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.save_chat_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.save_chat_id" title="Permalink to this definition"></a></dt>
-<dd><p>Save the chat_id to a file for later use</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.load_chat_id">
 <span class="sig-name descname"><span class="pre">load_chat_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'chat_id.txt'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.load_chat_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.load_chat_id" title="Permalink to this definition"></a></dt>
-<dd><p>Load the chat_id from a file</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_auto_message">
 <span class="sig-name descname"><span class="pre">send_auto_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_auto_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_auto_message" title="Permalink to this definition"></a></dt>
-<dd><p>Automatically detect the type of message and send it appropriately</p>
-</dd></dl>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.send_auto_message_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_auto_message_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.send_auto_message_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.send_auto_message_async" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.is_html">
 <span class="sig-name descname"><span class="pre">is_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/utils/notify.html#TelegramBot.is_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.utils.notify.TelegramBot.is_html" title="Permalink to this definition"></a></dt>
-<dd><p>Check if the string contains HTML tags</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pawnlib.utils.notify.TelegramBot.is_markdown">
@@ -1762,9 +1752,9 @@ and the filter list to empty.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> – webhook url</p></li>
 <li><p><strong>msg_text</strong> – </p></li>
-<li><p><strong>title</strong> (<em>optional</em>) – <a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>send_user_name</strong> (<em>optional</em>) – <a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'CtxBot'</span></code></p></li>
-<li><p><strong>msg_level</strong> (<em>optional</em>) – <a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'info'</span></code></p></li>
+<li><p><strong>title</strong> – </p></li>
+<li><p><strong>send_user_name</strong> – </p></li>
+<li><p><strong>msg_level</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1792,16 +1782,11 @@ and the filter list to empty.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>func</strong> (<em>function</em><em>, </em><em>optional</em>) – The function to run in parallel.
-<a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>tasks</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of arguments to pass to the function.
-<a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">[]</span></code></p></li>
-<li><p><strong>max_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of worker threads to use.
-<a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">20</span></code></p></li>
-<li><p><strong>verbose</strong> (<em>int</em><em>, </em><em>optional</em>) – Whether to print the results of each task as they complete.
-<a href="#id67"><span class="problematic" id="id68">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
-<li><p><strong>sleep</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of seconds to sleep between runs when using <a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run" title="pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forever_run</span></code></a>.
-<a href="#id69"><span class="problematic" id="id70">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>func</strong> (<em>function</em>) – The function to run in parallel.</p></li>
+<li><p><strong>tasks</strong> (<em>list</em>) – A list of arguments to pass to the function.</p></li>
+<li><p><strong>max_workers</strong> (<em>int</em>) – The maximum number of worker threads to use.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em>) – Whether to print the results of each task as they complete.</p></li>
+<li><p><strong>sleep</strong> (<em>int</em>) – The number of seconds to sleep between runs when using <a class="reference internal" href="#pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run" title="pawnlib.utils.operate_handler.ThreadPoolRunner.forever_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forever_run</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1867,24 +1852,15 @@ Usage 2: subclass the Daemon class and use func parameter</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pidfile</strong> – pid file location</p></li>
-<li><p><strong>func</strong> (<em>optional</em>) – function to run as daemon
-<a href="#id71"><span class="problematic" id="id72">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>stdin</strong> (<em>optional</em>) – standard input , The default is sys.stdin, and providing a filename will output to a file.
-<a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>stdout</strong> (<em>optional</em>) – standard output, The default is sys.stdout, and  providing a filename will output to a file.
-<a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>stderr</strong> (<em>optional</em>) – standard error, The default is sys.stderr, and providing a filename will output to a file.
-<a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>home_dir</strong> (<em>optional</em>) – home directory
-<a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'.'</span></code></p></li>
-<li><p><strong>umask</strong> (<em>optional</em>) – umask
-<a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">18</span></code></p></li>
-<li><p><strong>verbose</strong> (<em>optional</em>) – verbosity level
-<a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>use_gevent</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – use gevent
-<a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>use_eventlet</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – use eventlet
-<a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>func</strong> – function to run as daemon</p></li>
+<li><p><strong>stdin</strong> – standard input , The default is sys.stdin, and providing a filename will output to a file.</p></li>
+<li><p><strong>stdout</strong> – standard output, The default is sys.stdout, and  providing a filename will output to a file.</p></li>
+<li><p><strong>stderr</strong> – standard error, The default is sys.stderr, and providing a filename will output to a file.</p></li>
+<li><p><strong>home_dir</strong> – home directory</p></li>
+<li><p><strong>umask</strong> – umask</p></li>
+<li><p><strong>verbose</strong> – verbosity level</p></li>
+<li><p><strong>use_gevent</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – use gevent</p></li>
+<li><p><strong>use_eventlet</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – use eventlet</p></li>
 </ul>
 </dd>
 </dl>
@@ -2011,16 +1987,13 @@ daemonized by start() or restart().</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>text</strong> (<em>optional</em>) – just a title name
-<a href="#id89"><span class="problematic" id="id90">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>cmd</strong> (<em>optional</em>) – command to be executed
-<a href="#id91"><span class="problematic" id="id92">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>cwd</strong> (<em>optional</em>) – the function changes the working directory to cwd
-<a href="#id93"><span class="problematic" id="id94">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>check_output</strong> (<em>optional</em>) – <a href="#id95"><span class="problematic" id="id96">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>capture_output</strong> (<em>optional</em>) – <a href="#id97"><span class="problematic" id="id98">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>hook_function</strong> (<em>optional</em>) – <a href="#id99"><span class="problematic" id="id100">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>debug</strong> (<em>optional</em>) – <a href="#id101"><span class="problematic" id="id102">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>text</strong> – just a title name</p></li>
+<li><p><strong>cmd</strong> – command to be executed</p></li>
+<li><p><strong>cwd</strong> – the function changes the working directory to cwd</p></li>
+<li><p><strong>check_output</strong> – </p></li>
+<li><p><strong>capture_output</strong> – </p></li>
+<li><p><strong>hook_function</strong> – </p></li>
+<li><p><strong>debug</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2054,10 +2027,8 @@ daemonized by start() or restart().</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>text</strong> (<em>optional</em>) – text
-<a href="#id103"><span class="problematic" id="id104">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
-<li><p><strong>delay</strong> (<em>optional</em>) – sleep time
-<a href="#id105"><span class="problematic" id="id106">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0.1</span></code></p></li>
+<li><p><strong>text</strong> – text</p></li>
+<li><p><strong>delay</strong> – sleep time</p></li>
 </ul>
 </dd>
 </dl>
@@ -2111,11 +2082,9 @@ daemonized by start() or restart().</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>loop_function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – function to run continuously</p></li>
 <li><p><strong>exit_function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – function to exit the loop</p></li>
-<li><p><strong>timeout</strong> (<em>optional</em>) – <a href="#id107"><span class="problematic" id="id108">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">30</span></code></p></li>
-<li><p><strong>delay</strong> (<em>optional</em>) – sleep time
-<a href="#id109"><span class="problematic" id="id110">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0.5</span></code></p></li>
-<li><p><strong>text</strong> (<em>optional</em>) – text message
-<a href="#id111"><span class="problematic" id="id112">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'WaitStateLoop'</span></code></p></li>
+<li><p><strong>timeout</strong> – </p></li>
+<li><p><strong>delay</strong> – sleep time</p></li>
+<li><p><strong>text</strong> – text message</p></li>
 </ul>
 </dd>
 </dl>
@@ -2352,10 +2321,8 @@ If the wallet type cannot be determined, None is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>object</em><em>, </em><em>optional</em>) – bytes or der
-<a href="#id113"><span class="problematic" id="id114">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – True(bytes) False(der)
-<a href="#id115"><span class="problematic" id="id116">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>data</strong> (<em>object</em>) – bytes or der</p></li>
+<li><p><strong>raw</strong> (<em>bool</em>) – True(bytes) False(der)</p></li>
 </ul>
 </dd>
 </dl>
@@ -2366,10 +2333,8 @@ If the wallet type cannot be determined, None is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>object</em><em>, </em><em>optional</em>) – bytes or der
-<a href="#id117"><span class="problematic" id="id118">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>raw</strong> (<em>bool</em><em>, </em><em>optional</em>) – True(bytes) False(der)
-<a href="#id119"><span class="problematic" id="id120">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>data</strong> (<em>object</em>) – bytes or der</p></li>
+<li><p><strong>raw</strong> (<em>bool</em>) – True(bytes) False(der)</p></li>
 </ul>
 </dd>
 </dl>
@@ -2635,8 +2600,7 @@ address is made from pubkey.</p>
 <dd><p>Create tx_hash from params object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>params</strong> (<em>dict</em><em>, </em><em>optional</em>) – the value of ‘params’ key in jsonrpc
-<a href="#id121"><span class="problematic" id="id122">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – the value of ‘params’ key in jsonrpc</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>sha3_256 hash value

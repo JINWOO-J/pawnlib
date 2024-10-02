@@ -50,7 +50,7 @@ extensions = [
     "sphinx_autodoc_typehints",
     "sphinx.ext.autodoc",
     "sphinx_copybutton",
-    'sphinx_autodoc_defaultargs',
+    # 'sphinx_autodoc_defaultargs',
 ]
 
 default_role = "py:obj"

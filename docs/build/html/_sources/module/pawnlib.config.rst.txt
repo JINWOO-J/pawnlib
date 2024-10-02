@@ -32,7 +32,7 @@ pawnlib.config.globalconfig module
 
 
 pawnlib.config.first_run_checker module
-----------------------------------
+----------------------------------------
 
 .. code-block:: python
 
@@ -46,10 +46,10 @@ pawnlib.config.first_run_checker module
 
 
 pawnlib.config.first_run_checker.one_time_run
---------------------------------------------
+----------------------------------------------
 
 .. code-block:: python
-    :emphasize-lines: 3, 6, 17
+    :emphasize-lines: 1, 3
 
     from pawnlib.config import one_time_run
 

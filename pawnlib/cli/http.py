@@ -61,10 +61,10 @@ __epilog__ = (
     f"  8. Dry run without actual HTTP request: \n\t{script_name} http https://example.com --dry-run\n\n"
     f"  9. Sending notifications to a Slack URL on failure: \n\t{script_name} http https://example.com --slack-url 'https://hooks.slack.com/services/...'\n\n\n"
 
-    f" 10. Checking blockheight increase: \n\t`{script_name} http http://test-node-01:26657/status --blockheight-key \"result.sync_info.latest_block_height\" -i 5`\n"
+    f" 10. Checking blockheight increase: \n\t`{script_name} http http://test-node-01:26657/status --blockheight-key \"result.sync_info.latest_block_height\" -i 5`\n\n"
 
     "Note:  \n"
-    "   .. line-block:: \n"
+    "   .. line-block:: \n\n"
     
     f"\n{http_config_example}\n\n\n"
     
