@@ -1185,6 +1185,7 @@ def int_to_loop_hex(value: float, rounding: Literal['floor', 'round'] = 'floor')
     Example:
 
         .. code-block:: python
+
             from pawnlib.typing import int_to_loop_hex
 
             int_to_loop_hex(1)
@@ -1601,14 +1602,13 @@ def list_to_oneline_string(list_param: list, split_str: str = "."):
 
 def long_to_bytes(val, endianness='big'):
     """
-
-    Use :ref:`string formatting` and :func:`~binascii.unhexlify` to
+    Use string formatting and :func:`~binascii.unhexlify` to
     convert ``val``, a :func:`long`, to a byte :func:`str`.
 
     :param long val: The value to pack
     :param str endianness: The endianness of the result. ``'big'`` for big-endian, ``'little'`` for little-endian.
         If you want byte- and word-ordering to differ, you're on your own.
-        Using :ref:`string formatting` lets us use Python's C innards.
+        Using string formatting lets us use Python's C innards.
 
     """
     # one (1) hex digit per four (4) bits

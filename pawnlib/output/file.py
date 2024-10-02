@@ -362,7 +362,7 @@ def open_file(filename: str, encoding=None):
         .. code-block:: python
 
             file_contents = open_file("example.txt")
-            # >> 'This is an example file.\nIt contains some text.\n'
+            # >> 'This is an example file.\\nIt contains some text.\\n'
     """
     try:
         with open(filename, "r", encoding=encoding) as file_handler:
@@ -488,7 +488,7 @@ def represent_ordereddict(dumper, data):
             yaml.add_representer(OrderedDict, represent_ordereddict)
             print(yaml.dump(data))
 
-            # >> "key1: value1\nkey2: value2\n"
+            # >> "key1: value1\\nkey2: value2\\n"
 
     """
     value = []
