@@ -10,7 +10,9 @@ import json
 import aiohttp
 import asyncio
 import time
-
+from pawnlib.typing.constants import StatusType
+from typing import Union, Awaitable
+import logging
 
 class TelegramBot:
     """
@@ -266,80 +268,151 @@ def get_level_color(c_level):
     ).get(c_level, default_color)
 
 
-def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='info'):
+def get_status_emoji(status: Union[str, StatusType]) -> str:
     """
+    Return appropriate emoji based on the status.
 
-    Send to slack message
-
-    :param url: webhook url
-    :param msg_text:
-    :param title:
-    :param send_user_name:
-    :param msg_level:
-    :return:
+    :param status: The status (success, failed, warning, etc.)
+    :return: Emoji string corresponding to the status
     """
+    # status_emojis = {
+    #     'success': ':white_check_mark:',  # 성공
+    #     'failed': ':x:',  # 실패
+    #     'warning': ':warning:',  # 경고
+    #     'info': ':information_source:',  # 정보
+    #     'critical': ':bangbang:',  # 중대한 문제
+    #     'in_progress': ':hourglass_flowing_sand:',  # 진행 중
+    #     'complete': ':checkered_flag:',  # 완료
+    #     'paused': ':pause_button:',  # 일시 중지
+    #     'running': ':runner:',  # 실행 중
+    #     'error': ':red_circle:',  # 에러
+    #     'retrying': ':repeat:',  # 재시도 중
+    #     'stopped': ':stop_sign:',  # 중단
+    #     'queued': ':hourglass:',  # 대기 중
+    # }
+    status_emojis = {
+        'success': '✅',  # 성공
+        'failed': '🚨',  # 실패
+        'warning': '⚠️',  # 경고
+        'info': 'ℹ️',  # 정보
+        'critical': '❗',  # 중대한 문제
+        'in_progress': '⏳',  # 진행 중
+        'complete': '🏁',  # 완료
+        'paused': '⏸️',  # 일시 중지
+        'running': '🏃',  # 실행 중
+        'error': '🔴',  # 에러
+        'retrying': '🔄',  # 재시도 중
+        'stopped': '🛑',  # 중단
+        'queued': '⌛',  # 대기 중
+        'canceled': '❌',  # 작업 취소
+        'approved': '👍',  # 승인
+        'rejected': '👎',  # 거절
+        'scheduled': '🗓️',  # 스케줄된 작업
+        'maintenance': '🛠️',  # 유지보수
+        'update': '⬆️',  # 업데이트
+    }
+    return status_emojis.get(status, '❓')  # 기본값은 알 수 없는 상태 이모지
 
-    if title:
-        msg_title = title
-    else:
-        msg_title = shorten_text(msg_text, width=50)
 
-    msg_level = msg_level.lower()
+def create_slack_payload(
+        msg_text: Union[str, dict, list],
+        title: str,
+        send_user_name: str,
+        msg_level: str,
+        status: Union[str, StatusType],
+        simple_mode: bool
+) -> dict:
+    """
+    Create the payload for sending a message to Slack.
 
-    if url is None:
-        pawn.error_logger.error("[ERROR] slack webhook url is None")
-        return False
-    p_color = get_level_color(msg_level)
+    :param msg_text: The main message text, can be a string, dict, or list.
+    :type msg_text: Union[str, dict, list]
+    :param title: Title of the message.
+    :type title: str
+    :param send_user_name: The username to display in Slack.
+    :type send_user_name: str
+    :param msg_level: Severity level of the message (info, warning, error, critical).
+    :type msg_level: str
+    :param status: Status type or string for dynamic emoji and message formatting.
+    :type status: Union[str, StatusType]
+    :param simple_mode: If True, send a simplified message without additional info.
+    :type simple_mode: bool
 
+    :return: Dictionary containing the Slack message payload.
+    :rtype: dict
+    """
+    emoji = get_status_emoji(status)
+    msg_title = f"{emoji} {title}" if title else shorten_text(msg_text, width=50)
+    p_color = get_level_color(msg_level.lower())
+
+    category_emoji = "▪️"
     payload = {
-        # https://app.slack.com/block-kit-builder
         "username": send_user_name,
         "text": msg_title,
-        "blocks": [
-            {"type": "divider"}
-        ],
-        "attachments": [
-            {
-                "color": "#" + p_color,
-                "blocks": [
-                    {
-                        "type": "header",
-                        "text": {
-                            "type": "plain_text",
-                            "text": msg_title
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "plain_text",
-                            "text": f'{"+ [HOST]":^12s} : {net.get_hostname()}, {net.get_public_ip()}'
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "plain_text",
-                            "text": f'{"+ [DATE]":^12s} : {(date_utils.todaydate("log"))}'
-                        }
-                    },
-                    # {
-                    #     "type": "section",
-                    #     "text": {
-                    #         "type": "plain_text",
-                    #         "text": f'{"+ [DESC]":^12s} : {msg_text}'
-                    #     }
-                    # }
-                ]
-            }
-        ]
+        "blocks": [{"type": "divider"}],
+        "attachments": [{
+            "color": f"#{p_color}",
+            "blocks": [
+                {"type": "header", "text": {"type": "plain_text", "text": msg_title}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": f'{category_emoji}{"*Host*":^12s} : {net.get_hostname()}, {net.get_public_ip()}'}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": f'{category_emoji}{"*Date*":^12s} : {date_utils.todaydate("log")}'}}]
+        }]
     }
+    #
+    # payload = {
+    #     "username": send_user_name,
+    #     "text": msg_title,
+    #     "blocks": [{"type": "divider"}],
+    #     "attachments": [{
+    #         "color": f"#{p_color}",
+    #         "blocks": [
+    #             {"type": "header", "text": {"type": "plain_text", "text": msg_title}},
+    #             {"type": "section", "fields": [
+    #                 {"type": "mrkdwn", "text": "*Host*"},
+    #                 {"type": "plain_text", "text": f"{net.get_hostname()}, {net.get_public_ip()}"},
+    #                 {"type": "mrkdwn", "text": "*Date*"},
+    #                 {"type": "plain_text", "text": date_utils.todaydate("log")}
+    #             ]}
+    #         ]
+    #     }]
+    # }
+
+    # payload = {
+    #     "username": send_user_name,
+    #     "text": msg_title,
+    #     "blocks": [{"type": "divider"}],
+    #     "attachments": [{
+    #         "color": f"#{p_color}",
+    #         "blocks": [
+    #             {"type": "header", "text": {"type": "plain_text", "text": msg_title}},
+    #             {
+    #                 "type": "section",
+    #                 "fields": [
+    #                     {"type": "mrkdwn", "text": "*Host*:"},  # Key with markdown
+    #                     {"type": "plain_text", "text": f"{net.get_hostname()}, {net.get_public_ip()}"}  # Value with plain text
+    #                 ]
+    #             },
+    #             {
+    #                 "type": "section",
+    #                 "fields": [
+    #                     {"type": "mrkdwn", "text": "*Date*:"},
+    #                     {"type": "plain_text", "text": date_utils.todaydate('log')}
+    #                 ]
+    #             }
+    #         ]
+    #     }]
+    # }
+
+    if simple_mode:
+        return {"username": send_user_name, "text": f"{msg_title}\n{msg_text}", "attachments": []}
 
     def _make_attachment(key=None, value=None):
-        if key:
+        if key == "Info":
+            text = f'{category_emoji}{"Info":^12s} : {value}'
+        elif key:
             text = f'💡{key:<12s}: {value}'
         elif not key:
-            text = f'{"+ [DESC]":^12s} : {msg_text}'
+            text = f'{category_emoji}{"Info":^12s} : {msg_text}'
         else:
             text = ""
 
@@ -364,18 +437,157 @@ def send_slack(url, msg_text, title=None, send_user_name="CtxBot", msg_level='in
             attachment['blocks'].append(_make_attachment(value=msg_text))
         _attachments.append(attachment)
     payload["attachments"] = _attachments
-    try:
-        post_result = requests.post(url, json=payload, verify=False, timeout=15)
-        if post_result and post_result.status_code == 200 and post_result.text == "ok":
-            pawn.app_logger.info("[OK][Slack] Send slack")
-            return True
+    return payload
+
+
+async def send_slack_async(
+        url: str,
+        payload: dict,
+        retries: int
+) -> bool:
+    """
+    Asynchronous Slack message sender with retry logic.
+
+    :param url: Slack webhook URL.
+    :type url: str
+    :param payload: The payload to send to Slack.
+    :type payload: dict
+    :param retries: Number of retry attempts in case of failure.
+    :type retries: int
+
+    :return: Boolean indicating success or failure.
+    :rtype: bool
+    """
+    async with aiohttp.ClientSession() as session:
+        for attempt in range(retries):
+            try:
+                async with session.post(url, json=payload) as response:
+                    if response.status == 200:
+                        pawn.app_logger.info("[OK][Slack] Slack message sent successfully.")
+                        return True
+                    else:
+                        pawn.error_logger.error(f"[ERROR][Slack] Error in response. Status: {response.status}")
+            except Exception as e:
+                pawn.error_logger.error(f"[ERROR][Slack] Exception occurred: {str(e)}")
+            pawn.error_logger.info(f"[INFO][Slack] Retrying... ({attempt + 1}/{retries})")
+            await asyncio.sleep(2)
+    return False
+
+
+def send_slack_sync(
+        url: str,
+        payload: dict,
+        retries: int
+) -> bool:
+    """
+    Synchronous Slack message sender with retry logic.
+
+    :param url: Slack webhook URL.
+    :type url: str
+    :param payload: The payload to send to Slack.
+    :type payload: dict
+    :param retries: Number of retry attempts in case of failure.
+    :type retries: int
+
+    :return: Boolean indicating success or failure.
+    :rtype: bool
+    """
+    for attempt in range(retries):
+        try:
+            post_result = requests.post(url, json=payload, timeout=15)
+            if post_result.status_code == 200 and post_result.text == "ok":
+                logging.info("[OK][Slack] Slack message sent successfully.")
+                return True
+            else:
+                logging.error(f"[ERROR][Slack] Error in response. Status: {post_result.status_code}, Response: {shorten_text(post_result.text, 50)}")
+        except Exception as e:
+            logging.error(f"[ERROR][Slack] Exception occurred: {str(e)}")
+        logging.info(f"[INFO][Slack] Retrying... ({attempt + 1}/{retries})")
+        time.sleep(2)
+    return False
+
+
+def send_slack(
+        url: str = "",
+        msg_text: Union[str, dict, list] = None,
+        title: str = "",
+        send_user_name: str = "CtxBot",
+        msg_level: str = 'info',
+        retries: int = 1,
+        status: Union[str, StatusType] = 'ℹ️',
+        simple_mode: bool = False,
+        async_mode: bool = False,
+) -> Union[bool, Awaitable[bool]]:
+    """
+    Send a message to Slack with optional retry logic and dynamic emoji based on status.
+
+    :param url: Slack webhook URL (fetched from env `SLACK_WEBHOOK_URL` if not provided)
+    :type url: str
+    :param msg_text: The main message to send
+    :type msg_text: Union[str, dict, list]
+    :param title: Optional title for the message
+    :type title: str
+    :param send_user_name: Username to display in Slack
+    :type send_user_name: str
+    :param msg_level: Message severity level (info, warning, error, critical)
+    :type msg_level: str
+    :param retries: Number of retries in case of failure
+    :type retries: int
+    :param status: Either a string or StatusType enum value to use a different format with emojis
+    :type status: Union[str, StatusType]
+    :param simple_mode: If True, send a simple message without extra info like host or date
+    :type simple_mode: bool
+    :param async_mode: If True, sends the message asynchronously
+    :type async_mode: bool
+
+    :return: Boolean indicating success or failure
+    :rtype: bool
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.utils.notify import send_slack
+
+            # Send a message with status using StatusType enum
+            send_slack(SLACK_WEBHOOK_URL, "The process completed successfully",
+                       title="Process Status", msg_level="info", status=StatusType.SUCCESS)
+
+            # Send a message with status using string
+            send_slack(SLACK_WEBHOOK_URL, "The process completed successfully",
+                       title="Process Status", msg_level="info", status="success")
+
+            # Send an error message
+            send_slack(SLACK_WEBHOOK_URL, "The process failed due to an unexpected error",
+                       title="Process Status", msg_level="error", status="failed")
+
+            # Send a warning message
+            send_slack(SLACK_WEBHOOK_URL, "The disk space is running low",
+                       title="System Warning", msg_level="warning", status="warning")
+
+            # Send a message for an in-progress task
+            send_slack(SLACK_WEBHOOK_URL, "The process is currently running",
+                       title="Process Status", msg_level="info", status="in_progress")
+
+            # Send a message for task completion
+            send_slack(SLACK_WEBHOOK_URL, "The task has been completed",
+                       title="Task Status", msg_level="info", status="complete")
+    """
+
+    if not url:
+        url = os.getenv('SLACK_WEBHOOK_URL', url)
+        if url:
+            logging.debug("Using SLACK_WEBHOOK_URL from environment variables.")
         else:
-            pawn.error_logger.error(f"[ERROR][Slack] Got errors, status_code={post_result.status_code}, text={shorten_text(post_result.text, 50)}")
+            logging.error("Required url")
             return False
 
-    except Exception as e:
-        pawn.error_logger.error(f"[ERROR][Slack] Got errors -> {e}")
-        return False
+    payload = create_slack_payload(msg_text, title, send_user_name, msg_level, status, simple_mode)
+
+    if async_mode:
+        return send_slack_async(url, payload, retries)
+    else:
+        return send_slack_sync(url, payload, retries)
 
 
 def send_slack_token(title=None, message=None, token=None, channel_name=None, send_user="python_app", msg_level="info"):

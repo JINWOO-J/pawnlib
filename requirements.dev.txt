@@ -41,3 +41,4 @@ hatchling
 hatch-fancy-pypi-readme
 pandoc~=2.3
 aiodocker~=0.21.0
+aiofiles>=22.1.0

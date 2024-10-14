@@ -5,11 +5,193 @@ import sys
 import json
 import glob
 import yaml
-from typing import Union, Any
+import time
+import re
+from typing import Union, Any, List, Callable
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output import color_print
 from pawnlib.typing import converter
 from rich.prompt import Confirm
+import asyncio
+import aiofiles
+import logging
+
+
+class Tail:
+    """
+    Tail class for monitoring log files with support for both synchronous and asynchronous modes.
+
+    :param log_file_paths: Paths to the log files to monitor.
+    :type log_file_paths: Union[str, List[str]]
+    :param filters: List of regex patterns to filter log lines.
+    :type filters: List[str]
+    :param callback: Function to call with processed log lines.
+    :type callback: Callable[[str], Union[None, asyncio.coroutine]]
+    :param async_mode: Whether to operate in asynchronous mode.
+    :type async_mode: bool
+    :param formatter: Function to format log lines before processing.
+    :type formatter: Callable[[str], str]
+
+    Example:
+
+        .. code-block:: python
+            from pawnlib.output.file import Tail
+            # Synchronous mode
+            tail = Tail(log_file_paths=["/var/log/app.log"],
+                         filters=["ERROR", "CRITICAL"],
+                         callback=process_log_line,
+                         async_mode=False)
+
+            tail.follow()
+
+            # Asynchronous mode
+            async def process_log_line_async(line: str):
+                # Your async callback logic
+                pass
+
+            tail = Tail(log_file_paths=["/var/log/app.log"],
+                         filters=["ERROR", "WARNING"],
+                         callback=process_log_line_async,
+                         async_mode=True)
+
+            tail.follow()
+
+    """
+
+    def __init__(self,
+                 log_file_paths: Union[str, List[str]],
+                 filters: List[str],
+                 callback: Callable[[str], Any],
+                 async_mode: bool = False,
+                 formatter: Callable[[str], str] = None,
+                 enable_logging: bool = True,
+                 logger=None,
+                 ):
+
+        self.log_file_paths = [log_file_paths] if isinstance(log_file_paths, str) else log_file_paths
+        self.filters = [re.compile(f) for f in filters]
+        self.callback = callback
+        self.async_mode = async_mode
+        self.formatter = formatter
+
+        if enable_logging:
+            logging.basicConfig(level=logging.INFO)
+        else:
+            logging.basicConfig(level=logging.CRITICAL)  # Silence all logs
+
+        if not logger:
+            self.logger = pawn.console
+        else:
+            self.logger = logging
+
+    async def _follow_async(self, file_path: str):
+        try:
+            async with aiofiles.open(file_path, mode='r') as file:
+                await file.seek(0, os.SEEK_END)
+                self.logger.debug(f"Started async monitoring on file: {file_path}")
+
+                while True:
+                    line = await file.readline()
+                    if not line:
+                        await asyncio.sleep(0.1)
+                        continue
+
+                    await self._process_line(line, file_path)
+
+        except Exception as e:
+            self.logger.error(f"Error occurred while asynchronously monitoring file {file_path}: {e}")
+
+    def _follow_sync(self, file_path: str):
+        try:
+            with open(file_path, "r") as file:
+                file.seek(0, os.SEEK_END)
+                self.logger.debug(f"Started synchronous monitoring on file: {file_path}")
+
+                while True:
+                    line = file.readline()
+                    if not line:
+                        time.sleep(0.1)
+                        continue
+
+                    self._process_line_sync(line, file_path)
+
+        except Exception as e:
+            self.logger.error(f"Error occurred while synchronously monitoring file {file_path}: {e}")
+
+    async def _process_line(self, line: str, file_path: str):
+        line = line.strip()
+        if self._should_process(line):
+            try:
+                formatted_line = self.formatter(line) if self.formatter else line
+                await self.callback(formatted_line)
+                self.logger.debug(f"Successfully processed a log line from {file_path}: {formatted_line}")
+            except Exception as e:
+                self.logger.error(f"Error occurred while executing callback on line from {file_path}: {e}")
+
+    def _process_line_sync(self, line: str, file_path: str):
+        line = line.strip()
+        if self._should_process(line):
+            try:
+                formatted_line = self.formatter(line) if self.formatter else line
+                self.callback(formatted_line)
+                self.logger.debug(f"Successfully processed a log line from {file_path}: {formatted_line}")
+            except Exception as e:
+                self.logger.error(f"Error occurred while executing callback on line from {file_path}: {e}")
+
+    def _should_process(self, line: str) -> bool:
+        return any(f.search(line) for f in self.filters)
+
+    # def follow(self):
+    #     """
+    #     Start monitoring the log files. Uses asynchronous or synchronous mode based on the `async_mode` flag.
+    #     """
+    #     if self.async_mode:
+    #         self.logger.info("Running in asynchronous mode.")
+    #         loop = asyncio.get_event_loop()
+    #         tasks = [self._follow_async(path) for path in self.log_file_paths]
+    #         loop.run_until_complete(asyncio.gather(*tasks))
+    #     else:
+    #         self.logger.info("Running in synchronous mode.")
+    #         for path in self.log_file_paths:
+    #             self._follow_sync(path)
+
+    # async def follow(self):
+    #     """
+    #     Start monitoring the log files. Uses asynchronous or synchronous mode based on the `async_mode` flag.
+    #     """
+    #     if self.async_mode:
+    #         self.logger.info("Running in asynchronous mode.")
+    #         tasks = [self._follow_async(path) for path in self.log_file_paths]
+    #         await asyncio.gather(*tasks)
+    #     else:
+    #         self.logger.info("Running in synchronous mode.")
+    #         for path in self.log_file_paths:
+    #             self._follow_sync(path)
+
+    async def follow_async(self):
+        """ Asynchronous follow method """
+        tasks = [self._follow_async(path) for path in self.log_file_paths]
+        await asyncio.gather(*tasks)
+
+    def follow(self):
+        """ Unified follow method for both async and sync """
+        if self.async_mode:
+            try:
+                loop = asyncio.get_running_loop()
+                if loop.is_running():
+                    # Use an already running loop
+                    return asyncio.ensure_future(self.follow_async())
+                else:
+                    # If no loop is running, start it manually
+                    loop.run_until_complete(self.follow_async())
+            except RuntimeError:
+                # Handle if no loop is running (as in the case with `asyncio.run()`)
+                asyncio.run(self.follow_async())
+        else:
+            # Synchronous mode: directly call the sync methods
+            for path in self.log_file_paths:
+                self._follow_sync(path)
+
 
 
 def check_file_overwrite(filename, answer=None) -> bool:

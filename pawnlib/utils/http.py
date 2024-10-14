@@ -2262,7 +2262,7 @@ def getLastBlock(nodeHost):
     return 0
 
 
-def jequest(url, method="get", payload={}, elapsed=False, print_error=False, timeout=None, ipaddr=None, **kwargs) -> dict:
+def jequest(url, method="get", payload={}, elapsed=False, print_error=False, timeout=None, ipaddr=None, verify=True, **kwargs) -> dict:
     """
     This functions will be called the http requests.
 
@@ -2273,6 +2273,7 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     :param print_error:
     :param timeout: Timeout seconds
     :param ipaddr: Change the request IP address in http request
+    :param verify: verify SSL
     :param \*\*kwargs: Optional arguments that ``request`` takes.
 
     :return:
@@ -2303,9 +2304,9 @@ def jequest(url, method="get", payload={}, elapsed=False, print_error=False, tim
     try:
         func = getattr(requests, method)
         if method == "get":
-            response = func(url, verify=False, timeout=timeout, **kwargs)
+            response = func(url, verify=verify, timeout=timeout, **kwargs)
         else:
-            response = func(url, json=payload, verify=False, timeout=timeout, **kwargs)
+            response = func(url, json=payload, verify=verify, timeout=timeout, **kwargs)
         http_version = response.raw.version
         r_headers = response.headers
 
