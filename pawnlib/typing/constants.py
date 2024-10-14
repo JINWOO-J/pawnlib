@@ -1,3 +1,27 @@
+from enum import Enum
+
+class StatusType(Enum):
+    SUCCESS = 'success'
+    FAILED = 'failed'
+    WARNING = 'warning'
+    INFO = 'info'
+    CRITICAL = 'critical'
+    IN_PROGRESS = 'in_progress'
+    COMPLETE = 'complete'
+    PAUSED = 'paused'
+    RUNNING = 'running'
+    ERROR = 'error'
+    RETRYING = 'retrying'
+    STOPPED = 'stopped'
+    QUEUED = 'queued'
+    CANCELED = 'canceled'
+    APPROVED = 'approved'
+    REJECTED = 'rejected'
+    SCHEDULED = 'scheduled'
+    MAINTENANCE = 'maintenance'
+    UPDATE = 'update'
+
+
 class ICONPRepStatus:
     PREP_STATUS_ACTIVE = 0
     PREP_STATUS_UNREGISTERED = 1
@@ -214,19 +238,20 @@ class FilePermissionConstants:
 
 
 class RegexPatternConstants:
-    EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-    URL_PATTERN = r"^(https?|ftp)://[^\s/$.?#].[^\s]*$"
-    PHONE_PATTERN = r"^\+?1?\d{9,15}$"
-    POSTAL_CODE_PATTERN = r"^\d{5}(?:[-\s]\d{4})?$"
-    IP_ADDRESS_PATTERN = r"^(?:\d{1,3}\.){3}\d{1,3}$"
-    CREDIT_CARD_PATTERN = r"^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})$"
-    IPV6_ADDRESS_PATTERN = r"^([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)$"
-    HTML_TAG_PATTERN = r"<(\"[^\"]*\"|'[^']*'|[^'\">])*>"
-    SLUG_PATTERN = r"^[a-z0-9]+(?:-[a-z0-9]+)*$"  # Matches URL slugs (e.g., valid-slug, another-slug)
-    INTEGER_PATTERN = r"^-?\d+$" # Matches integers, both positive and negative (e.g., 123, -456)
-    FLOAT_PATTERN = r"^-?\d*(\.\d+)?$" # Matches floating point numbers, both positive and negative (e.g., 123.45, -678.90)
-    DATE_YYYY_MM_DD_PATTERN = r"^\d{4}-\d{2}-\d{2}$" # Matches date format YYYY-MM-DD (e.g., 2023-09-10)
-    TIME_HH_MM_SS_PATTERN = r"^\d{2}:\d{2}:\d{2}$" # Matches time format HH:MM:SS (e.g., 14:32:00)
+    PATTERN_EMAIL = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    PATTERN_URL = r"^(https?|ftp)://[^\s/$.?#].[^\s]*$"
+    PATTERN_PHONE = r"^\+?1?\d{9,15}$"
+    PATTERN_POSTAL_CODE = r"^\d{5}(?:[-\s]\d{4})?$"
+    PATTERN_IP_ADDRESS = r"^(?!.*\.$)(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d|0)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d|0)){3}$"
+
+    PATTERN_CREDIT_CARD = r"^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})$"
+    PATTERN_IPV6_ADDRESS = r"^([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)$"
+    PATTERN_HTML_TAG = r"<(\"[^\"]*\"|'[^']*'|[^'\">])*>"
+    PATTERN_SLUG = r"^[a-z0-9]+(?:-[a-z0-9]+)*$"  # Matches URL slugs (e.g., valid-slug, another-slug)
+    PATTERN_INTEGER = r"^-?\d+$"  # Matches integers, both positive and negative (e.g., 123, -456)
+    PATTERN_FLOAT = r"^-?\d*(\.\d+)?$"  # Matches floating point numbers, both positive and negative (e.g., 123.45, -678.90)
+    PATTERN_DATE_YYYY_MM_DD = r"^\d{4}-\d{2}-\d{2}$"  # Matches date format YYYY-MM-DD (e.g., 2023-09-10)
+    PATTERN_TIME_HH_MM_SS = r"^\d{2}:\d{2}:\d{2}$"  # Matches time format HH:MM:SS (e.g., 14:32:00)
 
 
 class TimeConstants:

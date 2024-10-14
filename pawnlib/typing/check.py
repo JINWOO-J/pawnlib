@@ -11,6 +11,7 @@ try:
     from typing import Any, Union
 except ImportError:
     from typing_extensions import Any, Union
+from pawnlib.typing.constants import const
 
 
 def is_json(s) -> bool:
@@ -223,7 +224,8 @@ def is_valid_ipv4(ip):
 
     """
     pattern = re.compile(
-        r"^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$",
+        # r"^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$",
+        const.PATTERN_IP_ADDRESS,
         re.VERBOSE | re.IGNORECASE
     )
     return pattern.match(ip) is not None

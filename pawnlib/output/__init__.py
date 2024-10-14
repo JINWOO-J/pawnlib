@@ -1,4 +1,5 @@
 from .file import (
+    Tail,
     check_file_overwrite,
     get_file_path,
     get_file_extension,
