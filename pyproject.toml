@@ -1,0 +1,143 @@
+[build-system]
+requires = ["hatchling", "hatch-fancy-pypi-readme"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pawnlib"
+description = "pawnlib is a collection of libraries for IaC."
+license = "MIT"
+requires-python = ">=3.7"
+authors = [
+    { name = "Jinwoo", email = "jinwoo@parametacorp.com" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Plugins",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Internet :: WWW/HTTP",
+]
+dependencies = [
+    "asttokens>=2.0.5",
+    "certifi>=2020.12.15",
+    "charset-normalizer>=2.1.0",
+    "devtools>=0.8.0",
+    "executing>=0.8.3",
+    "idna>=2.5",
+    "parameterized>=0.8.1",
+    "PyYAML>=5.3.1",
+    "urllib3~=1.26.0",
+#    "requests~=2.29.0",
+    "requests>=2.25.0",
+    "six>=1.15.0",
+    "termcolor>=1.1.0",
+    "asyncio>=3.4.3",
+    "aiometer>=0.3.0",
+    "pyfiglet>=0.8.post1",
+    "deprecated~=1.2.13",
+    "argparse>=1.4.0",
+    "Jinja2>=3.0.3",
+    "rich>=12.0.1",
+    "Pygments>=2.14.0",
+    "inquirerpy==0.3.4",
+    "httpx~=0.24.0",
+    "websocket-client>=0.59.0",
+    "tabulate>=0.8.7",
+    "aiohttp>=3.8.6",
+    "aiofiles>=22.1.0",
+    "python-dotenv~=0.21.1"
+]
+dynamic = ["readme", "version"]
+
+[project.optional-dependencies]
+brotli = [
+    "brotli; platform_python_implementation == 'CPython'",
+    "brotlicffi; platform_python_implementation != 'CPython'",
+]
+
+
+wallet = [
+    "eth_keyfile>=0.6.1",
+    "coincurve~=18.0.0",
+    "rich>=10,<14",
+]
+
+docker = [
+    "aiodocker~=0.21.0",
+]
+
+full = [
+    "eth_keyfile>=0.6.1",
+    "coincurve~=18.0.0",
+    "rich>=10,<14",
+    "aiodocker~=0.21.0",
+    "boto3>=1.28.3",
+    "redis~=4.5.1"
+]
+
+[project.scripts]
+pawns = "pawnlib.cli.main_cli:main"
+
+[project.urls]
+Changelog = "https://github.com/jinwoo-j/pawnlib"
+Documentation = "https://pawnlib.readthedocs.io"
+Homepage = "https://pawnlib.readthedocs.io"
+Source = "https://github.com/jinwoo-j/pawnlib"
+
+[tool.hatch.version]
+path = "pawnlib/__version__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/pawnlib",
+    "/README.md",
+]
+
+
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "README.md"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+text = "\n## Release Information\n\n"
+
+[tool.ruff]
+select = ["E", "F", "I", "B", "PIE"]
+ignore = ["B904", "B028"]
+line-length = 120
+
+[tool.ruff.isort]
+combine-as-imports = true
+
+[tool.mypy]
+ignore_missing_imports = true
+strict = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+addopts = "-rxXs"
+filterwarnings = [
+    "error",
+]
+markers = [
+    "copied_from(source, changes=None): mark test as copied from somewhere else, along with a description of changes made to accodomate e.g. our test setup",
+    "network: marks tests which require network connection. Used in 3rd-party build environments that have network disabled."
+]
+
+[tool.coverage.run]
+omit = ["venv/*", "pawnlib/_compat.py"]
+include = ["pawnlib/*", "tests/*"]
