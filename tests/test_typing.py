@@ -43,17 +43,17 @@ class TestTyping(unittest.TestCase):
         ("valid integer", is_int, 1, True),
         ("valid integer", is_int, 1000, True),
         ("valid integer", is_int, "1000", True),
-        ("valid integer", is_int, "01000", True),
+        ("valid integer", is_int, "01000", False),
         ("invalid integer", is_int, "a", False),
         ("invalid integer", is_int, "111a", False),
-        ("valid float", is_float, "01000", True),
-        ("valid float", is_float, 1000, True),
+        ("valid float", is_float, "01000", False),
+        ("valid float", is_float, 1000, False),
         ("valid float", is_float, 10.00, True),
     ]
     )
     def test_int(self, name, function=None, param=None, expected_value=None):
         result = function(param)
-        print(f"{function.__name__}({param}) <{type(param)}> result => {result}")
+        print(f"  {function.__name__}({param}) <{type(param)}> result => '{result}({type(result)})' : '{expected_value}({type(expected_value)})'")
         self.assertEqual(result, expected_value)
 
     @parameterized.expand([
@@ -84,14 +84,14 @@ class TestTyping(unittest.TestCase):
         self.assertEqual(result, expected_value)
 
     @parameterized.expand([
-        ("hex ok", hex_to_number, dict(hex_value="0x232323"), 2302755),
-        ("hex is_comma ok", hex_to_number, dict(hex_value="0x232323", is_comma=True), "2,302,755"),
-        ("not hex debug ok", hex_to_number, dict(hex_value="0x232323", is_comma=True, debug=True), "2,302,755 (org) 0x232323"),
+        ("hex ok", hex_to_number, dict(hex_value="0x232323", is_comma=False), 2302755),
+        ("hex is_comma=True ok", hex_to_number, dict(hex_value="0x232323", is_comma=True), "2,302,755"),
+        ("not hex debug ok", hex_to_number, dict(hex_value="0x232323", is_comma=True, debug=True), "2,302,755 (org: 0x232323)"),
         ("not hex ok", hex_to_number, dict(hex_value="IS_NOT_HEX"), "IS_NOT_HEX"),
-        ("not hex debug ok", hex_to_number, dict(hex_value="IS_NOT_HEX", debug=True), "IS_NOT_HEX (not changed)"),
+        ("not hex debug ok", hex_to_number, dict(hex_value="IS_NOT_HEX", debug=True, show_change=True), "IS_NOT_HEX [unchanged]"),
         ("large(tint) hex ok", hex_to_number, dict(hex_value="0x2961fff8ca1a62327300000"), 800459999.9991555),
-        ("large(tint) hex ok", hex_to_number, dict(hex_value="0x2961fff8ca1a62327300000", is_comma=True), "800,459,999.9991555"),
-        ("large(tint) hex ok", hex_to_number, dict(hex_value="0x2961fff8ca1a62327300000", debug=True), "800459999.9991555 (tint) 0x2961fff8ca1a62327300000"),
+        ("large(tint) hex with comma ok", hex_to_number, dict(hex_value="0x2961fff8ca1a62327300000", is_comma=True), "800,459,999.999155521392822266"),
+        ("large(tint) hex with debug ok", hex_to_number, dict(hex_value="0x2961fff8ca1a62327300000", debug=True), "800459999.999155575064625152 (tint) (org: 0x2961fff8ca1a62327300000)"),
     ]
     )
     def test_hex_to_number(self, name, function=None, params={}, expected_value=None):

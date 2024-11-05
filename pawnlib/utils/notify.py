@@ -2,17 +2,22 @@ import os
 import re
 import requests
 from pawnlib.config.globalconfig import pawnlib_config as pawn
+from pawnlib.config import setup_logger
 from pawnlib.output import color_print
 from pawnlib.resource import net
 from pawnlib.typing import date_utils, shorten_text, escape_markdown, escape_non_markdown
-from pawnlib.utils import http, disable_ssl_warnings
+from pawnlib.utils import http
+from pawnlib.utils.network import disable_requests_ssl_warnings
+
 import json
 import aiohttp
 import asyncio
 import time
 from pawnlib.typing.constants import StatusType
-from typing import Union, Awaitable
+from typing import Union, Awaitable, TypeVar
 import logging
+
+SlackReturnType = TypeVar('SlackReturnType', bool, Awaitable[bool])
 
 class TelegramBot:
     """
@@ -54,7 +59,7 @@ class TelegramBot:
         self.retry_delay = retry_delay
 
         if ignore_ssl_warning:
-            disable_ssl_warnings()
+            disable_requests_ssl_warnings()
 
         if not self.chat_id:
             self.chat_id = self.get_chat_id()
@@ -310,8 +315,9 @@ def get_status_emoji(status: Union[str, StatusType]) -> str:
         'scheduled': '🗓️',  # 스케줄된 작업
         'maintenance': '🛠️',  # 유지보수
         'update': '⬆️',  # 업데이트
+        'unknown': '❓'
     }
-    return status_emojis.get(status, '❓')  # 기본값은 알 수 없는 상태 이모지
+    return status_emojis.get(status, '')  # 기본값은 알 수 없는 상태 이모지
 
 
 def create_slack_payload(
@@ -320,7 +326,8 @@ def create_slack_payload(
         send_user_name: str,
         msg_level: str,
         status: Union[str, StatusType],
-        simple_mode: bool
+        simple_mode: bool,
+        icon_emoji: str = "",
 ) -> dict:
     """
     Create the payload for sending a message to Slack.
@@ -337,24 +344,29 @@ def create_slack_payload(
     :type status: Union[str, StatusType]
     :param simple_mode: If True, send a simplified message without additional info.
     :type simple_mode: bool
+    :param icon_emoji: Optional emoji to display as the icon for the message.
+    :type icon_emoji: str
 
     :return: Dictionary containing the Slack message payload.
     :rtype: dict
     """
     emoji = get_status_emoji(status)
-    msg_title = f"{emoji} {title}" if title else shorten_text(msg_text, width=50)
+    msg_title = title if title else shorten_text(msg_text, width=50)
     p_color = get_level_color(msg_level.lower())
+
+    _msg_title = f"{emoji} {msg_title}" if status else msg_title
 
     category_emoji = "▪️"
     payload = {
         "username": send_user_name,
-        "text": msg_title,
+        "text": _msg_title,
+        "icon_emoji": icon_emoji if icon_emoji else ":robot_face:",
         "blocks": [{"type": "divider"}],
         "attachments": [{
             "color": f"#{p_color}",
             "blocks": [
-                {"type": "header", "text": {"type": "plain_text", "text": msg_title}},
-                {"type": "section", "text": {"type": "mrkdwn", "text": f'{category_emoji}{"*Host*":^12s} : {net.get_hostname()}, {net.get_public_ip()}'}},
+                {"type": "header", "text": {"type": "plain_text", "text": _msg_title}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": f'{category_emoji}{"*Host*":^12s} : {net.get_hostname()}, {net.get_public_ip(use_cache=True)}'}},
                 {"type": "section", "text": {"type": "mrkdwn", "text": f'{category_emoji}{"*Date*":^12s} : {date_utils.todaydate("log")}'}}]
         }]
     }
@@ -410,7 +422,7 @@ def create_slack_payload(
         if key == "Info":
             text = f'{category_emoji}{"Info":^12s} : {value}'
         elif key:
-            text = f'💡{key:<12s}: {value}'
+            text = f'💡{key:^12s}: {value}'
         elif not key:
             text = f'{category_emoji}{"Info":^12s} : {msg_text}'
         else:
@@ -517,7 +529,8 @@ def send_slack(
         status: Union[str, StatusType] = 'ℹ️',
         simple_mode: bool = False,
         async_mode: bool = False,
-) -> Union[bool, Awaitable[bool]]:
+        icon_emoji: str = "",
+) -> SlackReturnType:
     """
     Send a message to Slack with optional retry logic and dynamic emoji based on status.
 
@@ -539,6 +552,8 @@ def send_slack(
     :type simple_mode: bool
     :param async_mode: If True, sends the message asynchronously
     :type async_mode: bool
+    :param icon_emoji: Optional emoji to display as the icon for the message.
+    :type icon_emoji: str
 
     :return: Boolean indicating success or failure
     :rtype: bool
@@ -573,16 +588,30 @@ def send_slack(
             send_slack(SLACK_WEBHOOK_URL, "The task has been completed",
                        title="Task Status", msg_level="info", status="complete")
     """
+    logger = setup_logger(None, "send_slack")
 
     if not url:
         url = os.getenv('SLACK_WEBHOOK_URL', url)
         if url:
-            logging.debug("Using SLACK_WEBHOOK_URL from environment variables.")
+            logger.debug("Using SLACK_WEBHOOK_URL from environment variables.")
         else:
-            logging.error("Required url")
-            return False
+            logger.error("Required SLACK_WEBHOOK_URL")
+            if async_mode:
+                future = asyncio.Future()
+                future.set_result(False)
+                return future
+            else:
+                return False
 
-    payload = create_slack_payload(msg_text, title, send_user_name, msg_level, status, simple_mode)
+    payload = create_slack_payload(
+        msg_text=msg_text,
+        title=title,
+        send_user_name=send_user_name,
+        msg_level=msg_level,
+        status=status,
+        simple_mode=simple_mode,
+        icon_emoji=icon_emoji
+    )
 
     if async_mode:
         return send_slack_async(url, payload, retries)

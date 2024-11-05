@@ -19,15 +19,17 @@ from pawnlib.typing.constants import const
 from pawnlib.config.__fix_import import Null
 import statistics
 from datetime import datetime, timedelta, timezone
-import time
+from urllib.parse import urlparse, urlunparse
+from decimal import Decimal, getcontext, ROUND_DOWN
 
 try:
-    from typing import Literal
+    from typing import Literal, Optional, Union
 except ImportError:
-    from typing_extensions import Literal
+    from typing_extensions import Literal, Optional, Union
 
 NO_DEFAULT = object()
 
+decimal.getcontext().prec = 30
 
 class StackList:
     """
@@ -447,7 +449,8 @@ class FlatDict(MutableMapping):
         elif isinstance(value, dict):
             self.update(value)
         else:
-            raise TypeError("Unsupported type for FlatDict initialization")
+            raise TypeError(f"Unsupported input type for FlatDict initialization. Received value: {value} (type: {type(value).__name__}). Only dictionary-like structures are supported.")
+
 
     def __contains__(self, key):
         """Check to see if the key exists, checking for both delimited and
@@ -1038,7 +1041,7 @@ def convert_hex_to_int(data: Any, is_comma: bool = False):
     return return_data
 
 
-def convert_dict_hex_to_int(data: Any, is_comma: bool = False, debug: bool = False, ignore_keys: list = [], ansi: bool = False):
+def convert_dict_hex_to_int(data: Any, is_comma: bool = False, debug: bool = False, ignore_keys: list = [], ansi: bool = False, is_tint: bool = False, symbol: str = ""):
     """
     This function recursively converts hex to int.
 
@@ -1063,25 +1066,25 @@ def convert_dict_hex_to_int(data: Any, is_comma: bool = False, debug: bool = Fal
         return_list = []
         for index, value in enumerate(data):
             if isinstance(value, list) or isinstance(value, dict):
-                return_list.append(convert_dict_hex_to_int(value, is_comma, debug))
+                return_list.append(convert_dict_hex_to_int(value, is_comma, debug, ansi=ansi, is_tint=is_tint, symbol=symbol))
             else:
-                return_list.append(hex_to_number(value, is_comma, debug))
+                return_list.append(hex_to_number(value, is_comma, debug, ansi=ansi, is_tint=is_tint, symbol=symbol))
         return return_list
 
     elif isinstance(data, dict):
         for key, value in data.items():
             if isinstance(value, dict):
-                return_data[key] = convert_dict_hex_to_int(value, is_comma, debug)
+                return_data[key] = convert_dict_hex_to_int(value, is_comma, debug, ansi=ansi, is_tint=is_tint, symbol=symbol)
             elif isinstance(value, list):
-                return_data[key] = convert_dict_hex_to_int(value, is_comma, debug)
+                return_data[key] = convert_dict_hex_to_int(value, is_comma, debug, ansi=ansi, is_tint=is_tint, symbol=symbol)
             else:
                 change = True
                 if key in ignore_keys:
                     change = False
                 # else:
-                return_data[key] = hex_to_number(value, is_comma, debug, change, ansi=ansi)
+                return_data[key] = hex_to_number(value, is_comma, debug, change, ansi=ansi, is_tint=is_tint, symbol=symbol)
     else:
-        return_data = hex_to_number(data, is_comma, debug, ansi=ansi)
+        return_data = hex_to_number(data, is_comma, debug, ansi=ansi, is_tint=is_tint, symbol=symbol)
     return return_data
 
 
@@ -1102,73 +1105,169 @@ class __bcolors:
     LIGHT_GREY = '\033[37m'
 
 
-def hex_to_number(hex_value: str = "", is_comma: bool = False, debug: bool = False, change: bool = False, ansi: bool = False, is_tint: bool = False):
+def decimal_hex_to_number(hex_value: Union[int, str], precision: int = 18, is_tint: bool = False) -> Decimal:
     """
+    Converts a hex value to a Decimal with precise handling of large numbers.
+    :param hex_value: The hexadecimal value (int or hex string).
+    :param precision: Number of decimal places to round the result to.
+    :param is_tint: If True, divide the value by 10^18 (used for large number conversion).
+    :return: Decimal representation of the number.
+    """
+    TINT = Decimal('1e18')
 
-    this function will change the hex to number(int)
+    if isinstance(hex_value, int):
+        converted_value = Decimal(hex_value)
+    elif isinstance(hex_value, str):
+        if hex_value.startswith(('0x', '0X')):
+            converted_value = Decimal(int(hex_value, 16))
+        else:
+            converted_value = Decimal(hex_value)
+    else:
+        raise ValueError(f"Unsupported type for hex conversion: {type(hex_value)}")
 
-    :param ansi:
-    :param hex_value:
-    :param is_comma:
-    :param debug:
-    :param change:
-    :param is_tint:
-    :return:
+    # Apply TINT division if necessary
+    if is_tint:
+        converted_value = converted_value / TINT
+
+    # Round the result to the specified precision
+    return converted_value.quantize(Decimal('1.' + '0' * precision), rounding=ROUND_DOWN)
+
+
+def hex_to_number(
+        hex_value: Union[int, float, str],
+        is_comma: bool = False,
+        debug: bool = False,
+        change: bool = False,
+        ansi: bool = False,
+        is_tint: bool = False,
+        symbol: str = "",
+        show_change: bool = False,
+        return_decimal_as_str: bool = True,
+):
+    """
+    Convert a hexadecimal value to a decimal number.
+
+    :param hex_value: The hexadecimal value to convert.
+    :param is_comma: Whether to format the output with commas.
+    :param debug: If True, enables debug mode.
+    :param change: If True, allows value changes.
+    :param ansi: If True, enables ANSI formatting.
+    :param is_tint: If True, converts to tint value.
+    :param symbol: An optional symbol to prepend to the output.
+    :param show_change: If True, shows the change status.
+    :param return_decimal_as_str: If True, returns the result as a string.
+    :param precision: The number of decimal places to return.
 
     Example:
 
         .. code-block:: python
 
-            from pawnlib.typing import converter
+            hex_to_number("0x1A")
+            # >> 26
 
-            converter.hex_to_number("0x22223232d")
-            # >> 9162662701
+            hex_to_number("0x1A", is_comma=True)
+            # >> "26"
 
-            converter.hex_to_number("0x22223232d", is_comma=True)
-            # >> '9,162,662,701'
+            hex_to_number(26)
+            # >> 26
 
-            converter.hex_to_number("0x2386f26fc10000", is_tint=True)
-            # >> 0.01
+            hex_to_number("1A")
+            # >> 26
+
+            hex_to_number("0xFFFFFFFF")
+            # >> 4294967295
 
     """
+    TINT = Decimal('1e18')
+    precision = 18
     _changed = False
-    _not_change = False
+    original_hex_value = hex_value
+    converted_value = hex_value
 
-    if not ansi:
-        _bcolors = Null()
-    else:
-        _bcolors = __bcolors()
-
-    changed_text = f"(org)"
-    if is_int(hex_value):
-        converted_value = int(hex_value)
-        _changed = True
-    elif is_hex(hex_value):
-        converted_value = int(hex_value, 16)
-        _changed = True
-    else:
+    if isinstance(hex_value, int):
         converted_value = hex_value
-    if (_changed and change) or is_int(converted_value):
-        if converted_value >= const.TINT or is_tint:
-            converted_value = converted_value / const.TINT
-            changed_text = f"{_bcolors.WARNING}(tint){_bcolors.ENDC}"
+    elif isinstance(hex_value, float):
+        converted_value = hex_value
+    elif isinstance(hex_value, str):
+        if hex_value.startswith(('0x', '0X')):
+            try:
+                converted_value = int(hex_value, 16)
+                _changed = True
+            except ValueError:
+                converted_value = hex_value
+        elif hex_value.isdigit():
+            converted_value = int(hex_value)
+        else:
+            converted_value = hex_value
 
-        if is_comma:
-            converted_value = f"{converted_value:,}"
+    if isinstance(converted_value, (int, float)):
+        converted_value_decimal = Decimal(str(converted_value))
+        changed_text = ""
+        if is_tint or (converted_value_decimal >= TINT):
+            converted_value_decimal = converted_value_decimal / TINT
+            changed_text = "(tint)"
+            _changed = True
 
-        if ansi:
-            converted_value = f"{_bcolors.CYAN}{converted_value}{_bcolors.ENDC}"
+        # 정수 값일 경우 양자화(quantize)하지 않고 그대로 반환
+        if converted_value_decimal != converted_value_decimal.to_integral():
+            converted_value_decimal = converted_value_decimal.quantize(Decimal('1.' + '0' * precision), rounding=ROUND_DOWN)
 
+        if not debug:
+            if converted_value_decimal == converted_value_decimal.to_integral():
+                if is_comma:
+                    return f"{int(converted_value_decimal):,}"
+                return int(converted_value_decimal)
+            else:
+                float_value = float(converted_value_decimal)
+
+                if (0 < abs(float_value) < 1e-4) or (abs(float_value) >= 1e16):
+                    if return_decimal_as_str:
+                        formatted_value = f"{converted_value_decimal:.{precision}f}".rstrip('0').rstrip('.')
+                    else:
+                        formatted_value = converted_value_decimal
+
+                    if is_comma:
+                        # Handle comma for the integer part only
+                        integer_part, fractional_part = str(formatted_value).split('.')
+                        formatted_value = f"{int(integer_part):,}.{fractional_part}"
+
+                    return formatted_value
+                else:
+                    if is_comma:
+                        return f"{float_value:,.{precision}f}".rstrip('0').rstrip('.')
+                    return float_value
+        else:
+            if is_comma:
+                # Handle comma for debug mode
+                format_spec = f",.{precision}f"
+            else:
+                format_spec = f".{precision}f"
+
+            formatted_value = f"{converted_value_decimal:{format_spec}}".rstrip('0').rstrip('.')
+
+            if symbol:
+                formatted_value = f"{formatted_value} {symbol}"
+
+            debug_info = ""
+            if changed_text:
+                debug_info += f"{changed_text} "
+            debug_info += f"(org: {original_hex_value})"
+            if show_change:
+                change_status = "changed" if _changed else "unchanged"
+                debug_info += f" [{change_status}]"
+            formatted_value = f"{formatted_value} {debug_info}".strip()
+
+            return formatted_value
     else:
-        changed_text = f"{_bcolors.FAIL}(not changed){_bcolors.ENDC}"
-        _not_change = True
+        if debug:
+            result = f"{converted_value}"
+            if show_change:
+                change_status = "changed" if _changed else "unchanged"
+                result += f" [{change_status}]"
+            return result
+        else:
+            return converted_value
 
-    if debug:
-        if hex_value == converted_value or _not_change:
-            hex_value = ""
-        return f"{converted_value} {_bcolors.ITALIC}{changed_text} {hex_value}{_bcolors.ENDC}".strip()
-    else:
-        return converted_value
 
 def int_to_loop_hex(value: float, rounding: Literal['floor', 'round'] = 'floor') -> str:
     """
@@ -1186,6 +1285,7 @@ def int_to_loop_hex(value: float, rounding: Literal['floor', 'round'] = 'floor')
     Example:
 
         .. code-block:: python
+
             from pawnlib.typing import int_to_loop_hex
 
             int_to_loop_hex(1)
@@ -1202,9 +1302,6 @@ def int_to_loop_hex(value: float, rounding: Literal['floor', 'round'] = 'floor')
 
             int_to_loop_hex(0)
             # >> '0x0'
-
-            int_to_loop_hex(-1)
-            # Raises ValueError: Negative values are not allowed.
     """
     if not isinstance(value, (int, float)):
         raise TypeError("Value must be a numeric type (int or float).")
@@ -2448,6 +2545,24 @@ def append_prefix(text=None, prefix=None):
     return text
 
 
+def replace_path_with_suffix(url, suffix):
+    """
+    Replace the path of the given URL with the new suffix.
+
+    :param url: (str) The original URL whose path will be replaced.
+    :param suffix: (str) The suffix to replace the path in the URL.
+    :return: (str) The modified URL with the new path.
+    """
+
+    if url and not url.startswith(('http://', 'https://')):
+        url = f"http://{url}"
+
+    parsed_url = urlparse(url)
+    new_path = suffix.lstrip('/')
+    new_url = urlunparse(parsed_url._replace(path=f"/{new_path}"))
+    return new_url
+
+
 def camel_case_to_space_case(s):
     """
     Convert a camel case string to a space separated string.
@@ -2658,29 +2773,39 @@ def upper_case_to_camel_case(s):
     return lower_case_to_camel_case(s.lower())
 
 
-def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False, use_tags=False):
+def shorten_text(
+        text="",
+        width=None,
+        placeholder='[...]',
+        shorten_middle=False,
+        truncate_side='right',
+        use_tags=False
+):
     """
     Shortens a text string to the specified width and placeholders.
 
-    :param text: text to shorten
-    :param width: maximum width of the string
-    :param placeholder: placeholder string of the text
-    :param shorten_middle: True if the text is to be shortened in the middle
-    :param use_tags: True if ASCII and tags need to be removed from text
-    :return:
+    :param text: text to shorten.
+    :param width: maximum width of the string.
+    :param placeholder: placeholder string to indicate truncated text.
+    :param shorten_middle: True if the text is to be shortened in the middle.
+    :param truncate_side: 'left', 'right', or 'middle' to specify which part to truncate.
+    :param use_tags: True if ASCII and tags need to be removed from text.
+    :return: The shortened text.
 
     Example:
 
         .. code-block:: python
 
-            from pawnlib.typing.converter import truncate_float
+            from pawnlib.typing.converter import shorten_text
 
-            shorten_text("Hello, world!", width=5, placeholder='...')
-            # >> "He...d!"
+            shorten_text("Hello, world!", width=8, placeholder='...')
+            # >> "Hello..."
 
-            shorten_text("Hello, world!", width=5, placeholder='...', shorten_middle=True)
-            # >> "H...d!"
+            shorten_text("Hello, world!", width=8, placeholder='...', shorten_middle=True)
+            # >> "Hel...d!"
 
+            shorten_text("Hello, world!", width=8, placeholder='...', truncate_side='left')
+            # >> "...world!"
     """
 
     _origin_text = str(text)
@@ -2693,19 +2818,31 @@ def shorten_text(text="", width=None, placeholder='[...]', shorten_middle=False,
     if not width or not text:
         return text
 
-    if shorten_middle and width == 1:
-        return f"{_text[0]}{placeholder}"
+    if len(_text) <= width:
+        return text
 
-    total_length = len(_text)
-    max_length = total_length - len(placeholder)
+    # If shorten_middle is True, override truncate_side to 'middle'
+    if shorten_middle:
+        truncate_side = 'middle'
 
-    if _origin_text and max_length >= width:
-        if shorten_middle:
-            half_width = width // 2
-            return f"{_origin_text[:half_width]}{placeholder}{_origin_text[-half_width:]}"
-        else:
-            return f"{_origin_text[:width]} {placeholder}"
-    return text
+    # Placeholder length
+    placeholder_length = len(placeholder)
+    max_length = width - placeholder_length
+
+    if max_length <= 0:
+        # If the placeholder is longer than the width, return only the placeholder
+        return placeholder
+
+    if truncate_side == 'middle':
+        # Shorten from the middle
+        half_width = max_length // 2
+        return f"{_origin_text[:half_width]}{placeholder}{_origin_text[-half_width:]}"
+    elif truncate_side == 'left':
+        # Shorten from the left
+        return f"{placeholder}{_origin_text[-max_length:]}"
+    else:
+        # Default behavior: shorten from the right
+        return f"{_origin_text[:max_length]}{placeholder}"
 
 
 def remove_ascii_and_tags(text: str = "", case_sensitive: Literal["lower", "upper", "both"] = "lower"):
@@ -2775,7 +2912,7 @@ def truncate_float(number, digits=2) -> float:
     return math.trunc(stepper * number) / stepper
 
 
-def truncate_decimal(number, digits: int = 2) -> decimal.Decimal:
+def truncate_decimal(number, digits: int = 2) -> Decimal:
     """
     Truncate a decimal number to the specified number of decimal places without rounding.
 
@@ -2796,8 +2933,8 @@ def truncate_decimal(number, digits: int = 2) -> decimal.Decimal:
             # >> 3.1415
 
     """
-    round_down_ctx = decimal.getcontext()
-    round_down_ctx.rounding = decimal.ROUND_DOWN
+    round_down_ctx = getcontext()
+    round_down_ctx.rounding = ROUND_DOWN
     new_number = round_down_ctx.create_decimal(number)
     return round(new_number, digits)
 
@@ -2847,7 +2984,7 @@ def remove_tags(text,
 
             remove_tags("<b>Hello</b> [WORLD]", case_sensitive="both", tag_style="square")
             # >> "<b>Hello</b> "
-
+`
     """
     if case_sensitive == "lower":
         case_pattern = r'[a-z\s]'
@@ -3126,7 +3263,7 @@ def escape_non_markdown(text):
     def escape_non_markdown_text(match):
         return re.sub(f"([{re.escape(const.ALL_SPECIAL_CHARACTERS)}])", r"\\\1", match.group(0))
 
-    pawn.console.log(markdown_store)
+    # pawn.console.log(markdown_store)
 
     # Escape special characters outside markdown placeholders
     text = re.sub(r"(?!MARKDOWNPLACEHOLDER\d+)[^\n]+", escape_non_markdown_text, text)
@@ -3148,3 +3285,132 @@ def analyze_jail_flags(value: int = 0, return_type="list"):
     if return_type == "str":
         return ", ".join(analysis_result)
     return analysis_result
+
+
+def format_text(text="", style="", output_format="slack", custom_delimiters=None, max_length=None):
+    """
+    Apply the specified Slack, Markdown, or HTML-compatible formatting to the entire text.
+    If the style is not supported, return the original text unchanged. Supports custom delimiters
+    and a maximum length limit.
+
+    :param text: The original string to be formatted.
+    :param style: The style to apply (e.g., 'bold', 'italic', 'code', 'pre', 'strike', 'quote').
+    :param output_format: The format for the output ('slack', 'html'). Default is 'slack'.
+    :param custom_delimiters: A tuple of custom delimiters (start, end) to use for formatting.
+    :param max_length: Maximum length of the text. If exceeded, the text is truncated with ellipsis.
+    :return: The formatted string, or the original text if the style is unsupported.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import format_text
+
+            formatted_bold = format_text("Important Notice", "bold")
+            print(formatted_bold)
+            # >> *Important Notice*
+
+            formatted_truncated = format_text("This is a very long text", "bold", max_length=10)
+            print(formatted_truncated)
+            # >> *This is a...*
+
+            formatted_custom = format_text("Custom", "bold", custom_delimiters=("<<", ">>"))
+            print(formatted_custom)
+            # >> <<Custom>>
+    """
+
+    slack_styles = {
+        'bold': lambda s: f"*{s}*",
+        'italic': lambda s: f"_{s}_",
+        'code': lambda s: f"`{s}`",
+        'pre': lambda s: f"```{s}```",
+        'strike': lambda s: f"~{s}~",
+        'quote': lambda s: f"> {s}"
+    }
+
+    html_styles = {
+        'bold': lambda s: f"<b>{s}</b>",
+        'italic': lambda s: f"<i>{s}</i>",
+        'code': lambda s: f"<code>{s}</code>",
+        'pre': lambda s: f"<pre>{s}</pre>",
+        'strike': lambda s: f"<s>{s}</s>",
+        'quote': lambda s: f"<blockquote>{s}</blockquote>"
+    }
+
+    # Truncate the text if max_length is specified
+    if max_length and len(text) > max_length:
+        text = text[:max_length] + "..."
+
+    # Use custom delimiters if provided
+    if custom_delimiters:
+        return f"{custom_delimiters[0]}{text}{custom_delimiters[1]}"
+
+    if output_format == "html":
+        return html_styles.get(style, lambda s: s)(text)
+    else:
+        return slack_styles.get(style, lambda s: s)(text)
+
+
+def format_link(url, text=None, output_format="slack", custom_delimiters=None, html_attributes=None):
+    """
+    Apply link formatting compatible with Slack, Markdown, HTML, or custom delimiters.
+    If text is not provided, the URL will be used as the text.
+
+    :param url: The URL to be linked. This is required.
+    :param text: The visible text of the link. If not provided, the URL will be used as the text.
+    :param output_format: The format for the output ('slack', 'markdown', 'html', 'custom'). Default is 'slack'.
+    :param custom_delimiters: A tuple of custom delimiters (start, end) to use for custom output. Only used if output_format is 'custom'.
+     :param html_attributes: A dictionary of HTML attributes (e.g., {"target": "_blank"}).
+    :return: The formatted link.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import format_link
+
+            # Slack-style link
+            formatted_link = format_link("http://google.com", "Google")
+            print(formatted_link)
+            # >> <http://google.com|Google>
+
+            # Markdown-style link
+            formatted_link = format_link("http://google.com", "Google", output_format="markdown")
+            print(formatted_link)
+            # >> [Google](http://google.com)
+
+            # HTML-style link
+            formatted_link = format_link("http://google.com", "Google", output_format="html")
+            print(formatted_link)
+            # >> <a href="http://google.com">Google</a>
+
+            # Custom delimiters
+            formatted_link = format_link("http://google.com", "Google", output_format="custom", custom_delimiters=("<<", ">>"))
+            print(formatted_link)
+            # >> <<Google:http://google.com>>
+
+    """
+    if not url:
+        raise ValueError("URL is required for the link.")
+
+    # If text is not provided, use the URL as the text
+    if not text:
+        text = url
+
+    # Formatting options based on output_format
+    if output_format == "slack":
+        return f"<{url}|{text}>"
+    elif output_format == "markdown":
+        return f"[{text}]({url})"
+    elif output_format == "html":
+        attrs = ''
+        if html_attributes and isinstance(html_attributes, dict):
+            attrs = ' '.join([f'{key}="{value}"' for key, value in html_attributes.items()])
+        return f'<a href="{url}" {attrs}>{text}</a>'
+    elif output_format == "custom":
+        if custom_delimiters:
+            return f"{custom_delimiters[0]}{text}:{url}{custom_delimiters[1]}"
+        else:
+            raise ValueError("Custom delimiters must be provided when output_format is 'custom'.")
+    else:
+        raise ValueError(f"Unsupported output_format: {output_format}")

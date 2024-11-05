@@ -601,6 +601,10 @@ class PawnlibConfig(metaclass=Singleton):
                 "type": str,
                 "default": "%H:%M:%S.%f"
             },
+            "SSL_CHECK": {
+                "type": self.str2bool,
+                "default": True
+            }
         }
 
         if not self.use_global_namespace:
@@ -758,7 +762,6 @@ class PawnlibConfig(metaclass=Singleton):
                 elif p_key == f"{self.env_prefix}_CONFIG_FILE":
                     self._config_file = p_value
                     self._load_config_file()
-
                 elif p_key == "data" and p_value != self._none_string:
                     if isinstance(p_value, dict):
                         self.data = NestedNamespace(**p_value)

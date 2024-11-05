@@ -51,6 +51,7 @@ def main():
         logger=pawn.app_logger
     )
 
+    pawn.app_logger.info("sdsdsd")
     # pawn.app_logger.addHandler(logging.getLogger('PAWNLIB-LOGGER'))
     # logging.addHandler()
 
@@ -74,31 +75,10 @@ def main():
     # printout()
     # logging.getLogger('PAWNLIB-LOGGER')
     # pawn.app_logger.addHandler(logger)
-    jequest("http")
-    # converter.UpdateType()
-    #
-    # from rich.text import Text
-    #
-    from rich.markup import render
-    #
-    from rich.markup import render
-    text = f"[bold]Bold[italic] bold and italic [/bold]italic[/italic]"
 
-    # logger.info("[bold]EXITING...[/bold]", extra=dict(markup=True))
-    logger.info("[bold]EXITING...[/bold]")
 
-    pawn.console.log(render(text))
-    jequest("http")
 
     print_logger_configurations()
-
-
-    #
-    # rendered_text = render(text)
-    # pawn.console.log(rendered_text)
-
-    # pawn.console.debug("sdssd")
-
 
 if __name__ == "__main__":
     main()

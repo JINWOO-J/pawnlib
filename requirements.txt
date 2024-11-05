@@ -26,3 +26,4 @@ httpx~=0.24.0
 boto3~=1.28.3
 aiohttp~=3.10.3
 aiofiles>=22.1.0
+python-dotenv>=0.21.1

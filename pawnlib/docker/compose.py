@@ -120,11 +120,11 @@ class DockerComposeBuilder:
                 break
         return environment
 
-    def get_volumes(self):
+    def get_volumes(self, default_volume="./data:/data"):
         """Get volume mappings from the user and validate the format."""
         volumes = []
         while True:
-            volume = self.get_valid_input("Enter the volume mount", default="./data:/data")
+            volume = self.get_valid_input("Enter the volume mount", default=default_volume)
             if self.is_valid_volume_mapping(volume):
                 volumes.append(volume)
             else:
@@ -164,13 +164,17 @@ class DockerComposeBuilder:
         try:
             repo, tag = image.split(":") if ":" in image else (image, "latest")
             url = f"https://hub.docker.com/v2/repositories/{repo}/tags/{tag}"
-            response = requests.get(url)
+            response = requests.get(url, verify=pawn.get('PAWN_SSL_CHECK'))
             if response.status_code == 200:
                 pawn.console.print(f"[bold green]Docker image '{image}' found in Docker Hub.[/bold green]\n[grey74]({url})[/grey74]")
             return response.status_code == 200
         except Exception as e:
             pawn.console.print(f"[bold red]Error checking Docker Hub: {e}[/bold red]")
             return False
+
+    def add_service(self, service_name="", service={}):
+
+        self.services[service_name] = service
 
     def get_docker_compose_data(self):
         """Return the YAML data for Docker Compose."""
@@ -196,10 +200,14 @@ class DockerComposeBuilder:
         """Save the Docker Compose data to a file, with confirmation."""
         docker_compose = self.get_docker_compose_data()
 
-        # YAML 파일을 콘솔에 예쁘게 출력
-        print_syntax(yaml.dump(docker_compose, default_flow_style=False, sort_keys=False), "yaml")
+        # ['default', 'emacs', 'friendly', 'colorful', 'autumn', 'murphy', 'manni',
+        # 'material', 'monokai', 'perldoc', 'pastie', 'borland', 'trac', 'native',
+        # 'fruity', 'bw', 'vim', 'vs', 'tango', 'rrt', 'xcode', 'igor', 'paraiso-light',
+        # 'paraiso-dark', 'lovelace', 'algol', 'algol_nu', 'arduino', 'rainbow_dash',
+        # 'abap', 'solarized-dark', 'solarized-light', 'sas', 'stata', 'stata-light',
+        # 'stata-dark', 'inkpot', 'zenburn']
+        print_syntax(yaml.dump(docker_compose, default_flow_style=False, sort_keys=False), "yaml",  rich=True)
 
-        # 저장 여부를 사용자에게 묻기
         if Confirm.ask("Would you like to save this configuration?", default=True):
             if check_file_overwrite(self.compose_file):
                 try:

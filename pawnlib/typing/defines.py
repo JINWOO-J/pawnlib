@@ -134,3 +134,4 @@ def fill_required_data_arguments(required={}):
         # pawn.console.debug(f"New definition: {required}")
         args = Namespace(**required)
     return args
+

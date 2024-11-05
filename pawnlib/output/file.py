@@ -16,6 +16,7 @@ import asyncio
 import aiofiles
 import logging
 
+from pawnlib.config.logging_config import setup_logger
 
 class Tail:
     """
@@ -35,7 +36,9 @@ class Tail:
     Example:
 
         .. code-block:: python
+
             from pawnlib.output.file import Tail
+
             # Synchronous mode
             tail = Tail(log_file_paths=["/var/log/app.log"],
                          filters=["ERROR", "CRITICAL"],
@@ -66,6 +69,7 @@ class Tail:
                  formatter: Callable[[str], str] = None,
                  enable_logging: bool = True,
                  logger=None,
+                 verbose: int = 0,
                  ):
 
         self.log_file_paths = [log_file_paths] if isinstance(log_file_paths, str) else log_file_paths
@@ -73,57 +77,239 @@ class Tail:
         self.callback = callback
         self.async_mode = async_mode
         self.formatter = formatter
+        self.verbose = verbose
+        # if enable_logging:
+        #     logging.basicConfig(level=logging.INFO)
+        # else:
+        #     logging.basicConfig(level=logging.CRITICAL)  # Silence all logs
+        # from pawnlib.utils.log import ConsoleLoggerAdapter
 
-        if enable_logging:
-            logging.basicConfig(level=logging.INFO)
-        else:
-            logging.basicConfig(level=logging.CRITICAL)  # Silence all logs
+        self.logger = setup_logger(logger, "Tail", self.verbose)
+        self.file_inodes = {}
+        # self.logger.info("Start Info")
+        self.max_retries = 5
 
-        if not logger:
-            self.logger = pawn.console
-        else:
-            self.logger = logging
+    def _get_inode(self, file_path):
+        """Get the inode of the file."""
+        return os.stat(file_path).st_ino
+
+    # async def _follow_async(self, file_path: str):
+    #     try:
+    #         async with aiofiles.open(file_path, mode='r') as file:
+    #             await file.seek(0, os.SEEK_END)
+    #             self.logger.debug(f"Started async monitoring on file: {file_path}")
+    #
+    #             while True:
+    #                 line = await file.readline()
+    #                 if not line:
+    #                     await asyncio.sleep(0.1)
+    #                     continue
+    #
+    #                 await self._process_line(line, file_path)
+    #
+    #     except Exception as e:
+    #         self.logger.error(f"Error occurred while asynchronously monitoring file {file_path}: {e}")
+
+    # async def _follow_async(self, file_path: str):
+    #     while True:
+    #         try:
+    #             if not os.path.exists(file_path):
+    #                 self.logger.warning(f"Log file {file_path} not found. Waiting for it to be created...")
+    #                 await asyncio.sleep(1)  # Wait for the file to be recreated
+    #                 continue
+    #
+    #             async with aiofiles.open(file_path, mode='r') as file:
+    #                 await file.seek(0, os.SEEK_END)
+    #                 self.file_inodes[file_path] = self._get_inode(file_path)
+    #                 self.logger.debug(f"Started async monitoring on file: {file_path}")
+    #
+    #                 while True:
+    #                     current_inode = self._get_inode(file_path)
+    #                     if self.file_inodes[file_path] != current_inode:
+    #                         self.file_inodes[file_path] = current_inode
+    #                         self.logger.info(f"Log file {file_path} rotated. Reopening new file.")
+    #                         break  # Exit loop to reopen new file
+    #
+    #                     line = await file.readline()
+    #                     if not line:
+    #                         await asyncio.sleep(0.1)
+    #                         continue
+    #
+    #                     await self._process_line(line, file_path)
+    #
+    #         except FileNotFoundError:
+    #             self.logger.error(f"Error monitoring file {file_path}: File not found. Retrying...")
+    #             await asyncio.sleep(1)  # Retry after delay if the file is not found
+    #         except Exception as e:
+    #             self.logger.error(f"Error occurred while asynchronously monitoring file {file_path}: {e}")
+    #             break
+
+    # async def _follow_async(self, file_path: str):
+    #     retry_count = 0
+    #     while retry_count <= self.max_retries:
+    #         try:
+    #             if not os.path.exists(file_path):
+    #                 self.logger.warning(f"Log file {file_path} not found. Waiting for it to be created...")
+    #                 await asyncio.sleep(1)  # Wait for the file to be recreated
+    #                 continue
+    #
+    #             async with aiofiles.open(file_path, mode='r') as file:
+    #                 await file.seek(0, os.SEEK_END)
+    #                 self.file_inodes[file_path] = self._get_inode(file_path)
+    #                 self.logger.debug(f"Started async monitoring on file: {file_path}")
+    #
+    #                 while True:
+    #                     current_inode = self._get_inode(file_path)
+    #                     if self.file_inodes[file_path] != current_inode:
+    #                         self.file_inodes[file_path] = current_inode
+    #                         self.logger.info(f"Log file {file_path} rotated. Reopening new file.")
+    #                         break  # Exit loop to reopen new file
+    #
+    #                     line = await file.readline()
+    #                     if not line:
+    #                         await asyncio.sleep(0.1)
+    #                         continue
+    #
+    #                     await self._process_line(line, file_path)
+    #             retry_count = 0  # Reset retry count after successful file access
+    #
+    #         except FileNotFoundError:
+    #             retry_count += 1
+    #             backoff_time = min(2 ** retry_count, 60)  # Exponential backoff, max 60 seconds
+    #             self.logger.warning(f"File '{file_path}' not found. Retrying in {backoff_time} seconds. Retry count: {retry_count}")
+    #             await asyncio.sleep(backoff_time)
+    #         except Exception as e:
+    #             self.logger.error(f"Error occurred while monitoring file {file_path}: {e}")
+    #             break
+
+    async def _handle_retry(self, file_path, retry_count):
+        """
+        Handle the retry logic with backoff for when the file is not found.
+        :param file_path: The path to the log file.
+        :param retry_count: The number of retry attempts.
+        """
+        retry_count += 1
+        backoff_time = min(2 ** retry_count, 60)  # Exponential backoff with a max of 60 seconds
+        self.logger.warning(f"File '{file_path}' not found. Retrying in {backoff_time} seconds. Retry count: {retry_count}")
+        await asyncio.sleep(backoff_time)
+        return retry_count
 
     async def _follow_async(self, file_path: str):
-        try:
-            async with aiofiles.open(file_path, mode='r') as file:
-                await file.seek(0, os.SEEK_END)
-                self.logger.debug(f"Started async monitoring on file: {file_path}")
+        retry_count = 0
+        self.logger.info(f"Starting async follow on {file_path}")
 
-                while True:
-                    line = await file.readline()
-                    if not line:
-                        await asyncio.sleep(0.1)
-                        continue
+        while retry_count <= self.max_retries:
+            try:
+                # Check if the file exists
+                # if not os.path.exists(file_path):
+                #     self.logger.warning(f"Log file {file_path} not found. Waiting for it to be created... ")
+                #     retry_count += 1
+                #     backoff_time = min(2 ** retry_count, 60)  # Exponential backoff with a max of 60 seconds
+                #     self.logger.warning(f"---- backoff_time -> {backoff_time}")
+                #     await asyncio.sleep(backoff_time)
+                #     continue
+                if not os.path.exists(file_path):
+                    retry_count = await self._handle_retry(file_path, retry_count)
+                    continue
 
-                    await self._process_line(line, file_path)
+                async with aiofiles.open(file_path, mode='r') as file:
+                    # Move to the end of the file
+                    await file.seek(0, os.SEEK_END)
+                    self.file_inodes[file_path] = self._get_inode(file_path)
+                    self.logger.debug(f"Started async monitoring on file: {file_path}")
 
-        except Exception as e:
-            self.logger.error(f"Error occurred while asynchronously monitoring file {file_path}: {e}")
+                    while True:
+                        # Check for file rotation by comparing inode numbers
+                        current_inode = self._get_inode(file_path)
+                        if self.file_inodes[file_path] != current_inode:
+                            self.file_inodes[file_path] = current_inode
+                            self.logger.info(f"Log file {file_path} rotated. Reopening new file.")
+                            break  # Exit loop to reopen the new file
+
+                        # Read new lines
+                        line = await file.readline()
+                        if not line:
+                            await asyncio.sleep(0.1)
+                            continue
+
+                        # Process each line
+                        await self._process_line(line, file_path)
+
+                    retry_count = 0  # Reset retry count after successful file access
+
+            except FileNotFoundError:
+                retry_count = await self._handle_retry(file_path, retry_count)
+            except Exception as e:
+                self.logger.error(f"Error occurred while asynchronously monitoring file {file_path}: {e}")
+                break
+
 
     def _follow_sync(self, file_path: str):
-        try:
-            with open(file_path, "r") as file:
-                file.seek(0, os.SEEK_END)
-                self.logger.debug(f"Started synchronous monitoring on file: {file_path}")
+        while True:
+            try:
+                if not os.path.exists(file_path):
+                    self.logger.warning(f"Log file {file_path} not found. Waiting for it to be created...")
+                    time.sleep(1)  # Wait for the file to be recreated
+                    continue
 
-                while True:
-                    line = file.readline()
-                    if not line:
-                        time.sleep(0.1)
-                        continue
+                with open(file_path, "r") as file:
+                    file.seek(0, os.SEEK_END)
+                    self.file_inodes[file_path] = self._get_inode(file_path)
+                    self.logger.debug(f"Started synchronous monitoring on file: {file_path}")
 
-                    self._process_line_sync(line, file_path)
+                    while True:
+                        current_inode = self._get_inode(file_path)
+                        if self.file_inodes[file_path] != current_inode:
+                            self.file_inodes[file_path] = current_inode
+                            self.logger.info(f"Log file {file_path} rotated. Reopening new file.")
+                            break  # Exit the loop to reopen the file
 
-        except Exception as e:
-            self.logger.error(f"Error occurred while synchronously monitoring file {file_path}: {e}")
+                        line = file.readline()
+                        if not line:
+                            time.sleep(0.1)
+                            continue
+
+                        self._process_line_sync(line, file_path)
+
+            except FileNotFoundError:
+                self.logger.error(f"Error monitoring file {file_path}: File not found. Retrying...")
+                time.sleep(1)  # Retry after a delay if the file is not found
+            except Exception as e:
+                self.logger.error(f"Error occurred while synchronously monitoring file {file_path}: {e}")
+                break
+    # async def _process_line(self, line: str, file_path: str):
+    #     line = line.strip()
+    #     if self._should_process(line):
+    #         try:
+    #             formatted_line = self.formatter(line) if self.formatter else line
+    #             await self.callback(formatted_line)
+    #             self.logger.debug(f"Successfully processed a log line from {file_path}: {formatted_line}")
+    #         except Exception as e:
+    #             self.logger.error(f"Error occurred while executing callback on line from {file_path}: {e}")
+
+    # async def _process_line(self, line, file_path):
+    #     line = line.strip()
+    #     if any(f.search(line) for f in self.filters):
+    #         await self.callback(line)
 
     async def _process_line(self, line: str, file_path: str):
         line = line.strip()
         if self._should_process(line):
             try:
                 formatted_line = self.formatter(line) if self.formatter else line
-                await self.callback(formatted_line)
+                result = self.callback(formatted_line)
+
+                if asyncio.iscoroutine(result):  # Check if the result is awaitable
+                    result = await result  # Await only if it is a coroutine
+                    if isinstance(result, bool):  # Handle if the awaited result is a boolean
+                        if not result:
+                            self.logger.warning(f"Callback returned False after awaiting for line from {file_path}: {formatted_line}")
+                elif isinstance(result, bool):  # Handle non-awaitable boolean values
+                    if not result:
+                        self.logger.warning(f"Callback returned False for line from {file_path}: {formatted_line}")
+                else:
+                    self.logger.debug(f"Callback returned non-awaitable value for line from {file_path}: {result}")
+
                 self.logger.debug(f"Successfully processed a log line from {file_path}: {formatted_line}")
             except Exception as e:
                 self.logger.error(f"Error occurred while executing callback on line from {file_path}: {e}")
@@ -140,33 +326,6 @@ class Tail:
 
     def _should_process(self, line: str) -> bool:
         return any(f.search(line) for f in self.filters)
-
-    # def follow(self):
-    #     """
-    #     Start monitoring the log files. Uses asynchronous or synchronous mode based on the `async_mode` flag.
-    #     """
-    #     if self.async_mode:
-    #         self.logger.info("Running in asynchronous mode.")
-    #         loop = asyncio.get_event_loop()
-    #         tasks = [self._follow_async(path) for path in self.log_file_paths]
-    #         loop.run_until_complete(asyncio.gather(*tasks))
-    #     else:
-    #         self.logger.info("Running in synchronous mode.")
-    #         for path in self.log_file_paths:
-    #             self._follow_sync(path)
-
-    # async def follow(self):
-    #     """
-    #     Start monitoring the log files. Uses asynchronous or synchronous mode based on the `async_mode` flag.
-    #     """
-    #     if self.async_mode:
-    #         self.logger.info("Running in asynchronous mode.")
-    #         tasks = [self._follow_async(path) for path in self.log_file_paths]
-    #         await asyncio.gather(*tasks)
-    #     else:
-    #         self.logger.info("Running in synchronous mode.")
-    #         for path in self.log_file_paths:
-    #             self._follow_sync(path)
 
     async def follow_async(self):
         """ Asynchronous follow method """
@@ -191,7 +350,6 @@ class Tail:
             # Synchronous mode: directly call the sync methods
             for path in self.log_file_paths:
                 self._follow_sync(path)
-
 
 
 def check_file_overwrite(filename, answer=None) -> bool:
@@ -433,6 +591,8 @@ def is_file(filename: str) -> bool:
             is_file('example.txt')
             # >> True
     """
+    if not filename:
+        return False
 
     if "*" in filename:
         if len(glob.glob(filename)) > 0:

@@ -215,63 +215,16 @@ def subnet_mask_to_decimal(subnet_mask):
     return None
 
 
-# def get_interface_ips(ignore_interfaces=None, detail=False, is_sort=True):
-#     """
-#     Get the IP addresses of the interfaces.
-#
-#     :param ignore_interfaces: A list of interface names to ignore.
-#     :param detail: Whether to show detailed information or not.
-#     :param is_sort: Whether to sort the results or not.
-#     :return: A list of tuples containing interface name and IP address.
-#
-#     Example:
-#
-#         .. code-block:: python
-#
-#             from pawnlib.resource import server
-#
-#             server.get_interface_ips()
-#             # >> [('lo', '127.0.0.1 / 8'), ('wlan0', '192.168.0.10 / 24, G/W: 192.168.0.1')]
-#
-#     """
-#     interfaces_and_ips = []
-#
-#     if ignore_interfaces is None:
-#         ignore_interfaces = []
-#
-#     interface_names = get_interface_names()
-#     default_route, default_interface = get_default_route_and_interface()
-#
-#     for interface_name in interface_names:
-#         if interface_name in ignore_interfaces:
-#             continue
-#
-#         if detail:
-#             ip_and_netmask = get_ip_and_netmask(interface_name)
-#             ip_address = f"{ip_and_netmask[0]:<15} / {ip_and_netmask[1]}" if len(ip_and_netmask) > 1 else " ".join(ip_and_netmask)
-#         else:
-#             ip_address = " ".join(get_ip_addresses(interface_name))
-#
-#         if ip_address:
-#             if default_interface and default_route and interface_name == default_interface:
-#                 ip_address += f", G/W: {default_route}"
-#
-#             interfaces_and_ips.append((interface_name, ip_address))
-#
-#     if is_sort:
-#         interfaces_and_ips.sort(key=lambda x: 'G/W' in x[1], reverse=True)
-#
-#     return interfaces_and_ips
-
-
-def get_interface_ips(ignore_interfaces=None, detail=False, is_sort=True):
+def get_interface_ips(ignore_interfaces=None, detail=False, is_sort=True, ip_only=False):
     """
     Get the IP addresses of the interfaces.
 
     :param ignore_interfaces: A list of interface names to ignore.
     :param detail: Whether to show detailed information or not.
     :param is_sort: Whether to sort the results or not.
-    :return: A list of tuples containing interface name and IP address or a dictionary with IP, subnet, and gateway.
+    :param ip_only: If True, return only the IP addresses.
+    :return: A list of tuples containing interface name and IP address, a dictionary with IP, subnet, and gateway, or just IPs if ip_only is True.
+
 
     Example:
 
@@ -284,6 +237,9 @@ def get_interface_ips(ignore_interfaces=None, detail=False, is_sort=True):
 
             server.get_interface_ips(detail=True)
             # >>  [ ('en0', {'ip': '20.22.1.13', 'subnet': '255.255.252.0', 'gateway': '20.22.0.1'}),('utun4', {'ip': '43.62.13.6'})]
+
+            server.get_interface_ips(ip_only=True)
+            # >> ['127.0.0.1', '192.168.0.10']
 
     """
     interfaces_and_ips = []
@@ -322,6 +278,9 @@ def get_interface_ips(ignore_interfaces=None, detail=False, is_sort=True):
 
     if is_sort:
         interfaces_and_ips.sort(key=lambda x: 'gateway' in x[1] if isinstance(x[1], dict) else 'G/W' in x[1], reverse=True)
+
+    if ip_only:
+        return [ip for _, ip in interfaces_and_ips]
 
     return interfaces_and_ips
 
@@ -1258,7 +1217,7 @@ class DiskUsage:
 
     def get_mount_points(self):
         """
-        Get a list of all mount points.
+        Get a list of all mount points along with their device names.
         """
         mount_points = []
         if platform.system() == 'Darwin':  # macOS
@@ -1267,9 +1226,10 @@ class DiskUsage:
                 lines = output.splitlines()[1:]
                 for line in lines:
                     parts = line.split()
+                    device_name = parts[0]
                     mount_point = parts[-1]
                     if not self.match_list(self.ignore_partitions, mount_point):
-                        mount_points.append(mount_point)
+                        mount_points.append((device_name, mount_point))
             except subprocess.CalledProcessError as e:
                 print(f"Error occurred while running df: {e}")
         elif platform.system() == 'Linux':  # Linux
@@ -1277,9 +1237,10 @@ class DiskUsage:
                 for line in f.readlines():
                     parts = line.split()
                     if len(parts) >= 2:
+                        device_name = parts[0]
                         mount_point = parts[1]
                         if not self.match_list(self.ignore_partitions, mount_point):
-                            mount_points.append(mount_point)
+                            mount_points.append((device_name, mount_point))
         else:
             raise NotImplementedError("Unsupported operating system")
         return mount_points
@@ -1313,12 +1274,19 @@ class DiskUsage:
         disk_info = {}
 
         if mount_point == "all":
-            for mount_point in self.get_mount_points():
-                if os.path.ismount(mount_point):
-                    disk_info[mount_point] = self.calculate_disk_usage_with_auto_unit(mount_point, precision, unit)
+            for device_name, mp in self.get_mount_points():
+                if os.path.ismount(mp):
+                    disk_info[mp] = {
+                        'device': device_name,
+                        **self.calculate_disk_usage_with_auto_unit(mp, precision, unit)
+                    }
         else:
             if os.path.ismount(mount_point):
-                disk_info[mount_point] = self.calculate_disk_usage_with_auto_unit(mount_point, precision, unit)
+                device_name = next((dev for dev, mp in self.get_mount_points() if mp == mount_point), None)
+                disk_info[mount_point] = {
+                    'device': device_name,
+                    **self.calculate_disk_usage_with_auto_unit(mount_point, precision, unit)
+                }
             else:
                 raise ValueError(f"{mount_point} is not a valid mount point")
 
@@ -1806,3 +1774,35 @@ class FileSystemTester:
             table.add_row(key.replace("_", " ").title(), str(value))
 
         self.console.print(table)
+
+class SSHLogPathResolver:
+    log_file_mapping = {
+        'ubuntu': '/var/log/auth.log',
+        'centos': '/var/log/secure',
+        'rocky': '/var/log/secure',
+        'macos': '/var/log/system.log',
+        'debian': '/var/log/auth.log',
+        'fedora': '/var/log/secure',
+        'amzn': '/var/log/secure',
+    }
+
+    def __init__(self, os_name=None, raise_on_failure=False):
+        if os_name:
+            self.os_name = os_name.lower()
+        else:
+            os_info = get_platform_info()
+            self.os_name = os_info.get("os", "").lower()
+
+        self.raise_on_failure = raise_on_failure
+        self.log_file_path = self.get_path()
+
+    def get_path(self):
+        log_path = self.log_file_mapping.get(self.os_name)
+        if log_path:
+            return log_path
+        elif self.raise_on_failure:
+            raise ValueError(f"Unsupported OS: {self.os_name}")
+        else:
+            return '/var/log/secure'
+    def extract_directory(self):
+        return str(os.path.dirname(self.log_file_path))

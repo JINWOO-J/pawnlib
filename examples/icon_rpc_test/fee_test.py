@@ -8,7 +8,7 @@ from pawnlib.typing.converter import convert_dict_hex_to_int, hex_to_number
 from pawnlib.typing.constants import const
 
 disable_ssl_warnings()
-network_info = NetworkInfo(network_name="sejong")
+network_info = NetworkInfo(network_name="berlin")
 wallet = icx_signer.load_wallet_key("0x32cf8c963178b1dc15abe5628ce098ce067d7afc8cffa0f27405edd3afa90811")
 pawn.console.log(wallet)
 icon_rpc = IconRpcHelper(

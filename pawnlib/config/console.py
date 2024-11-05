@@ -68,25 +68,54 @@ class Console(rich_console.Console):
         else:
             self._decode_and_print(args, **kwargs)
 
-    def debug(self, message, *args, **kwargs) -> None:  # type: ignore
+    # def debug(self, message, *args, **kwargs) -> None:  # type: ignore
+    #     if self.pawn_debug:
+    #         stack = inspect.stack()
+    #         parent_frame = stack[1][0]
+    #         module = inspect.getmodule(parent_frame)
+    #         function_name = stack[1][3]
+    #         class_name = ''
+    #         if module:
+    #             try:
+    #                 class_name = stack[1][0].f_locals["self"].__class__.__name__+"."
+    #             except:
+    #                 pass
+    #         full_module_name = f"{class_name}{function_name}()"
+    #
+    #         message = f"[yellow][DEBUG][/yellow]:face_with_monocle: {full_module_name} {message}"
+    #
+    #         if not kwargs.get("_stack_offset", None):
+    #             kwargs['_stack_offset'] = 2
+    #         super().log(message, *args, **kwargs)
+
+    def debug(self, message, *args, **kwargs) -> None:
         if self.pawn_debug:
-            stack = inspect.stack()
-            parent_frame = stack[1][0]
-            module = inspect.getmodule(parent_frame)
-            function_name = stack[1][3]
-            class_name = ''
-            if module:
-                try:
-                    class_name = stack[1][0].f_locals["self"].__class__.__name__+"."
-                except:
-                    pass
-            full_module_name = f"{class_name}{function_name}()"
-
-            message = f"[yellow][DEBUG][/yellow]:face_with_monocle: {full_module_name} {message}"
-
             if not kwargs.get("_stack_offset", None):
                 kwargs['_stack_offset'] = 2
-            super().log(message, *args, **kwargs)
+            formatted_message, stack_offset = self._format_debug_message(message, **kwargs)
+            super().log(formatted_message, *args, **kwargs)
+
+    @staticmethod
+    def _format_debug_message(message: str, **kwargs) -> tuple:
+        stack_offset = kwargs.get('_stack_offset', 2)
+        caller_frame_index = stack_offset
+        stack = inspect.stack()
+        if len(stack) > caller_frame_index:
+            frame = stack[caller_frame_index]
+            function_name = frame.function
+            class_name = ''
+            module = inspect.getmodule(frame.frame)
+            if module:
+                try:
+                    class_name = frame.frame.f_locals["self"].__class__.__name__ + "."
+                except (AttributeError, KeyError):
+                    pass
+            full_module_name = f"{class_name}{function_name}()"
+            formatted_message = f"[yellow][DEBUG][/yellow]:face_with_monocle: {full_module_name} {message}"
+        else:
+            formatted_message = f"[yellow][DEBUG][/yellow]:face_with_monocle: {message}"
+
+        return formatted_message, stack_offset + 1
 
 
 def should_do_markup(stream: TextIO = sys.stdout) -> bool:

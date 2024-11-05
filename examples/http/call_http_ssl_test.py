@@ -5,9 +5,10 @@ import socket
 import ssl
 import datetime
 
-from pawnlib.utils.http import CheckSSL, disable_ssl_warnings
+from pawnlib.utils.http import CheckSSL
+from pawnlib.utils.network import disable_requests_ssl_warnings
 
-disable_ssl_warnings()
+disable_requests_ssl_warnings()
 
 
 domains_url = [

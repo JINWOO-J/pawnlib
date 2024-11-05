@@ -107,3 +107,15 @@ pawnlib.utils.aws module
    :members:
    :undoc-members:
    :show-inheritance:
+
+pawnlib.utils.redis_helper module
+-------------------------------------
+
+.. code-block:: python
+
+    from pawnlib.utils import redis_helper
+
+.. automodule:: pawnlib.utils.redis_helper
+   :members:
+   :undoc-members:
+   :show-inheritance:
