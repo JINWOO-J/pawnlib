@@ -122,7 +122,7 @@ gendocs: pandoc
 	cd docs && $(MAKE) html
 
 
-docker: make_build_args
+docker: make_build_args clean
 		docker $(DOCKER_BUILD_CMD) $(DOCKER_BUILD_OPTION) -f Dockerfile \
 		$(shell cat BUILD_ARGS) -t $(REPO_HUB)/$(NAME):$(VERSION) .
 		$(call colorecho, "\n\nSuccessfully build '$(REPO_HUB)/$(NAME):$(VERSION)'")

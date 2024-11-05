@@ -33,7 +33,7 @@ RUN ARCH="$(dpkg --print-architecture)" ; \
     ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
     dpkg-reconfigure --frontend noninteractive tzdata  &&\
     python3 setup.py bdist_wheel && \
-    pip3 install dist/pawnlib-${VERSION}-py3-none-any.whl --force-reinstall && \
+    pip3 install dist/pawnlib-*.whl --force-reinstall && \
     pip3 install -r requirements-full.txt && \
     if [ "$REMOVE_BUILD_PACKAGE" = "true" ]; then \
         echo "REMOVE_BUILD_PACKAGE" ; \
