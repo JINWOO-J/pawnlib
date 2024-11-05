@@ -3,9 +3,12 @@ import asyncio
 import aiometer
 from aiometer._impl import utils
 from pawnlib.output import debug_print, classdump
-from pawnlib.config import pawnlib_config as pawn
-from pawnlib.utils.http import ALLOWS_HTTP_METHOD
+from pawnlib.config import pawnlib_config as pawn, setup_logger
+# from pawnlib.utils.http import ALLOWS_HTTP_METHOD
+from pawnlib.typing.constants import const
 import httpx
+import sys
+
 
 
 class AsyncTasks:
@@ -231,7 +234,7 @@ async def fetch_httpx_url(url, method="get", timeout=4, info="", max_keepalive_c
 
             # pawn.console.log(url, kwargs)
 
-            if method in ALLOWS_HTTP_METHOD:
+            if method in const.get_http_methods(lowercase=True):
                 response = await getattr(client, method)(url, timeout=timeout, **kwargs)
             else:
                 pawn.console.log(f"[ERROR] Unsupported HTTP method -> {method}")
@@ -255,3 +258,100 @@ async def fetch_httpx_url(url, method="get", timeout=4, info="", max_keepalive_c
         pawn.console.log(f"url={url} e={e}, response={response}, info={info}")
         pawn.app_logger.error(f"url={url} e={e}, response={response}, info={info}")
     return {}
+
+
+# async def shutdown_async_tasks(tasks, loop, exit_on_shutdown=False):
+#     """
+#     Gracefully close the WebSocket connection and cancel all pending async tasks.
+#
+#     :param tasks: List of asyncio tasks to cancel
+#     :param loop: The current event loop
+#     :param exit_on_shutdown: Boolean indicating if the system should exit after shutdown
+#     """
+#     import logging
+#     import sys
+#     logger = logging.getLogger("shutdown_async_tasks")
+#     logger.info(f"Initiating graceful shutdown. Pending tasks: {len(tasks)}")
+#
+#     try:
+#         # Cancel all pending tasks
+#         logger.info(f"Attempting to cancel {len(tasks)} tasks.")
+#         for task in tasks:
+#             print(task)
+#             if not task.done():
+#                 task_name = f"Task {task.get_name()}" if task.get_name() else str(task)
+#                 try:
+#                     task.cancel()
+#                     await task
+#                     logger.info(f"{task_name} cancelled successfully.")
+#                 except asyncio.CancelledError:
+#                     logger.warning(f"{task_name} was already cancelled.")
+#                 except Exception as e:
+#                     logger.error(f"Error while cancelling {task_name}: {e}")
+#             else:
+#                 logger.info(f"Task {task.get_name()} already completed.")
+#
+#         # Close the event loop gracefully
+#         logger.info("Closing the event loop.")
+#         loop.stop()
+#         loop.close()
+#         logger.info("Event loop closed successfully.")
+#
+#         if exit_on_shutdown:
+#             logger.info("Exiting the system after graceful shutdown.")
+#             sys.exit(0)
+#
+#     except Exception as e:
+#         logger.error(f"An error occurred during shutdown: {e}")
+#     finally:
+#         logger.info("Shutdown process completed.")
+
+
+# async def shutdown_async_tasks(loop=None, tasks=None, logger=None, exit_on_shutdown=True, verbose=1):
+#     """
+#     Shutdown all pending async tasks and close the loop gracefully.
+#
+#     Args:
+#         loop (asyncio.AbstractEventLoop): The event loop to use. If None, the current running loop will be used.
+#         tasks (List[asyncio.Task]): List of tasks to cancel. If None, all pending tasks in the loop will be cancelled.
+#         logger (logging.Logger): Logger instance for logging. If None, print will be used as fallback.
+#         exit_on_shutdown (bool): If True, the system will exit after shutdown.
+#         verbose (int): The verbosity level for logging output.
+#     """
+#
+#     logger = setup_logger(logger, "shutdown_async_tasks", verbose)
+#
+#     if loop is None:
+#         try:
+#             loop = asyncio.get_running_loop()
+#         except RuntimeError:
+#             logger("No running event loop found.")
+#             return
+#
+#     if tasks is None:
+#         tasks = [task for task in asyncio.all_tasks(loop) if isinstance(task, asyncio.Task)]
+#
+#     logger.info(f"Initiating graceful shutdown. Found {len(tasks)} pending task(s) to cancel.")
+#
+#     if tasks:
+#         for task in tasks:
+#             if not task.done() and not task.cancelled():
+#                 task_name = task.get_coro().__name__
+#                 logger.info(f"Cancelling task: {task_name}")
+#                 task.cancel()
+#
+#         for task in tasks:
+#             try:
+#                 await task
+#             except asyncio.CancelledError:
+#                 task_name = task.get_coro().__name__
+#                 logger.info(f"Task '{task_name}' cancelled successfully.")
+#             except Exception as e:
+#                 task_name = task.get_coro().__name__
+#                 logger.error(f"Error during task '{task_name}' cancellation: {e}")
+#
+#     logger.info("All tasks cancelled and event loop closed gracefully.")
+#
+#     if exit_on_shutdown:
+#         logger.info("Exiting the system after graceful shutdown.")
+#         sys.exit(0)

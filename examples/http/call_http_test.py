@@ -42,3 +42,23 @@ pawn.console.log(f"error={res.response.error}")
 # pawn.console.log(f"res={res.response}, success={res.response.success}")
 
 
+
+
+res = http.CallHttp(
+    url="https://ctz.solidwallet.io/api/v3",
+    # url="https://naver.com",
+    payload={
+        "id": 2848,
+        "jsonrpc": "2.0",
+        "method": "icx_getTotalSupply",
+    },
+    method="post",
+    timeout=3000,
+    raise_on_failure=False,
+    success_criteria=[http.AllowsKey.status_code, "==", "200"]
+).run()
+
+
+pawn.console.log(res.response)
+pawn.console.log(res.response.as_dict())
+pawn.console.log(res.response.as_simple_dict())

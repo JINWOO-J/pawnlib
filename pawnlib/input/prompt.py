@@ -1251,3 +1251,78 @@ class CustomArgumentParser(argparse.ArgumentParser):
     def error(self, message):
         self.print_help()
         sys_exit(message, 2)
+
+
+def get_default_arguments(parser=None) -> dict:
+    """
+    Extract all default values from an ArgumentParser, including any subparsers.
+
+    :param parser: The ArgumentParser instance to extract defaults from.
+                   If None, an exception will be raised.
+    :return: A dictionary containing argument names as keys and their default values.
+    :raises ValueError: If no parser is provided.
+
+    This function iterates through the main parser's actions to collect default values.
+    If the parser has subparsers, it recursively collects their defaults as well.
+
+        Example:
+
+        .. code-block:: python
+
+            from pawnlib.input import get_default_arguments
+
+            parser = get_parser()
+            defaults = get_default_arguments(parser)
+            pawn.console.log(defaults)
+            # >> {'command': None, 'file': ['/var/log/system.log'], 'base_dir': '.', 'log_type': 'console', 'log_file': None}
+
+    """
+    if not isinstance(parser, argparse.ArgumentParser):
+        raise ValueError("Invalid parser. Please provide a valid ArgumentParser instance.")
+
+    defaults = {}
+    for action in parser._actions:
+        if action.dest != 'help' and action.default != argparse.SUPPRESS:
+            defaults[action.dest] = action.default
+
+    subparsers = getattr(parser, '_subparsers', None)
+    if subparsers:
+        for subparser_action in subparsers._group_actions:
+            for choice, subparser in subparser_action.choices.items():
+                sub_defaults = get_default_arguments(subparser)
+                defaults.update(sub_defaults)
+
+    return defaults
+
+
+def get_service_specific_arguments(parser=None, service_name=None):
+    """
+    Extracts the arguments for a specific service from the argparse parser.
+
+    :param parser: The top-level argparse parser.
+    :param service_name: The name of the service to extract arguments for ('ssh' or 'wallet').
+    :return: Dictionary of argument names and their default values for the specified service.
+    """
+    if not isinstance(parser, argparse.ArgumentParser):
+        raise ValueError("Invalid parser. Please provide a valid ArgumentParser instance.")
+
+    if not service_name:
+        raise ValueError("Invalid service_name. Please provide a service_name.")
+
+    subparsers_actions = [
+        action for action in parser._actions if isinstance(action, argparse._SubParsersAction)
+    ]
+
+    # Iterate through subparsers and get the one for the specific service
+    for subparsers_action in subparsers_actions:
+        # Get the service-specific parser
+        service_parser = subparsers_action.choices.get(service_name)
+        if service_parser:
+            # Extract the arguments and their defaults from the service-specific parser
+            service_args = {}
+            for action in service_parser._actions:
+                if action.dest != 'help':
+                    service_args[action.dest] = action.default
+            return service_args
+
+    return {}

@@ -6,23 +6,25 @@ import json
 import getpass
 import traceback
 import inspect
-import executing
 from contextlib import contextmanager, AbstractContextManager
 
 from pawnlib.typing import (
     converter, date_utils, list_to_oneline_string, const, is_include_list, remove_tags,
-    remove_ascii_color_codes,timestamp_to_string, is_hex, is_json
+    remove_ascii_color_codes, timestamp_to_string, is_hex, is_json
 )
 from pawnlib.config import pawnlib_config as pawn, global_verbose
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import Terminal256Formatter
+from dataclasses import is_dataclass, asdict
 from rich.syntax import Syntax
 from rich.table import Table
 from rich.pretty import Pretty
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 from rich.panel import Panel
 from rich.console import Group, Console
+from rich.tree import Tree
+from rich.text import Text
 from rich import print as rprint
 from typing import Union, Callable
 from datetime import datetime
@@ -234,6 +236,8 @@ class PrintRichTable:
             call_desc_func=None,
             columns_options=None,
             display_output=True,
+            no_wrap: bool = False,
+            overflow="fold",
             justify="left",
             **kwargs
     ) -> None:
@@ -242,7 +246,7 @@ class PrintRichTable:
             columns = list()
         if data is None:
             data = dict()
-        self.title = f"[bold cyan] {title}"
+        self.title = f"[bold dark_orange3] {title}"
         self.table_options = kwargs
         # self.table = Table(title=self.title, **kwargs)
         self.table = None
@@ -258,17 +262,27 @@ class PrintRichTable:
         self.display_output = display_output
         self.console_justify = justify
 
+        self.overflow = overflow
+        self.no_wrap = no_wrap
+
         _default_columns_option = dict(
             key=dict(
                 justify="left",
+                overflow=self.overflow,
+                no_wrap=self.no_wrap
             ),
             value=dict(
                 justify="right",
+                overflow=self.overflow,
+                no_wrap=self.no_wrap
             ),
             description=dict(
                 justify="right",
+                overflow=self.overflow,
+                no_wrap=self.no_wrap
             ),
         )
+
         self.columns_options = _default_columns_option
         if columns_options:
             self.columns_options.update(columns_options)
@@ -299,7 +313,6 @@ class PrintRichTable:
             self.table_data = self.data
         else:
             self.table_data = []
-
         self.table = Table(title=self.title, **self.table_options)
 
     # def _specify_columns
@@ -359,8 +372,19 @@ class PrintRichTable:
                 self.rows.append([f"{self.row_count}", f"{item}"])
             self.row_count += 1
 
+        # for col in self.columns:
+        #     self.table.add_column(col, **self.columns_options.get(col, {"no_wrap": self.no_wrap}))
         for col in self.columns:
-            self.table.add_column(col, **self.columns_options.get(col, {}))
+            column_options = self.columns_options.get(col, {})
+            no_wrap = column_options.get('no_wrap', self.no_wrap)
+            overflow = column_options.get('overflow', self.overflow)
+
+            self.table.add_column(
+                col,
+                **column_options,
+                no_wrap=no_wrap,
+                overflow=overflow
+            )
 
     def _extract_columns(self):
         # if self.table_data and len(self.columns) == 0 and isinstance(self.table_data[0], dict):
@@ -396,6 +420,7 @@ class PrintRichTable:
                 pawn.console.print(f"{self.title} \n  [i]No data ... [/i]")
         else:
             return self.table
+
 
 class TablePrinter(object):
     "Print a list of dicts as a table"
@@ -755,7 +780,7 @@ def kvPrint(key, value):
     print(bcolors.WARNING + "{:>{key_value}} ".format(str(value), key_value=key_value) + bcolors.ENDC)
 
 
-def print_json(obj, syntax=True, line_indent="", rich_syntax=True,  style="material",  **kwargs):
+def print_json(obj, syntax=True, line_indent="", rich_syntax=True, style="material", **kwargs):
     """
     Print a JSON object with optional syntax highlighting and indentation.
 
@@ -1195,7 +1220,7 @@ def print_syntax(data, name="json", indent=4, style="material", oneline_list=Tru
         print(syntax_highlight(data, name, indent, style, oneline_list, line_indent))
 
 
-def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, word_wrap=True,  **kwargs):
+def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, word_wrap=True, **kwargs):
     """
     Syntax highlighting function
 
@@ -1225,6 +1250,7 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
     # 'paraiso-dark', 'lovelace', 'algol', 'algol_nu', 'arduino', 'rainbow_dash',
     # 'abap', 'solarized-dark', 'solarized-light', 'sas', 'stata', 'stata-light',
     # 'stata-dark', 'inkpot', 'zenburn']
+    print(data)
     if name == "json" and isinstance(data, (dict, list)):
         data = data_clean(data)
         code_data = json_compact_dumps(data, indent=indent, monkey_patch=oneline_list)
@@ -1237,12 +1263,68 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
         code_data = textwrap.indent(code_data, line_indent)
 
     if rich:
-        return Syntax(code_data, name, theme=style, word_wrap=word_wrap,  **kwargs)
+        return Syntax(code_data, name, theme=style, word_wrap=word_wrap, **kwargs)
     else:
         return highlight(
             code=code_data,
             lexer=get_lexer_by_name(name),
             formatter=Terminal256Formatter(style=style))
+
+
+def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, word_wrap=True, **kwargs):
+    """
+    Syntax highlighting function with support for class instance representation instead of serialization.
+
+    :param data: The data to be highlighted.
+    :param name: The name of the lexer to use for highlighting.
+    :param indent: The number of spaces to use for indentation.
+    :param style: The style to use for highlighting.
+    :param oneline_list: Whether to compact lists into one line.
+    :param line_indent: The string to use for line indentation.
+    :param rich: Whether to use rich text formatting.
+    :param word_wrap: Whether to enable word wrapping.
+    :return: The highlighted code as a string.
+    """
+
+    def convert_non_serializable(obj):
+        """
+        Convert non-serializable objects to a debug-friendly representation.
+        """
+        if hasattr(obj, '__class__'):
+            return f"<{obj.__class__.__name__}> {obj.__dict__}"
+        return str(obj)
+
+    # JSON serialization with custom handling of non-serializable objects
+    if name == "json" and isinstance(data, (dict, list)):
+        try:
+            # Using json.dumps with a custom default converter to keep classes represented by their type and attributes.
+            code_data = json.dumps(data, indent=indent, default=convert_non_serializable)
+        except TypeError as e:
+            print(f"Serialization error: {e}")
+            code_data = json.dumps(data, indent=indent, default=convert_non_serializable)
+    elif data:
+        code_data = data
+    else:
+        code_data = ""
+
+    if line_indent:
+        code_data = textwrap.indent(code_data, line_indent)
+
+    # Use Rich's syntax highlighting or fallback to terminal highlighting
+    if rich:
+        return Syntax(code_data, name, theme=style, word_wrap=word_wrap, **kwargs)
+        # syntax = Syntax(code_data, name, theme=style, word_wrap=word_wrap, **kwargs)
+        # Convert rich Syntax to plain text for consistent rendering in Panel
+        # with pawn.console.capture() as capture:
+        #     pawn.console.print(syntax)
+        # return capture.get()
+
+    else:
+        return highlight(
+            code=code_data,
+            lexer=get_lexer_by_name(name),
+            formatter=Terminal256Formatter(style=style)
+        )
 
 
 def print_here():
@@ -1549,7 +1631,7 @@ def print_var(
         detail: bool = True,
         title_align: AlignMethod = "center",
         **kwargs
-    ):
+):
     """
     Print the variable name and its value on the same line with optional details.
 
@@ -1591,20 +1673,21 @@ def print_var(
         kwargs['background_color'] = bg_color
 
     details = ""
-
     if hasattr(data, '__dict__'):  # Check if it's an instance of a class
         attributes = vars(data)
         for attr, value in attributes.items():
             styled_attr_value = style_value(value)
-            details += f"{line_indent}[cyan]{var_name}.{attr}[/cyan] = {styled_attr_value} [italic]({type(value).__name__})[/italic]\n"
+            # details += f"{line_indent}[cyan]{var_name}.{attr}[/cyan] = {styled_attr_value} [italic]({type(value).__name__})[/italic]\n"
+            details += f"{line_indent}[cyan]{var_name}.{attr}[/cyan] = {styled_attr_value}\n"
     elif isinstance(data, (dict, list)):
-        syntax_str = syntax_highlight(data, rich=True,  line_indent=line_indent,  **kwargs)
+        syntax_str = syntax_highlight(data, rich=True, line_indent=line_indent, **kwargs)
         details = syntax_str
     else:
         styled_value = style_value(data)
 
     if detail:
         output = f"🎁 [blue bold]{var_name}[/blue bold] = [italic]{styled_value} ({type(data).__name__}) {data_length}[/italic]\n"
+        # output = f"🎁 [blue bold]{var_name}[/blue bold] = [italic]{styled_value} ({type(data).__name__}) [/italic]\n"
     else:
         output = styled_value
 
@@ -1618,18 +1701,92 @@ def print_var(
     console.print(panel)
 
 
+def print_var2(data=None, title: str = '', line_indent: str = ' ', detail: bool = True, title_align: AlignMethod = "center", **kwargs):
+    """
+    Print variable content with type and length info for dict, list, class, or basic types.
+
+    :param data: Variable to be printed.
+    :param title: Optional title for the output.
+    :param line_indent: String used for indentation.
+    :param detail: Whether to include detailed information.
+    :param title_align: Title alignment (left, center, or right).
+    """
+    var_name = get_var_name(data)
+
+    if not title:
+        title = var_name
+
+    type_length_info = get_type_length_info_style(data)
+    output = f"🎁 [blue bold]{var_name}[/blue bold] {type_length_info}\n"
+
+    if isinstance(data, dict) or isinstance(data, list):
+        syntax_str = syntax_highlight(data, rich=True, line_indent=line_indent, **kwargs)
+        panel_content = Group(output, syntax_str)
+
+    elif hasattr(data, '__dict__') or is_dataclass(data):
+        tree = Tree(output)
+        class_name = data.__class__.__name__
+        attributes = asdict(data) if is_dataclass(data) else vars(data)
+        for attr, value in attributes.items():
+            add_node(tree, f"{class_name}.{attr}", value, detail)
+        panel_content = tree
+
+    else:
+        panel_content = f"🎁 [blue bold]{var_name}[/blue bold] = {style_value(data)}"
+
+    panel = Panel(panel_content, title=f"[yellow bold]{title or var_name}[/yellow bold]", title_align=title_align, expand=True, style="on rgb(40,40,40)")
+    pawn.console.print(panel)
+
+
+def add_node(tree, key, value, detail):
+    """Recursively add nodes to the tree with syntax_highlight for dict and list."""
+    type_length_info = f"[dim]({type(value).__name__}) len={len(value)}[/dim]" if hasattr(value, '__len__') else ""
+
+    if isinstance(value, dict) or isinstance(value, list):
+        syntax_str = syntax_highlight(value, rich=True)
+        tree.add(f"[cyan]{key}[/cyan] {type_length_info}\n{syntax_str}")
+    elif hasattr(value, '__dict__') or is_dataclass(value):
+        branch = tree.add(f"[cyan]{key}[/cyan] [green]{type_length_info}[/green]")
+        if detail:
+            attributes = asdict(value) if is_dataclass(value) else vars(value)
+            for attr, attr_value in attributes.items():
+                add_node(branch, attr, attr_value, detail)
+    else:
+        tree.add(f"[cyan]{key}[/cyan] = {style_value(value)}")
+
+
+def get_type_length_info_style(value):
+    """
+    Get the type and length information as a styled string based on the value's type.
+    """
+    value_type = type(value).__name__
+    length_info = f"len={len(value)}" if hasattr(value, '__len__') else ""
+    type_length_info = f"[dim]({value_type}) {length_info}[/dim]"
+
+    # 색상 스타일 지정
+    if isinstance(value, dict):
+        return f"[cyan]{type_length_info}[/cyan]"  # 딕셔너리는 청록색
+    elif isinstance(value, list):
+        return f"[magenta]{type_length_info}[/magenta]"  # 리스트는 자홍색
+    elif hasattr(value, '__dict__') or is_dataclass(value):
+        return f"[green]{type_length_info}[/green]"  # 클래스 인스턴스는 초록색
+    else:
+        return f"[white]{type_length_info}[/white]"  # 기본값은 흰색
+
+
 def style_value(value):
     """
     Apply different styles based on the value's type or value.
     """
+    type_length_info = get_type_length_info_style(value)
     if isinstance(value, bool):
         return f"[green]{value}[/green]" if value else f"[red]{value}[/red]"
     elif isinstance(value, (int, float)):
-        return f"[cyan]{value}[/cyan]"
+        return f"[cyan]{value} {type_length_info}[/cyan]"
     elif isinstance(value, str):
-        return f"[yellow]{value}[/yellow]"
+        return f"[yellow]{value} {type_length_info}[/yellow]"
     else:
-        return f"[white]{value}[/white]"
+        return f"[white]{value} {type_length_info}[/white]"
 
 
 def create_kv_table(padding=0, key_ratio=2, value_ratio=7, overflow="fold"):
@@ -1650,6 +1807,7 @@ def create_kv_table(padding=0, key_ratio=2, value_ratio=7, overflow="fold"):
     table.add_column("Debug Info", justify="right", style="grey84")
 
     return table
+
 
 # def get_pretty_value(value):
 #     if isinstance(value, (dict, list)):
@@ -1680,7 +1838,7 @@ def get_pretty_value(value, is_force_syntax=False):
         return value
 
 
-def print_kv(key="", value="", symbol="░",  separator=":", padding=1, key_ratio=1, value_ratio=7, is_force_syntax=True):
+def print_kv(key="", value="", symbol="░", separator=":", padding=1, key_ratio=1, value_ratio=7, is_force_syntax=True):
     """
     Print a key-value pair with a symbol, padding, and value size information.
 
@@ -1723,7 +1881,7 @@ def print_kv(key="", value="", symbol="░",  separator=":", padding=1, key_rati
     pawn.console.print(table)
 
 
-def print_grid(data: dict = None, title="", symbol="░", separator=":",  padding=0, key_ratio=1, value_ratio=7,
+def print_grid(data: dict = None, title="", symbol="░", separator=":", padding=0, key_ratio=1, value_ratio=7,
                key_prefix="", key_postfix="", value_prefix="", value_postfix="", is_value_type=True):
     """
     Print a grid layout with a title and optional padding and edge padding.

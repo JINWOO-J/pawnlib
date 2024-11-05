@@ -3,7 +3,7 @@ import sys
 import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
-from pawnlib.output import color_print
+from pawnlib.output import color_print, get_script_path
 from pawnlib.config import pawn
 from pawnlib.utils import http
 from pawnlib.typing import date_utils, str2bool
@@ -62,7 +62,6 @@ def main():
     # pawn_http.disable_ssl_warnings()
     parser = get_parser()
     args, unknown = parser.parse_known_args()
-
     pawn.console.log(args)
 
     if not args.url:
@@ -89,19 +88,21 @@ def main():
     pawn.console.log(f"Url={websocket_url}, Path={websocket_path}")
 
     network_info = http.NetworkInfo(network_api=websocket_url)
-
-    # network_info = http.NetworkInfo(network_name="mainnet")
     pawn.console.log(network_info)
 
     goloop_websocket = http.GoloopWebsocket(
-        connect_url=websocket_url,
+        url=websocket_url,
         blockheight=args.blockheight,
         monitoring_target=args.target,
         verbose=args.verbose,
         sec_thresholds=args.diff,
         network_info=network_info,
+        logger=pawn.console
     )
-    goloop_websocket.run(api_url=websocket_path)
+    goloop_websocket.run(api_path=websocket_path)
+
+
+
 
 main.__doc__ = (
     f"{__description__} \n"

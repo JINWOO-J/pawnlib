@@ -5,15 +5,18 @@ import sys
 from logging import handlers
 import traceback
 import datetime
-from pawnlib.config.globalconfig import pawnlib_config
+from pawnlib.config.globalconfig import pawnlib_config, pawn, Null
+from rich.console import Console
 from rich.logging import RichHandler
 from rich.text import Text
 from typing import Callable
+import re
+import inspect
 
 try:
-    from typing import Literal
+    from typing import Literal, Union
 except ImportError:
-    from typing_extensions import Literal
+    from typing_extensions import Literal, Union
 
 
 class CustomLog:
@@ -165,53 +168,64 @@ class CustomLog:
 
 class AppLogger:
     """
+    A logger class for managing application logging.
 
-    AppLogger
+    This logger supports logging to both a file and stdout with customizable formats,
+    levels, and handlers. It can also handle exceptions and apply filters to log messages.
 
-    :param app_name: application name(=file name)
-    :param log_level: log level
-    :param log_path: log file path
-    :param stdout: Enable stdout, Adding Hook for another library logging.
-    :param markup: Enable markup for stdout logging.
-    :param stdout_level: stdout log level
-    :param stdout_log_formatter: stdout log formatter (function)
-    :param log_format: log format / [%(asctime)s] %(name)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s
-    :param use_hook_exception: Select whether to log exception errors.
-    :param exception_handler: Exception handling function
-    :param debug:
+    :param app_name: The name of the application, which will be used as the log file name.
+    :param log_level: The logging level (default is "INFO"). Options include:
+                      "DEBUG", "INFO", "WARN", "ERROR".
+    :param log_path: The directory path where log files will be stored (default is "./logs").
+    :param stdout: If True, enables logging to stdout (default is False).
+    :param markup: If True, enables markup formatting for stdout logging (default is False).
+    :param stdout_level: The logging level for stdout (default is "INFO").
+                         Options include "DEBUG", "INFO", "WARN", "ERROR", "NOTSET".
+    :param stdout_log_formatter: Custom formatter for stdout logging (default is None).
+    :param log_format: Custom format for log messages (default is a predefined format).
+                       Example: "[%(asctime)s] %(levelname)s - %(message)s".
+    :param use_hook_exception: If True, sets a hook to log uncaught exceptions (default is True).
+    :param exception_handler: A custom function to handle exceptions (default is None).
+    :param debug: If True, enables debug mode for additional logging information (default is False).
 
-    Example:
+    Example Usage:
 
-        .. code-block:: python
+        from pawnlib.utils import log
 
-            from pawnlib.utils import log
+        app_logger, error_logger = log.AppLogger().get_logger()
+        app_logger.info("This is an info message.")
+        error_logger.error("This is an error message.")
 
-            app_logger, error_logger = log.AppLogger().get_logger()
-            app_logger.info("This is a info message")
-            error_logger.error("This is a info message")
+        # Advanced usage with configuration
+        from pawnlib.config.globalconfig import pawnlib_config as pawn
 
+        app_logger, error_logger = log.AppLogger(
+            app_name="app",
+            log_path="./logs",
+            stdout=True,
+            markup=True,
+            log_level="DEBUG"
+        ).set_global()
 
-    Example2:
+        pawn.app_logger.info("This is an info message.")
+        pawn.error_logger.error("This is an error message.")
 
-        .. code-block:: python
+        # Expected Output:
+        # [2022-07-25 18:52:44,415] INFO::app_logging_test.py/main(38) This is an info message.
+        # [2022-07-25 18:52:44,416] ERROR::app_logging_test.py/main(39) This is an error message.
 
-            from pawnlib.config.globalconfig import pawnlib_config as pawn
+    Attributes:
+        logger: The main application logger instance.
+        error_logger: The error logger instance for capturing error messages.
 
-            app_logger, error_logger = log.AppLogger(
-                app_name="app",
-                log_path="./logs",
-                stdout=True
-            ).set_global()
+    Methods:
+        get_logger(): Returns the main and error logger instances.
+        set_global(): Sets the logger instances globally in the pawnlib configuration.
 
-            pawn.app_logger.info("This is a info message")
-            pawn.error_logger.error("This is a error message")
-
-            # >>>
-            [2022-07-25 18:52:44,415] INFO::app_logging_test.py/main(38) This is a info message
-            [2022-07-25 18:52:44,416] ERROR::app_logging_test.py/main(39) This is a info message
-
-
+    Note:
+        Ensure that the specified log path exists or can be created by the application.
     """
+
     _logger = None
 
     def __init__(self,
@@ -223,8 +237,10 @@ class AppLogger:
                  stdout_level: Literal["INFO", "WARN", "DEBUG", "NOTSET"] = "INFO",
                  stdout_log_formatter: Callable = "%H:%M:%S,%f",
                  log_format: str = None,
+                 std_log_format: str = None,
                  debug: bool = False,
                  use_hook_exception: bool = True,
+                 use_clean_text_filter: bool = False,
                  exception_handler: Callable = "",
                  **kwargs
                  ):
@@ -244,16 +260,25 @@ class AppLogger:
                 sys.excepthook = exception_handler
             else:
                 sys.excepthook = self.handle_exception
+        self.use_clean_text_filter = use_clean_text_filter
 
         if log_format:
             self.log_format = log_format
         else:
-            self.log_format = "[%(asctime)s] %(name)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s"
+            # self.log_format = "[%(asctime)s] %(name)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s"
+            self.log_format = "[%(asctime)s] %(levelname)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s"
 
+        if std_log_format:
+            self.std_log_format = std_log_format
+        else:
+            self.std_log_format = f"<%(name)s> %(message)s"
         self.log_formatter = logging.Formatter(self.log_format)
-
         self._logger = self.set_logger(self.log_level)
         self._error_logger = self.set_logger("ERROR")
+
+        if not self.stdout:
+            self._logger.propagate = False
+            self._error_logger.propagate = False
 
     def get_realpath(self):
         path = os.path.dirname(os.path.abspath(__file__))
@@ -266,7 +291,12 @@ class AppLogger:
         if not os.path.isdir(self.log_path):
             os.mkdir(self.log_path)
 
-        _logger = logging.getLogger(log_type)
+        # _logger = logging.getLogger(f"PAWN_LOGGER_{log_type}")
+        if log_type == "ERROR":
+            _logger = logging.getLogger(f"pawn.error_logger")
+        else:
+            _logger = logging.getLogger(f"pawn.app_logger")
+
         stack = traceback.extract_stack()
         _logger.setLevel(getattr(logging, log_type))
 
@@ -286,10 +316,13 @@ class AppLogger:
         )
         file_handler.suffix = '%Y%m%d'
         file_handler.setFormatter(self.log_formatter)
+
+        if self.use_clean_text_filter:
+            file_handler.addFilter(CleanTextFilter())
+
         _logger.addHandler(file_handler)
 
         if self.stdout:
-            from rich.text import Text
             if self.stdout_log_formatter:
                 log_time_formatter = lambda dt: Text.from_markup(f"[{dt.strftime(self.stdout_log_formatter)[:-3]}]")
             else:
@@ -298,11 +331,11 @@ class AppLogger:
             #
             # else:
             #     log_time_formatter = lambda dt: Text.from_markup(f"[{dt.strftime('%H:%M:%S,%f')[:-3]}]")
-
             logging.basicConfig(
                 # level=self.stdout_level, format="%(message)s", datefmt="[%Y-%m-%d %H:%M:%S.%f]", handlers=[RichHandler(rich_tracebacks=True)]
                 level=self.stdout_level,
-                format="%(message)s",
+                # format=f"[STDOUT] %(message)s",
+                format=self.std_log_format,
                 handlers=[
                     TightLevelRichHandler(
                         rich_tracebacks=True,
@@ -312,6 +345,12 @@ class AppLogger:
                     )
                 ]
             )
+        # else:
+        #     # logging.getLogger().handlers = []
+        #     root_logger = logging.getLogger()
+        #     for handler in root_logger.handlers:
+        #         root_logger.removeHandler(handler)
+
         # _logger.addHandler(self.add_stream_handler(level=log_type))
         return _logger
 
@@ -362,6 +401,77 @@ class AppLogger:
         if self.use_hook_exception and self._error_logger:
             self._error_logger.error("Unexpected exception", exc_info=(exc_type, exc_value, exc_traceback))
 
+
+class CleanTextFilter(logging.Filter):
+    def filter(self, record):
+        # Remove ASCII and tags from the message before logging
+        record.msg = _remove_ascii_and_tags(record.msg)
+        return True
+
+
+def _remove_ascii_and_tags(text: str = "", case_sensitive: Literal["lower", "upper", "both"] = "lower"):
+    text = _remove_ascii_color_codes(text)
+    text = _remove_tags(text, case_sensitive=case_sensitive)
+    return text
+
+def _remove_ascii_color_codes(text):
+    """
+    Remove ASCII color codes from a string.
+
+    :param text: string to remove ASCII color codes from
+    :return: string without ASCII color codes
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import remove_ascii_color_codes
+
+            remove_ascii_color_codes("\x1b[31mHello\x1b[0m")
+            # >> "Hello"
+
+    """
+    return re.sub(r'\x1b\[\d+m', '', text)
+
+
+def _remove_tags(text,
+                case_sensitive: Literal["lower", "upper", "both"] = "lower",
+                tag_style: Literal["angle", "square"] = "square") -> str:
+    """
+    Remove specific tags from given text based on case sensitivity and tag style options.
+
+    :param text: The input text from which tags need to be removed.
+    :param case_sensitive: The case sensitivity option for tags, default is "lower". Available options are "lower", "upper", and "both".
+    :param tag_style: The tag style to be removed, default is "square". Available options are "angle" and "square".
+    :return: The cleaned text after specific tags have been removed.
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import remove_tags
+
+            remove_tags("<b>Hello</b> [WORLD]", case_sensitive="both", tag_style="angle")
+            # >> "Hello [WORLD]"
+
+            remove_tags("<b>Hello</b> [WORLD]", case_sensitive="both", tag_style="square")
+            # >> "<b>Hello</b> "
+
+    """
+    if case_sensitive == "lower":
+        case_pattern = r'[a-z\s]'
+    elif case_sensitive == "upper":
+        case_pattern = r'[A-Z\s]'
+    else:
+        case_pattern = r'[\w\s]'
+
+    if tag_style == "angle":
+        tag_pattern = r'<(/?' + case_pattern + '+)>'
+    else:
+        tag_pattern = r'\[(?:/?' + case_pattern + '+)\]'
+    cleaned_text = re.sub(tag_pattern, '', text)
+    return cleaned_text
+
 class TightLevelRichHandler(RichHandler):
     def get_level_text(self, record) -> Text:
         """Get the level name from the record.
@@ -381,3 +491,70 @@ class TightLevelRichHandler(RichHandler):
             short_level_name.ljust(display_level_count), f"logging.level.{level_name.lower()}"
         )
         return level_text
+
+
+def print_logger_configurations(min_level="DEBUG"):
+    from rich.console import Console
+    from rich.table import Table
+    from pawnlib.typing.constants import const
+
+    if not min_level:
+        raise ValueError(f"Required minimum log level, allows values - {const.get_level_keys()}")
+
+    console = Console()
+    table = Table(title=f"Logger Configurations , min_level={min_level}({const.get_level(min_level)})")
+
+    # Add table columns
+    table.add_column("Logger Name", style="cyan", overflow="fold")
+    table.add_column("Effective Level", style="magenta")
+    table.add_column("Propagate", style="red")
+    table.add_column("Handlers Count", style="orange1")
+    table.add_column("Handler ID", style="dim")
+    table.add_column("Handler Type", style="green")
+    table.add_column("Stream Dest.", style="yellow")
+    table.add_column("Handler Level", style="purple")
+    table.add_column("Formatter", style="blue")
+    table.add_column("Filters", style="purple")
+
+    for logger_name, logger in logging.root.manager.loggerDict.items():
+        if logger_name == '':
+            continue
+
+        # Skip placeholder loggers
+        if isinstance(logger, logging.PlaceHolder):
+            console.print(f"[red]Logger Name: {logger_name} is a PlaceHolder and not initialized.[/red]")
+            continue
+
+        effective_level = logging.getLevelName(logger.getEffectiveLevel())
+        propagate = str(logger.propagate)
+        handlers_count = str(len(logger.handlers))
+
+        if logger.getEffectiveLevel() >= const.get_level(min_level):
+
+            if logger.handlers:
+                for handler in logger.handlers:
+                    handler_id = hex(id(handler))
+                    handler_type = type(handler).__name__
+                    handler_level = logging.getLevelName(handler.level)
+                    formatter = handler.formatter._fmt if handler.formatter else "No formatter configured"
+                    filters = ', '.join([str(f) for f in handler.filters]) if handler.filters else "No filters"
+
+                    # Get stream destination for StreamHandlers
+                    stream_dest = (
+                        handler.stream.name if hasattr(handler, "stream") else "N/A"
+                    )
+
+                    # Add row with all info
+                    table.add_row(
+                        logger_name, effective_level, propagate, handlers_count,
+                        handler_id, handler_type, stream_dest, handler_level,
+                        formatter, filters
+                    )
+            else:
+                table.add_row(logger_name, effective_level, propagate, handlers_count, "No handlers configured", "", "", "", "", "")
+
+    console.print(table)
+
+def list_all_loggers():
+    return list(logging.root.manager.loggerDict.keys())
+

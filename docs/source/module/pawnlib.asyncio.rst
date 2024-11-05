@@ -20,3 +20,17 @@ pawnlib.asyncio.run module
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+pawnlib.asyncio.async_helper module
+----------------------------------
+
+.. code-block:: python
+
+    from pawnlib.asyncio import async_helper
+
+.. automodule:: pawnlib.asyncio.async_helper
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

@@ -1,1 +1,12 @@
 docs/
+icon_genesis.zip
+.task_first_run.db
+sample.txt
+keystore.json
+genesis.json
+DEBUG_ARGS
+http_config.ini
+tail.log
+test.py
+test_app.py
+last_blockheight.txt

@@ -21,6 +21,7 @@ from .check import (
     detect_encoding,
     keys_exists,
     get_if_keys_exist,
+    check_key_and_type,
 )
 from .defines import (
     Namespace,
@@ -69,6 +70,7 @@ from .converter import (
     append_zero,
     append_suffix,
     append_prefix,
+    replace_path_with_suffix,
     camel_case_to_space_case,
     camelcase_to_underscore,
     camel_case_to_lower_case,
@@ -88,6 +90,8 @@ from .converter import (
     json_to_hexadecimal,
     hexadecimal_to_json,
     format_hex,
+    format_text,
+    format_link,
     escape_markdown,
     escape_non_markdown,
     analyze_jail_flags

@@ -31,6 +31,8 @@ def main():
             log_path=f"{current_path}/logs",
             stdout=stdout,
             use_hook_exception=True,
+            log_format="[%(asctime)s] %(levelname)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s",
+            std_log_format="<%(name)s> %(message)s",
         ),
         PAWN_TIME_FORMAT=log_time_format,
         PAWN_CONSOLE=dict(

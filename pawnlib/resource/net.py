@@ -55,12 +55,15 @@ class OverrideDNS:
         socket.getaddrinfo = self.prv_getaddrinfo
 
 
-def get_public_ip():
+def get_public_ip(use_cache=False):
     """
     The get_public_ip function returns the public IP address of the machine it is called on.
 
+    :param use_cache: Whether to use the cached public IP if available
+    :type use_cache: bool
 
     :return: The public ip address of the server
+
 
     Example:
 
@@ -69,11 +72,19 @@ def get_public_ip():
             from pawnlib.resource import net
             net.get_public_ip()
 
+            net.get_public_ip(use_cache=True)
 
     """
     try:
+        if use_cache and pawn.get('CACHED_PUBLIC_IP'):
+            return pawn.get('CACHED_PUBLIC_IP')
+
         public_ip = http.jequest("http://checkip.amazonaws.com", timeout=2).get('text', "").strip()
+
         if is_valid_ipv4(public_ip):
+
+            if use_cache:
+                pawn.set(CACHED_PUBLIC_IP=public_ip)
             return public_ip
         else:
             pawn.error_logger.error(f"An error occurred while fetching Public IP address. Invalid IPv4 address - '{public_ip}'")

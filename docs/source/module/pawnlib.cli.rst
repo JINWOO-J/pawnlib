@@ -214,3 +214,14 @@ pawnlib.cli.websocket module
    :undoc-members:
    :show-inheritance:
 
+pawnlib.cli.mon module
+----------------------------------
+
+.. code-block:: python
+
+    from pawnlib.cli import mon
+
+.. automodule:: pawnlib.cli.mon
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -334,7 +334,7 @@ def request_pure(
 ) -> Dict[str, Any]:
     return {
         "jsonrpc": "2.0",
-        "method": method,
+        "method": f"{method}".strip(),
         **(
             {"params": list(params) if isinstance(params, tuple) else params}
             if params
@@ -395,7 +395,7 @@ def json_rpc(
 
     return_dict = {
         "jsonrpc": "2.0",
-        "method": method,
+        "method": f"{method}".strip(),
         **(
             {"params": list(params) if isinstance(params, tuple) else params}
             if params

@@ -46,6 +46,7 @@ from .color_print import (
     pretty_json,
     print_aligned_text,
     print_var,
+    print_var2,
     create_kv_table,
     print_kv,
     print_grid,

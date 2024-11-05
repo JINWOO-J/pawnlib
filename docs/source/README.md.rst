@@ -27,7 +27,7 @@ converter …
 Installing pawnlib
 ------------------
 
--  **Installing pawnlib**
+- **Installing pawnlib**
 
 pawnlib is available on PyPI:
 
@@ -44,7 +44,7 @@ pawnlib with wallet is available on PyPI:
 Global Config
 -------------
 
--  **Global Config**
+- **Global Config**
 
 You can use the global config.
 
@@ -136,7 +136,7 @@ top, docker, aws, rpc, http, gs, init, info, banner, websocket, wallet.
 app builder
 ~~~~~~~~~~~
 
--  **app builder**
+- **app builder**
 
 You can create a simple application based on pawnlib with the command
 below.
@@ -178,7 +178,7 @@ below.
 simple reflector proxy
 ~~~~~~~~~~~~~~~~~~~~~~
 
--  **simple reflector proxy**
+- **simple reflector proxy**
 
 Simple Python HTTP Server which reflects the client HTTP request header
 in server logs to see the header fields forwarded by web servers.
@@ -220,7 +220,7 @@ in server logs to see the header fields forwarded by web servers.
 httping
 ~~~~~~~
 
--  **httping**
+- **httping**
 
 ``http`` module offers a streamlined and efficient way to perform HTTP
 requests and handle responses.

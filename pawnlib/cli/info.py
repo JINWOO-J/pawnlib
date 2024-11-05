@@ -217,7 +217,7 @@ def main():
         color,  percent = get_color_by_threshold(usage['percent'], return_tuple=True)
         color_unit = f"[grey74]{usage['unit']}[/grey74]"
         usage_line = f"[{color}]{usage['used']:>7}[/{color}] {color_unit}[{color}] / {usage['total']:>7}[/{color}] {color_unit} [{color}]({percent}%)[/{color}] "
-        disk_tree.add(f"[bold blue]{mount_point:<11}[/bold blue]: {usage_line}")
+        disk_tree.add(f"[bold blue]{mount_point:<11}[/bold blue][dim]{usage['device']}[/dim]: {usage_line}")
 
     print_unless_quiet_mode(disk_tree)
 

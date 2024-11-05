@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 
 class StatusType(Enum):
@@ -243,7 +244,7 @@ class RegexPatternConstants:
     PATTERN_PHONE = r"^\+?1?\d{9,15}$"
     PATTERN_POSTAL_CODE = r"^\d{5}(?:[-\s]\d{4})?$"
     PATTERN_IP_ADDRESS = r"^(?!.*\.$)(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d|0)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d|0)){3}$"
-
+    PATTERN_IP_ADDRESS_IN_LOG = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
     PATTERN_CREDIT_CARD = r"^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})$"
     PATTERN_IPV6_ADDRESS = r"^([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)$"
     PATTERN_HTML_TAG = r"<(\"[^\"]*\"|'[^']*'|[^'\">])*>"
@@ -492,6 +493,140 @@ class YesNoConstants:
         return YesNoConstants.YES_NO_MAPPING.get(grade_code, "Unknown code")
 
 
+class LoggingConstants:
+    """
+    Constants related to logging levels and verbosity mappings.
+    """
+    VERBOSE_LEVELS = {
+        # 0: logging.CRITICAL,
+        # 1: logging.ERROR,
+        0: logging.WARNING,
+        1: logging.INFO,
+        2: logging.DEBUG,
+    }
+
+    LOG_LEVELS = {
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL,
+    }
+
+    @staticmethod
+    def get_level(name: str) -> logging.Logger:
+        return LoggingConstants.LOG_LEVELS.get(str(name).upper())
+
+    @staticmethod
+    def get_level_keys() -> list:
+        return list(LoggingConstants.LOG_LEVELS.keys())
+
+class TerminalColor:
+    """
+    Extended ANSI escape sequences for coloring terminal text with more color options.
+    """
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    GREEN = '\033[32;40m'
+    CYAN = '\033[96m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    RESET = '\033[0m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    ITALIC = '\033[1;3m'
+    UNDERLINE = '\033[4m'
+    WHITE = '\033[97m'
+    DARK_GREY = '\033[38;5;243m'
+    LIGHT_GREY = '\033[37m'
+
+    # More colorful options
+    RED = '\033[31m'
+    BLUE = '\033[34m'
+    YELLOW = '\033[33m'
+    MAGENTA = '\033[35m'
+    PURPLE = '\033[35;1m'
+    ORANGE = '\033[38;5;214m'
+    BRIGHT_GREEN = '\033[92;1m'
+    BRIGHT_CYAN = '\033[96;1m'
+    BRIGHT_MAGENTA = '\033[95;1m'
+    DARK_BLUE = '\033[34;2m'
+    LIGHT_BLUE = '\033[94;1m'
+    LIGHT_YELLOW = '\033[93m'
+
+    @staticmethod
+    def get_color(color_name):
+        """
+        Return the color escape sequence based on the given color name.
+        :param color_name: The name of the color (as a string).
+        :return: The ANSI color code string.
+        """
+        return getattr(TerminalColor, color_name.upper(), TerminalColor.RESET)
+
+
+def apply_terminal_color(text, color="WHITE", bold=False, underline=False, width=None):
+    """
+    Apply the given color and style to the text and return the formatted string.
+
+    :param text: The text to be styled.
+    :param color: The color to apply (e.g., 'GREEN', 'RED', etc.).
+    :param bold: Whether to apply bold formatting.
+    :param underline: Whether to apply underline formatting.
+    :param width: The width to center the text (optional).
+    :return: The styled text as a string.
+    """
+    if width and len(text) < width:
+        text = text.center(width, ' ')
+
+    color_code = TerminalColor.get_color(color)
+
+    if bold:
+        text = f"{TerminalColor.BOLD}{text}"
+    if underline:
+        text = f"{TerminalColor.UNDERLINE}{text}"
+
+    return f"{color_code}{text}{TerminalColor.ENDC}"
+
+
+class HTTPMethodConstants:
+    ALLOWS_HTTP_METHOD = ["GET", "POST", "PATCH", "DELETE", "HEAD", "PUT", "CONNECT", "OPTIONS", "TRACE"]
+
+    @classmethod
+    def get_http_methods(cls, lowercase: bool = False):
+        """
+        Returns the list of allowed HTTP methods.
+        :param lowercase: If True, return methods in lowercase.
+        :return: List of allowed HTTP methods in uppercase or lowercase.
+        """
+        if lowercase:
+            return [method.lower() for method in cls.ALLOWS_HTTP_METHOD]
+        return cls.ALLOWS_HTTP_METHOD
+
+    @classmethod
+    def is_valid_http_method(cls, method: str) -> bool:
+        """
+        Check if the given method is a valid HTTP method (case-insensitive).
+        :param method: HTTP method to validate.
+        :return: True if the method is valid, False otherwise.
+        """
+        return method.upper() in cls.ALLOWS_HTTP_METHOD
+
+
+class OperatorConstants:
+    ALLOW_OPERATOR = ["!=", "==", ">=", "<=", ">", "<", "include", "exclude"]
+
+    @classmethod
+    def get_allowed_operators(cls):
+        """Returns the list of allowed operators."""
+        return cls.ALLOW_OPERATOR
+
+    @classmethod
+    def is_valid_operator(cls, operator: str) -> bool:
+        """Check if the given operator is valid."""
+        return operator in cls.ALLOW_OPERATOR
+
+
 class AllConstants(
     ICONPRepStatus,
     ICONJailFlags,
@@ -514,7 +649,10 @@ class AllConstants(
     NetworkConstants,
     AWSRegionConstants,
     GradeMappingConstants,
-    YesNoConstants
+    YesNoConstants,
+    LoggingConstants,
+    HTTPMethodConstants,
+    OperatorConstants
 ):
     __slots__ = ()
 
@@ -531,5 +669,19 @@ class AllConstants(
 
     def get_aws_region_list(self) -> list:
         return self.region_list()
+
+    @staticmethod
+    def get_colored_text(text, color="WHITE", bold=False, underline=False, width=None):
+        """
+        Helper method to get colored text using the ANSI color codes.
+        """
+        return apply_terminal_color(text, color, bold, underline, width)
+
+    @staticmethod
+    def available_colors():
+        """
+        Return a list of all available color names.
+        """
+        return [color for color in dir(TerminalColor) if not color.startswith('__') and color.isupper()]
 
 const = AllConstants()

@@ -121,9 +121,14 @@ def main():
         )
     )
 
+    if args.sub_command:
+        _sub_command = args.sub_command
+    else:
+        _sub_command = ""
+
     args.debug and pawn.console.log(f"args = {args}")
 
-    pawn.console.log(f"{args.sub_command} wallet".title())
+    pawn.console.log(f"{_sub_command} wallet".title())
     args.sub_command = PromptWithArgument(
         message="What do you want to do?",
         choices=

@@ -33,7 +33,9 @@ msg_text = {
 res = send_slack(
     url=SLACK_WEBHOOK_URL,
     msg_text=msg_text,
-    title="Slack test"
+    title="Slack test",
+    icon_emoji=":webhook:",
+    # icon_emoji=":robot_face:",
 )
 
 async def send_async_slack_message():

@@ -63,11 +63,13 @@ def is_float(s) -> bool:
             # >> False
 
     """
+    if isinstance(s, float):
+        return True
     try:
-        float(s)
+        float_value = float(s)
+        return '.' in str(s) or 'e' in str(s).lower()  # Check if it has a decimal point or scientific notation
     except (TypeError, ValueError):
         return False
-    return True
 
 
 def is_int(s) -> bool:
@@ -96,11 +98,13 @@ def is_int(s) -> bool:
             # >> False
 
     """
+    if isinstance(s, int):
+        return True
     try:
-        int(s)
+        int_value = int(s)
+        return str(int_value) == str(s)  # Ensure the string representation matches the original input
     except (TypeError, ValueError):
         return False
-    return True
 
 
 def is_hex(s) -> bool:
@@ -121,6 +125,10 @@ def is_hex(s) -> bool:
             # >> False
 
     """
+    if not isinstance(s, str):
+        return False
+    if s.startswith(("0x", "0X")):
+        s = s[2:]  # Remove '0x' prefix for validation
     try:
         int(s, 16)
     except TypeError:
@@ -815,4 +823,44 @@ def detect_encoding(byte_data, default_encode="utf8"):
         except UnicodeDecodeError:
             pass
     return default_encode
+
+
+def check_key_and_type(data, key, expected_type):
+    """
+    Checks if a specific key exists in a dictionary and if its value is of the expected type.
+
+    :param data: The dictionary to check.
+    :param key: The key to check for in the dictionary.
+    :param expected_type: The expected type of the value (e.g., list, dict, etc.).
+    :return: True if the key exists and its value is of the expected type, False otherwise.
+
+    Examples:
+
+        .. code-block:: python
+
+            result = {
+                'res': [1, 2, 3],
+                'config': {'option': True},
+                'count': 10
+            }
+
+            # Check if 'res' exists and is a list
+            is_res_list = check_key_and_type(result, 'res', list)
+            print(is_res_list)  # Output: True
+
+            # Check if 'config' exists and is a dict
+            is_config_dict = check_key_and_type(result, 'config', dict)
+            print(is_config_dict)  # Output: True
+
+            # Check if 'count' exists and is a string
+            is_count_string = check_key_and_type(result, 'count', str)
+            print(is_count_string)  # Output: False
+
+            # Check if 'nonexistent_key' exists and is a list
+            is_nonexistent_list = check_key_and_type(result, 'nonexistent_key', list)
+            print(is_nonexistent_list)  # Output: False
+    """
+    if key in data and isinstance(data[key], expected_type):
+        return True
+    return False
 
