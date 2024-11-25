@@ -287,6 +287,41 @@ class NetworkInfo:
             return self.network_info
         return self.network_info
 
+    def find_network_by_platform_and_nid(self, platform: str, nid: str):
+        """
+        Find network and endpoint information based on platform and nid.
+
+        Args:
+            platform (str): The platform name (e.g., 'icon', 'havah').
+            nid (str): The network ID in hexadecimal format (e.g., '0x1').
+
+        Returns:
+            dict: Network information including endpoint, network_api, and tracker.
+
+        Raises:
+            ValueError: If the platform or nid is not found in the platform info.
+        """
+        platform_info = self._platform_info.get(platform.lower())
+        if not platform_info:
+            raise ValueError(f"Platform '{platform}' is not found. Available platforms: {list(self._platform_info.keys())}")
+
+        network_info = platform_info.get("network_info", {})
+        for network_name, network_details in network_info.items():
+            if network_details.get("nid") == nid:
+                endpoint = network_details.get("endpoint") or replace_path_with_suffix(
+                    append_http(network_details.get("network_api", "")), "/api/v3"
+                )
+                return {
+                    "platform": platform,
+                    "network_name": network_name,
+                    "nid": nid,
+                    "endpoint": endpoint,
+                    "network_api": network_details.get("network_api"),
+                    "tracker": network_details.get("tracker"),
+                }
+
+        raise ValueError(f"NID '{nid}' is not found for platform '{platform}'. Available NIDs: {[info.get('nid') for info in network_info.values()]}")
+
     def fetch_network_info(self):
         if not self.network_api:
             pawn.console.log("[red]Error:[/red] 'network_api' is not set. Cannot fetch network information.")
@@ -3853,6 +3888,56 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
 
 
 class AsyncIconRpcHelper:
+    """
+    A helper class for making asynchronous RPC calls to the ICON network.
+    Provides methods to interact with the ICON blockchain, such as fetching blocks,
+    transactions, and network information.
+
+    Attributes:
+        url (str): The base URL for the RPC endpoint.
+        logger (Optional[Union[logging.Logger, Console, ConsoleLoggerAdapter, Null]]): Logger instance for logging.
+        session (aiohttp.ClientSession): HTTP session for making requests.
+        verbose (bool): Flag to enable verbose logging.
+        timeout (int): Request timeout in seconds.
+        retries (int): Number of retry attempts for failed requests.
+        return_with_time (bool): Whether to return elapsed time with responses.
+
+    Methods:
+        initialize(): Initializes the aiohttp session if not already initialized.
+        close(): Closes the aiohttp session.
+        execute_rpc_call(): Executes an RPC call to the ICON network.
+        fetch(): Makes a generic HTTP request (GET or POST).
+        get_block_hash(): Fetches block information by hash.
+        get_last_blockheight(): Retrieves the height of the last block on the blockchain.
+        get_network_info(): Fetches network information from the ICON blockchain.
+        get_preps(): Retrieves a list of P-Reps from the ICON network.
+        get_validator_info(): Retrieves validator information from the ICON network.
+        get_tx_result(): Fetches transaction results, with optional retries and waiting.
+
+    Example:
+
+        .. code-block:: python
+
+            import asyncio
+            from pawnlib.utils.http import AsyncIconRpcHelper
+
+            async def main():
+                async with AsyncIconRpcHelper(url="https://icon-node-url.com") as rpc_helper:
+                    # Fetch last block height
+                    last_height = await rpc_helper.get_last_blockheight()
+                    print(f"Last Block Height: {last_height}")
+
+                    # Get block hash by transaction hash
+                    block_hash = await rpc_helper.get_block_hash(tx_hash="0x1234...")
+                    print(f"Block Hash: {block_hash}")
+
+                    # Fetch P-Reps
+                    preps = await rpc_helper.get_preps()
+                    print(f"P-Reps: {preps}")
+
+            asyncio.run(main())
+    """
+
     def __init__(
             self,
             url: str = "",
@@ -3860,14 +3945,15 @@ class AsyncIconRpcHelper:
             session=None,
             verbose=True,
             timeout=10,
+            retries=3,
             return_with_time: bool = False
     ):
         self.url = url
         # self.logger = logger
         self.timeout = timeout
         self.logger = setup_logger(logger, "pawnlib.http.AsyncIconRpcHelper", verbose=verbose)
+        self.retries = retries
         self.return_with_time = return_with_time
-        # self.session = session or aiohttp.ClientSession()
         self.session = session
 
     async def __aenter__(self):
@@ -3881,11 +3967,19 @@ class AsyncIconRpcHelper:
         """
         Close the aiohttp session.
         """
-        await self.session.close()
+        if self.session and not self.session.closed:
+            await self.session.close()
 
     async def initialize(self):
         if not self.session:
             self.session = aiohttp.ClientSession()
+
+    def _check_session(self):
+        """세션이 유효한지 확인합니다."""
+        if not self.session or self.session.closed:
+            error_message = "AIOHTTP session is closed or not initialized."
+            self.logger.error(error_message)
+            raise RuntimeError(error_message)
 
     async def execute_rpc_call(self, method=None, params: dict = {}, url=None, return_key=None, governance_address=None, return_on_error=True, keep_lists=True):
         """
@@ -3925,30 +4019,15 @@ class AsyncIconRpcHelper:
             return_on_error=return_on_error,
             keep_lists=keep_lists,
         )
-        # headers = {'Content-Type': 'application/json'}
-        #
-        #
-        # async with self.session.post(endpoint, data=request_data, headers=headers) as resp:
-        #     response_text = await resp.text()
-        #     print(f"method={method}, response = {response_text}" )
-        #     if resp.status == 200:
-        #         response_json = await resp.json()
-        #         return self.handle_response_with_key(response_json, return_key=return_key)
-        #     else:
-        #         self.logger.debug(f"RPC call failed with status {resp.status}: {response_text}")
-        #         if return_on_error:
-        #             try:
-        #                 response_json = await resp.json()
-        #                 return self.handle_response_with_key(response_json, return_key=return_key)
-        #             except json.JSONDecodeError:
-        #                 return response_text  # Return the raw text if it's not a valid JSON response
-        #         return {}
 
-    async def fetch(self, path="", data="", http_method="get", url="", headers=None, return_key=None, return_on_error=True, return_first=False, list_index=None):
+    async def fetch(self, path="", data="", http_method="get", url="", headers=None, return_key=None, return_on_error=True, return_first=False, list_index=None, retries=None):
         if url:
             endpoint = append_http(url)
         else:
             endpoint = f"{remove_path_from_url(self.url)}{path}"
+
+        if not retries:
+            retries = self.retries
 
         return await self._make_request(
             http_method=http_method,
@@ -3958,11 +4037,11 @@ class AsyncIconRpcHelper:
             return_key=return_key,
             return_on_error=return_on_error,
             return_first=return_first,
-            list_index=list_index
+            list_index=list_index,
+            retries=retries
         )
 
     def check_aio_session(self, log_exception=True, return_on_error=False):
-        # 세션 유효성 검사
         if not self.session or self.session.closed:
             error_message = "AIOHTTP session is closed or not initialized."
             if log_exception:
@@ -4018,6 +4097,7 @@ class AsyncIconRpcHelper:
         if headers is None:
             headers = {'Content-Type': 'application/json'}
 
+        self._check_session()
         self.logger.debug(f"Making {http_method.upper()} request to {endpoint} with data: {data}")
 
         # Ensure session is valid
@@ -4067,12 +4147,17 @@ class AsyncIconRpcHelper:
                     return ({}, elapsed_time) if return_with_time else {}
             except (aiohttp.ClientError, asyncio.TimeoutError) as e:
                 elapsed_time = time.time() - start_time
-                self.logger.warning(f"Attempt {attempt}/{retries} failed: {e}")
+                self.logger.warning(
+                    f"Attempt {attempt}/{retries} failed: {e}. Method: {http_method.upper()}, URL: {endpoint}"
+                )
                 if attempt == retries and return_with_time:
                     return ({}, elapsed_time)
             except Exception as e:
                 elapsed_time = time.time() - start_time
-                self.logger.error(f"Unexpected error: {e}", exc_info=log_exception)
+                self.logger.error(
+                    f"Unexpected error: {e}. Method: {http_method.upper()}, URL: {endpoint}",
+                    exc_info=log_exception
+                )
                 if attempt == retries:
                     if return_with_time:
                         return ({}, elapsed_time)
@@ -4080,7 +4165,7 @@ class AsyncIconRpcHelper:
             finally:
                 if attempt < retries:
                     sleep_time = backoff_factor * (2 ** (attempt - 1))
-                    self.logger.debug(f"Retrying after {sleep_time:.2f} seconds...")
+                    self.logger.debug(f"Retrying after {sleep_time:.2f} seconds..., URL: {endpoint}")
                     await asyncio.sleep(sleep_time)
 
         # Final fallback in case all retries fail
