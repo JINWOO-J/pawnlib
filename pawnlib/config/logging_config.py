@@ -990,6 +990,8 @@ def setup_app_logger(
     if not root_logger.handlers:
         raise ValueError("No handlers were added to the root logger. Please check your `log_type` parameter.")
 
+    return root_logger
+
 
 def setup_logger(logger=None, name: str = "", verbose: Union[bool, int] = False):
     """
