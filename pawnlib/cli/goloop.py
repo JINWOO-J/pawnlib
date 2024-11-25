@@ -5,7 +5,7 @@ from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
 from pawnlib.utils.http import IconRpcHelper, NetworkInfo, AsyncIconRpcHelper, CallHttp
 from pawnlib.typing import StackList, list_to_oneline_string, str2bool, shorten_text, get_procfs_path, dict_to_line
-from pawnlib.metrics.tracker import TPSCalculator, SyncSpeedTracker, BlockDifferenceTracker
+from pawnlib.metrics.tracker import TPSCalculator, SyncSpeedTracker, BlockDifferenceTracker, calculate_reset_percentage
 
 import os
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
@@ -406,6 +406,15 @@ def display_stats(network_api, compare_api=None, history_size=100, interval=2, l
 
             if show_sync_time and estimated_sync_time_display:
                 dynamic_parts.append(f"Sync Time: {estimated_sync_time_display}")
+
+            if target_node.get('state') != "started" or target_node.get('lastError'):
+                target_state = target_node.get('state')
+                if "reset" in target_state:
+                    percent_state = calculate_reset_percentage(target_state)
+                    target_state_pct = f"Progress  {percent_state.get('progress')}% | "
+                else:
+                    target_state_pct = ""
+                dynamic_parts.append(f"[red]{target_state_pct}State: {target_node['state']} | lastError: {target_node['lastError']}{target_state_pct}")
 
             dynamic_log_message = " | ".join(dynamic_parts)
 

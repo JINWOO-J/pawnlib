@@ -1,5 +1,6 @@
 from collections import deque
 import time
+import re
 
 
 class TPSCalculator:
@@ -900,3 +901,25 @@ class RateLimiter:
             return True
 
         return False
+
+
+def calculate_reset_percentage(data):
+    match = re.search(r'height=(\d+) resolved=(\d+) unresolved=(\d+)', data)
+
+    if match:
+        height = int(match.group(1))         # height
+        resolved = int(match.group(2))       # resolved
+        unresolved = int(match.group(3))     # unresolved
+
+        # 리셋 비율 계산
+        reset_percentage = (resolved / height) * 100
+
+        # 결과 반환
+        return {
+            "height": height,
+            "resolved": resolved,
+            "unresolved": unresolved,
+            "progress": round(reset_percentage, 2)
+        }
+    else:
+        raise ValueError("Cant parsing data")
