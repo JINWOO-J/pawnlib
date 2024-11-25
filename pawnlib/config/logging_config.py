@@ -850,7 +850,8 @@ def setup_app_logger(
         exc_info: bool = False,
         rotate_time: str = 'midnight',  # Log rotation time (e.g., 'midnight', 'H', etc.)
         rotate_interval: int = 1,      # Rotation interval (e.g., 1 day, 1 hour)
-        backup_count: int = 7          # Number of backup files to keep
+        backup_count: int = 7,          # Number of backup files to keep
+        clear_existing_handlers: bool = False,
 ):
     """
     Configures the application logger with specified settings.
@@ -885,12 +886,12 @@ def setup_app_logger(
     :type rotate_interval: int
     :param backup_count: Number of backup files to retain.
     :type backup_count: int
+    :param clear_existing_handlers: Whether to clear existing handlers before adding new ones.
+    :type clear_existing_handlers: bool
 
     Example:
 
         .. code-block:: python
-
-            from pawnlib.config import setup_app_logger
 
             # Set up a console logger with DEBUG level
             setup_app_logger(
@@ -947,9 +948,10 @@ def setup_app_logger(
     if not log_format:
         log_format = '[%(asctime)s] %(levelname)s::%(filename)s/%(funcName)s(%(lineno)d) %(message)s'
 
-    existing_handler_types = {type(h) for h in root_logger.handlers}
+    if clear_existing_handlers:
+        root_logger.handlers.clear()
 
-    if log_type in ('console', 'both') and ConsoleLoggerHandler not in existing_handler_types:
+    if log_type in ('console', 'both') and not any(isinstance(h, ConsoleLoggerHandler) for h in root_logger.handlers):
         console_handler = ConsoleLoggerHandler(
             verbose=verbose,
             stdout=True,
@@ -958,7 +960,6 @@ def setup_app_logger(
             exc_info=exc_info
         )
         console_formatter = CleanAndDetailTimeFormatter(
-            # fmt=log_format,
             datefmt=date_format,
             log_level_short=log_level_short,
             simple_format=simple_format,
@@ -967,7 +968,7 @@ def setup_app_logger(
         console_handler.setFormatter(console_formatter)
         root_logger.addHandler(console_handler)
 
-    if log_type in ('file', 'both') and TimedRotatingFileHandler not in existing_handler_types:
+    if log_type in ('file', 'both') and not any(isinstance(h, TimedRotatingFileHandler) for h in root_logger.handlers):
         file_formatter = CleanAndDetailTimeFormatter(
             fmt=log_format,
             datefmt=date_format,
