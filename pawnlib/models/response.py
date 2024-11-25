@@ -2,10 +2,8 @@ import struct
 from decimal import Decimal, InvalidOperation, getcontext, ROUND_DOWN
 from pawnlib.typing.constants import const
 from pawnlib.config import pawn
-from pawnlib.typing.converter import  hex_to_number
-from pawnlib.typing.check import is_hex, is_int, is_float
-
-
+import re
+from rich.text import Text
 from requests.models import Response
 import json
 
@@ -633,30 +631,6 @@ class HexTintValue(HexValue):
                 f"{debug_info_str})")
 
 
-# class HexValueParser:
-#
-#     EXCLUDED_KEYS = {"logsBloom", "txHash", "data", "blockHash"}
-#     def __new__(cls, data):
-#         return cls.parse(data)
-#     @staticmethod
-#     def parse(data, debug_info=None):
-#         """Recursively convert lists or dicts to HexResponse instances if they are hex strings."""
-#         if data is None:
-#             return None
-#         elif isinstance(data, list):
-#             return [HexValueParser.parse(item, debug_info) for item in data]
-#         # elif isinstance(data, dict):
-#         #     return {key: HexValueParser.parse(value, debug_info) for key, value in data.items()}
-#         elif isinstance(data, dict):
-#             pawn.console.log(data)
-#             return {key: HexValueParser.parse(value, debug_info) if key not in HexValueParser.EXCLUDED_KEYS else value
-#                     for key, value in data.items()}
-#         elif isinstance(data, str) and HexValue.is_hex(data):  # Only convert if it's a hex string
-#             return HexValue(data, debug_info)
-#         else:
-#             return data  # Return as-is if it's not a hex string
-
-
 class HexValueParser:
     EXCLUDED_KEYS = {"logsBloom", "txHash", "data", "blockHash"}
     def __new__(cls, data):
@@ -685,7 +659,6 @@ class HexValueParser:
         else:
             # Return the data as-is if it's not a hex string
             return data
-
 
 
 class HttpResponse:
@@ -870,3 +843,108 @@ class PatchedSession(Session):
         response = super().request(*args, **kwargs)
         response.__class__ = ResponseWithElapsed  # 응답 객체를 ResponseWithElapsed로 변경
         return response
+
+
+class CriticalText:
+    def __init__(self, column="", value="", cores=1, warning_percent=75, medium_percent=50, low_percent=30, align_space=0, limits=None):
+        """
+        Initialize CriticalText.
+
+        Args:
+            column (str): The column name for the metric.
+            value (str): The value to evaluate.
+            cores (int): Number of CPU cores for scaling certain metrics.
+            warning_percent (int): Threshold percentage for warning level.
+            medium_percent (int): Threshold percentage for medium level.
+            low_percent (int): Threshold percentage for low level.
+            align_space (int): Space for text alignment.
+            limits (dict): Dictionary of column-specific limits.
+        """
+        self.column = column
+        self.value = value
+        self.number_value = self.extract_first_number(str(value))
+        self.align_space = align_space
+        self.limits = limits or {
+            "net_in": 100,
+            "net_out": 100,
+            "usr": 80,
+            "sys": 80,
+            "mem_used": 99.5,
+            "disk_rd": 400,
+            "disk_wr": 400,
+            "mem_%": 90,
+            "load": cores,
+            "i/o": cores * 2,
+        }
+        self.warning_percent = warning_percent
+        self.medium_percent = medium_percent
+        self.low_percent = low_percent
+
+    @staticmethod
+    def extract_first_number(text):
+        """
+        Extract the first number from a given text.
+
+        Args:
+            text (str): Input string.
+
+        Returns:
+            float: Extracted number or None if no number found.
+        """
+        match = re.match(r'\d+(\.\d+)?', text)
+        return float(match.group()) if match else None
+
+    def check_limit(self):
+        """
+        Determine the color based on the value and defined thresholds.
+
+        Returns:
+            str: Color name or code.
+        """
+        limit_value = self.limits.get(self.column)
+        if limit_value is not None:
+            if self.number_value >= limit_value:
+                return "bold red"
+            elif self.number_value >= (limit_value * self.warning_percent / 100):
+                return "#FF9C3F"  # Warning Orange
+            elif self.number_value >= (limit_value * self.medium_percent / 100):
+                return "yellow"
+            elif self.number_value >= (limit_value * self.low_percent / 100):
+                return "green"
+        return "white"
+
+    def return_text(self):
+        """
+        Generate a styled text object.
+
+        Returns:
+            Text: Styled rich Text object.
+        """
+        return Text(f"{self.value:>{self.align_space}}", self.check_limit())
+
+    def __str__(self):
+        """
+        Generate a string representation.
+
+        Returns:
+            str: Styled text string.
+        """
+        return str(self.return_text())
+
+    def __rich__(self):
+        """
+        Return a rich Text object for rendering.
+
+        Returns:
+            Text: Styled rich Text object.
+        """
+        return Text(f"{self.value:>{self.align_space}}", self.check_limit())
+
+    def set_limits(self, new_limits):
+        """
+        Update limits dynamically.
+
+        Args:
+            new_limits (dict): New limits dictionary.
+        """
+        self.limits.update(new_limits)

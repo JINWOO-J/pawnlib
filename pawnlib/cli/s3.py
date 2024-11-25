@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 import argparse
+import os
 import sys
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawnlib_config as pawn, pconf
 from pawnlib.typing.converter import convert_bytes
 from pawnlib.typing.check import sys_exit
-from pawnlib.utils.aws import Uploader, Downloader
+from pawnlib.utils.aws import Uploader, Downloader, S3Lister
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
+from pawnlib.typing.defines import load_env_with_defaults
+from pawnlib.output import file
 import importlib.util
 import subprocess
 import configparser
@@ -59,7 +62,7 @@ __epilog__ = (
     "  - Use the --help flag for a full list of options and their descriptions.\n\n"
 )
 
-VALID_COMMANDS = ["upload", "up", "download", "down"]
+VALID_COMMANDS = ["upload", "up", "download", "down", "ls"]
 
 
 def get_parser():
@@ -87,6 +90,7 @@ def get_arguments(parser):
 
     parser.add_argument('-d', '--directory', type=str,  help='Path to the directory to upload or download')
     parser.add_argument('-l', '--local-path', type=str,  help='Path to the local path', default="./")
+    parser.add_argument('-k', '--keep-path', action='store_true', help='Preserve local directory structure when uploading. True or False')
     parser.add_argument('-p', '--profile', type=str,  help='AWS CLI profile name')
     parser.add_argument('-b', '--bucket', type=str, help='S3 bucket name')
     parser.add_argument(
@@ -95,6 +99,8 @@ def get_arguments(parser):
         help='Append a suffix to the file or directory names during upload or download'
     )
     parser.add_argument('--overwrite', action='store_true', help='Overwrite existing files in the S3 bucket or locally')
+    parser.add_argument('--dry-run', action='store_true', help='Dry run mode')
+    parser.add_argument('--use-dynamic-config', action='store_true', help='Use dynamic Transfer Config')
     parser.add_argument('--info-file', type=str, help='Path to the info.json file containing the upload directory structure')
 
     parser.add_argument(
@@ -171,8 +177,10 @@ def validate_required_args(args):
 
     if not args.directory:
         missing_args.append('-d/--directory')
-    if not args.profile:
-        missing_args.append('-p/--profile')
+
+    # if not args.profile:
+    #     missing_args.append('-p/--profile')
+
     if not args.bucket:
         missing_args.append('-b/--bucket')
 
@@ -203,6 +211,8 @@ def main():
     )
     print(banner)
 
+    load_env_with_defaults(force_reload=True)
+
     parser = get_parser()
     args, unknown = parser.parse_known_args()
 
@@ -214,10 +224,11 @@ def main():
         parser.print_help()
         sys_exit(f"\nError: A valid command is required. Please choose from ({', '.join(VALID_COMMANDS)}).\n")
 
-    missing_args = validate_required_args(args)
-    if missing_args:
-        parser.print_help()
-        sys_exit(f"Error: The following arguments are required: {', '.join(missing_args)}\n")
+    if args.command not in ["ls"]:
+        missing_args = validate_required_args(args)
+        if missing_args:
+            parser.print_help()
+            sys_exit(f"Error: The following arguments are required: {', '.join(missing_args)}\n")
 
     if args.use_block_height:
         try:
@@ -242,16 +253,35 @@ def main():
             profile_name=args.profile,
             bucket_name=args.bucket,
             overwrite=args.overwrite,
-            info_file=args.info_file
+            info_file=args.info_file,
+            confirm_upload=False,
+            keep_path=args.keep_path
         )
-        uploader.upload_directory(args.directory, append_suffix=args.append_suffix)
+        #
+        # exit()
+        uploader.print_config()
+
+        path_info = file.check_path(args.directory)
+
+        if path_info == "directory":
+            uploader.upload_directory(args.directory, append_suffix=args.append_suffix)
+        elif path_info == "file":
+            uploader.upload_directory(args.directory, append_suffix=args.append_suffix)
+        else:
+            raise ValueError(f"{args.directory} not found.")
+
         pawn.console.log(f"Total Uploaded Size={convert_bytes(uploader.total_uploaded_size)}")
 
     elif args.command in ['download', 'down']:
-        downloader = Downloader(profile_name=args.profile, bucket_name=args.bucket, overwrite=args.overwrite)
+        downloader = Downloader(
+            profile_name=args.profile,
+            bucket_name=args.bucket,
+            overwrite=args.overwrite,
+            dry_run=args.dry_run
+        )
+        downloader.print_config()
 
         if args.info_file:
-            # downloader.download_from_info(args.info_file, args.overwrite)
             downloader.download_from_info(
                 s3_info_key=args.info_file,
                 local_path=args.local_path,
@@ -259,9 +289,13 @@ def main():
             )
         else:
             downloader.download_directory(s3_directory=args.directory, local_path=args.local_path, overwrite=args.overwrite)
+    elif args.command == "ls":
+            s3_lister = S3Lister(profile_name=args.profile, bucket_name=args.bucket, overwrite=args.overwrite)
+            s3_lister.print_config()
+            s3_lister.ls(prefix='', recursive=True)
         # downloader = Downloader(profile_name=args.profile, bucket_name=args.bucket, overwrite=args.overwrite)
         # downloader.download_directory(args.directory)
-        # pawn.console.log(f"Total Downloaded Size={convert_bytes(downloader.total_downloaded_size)}")
+
 
     if args.post_cmd:
         execute_command(args.post_cmd)

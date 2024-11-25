@@ -100,6 +100,10 @@ build: make_build_args clean test
 		hatchling build
 
 
+full_build: make_build_args clean test
+		@echo "Building Full Version project with name: $(NAME)"
+		DEPENDENCY_MODE=full hatch build
+
 init:
 		git init
 		git add .
@@ -142,9 +146,9 @@ bash: make_debug_mode print_version
 bb:
 	docker run -it --rm $(REPO_HUB)/$(NAME):$(VERSION) bash
 
-local: build
+local: full_build
 	pip3 install dist/pawnlib-$(VERSION)-py3-none-any.whl --force-reinstall
 
-local_deploy: build
+local_deploy: full_build
 	scp dist/$(NAME)-$(VERSION)-py3-none-any.whl root@$(LOCAL_SERVER):/app/;
-	ssh root@$(LOCAL_SERVER) pip3 install /app/$(NAME)-$(VERSION)-py3-none-any.whl --force-reinstall
+	ssh root@$(LOCAL_SERVER) pip3 install /app/$(NAME)-$(VERSION)-py3-none-any.whl --force-reinstall --ignore-installed --no-deps

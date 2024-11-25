@@ -1,4 +1,5 @@
 from .file import (
+    NullByteRemover,
     Tail,
     check_file_overwrite,
     get_file_path,

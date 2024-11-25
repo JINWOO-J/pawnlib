@@ -310,7 +310,7 @@ def check_url_process(config):
 
 def print_response_if_verbose(check_url):
     if (pconf().args.verbose > 3 or pconf().args.dry_run)  and hasattr(check_url, "response"):
-        check_url.response.json = FlatDict(check_url.response.json).as_dict()
+        check_url.response.json = FlatDict(check_url.response.json).to_dict()
         check_url.print_http_response()
 
 

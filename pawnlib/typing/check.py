@@ -864,3 +864,24 @@ def check_key_and_type(data, key, expected_type):
         return True
     return False
 
+
+
+def get_procfs_path():
+    """
+    Determine the appropriate procfs path based on the environment variables
+    and file system structure.
+
+    Returns:
+        str: The path to the proc filesystem.
+    """
+    is_docker = os.environ.get("IS_DOCKER", "").lower() in ["true", "1", "yes"]
+    docker_proc_path = "/rootfs/proc"
+
+    if is_docker and os.path.exists(docker_proc_path):
+        procfs_path = docker_proc_path
+        pawn.console.log(f"Running in Docker mode on {procfs_path}")
+    else:
+        procfs_path = "/proc"
+        pawn.console.log(f"Running in Host mode on {procfs_path}")
+
+    return procfs_path

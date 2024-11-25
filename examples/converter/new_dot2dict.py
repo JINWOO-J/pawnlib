@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import common
-from pawnlib.typing.converter import FlatDict, FlatterDict, flatten
+from pawnlib.typing.converter import FlatDict, FlatterDict, flatten, Flattener
 from pawnlib.output.color_print import dump, classdump
 from pawnlib.config import pawnlib_config as pawn
 dict_config = {
@@ -19,12 +19,13 @@ dict_config = {
     ]
 }
 
-res2 = FlatDict(dict_config, delimiter=".")
+res2 = Flattener(dict_config, delimiter=".")
+pawn.console.rule("Print as String")
 dump(res2)
+pawn.console.rule("Print as dict ")
+dump(res2.to_dict())
+pawn.console.rule("Print key ")
 pawn.console.log(f"Get 11111-1.2222-1 => {res2.get('11111-1.2222-1')}")
-
-dump(flatten(dict_config))
-
 
 list_config = [
         "list1",
@@ -32,15 +33,14 @@ list_config = [
         {"aaaa": "bbbbbbbbbbbbbbbbbbbbbbbb"}
     ]
 
-dump(FlatDict(list_config))
+dump(Flattener(list_config))
 
-flatten_dict_test = FlatDict(list_config)
+flatten_dict_test = Flattener(list_config)
 
-dump(flatten_dict_test.as_dict())
+pawn.console.rule("Unflatten ")
+dump(flatten_dict_test.unflatten())
 
 unflatten_dict = FlatDict(list_config).as_dict()
-
-pawn.console.log(FlatDict(unflatten_dict))
 
 rpc_response = {
     "jsonrpc": "2.0",
@@ -72,9 +72,26 @@ rpc_response = {
     "id": 2848
 }
 
-flatten_rpc = FlatDict(rpc_response)
-pawn.console.print(flatten_rpc)
+flatten_rpc = Flattener(rpc_response)
+pawn.console.print(flatten_rpc.get("result.time_stamp"))
+pawn.console.print(repr(flatten_rpc))
+
 pawn.console.print(flatten_rpc.to_dict())
+
+pawn.console.rule("Keep list")
+
+pawn.console.log(Flattener(rpc_response, keep_lists=True).to_dict())
+
+pawn.console.rule("get 'result'")
+pawn.console.log(flatten_rpc.get('result'))
+
+pawn.console.rule("get 'result.prev_block_hash'")
+pawn.console.log(flatten_rpc.get('result.prev_block_hash'))
+
+exit()
+
+pawn.console.print(flatten_rpc.unflatten())
+pawn.console.print(flatten_rpc.original_value)
 
 
 

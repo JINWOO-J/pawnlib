@@ -4,10 +4,7 @@ from pawnlib.config.globalconfig import pawnlib_config as pawn
 from pawnlib.output import *
 from pawnlib.utils import NetworkInfo
 
-network_info = NetworkInfo()
-
-pawn.console.rule("Force=False")
-pawn.console.log(NetworkInfo(force=False))
+network_info = NetworkInfo(force=True)
 
 pawn.console.rule("Force=True")
 pawn.console.log(NetworkInfo(force=True))

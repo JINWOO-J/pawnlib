@@ -19,7 +19,7 @@ from pawnlib.output import (
     print_json)
 from pawnlib.resource import net
 from pawnlib.typing import date_utils
-from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, FlatterDict, flatten, shorten_text, StackList, replace_path_with_suffix, format_text, format_link, remove_ascii_and_tags
+from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, Flattener, FlatterDict, flatten, shorten_text, StackList, replace_path_with_suffix, format_text, format_link, remove_ascii_and_tags
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
 from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit, is_hex, is_valid_tx_hash, check_key_and_type
@@ -178,39 +178,55 @@ class NetworkInfo:
     def is_set_static_values(self):
         return any(getattr(self, static_value, None) for static_value in self.STATIC_VALUES)
 
-    def _get_network_info(self, network_name="", platform=""):
-        if network_name:
-            self.network_name = network_name
-        if platform:
-            self.platform = platform
-        self.network_name = self.network_name.lower()
-        self.platform = self.platform.lower()
+    def _get_network_info(self, network_name: str = "", platform: str = ""):
+        """
+        Retrieves network information based on the network name and platform.
 
-        if self.network_name == "veganet":
-            self.network_name = "vega"
+        Args:
+            network_name (str): The name of the network (e.g., 'mainnet', 'vega').
+            platform (str): The platform name (e.g., 'icon', 'havah').
 
-        elif self.network_name == "denebnet":
-            self.network_name = "deneb"
+        Raises:
+            ValueError: If the platform or network is invalid and 'force' is not enabled.
+        """
+        self.network_name = network_name.lower() if network_name else self.network_name.lower()
+        self.platform = platform.lower() if platform else self.platform.lower()
 
-        if not self._platform_info.get(self.platform):
-            raise ValueError(f"Allowed platform - values {list(self._platform_info.keys())}")
+        alias_map = {"veganet": "vega", "denebnet": "deneb"}
+        self.network_name = alias_map.get(self.network_name, self.network_name)
+
+        platform_info = self._platform_info.get(self.platform)
+        if not platform_info:
+            if not self.force:
+                allowed_platforms = list(self._platform_info.keys())
+                raise ValueError(f"Invalid platform '{self.platform}'. Allowed platforms: {allowed_platforms}")
+            else:
+                self.network_info = {}
+                return
+
+        network_info = platform_info.get('network_info', {})
         if not self.is_set_static_values():
-            _network_info = self._platform_info[self.platform].get('network_info')
-            if isinstance(_network_info, dict) and not _network_info.get(self.network_name):
-                raise ValueError(f"Allowed network_name in '{self.platform}' - values {list(_network_info.keys())}")
-            self.network_info = self._platform_info[self.platform]['network_info'].get(self.network_name)
+            if self.network_name not in network_info:
+                if not self.force:
+                    allowed_networks = list(network_info.keys())
+                    raise ValueError(f"Invalid network '{self.network_name}' for platform '{self.platform}'. "
+                                     f"Allowed networks: {allowed_networks}")
+            else:
+                self.network_info = network_info.get(self.network_name, {})
 
-        self.symbol = self._platform_info[self.platform].get('symbol')
-
+        self.symbol = platform_info.get('symbol', "")
         if self.network_info:
             self.valid_network = True
-            self.network_info['symbol'] = self.symbol
-            self.network_info['network_name'] = self.network_name
-            self.network_info['platform'] = self.platform
+            self.network_info.update({
+                'symbol': self.symbol,
+                'network_name': self.network_name,
+                'platform': self.platform,
+            })
         else:
             self.network_info = self._extract_network_info()
 
         if not self.network_info.get('endpoint') and self.network_info.get('network_api'):
+            self.network_info['network_api'] = append_http(self.network_info['network_api'])
             self.network_info['endpoint'] = replace_path_with_suffix(self.network_info['network_api'], "/api/v3")
 
     def _initialize(self, network_name="", platform=""):
@@ -272,19 +288,30 @@ class NetworkInfo:
         return self.network_info
 
     def fetch_network_info(self):
+        if not self.network_api:
+            pawn.console.log("[red]Error:[/red] 'network_api' is not set. Cannot fetch network information.")
+            return
+
         if self.network_api:
             try:
                 pawn.console.debug("Try fetching network info")
                 api_url = append_http(append_api_v3(self.network_api))
                 result = IconRpcHelper().rpc_call(url=api_url, method="icx_getNetworkInfo", return_key="result")
-                if result:
-                    for key in self.MANDATORY_KEYS:
-                        self.__dict__[key] = result[key]
 
-                    platform_info = self._platform_info.get(self.platform, {})
-                    self.__dict__["symbol"] = platform_info.get('symbol', 'Unknown')
-                else:
-                    pawn.console.log("[red]Error:[/red] Received empty from icx_getNetworkInfo API.")
+                if not result:
+                    pawn.console.log("[red]Error:[/red] Received an empty response from icx_getNetworkInfo API.")
+                    return
+
+                for key in self.MANDATORY_KEYS:
+                    self.__dict__[key] = result[key]
+                platform_info = self._platform_info.get(self.platform, {})
+                self.symbol = platform_info.get('symbol', 'Unknown')
+                _network_api = append_http(self.network_api)
+                self.network_api = _network_api
+                self.endpoint = replace_path_with_suffix(_network_api, "/api/v3")
+                self.valid_network = True
+                pawn.console.debug("Successfully fetched and updated network info.")
+
             except KeyError as e:
                 pawn.console.log(f"[red]KeyError:[/red] Missing key in result: {e}")
             except Exception as e:
@@ -1112,6 +1139,11 @@ class IconRpcHelper:
         response = self.handle_response_with_key(response=_response, return_key=return_key)
         return response
 
+    def unjail(self, url=None, step_limit=None, is_wait=True,  return_key="result"):
+        _response = self.governance_call(url, method="requestUnjail", sign=True, step_limit=step_limit, is_wait=is_wait)
+        response = self.handle_response_with_key(response=_response, return_key=return_key)
+        return response
+
     def handle_response_with_key(self, response=None, return_key=None):
         if response is None:
             response = self.response
@@ -1921,6 +1953,25 @@ class JsonRequest:
 def disable_ssl_warnings():
     from urllib3.exceptions import InsecureRequestWarning
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+
+def append_scheme(url: str, default_scheme: str = "http") -> str:
+    """
+    Appends the specified scheme (e.g., http, https) to the URL if it is missing.
+
+    :param url: The URL to validate and modify.
+    :param default_scheme: The scheme to prepend if missing. Default is "http".
+    :return: A URL with a scheme.
+    """
+    if not url:
+        return url
+
+    # Check if the URL starts with a valid scheme
+    if "://" not in url.split("/")[0]:
+        return f"{default_scheme}://{url}"
+
+    # Return the original URL if scheme exists
+    return url
 
 
 def append_http(url):
@@ -2870,7 +2921,7 @@ class GoloopWebsocket(CallWebsocket):
             method='getValidatorsInfo',
             params={"dataType": "all"},
             return_key="result.validators"
-            )
+        )
 
     def fetch_and_store_preps_info(self):
         try:
@@ -3243,7 +3294,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             session = None,
             preps_refresh_interval: int = 600,
             use_shorten_tx_hash: bool = True,
-        ):
+    ):
         self.url = url
         self.verbose = verbose
         self.timeout = timeout
@@ -3270,7 +3321,10 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         self.max_transaction_attempts = max_transaction_attempts
         self.check_tx_result_enabled = check_tx_result_enabled
 
-        self.logger = setup_logger(logger, "pawnlib.http.AsyncGoloopWebsocket", verbose)
+        # self.logger = setup_logger(logger, "pawnlib.http.AsyncGoloopWebsocket", verbose)
+        self.logger = logger or logging.getLogger(__name__)
+
+        self.logger.info("Start AsyncGoloopWebsocket")
 
         self.preps_refresh_interval = preps_refresh_interval
         self.use_shorten_tx_hash = use_shorten_tx_hash
@@ -3279,6 +3333,8 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         self.address_filter = address_filter or []
         if self.address_filter:
             self.valid_addresses = self.validate_address_filter(self.address_filter)
+        else:
+            self.logger.warning("The address_filter is not defined, so all transactions will be logged.")
 
         self.process_transaction_callback = process_transaction or self.default_process_transaction
         self.api_client = AsyncIconRpcHelper(url=url, logger=logger, session=session)
@@ -3429,7 +3485,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
                 if isinstance(prep, dict) and key_name in prep:
                     self.preps_info[prep[key_name]] = prep
         except Exception as error:
-            self.logger.error(f"Error fetching P-Reps: {error}")
+            self.logger.error(f"Error fetching P-Reps with {fetch_method.__name__}(): {error}")
 
     async def parse_blockheight(self, response=None, delay=2):
         """
@@ -3638,8 +3694,8 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
                 stake_value = self.get_stake_value(tx_data)
                 await self.log_message(
                     f"🔵 <Staking> {from_highlighted}{from_prep_label} has unstaked 💰 {stake_value}.",
-                   slack_additional_message=full_tx_hash,
-                   level="info"
+                    slack_additional_message=full_tx_hash,
+                    level="info"
                 )
 
             elif method == "Send":
@@ -3797,27 +3853,49 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
 
 
 class AsyncIconRpcHelper:
-    def __init__(self, url: str, logger: Optional[Union[logging.Logger, Console, ConsoleLoggerAdapter, Null]] = None, session=None):
+    def __init__(
+            self,
+            url: str = "",
+            logger: Optional[Union[logging.Logger, Console, ConsoleLoggerAdapter, Null]] = None,
+            session=None,
+            verbose=True,
+            timeout=10,
+            return_with_time: bool = False
+    ):
         self.url = url
-        self.logger = logger
-        self.session = session  # Do not create ClientSession here
+        # self.logger = logger
+        self.timeout = timeout
+        self.logger = setup_logger(logger, "pawnlib.http.AsyncIconRpcHelper", verbose=verbose)
+        self.return_with_time = return_with_time
+        # self.session = session or aiohttp.ClientSession()
+        self.session = session
 
-        # if session:
-        #     self.session = session
-        # else:
-        #     self.session = aiohttp.ClientSession()
+    async def __aenter__(self):
+        await self.initialize()
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.close()
+
+    async def close(self):
+        """
+        Close the aiohttp session.
+        """
+        await self.session.close()
 
     async def initialize(self):
         if not self.session:
             self.session = aiohttp.ClientSession()
 
-    async def execute_rpc_call(self, method=None, params: dict = {}, return_key=None, governance_address=None, return_on_error=True):
+    async def execute_rpc_call(self, method=None, params: dict = {}, url=None, return_key=None, governance_address=None, return_on_error=True, keep_lists=True):
         """
         Execute an RPC call to the ICON network.
         """
-
-        url = f"{self.url}/api/v3"
-
+        if url:
+            _url = url
+        else:
+            _url = self.url
+        endpoint = append_api_v3(_url)
         if governance_address:
             request_data = json.dumps({
                 "jsonrpc": "2.0",
@@ -3839,60 +3917,227 @@ class AsyncIconRpcHelper:
                 "params": params,
                 "id": 1
             })
+        return await self._make_request(
+            http_method="post",
+            endpoint=endpoint,
+            data=request_data,
+            return_key=return_key,
+            return_on_error=return_on_error,
+            keep_lists=keep_lists,
+        )
+        # headers = {'Content-Type': 'application/json'}
+        #
+        #
+        # async with self.session.post(endpoint, data=request_data, headers=headers) as resp:
+        #     response_text = await resp.text()
+        #     print(f"method={method}, response = {response_text}" )
+        #     if resp.status == 200:
+        #         response_json = await resp.json()
+        #         return self.handle_response_with_key(response_json, return_key=return_key)
+        #     else:
+        #         self.logger.debug(f"RPC call failed with status {resp.status}: {response_text}")
+        #         if return_on_error:
+        #             try:
+        #                 response_json = await resp.json()
+        #                 return self.handle_response_with_key(response_json, return_key=return_key)
+        #             except json.JSONDecodeError:
+        #                 return response_text  # Return the raw text if it's not a valid JSON response
+        #         return {}
 
-        headers = {'Content-Type': 'application/json'}
-        async with self.session.post(url, data=request_data, headers=headers) as resp:
-            response_text = await resp.text()
+    async def fetch(self, path="", data="", http_method="get", url="", headers=None, return_key=None, return_on_error=True, return_first=False, list_index=None):
+        if url:
+            endpoint = append_http(url)
+        else:
+            endpoint = f"{remove_path_from_url(self.url)}{path}"
 
-            if resp.status == 200:
-                response_json = await resp.json()
-                return self.handle_response_with_key(response_json, return_key=return_key)
+        return await self._make_request(
+            http_method=http_method,
+            endpoint=endpoint,
+            data=data,
+            headers=headers,
+            return_key=return_key,
+            return_on_error=return_on_error,
+            return_first=return_first,
+            list_index=list_index
+        )
+
+    def check_aio_session(self, log_exception=True, return_on_error=False):
+        # 세션 유효성 검사
+        if not self.session or self.session.closed:
+            error_message = "AIOHTTP session is closed or not initialized."
+            if log_exception:
+                self.logger.exception(error_message)
             else:
-                self.logger.debug(f"RPC call failed with status {resp.status}: {response_text}")
-                if return_on_error:
+                self.logger.error(error_message, exc_info=False)
+            if return_on_error:
+                return {}
+            else:
+                raise Exception(error_message)
+
+    async def _make_request(
+            self,
+            http_method: str,
+            endpoint: str,
+            data: Optional[Union[Dict, str]] = None,
+            headers: Optional[Dict[str, str]] = None,
+            return_key: Optional[str] = None,
+            return_on_error: bool = True,
+            return_first: bool = False,
+            list_index: Optional[int] = None,
+            retries: int = 3,
+            backoff_factor: float = 0.5,
+            keep_lists: bool = False,
+            log_exception: bool = False,
+            return_with_time: Optional[bool] = None
+    ) -> Any:
+        """
+        Helper method to make HTTP requests with retry and timeout support.
+
+        Args:
+            http_method (str): HTTP method ('GET', 'POST', etc.).
+            endpoint (str): API endpoint or full URL.
+            data (dict or str, optional): Payload for POST requests or query parameters for GET.
+            headers (dict, optional): HTTP headers.
+            return_key (str, optional): Key to extract from the JSON response.
+            return_on_error (bool, optional): Whether to return data on error responses.
+            return_first (bool, optional): If True and response is a list, return the first item.
+            list_index (int, optional): If provided and response is a list, return the item at this index.
+            retries (int, optional): Number of retry attempts. Defaults to 3.
+            backoff_factor (float, optional): Backoff factor for exponential delay. Defaults to 0.5.
+            keep_lists (bool, optional): Whether to keep lists in flattened data.
+            log_exception (bool, optional): Whether to log exceptions.
+            return_with_time (bool, optional): If True, return response data along with the elapsed time.
+
+        Returns:
+            Any: Processed response data, or a tuple of response data and elapsed time.
+        """
+        # Use class-level default for return_with_time if not explicitly provided
+        if return_with_time is None:
+            return_with_time = getattr(self, "return_with_time", False)
+
+        if headers is None:
+            headers = {'Content-Type': 'application/json'}
+
+        self.logger.debug(f"Making {http_method.upper()} request to {endpoint} with data: {data}")
+
+        # Ensure session is valid
+        self.check_aio_session(log_exception, return_on_error=False)
+
+        for attempt in range(1, retries + 1):
+            start_time = time.time()  # Start timer for elapsed time
+            try:
+                timeout = aiohttp.ClientTimeout(total=self.timeout)
+                if http_method.upper() == 'GET':
+                    async with self.session.get(endpoint, params=data, headers=headers, timeout=timeout) as resp:
+                        response_text = await resp.text()
+                elif http_method.upper() == 'POST':
+                    payload = json.dumps(data) if isinstance(data, dict) else data
+                    async with self.session.post(endpoint, data=payload, headers=headers, timeout=timeout) as resp:
+                        response_text = await resp.text()
+                else:
+                    self.logger.error(f"Unsupported HTTP method: {http_method}")
+                    return ({}, 0.0) if return_with_time else {}
+
+                elapsed_time = int((time.time() - start_time) * 1000)
+
+                # Handle successful response
+                if resp.status == 200:
                     try:
                         response_json = await resp.json()
-                        return self.handle_response_with_key(response_json, return_key=return_key)
+                        processed_response = self.handle_response_with_key(response_json, return_key=return_key, keep_lists=keep_lists)
+                        if isinstance(processed_response, list):
+                            if return_first:
+                                processed_response = processed_response[0] if processed_response else None
+                            elif list_index is not None:
+                                processed_response = processed_response[list_index] if len(processed_response) > list_index else None
+
+                        return (processed_response, elapsed_time) if return_with_time else processed_response
                     except json.JSONDecodeError:
-                        return response_text  # Return the raw text if it's not a valid JSON response
-                return {}
+                        self.logger.error(f"Failed to decode JSON response: {response_text}")
+                        return (response_text, elapsed_time) if return_with_time else response_text if return_on_error else {}
+                else:
+                    self.logger.warning(f"Request failed with status {resp.status}: {response_text}")
+                    if return_on_error:
+                        try:
+                            response_json = await resp.json()
+                            processed_response = self.handle_response_with_key(response_json, return_key=return_key, keep_lists=keep_lists)
+                            return (processed_response, elapsed_time) if return_with_time else processed_response
+                        except json.JSONDecodeError:
+                            return (response_text, elapsed_time) if return_with_time else response_text
+                    return ({}, elapsed_time) if return_with_time else {}
+            except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+                elapsed_time = time.time() - start_time
+                self.logger.warning(f"Attempt {attempt}/{retries} failed: {e}")
+                if attempt == retries and return_with_time:
+                    return ({}, elapsed_time)
+            except Exception as e:
+                elapsed_time = time.time() - start_time
+                self.logger.error(f"Unexpected error: {e}", exc_info=log_exception)
+                if attempt == retries:
+                    if return_with_time:
+                        return ({}, elapsed_time)
+                    raise
+            finally:
+                if attempt < retries:
+                    sleep_time = backoff_factor * (2 ** (attempt - 1))
+                    self.logger.debug(f"Retrying after {sleep_time:.2f} seconds...")
+                    await asyncio.sleep(sleep_time)
+
+        # Final fallback in case all retries fail
+        self.logger.error(f"All {retries} attempts failed for {http_method.upper()} request to {endpoint}")
+        return ({}, 0.0) if return_with_time else {}
 
     @staticmethod
-    def handle_response_with_key(response=None, return_key=None):
-        if isinstance(response, dict):
+    def handle_response_with_key(response=None, return_key=None, keep_lists=True):
+        if isinstance(response, (dict, list)):
             if return_key and response:
+                flat = Flattener(response, keep_lists=keep_lists)
+                # return Flattener(response, keep_lists=keep_lists).get(return_key)
                 return FlatDict(response).get(return_key)
             return response
         return response.get('text')
 
-    async def get_block_hash(self, tx_hash) -> dict:
+    async def get_block_hash(self, tx_hash: str= "", url: Optional[str] = None) -> dict:
+        target_url = url or self.url
         hash_info = {}
         try:
-            hash_info = await self.execute_rpc_call(method='icx_getBlockByHash', params={"hash": tx_hash}, return_key="result")
+            hash_info = await self.execute_rpc_call(url=target_url, method='icx_getBlockByHash', params={"hash": tx_hash}, return_key="result")
+            # print(f"hash_info={hash_info}")
         except Exception as e:
-            self.logger.error(f"Error during operation get_block_hash(): {e}")
+            self.logger.error(f"Error during operation get_block_hash(): {str(e)}", exc_info=False)
         return hash_info
 
-    async def get_last_blockheight(self) -> int:
-        response = await self.execute_rpc_call(method='icx_getLastBlock', return_key="result.height")
+    async def get_last_blockheight(self, url: Optional[str] = None) -> int:
+        target_url = url or self.url
+        response = await self.execute_rpc_call(url=target_url, method='icx_getLastBlock', return_key="result.height")
         return response if response else 0
 
-    async def get_preps(self):
-        return await self.execute_rpc_call(governance_address=const.CHAIN_SCORE_ADDRESS, method='getPReps', return_key="result.preps")
+    async def get_network_info(self, url: Optional[str] = None) -> int:
+        target_url = url or self.url
+        response = await self.execute_rpc_call(url=target_url, method='icx_getNetworkInfo', return_key="result")
+        return response if response else 0
 
-    async def get_validator_info(self):
+    async def get_preps(self, url: Optional[str] = None):
+        target_url = url or self.url
+        return await self.execute_rpc_call(url=target_url, governance_address=const.CHAIN_SCORE_ADDRESS, method='getPReps', return_key="result.preps")
+
+    async def get_validator_info(self, url: Optional[str] = None):
+        target_url = url or self.url
         return await self.execute_rpc_call(
+            url=target_url,
             governance_address=const.CHAIN_SCORE_ADDRESS,
             method='getValidatorsInfo',
             params={"dataType": "all"},
             return_key="result.validators"
         )
 
-    async def _get_tx_result(self, tx_hash):
-        return  await self.execute_rpc_call(method='icx_getTransactionResult',params={"txHash": tx_hash})
+    async def _get_tx_result(self, tx_hash, url: Optional[str] = None):
+        target_url = url or self.url
+        return  await self.execute_rpc_call(url=target_url, method='icx_getTransactionResult',params={"txHash": tx_hash})
 
-    async def get_tx_result(self, tx_hash, max_attempts=5, is_wait=True, return_key="result"):
-        tx_result = await self._get_tx_result(tx_hash)
+    async def get_tx_result(self, tx_hash, max_attempts=5, is_wait=True, return_key="result", url: Optional[str] = None):
+        target_url = url or self.url
+        tx_result = await self._get_tx_result(tx_hash, url=target_url)
         if not is_wait:
             return self.handle_response_with_key(tx_result, return_key=tx_result)
 
@@ -3901,7 +4146,7 @@ class AsyncIconRpcHelper:
             if attempt > 2:
                 self.logger.info(f"Requesting transaction result for tx_hash: {tx_hash} (Attempt {attempt+1}/{max_attempts})")
 
-            tx_result = await self._get_tx_result(tx_hash)
+            tx_result = await self._get_tx_result(tx_hash, url=target_url)
             if isinstance(tx_result, dict):
                 flatten_tx_result = FlatDict(tx_result)
 
@@ -3911,7 +4156,6 @@ class AsyncIconRpcHelper:
 
                 if not flatten_tx_result.get('error.message'):
                     return "OK"
-
 
             attempt += 1
             await asyncio.sleep(2)  # Wait before retrying
@@ -4122,7 +4366,11 @@ async def retry_operation(operation, max_attempts=3, delay=2, success_criteria=N
                 if success_criteria(result):
                     return result
                 else:
-                    _logger.error(f"Operation result did not meet success criteria (Attempt {attempts+1}/{max_attempts})")
+                    if success_criteria:
+                        success_criteria_name = success_criteria.__name__
+                    else:
+                        success_criteria_name = success_criteria
+                    _logger.error(f"Operation result did not meet success criteria (Attempt {attempts+1}/{max_attempts}), success_criteria={success_criteria_name}")
             else:
                 return result
 
@@ -4136,6 +4384,31 @@ async def retry_operation(operation, max_attempts=3, delay=2, success_criteria=N
         else:
             _logger.error(f"Max attempts reached. Operation failed after {max_attempts} attempts.")
             raise Exception(f"Operation failed after {max_attempts} attempts")
+
+
+def remove_path_from_url(url: str) -> str:
+    """
+    Removes the path, query, and fragment from a URL, leaving only the scheme and domain.
+
+    Args:
+        url (str): The original URL.
+
+    Returns:
+        str: The URL without the path, query, or fragment.
+    """
+    # Find the position of "://" to identify where the scheme ends
+    scheme_end = url.find("://")
+    if scheme_end == -1:
+        raise ValueError("Invalid URL: Missing scheme (e.g., 'http://').")
+
+    # Find the first slash after the domain
+    domain_end = url.find("/", scheme_end + 3)
+    if domain_end == -1:
+        # No path, query, or fragment in the URL
+        return url
+
+    # Extract and return the URL up to the domain
+    return url[:domain_end]
 
 
 icon_rpc_call = IconRpcHelper().rpc_call

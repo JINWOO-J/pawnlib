@@ -31,3 +31,5 @@ boto3>=1.28.3
 aiohttp>=3.8.6
 aiofiles>=22.1.0
 python-dotenv>=0.21.1
+tqdm~=4.65.0
+toml~=0.10.2

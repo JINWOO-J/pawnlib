@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "hatch-fancy-pypi-readme"]
+requires = ["hatchling", "hatch-fancy-pypi-readme", "toml"]
 build-backend = "hatchling.build"
 
 [project]
@@ -53,7 +53,8 @@ dependencies = [
     "tabulate>=0.8.7",
     "aiohttp>=3.8.6",
     "aiofiles>=22.1.0",
-    "python-dotenv~=0.21.1"
+    "python-dotenv~=0.21.1",
+    "tqdm~=4.65.0",
 ]
 dynamic = ["readme", "version"]
 
@@ -80,7 +81,8 @@ full = [
     "rich>=10,<14",
     "aiodocker~=0.21.0",
     "boto3>=1.28.3",
-    "redis~=4.5.1"
+    "redis~=4.5.1",
+    "aioboto3~=13.2.0"
 ]
 
 [project.scripts]
@@ -101,6 +103,9 @@ include = [
     "/README.md",
 ]
 
+#
+[tool.hatch.metadata.hooks.custom]
+module = "hatch_build:CustomDepsHook"
 
 [tool.hatch.metadata.hooks.fancy-pypi-readme]
 content-type = "text/markdown"

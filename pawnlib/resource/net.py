@@ -1,17 +1,26 @@
 import re
-
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 import socket
 import time
 import asyncio
 import requests
+from typing import Dict, Optional, Union
 from concurrent.futures import ThreadPoolExecutor
 from timeit import default_timer
 from pawnlib.utils import http, timing
-from pawnlib.typing import is_valid_ipv4, todaydate, shorten_text
+from pawnlib.typing import is_valid_ipv4, todaydate, shorten_text, format_network_traffic, format_size
 from pawnlib.output import PrintRichTable
 from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
+from rich.table import Table
+from rich.live import Live
+import signal
+import threading
+import queue
 
+try:
+    from bcc import BPF
+except ImportError:
+    BPF = None
 
 try:
     from typing import Literal, Tuple, List
@@ -19,6 +28,569 @@ except ImportError:
     from typing_extensions import Literal, Tuple, List
 
 prev_getaddrinfo = socket.getaddrinfo
+
+class ProcNetMonitor:
+    """
+    ProcNetMonitor monitors network usage of processes using eBPF.
+
+    :param top_n: The top N processes to display in the table.
+    :param refresh_rate: The data refresh rate (refreshes per second).
+    :param group_by: How to group processes ("pid" or "name").
+    :param unit: The unit for displaying rates (e.g., "Mbps").
+    :param protocols: List of protocols to monitor. Defaults to ["tcp", "udp"].
+    :param pid_filter: List of PIDs to monitor. Only these PIDs will be tracked.
+    :param proc_filter: List of process names to monitor. Only these processes will be tracked.
+    :param min_bytes_threshold: Minimum number of bytes to consider for monitoring.
+    :param callback: A user-defined function to be called when data is updated.
+    :param exit_signal: A string used as the termination signal. When this string is detected,
+                        the monitoring process will stop and the program will exit. Default is "EXIT".
+
+    Example:
+
+    .. code-block:: python
+
+        # Example 1: Monitor top 5 processes with TCP and UDP protocols
+        def handle_update(data):
+            for group, info in data.items():
+                print(f"Group: {group}, Sent: {info['bytes_sent']} bytes, Recv: {info['bytes_recv']} bytes")
+
+        monitor = ProcNetMonitor(top_n=5, protocols=["tcp", "udp"], callback=handle_update)
+        monitor.run()
+
+        # Example 2: Monitor specific PIDs
+        def handle_specific_pids(data):
+            for pid, info in data.items():
+                print(f"PID: {pid}, Sent: {info['bytes_sent']} bytes, Recv: {info['bytes_recv']} bytes")
+
+        monitor = ProcNetMonitor(pid_filter=[1234, 5678], callback=handle_specific_pids)
+        monitor.run()
+
+        # Example 3: Monitor specific process names
+        def handle_specific_procs(data):
+            for proc, info in data.items():
+                print(f"Process: {proc}, Sent: {info['bytes_sent']} bytes, Recv: {info['bytes_recv']} bytes")
+
+        monitor = ProcNetMonitor(proc_filter=["python", "nginx"], callback=handle_specific_procs)
+        monitor.run()
+
+        # Example 4: Set a custom refresh rate and exit signal
+        def handle_exit(data):
+            print("Received data, checking exit condition...")
+            if some_condition:
+                return 'EXIT'
+
+        monitor = ProcNetMonitor(refresh_rate=1, exit_signal="EXIT", callback=handle_exit)
+        monitor.run()
+
+    """
+
+    EVENT_TCP_SEND = 1
+    EVENT_TCP_RECV = 2
+    EVENT_UDP_SEND = 3
+    EVENT_UDP_RECV = 4
+
+    def __init__(self, top_n=10, refresh_rate=2, group_by="pid", unit="Mbps",
+                 protocols=None, pid_filter=None, proc_filter=None, min_bytes_threshold=0, callback=None,
+                 exit_signal="EXIT"
+                 ):
+        """
+        Initialize the ProcNetMonitor class.
+
+        :param top_n: The top N processes to display in the table.
+        :param refresh_rate: The data refresh rate (refreshes per second).
+        :param group_by: How to group processes ("pid" or "name").
+        :param unit: The unit for displaying rates (e.g., "Mbps").
+        :param protocols: List of protocols to monitor. Defaults to ["tcp", "udp"].
+        :param pid_filter: List of PIDs to monitor. Only these PIDs will be tracked.
+        :param proc_filter: List of process names to monitor. Only these processes will be tracked.
+        :param min_bytes_threshold: Minimum number of bytes to consider for monitoring.
+        :param callback: A user-defined function to be called when data is updated.
+        :param exit_signal: A string used as the termination signal. When this string is detected,
+                            the monitoring process will stop and the program will exit. Default is "EXIT".
+        """
+
+        if not BPF:
+            raise ImportError("'bcc' module is required but not found.")
+
+        self.top_n = top_n
+        self.refresh_rate = refresh_rate
+        self.group_by = group_by
+        self.unit = unit
+        self.protocols = protocols or ["tcp", "udp"]
+        self.pid_filter = pid_filter  # Monitor specific PIDs only
+        self.proc_filter = proc_filter  # Monitor specific process names only
+        self.min_bytes_threshold = min_bytes_threshold  # Minimum bytes threshold
+        self.callback = callback  # User-defined callback function
+        self.exit_signal = exit_signal
+        self.is_running = True
+        self.process_network = {}
+        self.previous_counts = {}
+        self.last_update_time = time.time()
+        self.bpf = None
+        self.console = pawn.console
+
+        self.exit_event = threading.Event()  # Event to signal exit
+        self.callback_queue = queue.Queue()  # Queue for callback functions
+
+        # Initialize eBPF
+        self._initialize_bcc()
+        self.setup_signal_handlers()
+
+    def setup_signal_handlers(self):
+        """
+        Set up signal handlers to perform cleanup on script termination.
+        """
+        signal.signal(signal.SIGINT, self._handle_signal)
+        signal.signal(signal.SIGTERM, self._handle_signal)
+
+    def _initialize_bcc(self):
+        """
+        Initialize the eBPF program.
+        """
+        try:
+            self.bpf = BPF(text=self._get_bpf_program())
+            if "tcp" in self.protocols:
+                self.bpf.attach_kprobe(event="tcp_sendmsg", fn_name="trace_tcp_send")
+                self.bpf.attach_kprobe(event="tcp_recvmsg", fn_name="trace_tcp_recv")
+            if "udp" in self.protocols:
+                self.bpf.attach_kprobe(event="udp_sendmsg", fn_name="trace_udp_send")
+                self.bpf.attach_kprobe(event="udp_recvmsg", fn_name="trace_udp_recv")
+
+            self.bpf["events"].open_perf_buffer(self._handle_event)
+        except ImportError as e:
+            self.console.print(f"[Error] bcc module not found: {e}", style="bold red")
+            self.bpf = None
+        except Exception as e:
+            self.console.print(f"[Error] Failed to initialize BPF: {e}", style="bold red")
+            self.bpf = None
+
+    def _get_bpf_program(self):
+        """
+        Return the eBPF program.
+        """
+        return """
+        #include <uapi/linux/ptrace.h>
+        #include <linux/sched.h>
+        
+        struct sock {};
+        struct msghdr {};
+    
+        #define EVENT_TCP_SEND 1
+        #define EVENT_TCP_RECV 2
+        #define EVENT_UDP_SEND 3
+        #define EVENT_UDP_RECV 4
+    
+        struct net_data_t {
+            u32 pid;
+            u64 bytes;
+            char comm[TASK_COMM_LEN];
+            u32 event_type; // Event type: 1 (TCP Send), 2 (TCP Recv), etc.
+        };
+    
+        BPF_PERF_OUTPUT(events);
+    
+        int trace_tcp_send(struct pt_regs *ctx, struct sock *sk, struct msghdr *msg, size_t size) {
+            struct net_data_t data = {};
+            data.pid = bpf_get_current_pid_tgid() >> 32;
+            data.bytes = size;
+            data.event_type = EVENT_TCP_SEND;
+            bpf_get_current_comm(&data.comm, sizeof(data.comm));
+            events.perf_submit(ctx, &data, sizeof(data));
+            return 0;
+        }
+    
+        int trace_tcp_recv(struct pt_regs *ctx, struct sock *sk, struct msghdr *msg, size_t size) {
+            struct net_data_t data = {};
+            data.pid = bpf_get_current_pid_tgid() >> 32;
+            data.bytes = size;
+            data.event_type = EVENT_TCP_RECV;
+            bpf_get_current_comm(&data.comm, sizeof(data.comm));
+            events.perf_submit(ctx, &data, sizeof(data));
+            return 0;
+        }
+    
+        int trace_udp_send(struct pt_regs *ctx, struct sock *sk, struct msghdr *msg, size_t size) {
+            struct net_data_t data = {};
+            data.pid = bpf_get_current_pid_tgid() >> 32;
+            data.bytes = size;
+            data.event_type = EVENT_UDP_SEND;
+            bpf_get_current_comm(&data.comm, sizeof(data.comm));
+            events.perf_submit(ctx, &data, sizeof(data));
+            return 0;
+        }
+    
+        int trace_udp_recv(struct pt_regs *ctx, struct sock *sk, struct msghdr *msg, size_t size) {
+            struct net_data_t data = {};
+            data.pid = bpf_get_current_pid_tgid() >> 32;
+            data.bytes = size;
+            data.event_type = EVENT_UDP_RECV;
+            bpf_get_current_comm(&data.comm, sizeof(data.comm));
+            events.perf_submit(ctx, &data, sizeof(data));
+            return 0;
+        }
+        """
+
+    @staticmethod
+    def get_process_cmdline(pid):
+        """
+        Get the command-line arguments of a process by PID.
+        """
+        try:
+            with open(f"/proc/{pid}/cmdline", "r") as f:
+                cmdline = f.read().replace("\x00", " ").strip()
+            return cmdline
+        except Exception as e:
+            return f"<Error reading cmdline: {e}>"
+
+    def _handle_event(self, cpu, data, size):
+        """
+        Handle eBPF events.
+        """
+        event = self.bpf["events"].event(data)
+        bytes_count = event.bytes
+        event_type = event.event_type
+        proc_name = event.comm.decode().strip()
+
+        if self.group_by == "name":
+            group_by = proc_name
+        elif self.group_by == "pid":
+            group_by = event.pid
+        else:
+            group_by = event.pid
+
+        # cmdline = self.get_process_cmdline(pid)
+
+        if self.pid_filter and event.pid not in self.pid_filter:
+            return
+        if self.proc_filter and proc_name not in self.proc_filter:
+            return
+        if bytes_count < self.min_bytes_threshold:
+            return
+
+        if group_by not in self.process_network:
+            self.process_network[group_by] = {
+                'pid': event.pid,
+                'comm': event.comm.decode().strip(),
+                # 'cmdline': cmdline,
+                'bytes_sent': 0,
+                'bytes_recv': 0,
+                'tcp_sent': 0,
+                'tcp_recv': 0,
+                'tcp_sent_rate': 0.0,
+                'tcp_recv_rate': 0.0,
+                'udp_sent': 0,
+                'udp_recv': 0,
+                'udp_sent_rate': 0.0,
+                'udp_recv_rate': 0.0,
+                'send_rate': 0.0,
+                'recv_rate': 0.0,
+            }
+
+        if event_type == self.EVENT_TCP_SEND:
+            self.process_network[group_by]['tcp_sent'] += bytes_count
+        elif event_type == self.EVENT_TCP_RECV:
+            self.process_network[group_by]['tcp_recv'] += bytes_count
+        elif event_type == self.EVENT_UDP_SEND:
+            self.process_network[group_by]['udp_sent'] += bytes_count
+        elif event_type == self.EVENT_UDP_RECV:
+            self.process_network[group_by]['udp_recv'] += bytes_count
+
+        # Bytes sent/received for rate calculations
+        if event_type in {self.EVENT_TCP_SEND, self.EVENT_UDP_SEND}:
+            self.process_network[group_by]['bytes_sent'] += bytes_count
+        elif event_type in {self.EVENT_TCP_RECV, self.EVENT_UDP_RECV}:
+            self.process_network[group_by]['bytes_recv'] += bytes_count
+
+        if self.callback:
+            # result = self.callback(self.process_network)
+            # if result == "EXIT":
+            #     self.exit_event.set()
+            self.callback_queue.put(self.process_network.copy())
+
+    def _update_rates(self):
+        """
+        Update transmission rates for each process and protocol.
+        Add average rates based on historical data for all protocols.
+        """
+        current_time = time.time()
+
+        # Initialize history buffer for rate calculations
+        if not hasattr(self, 'rate_history'):
+            self.rate_history = {
+                pid: {
+                    proto: {'sent_rate': [], 'recv_rate': []} for proto in self.protocols
+                }
+                for pid in self.process_network
+            }
+
+        for pid, info in self.process_network.items():
+            if pid not in self.previous_counts:
+                # Initialize `previous_counts` and `rate_history` for a new PID
+                self.previous_counts[pid] = {
+                    'time': current_time,
+                    'bytes_sent': info['bytes_sent'],
+                    'bytes_recv': info['bytes_recv'],
+                    **{f'{proto}_sent': info.get(f'{proto}_sent', 0) for proto in self.protocols},
+                    **{f'{proto}_recv': info.get(f'{proto}_recv', 0) for proto in self.protocols},
+                }
+                self.rate_history[pid] = {
+                    proto: {'sent_rate': [], 'recv_rate': []} for proto in self.protocols
+                }
+                continue
+
+            prev = self.previous_counts[pid]
+            time_diff = current_time - prev['time']
+
+            if time_diff > 0:
+                info['send_rate'] = (info['bytes_sent'] - prev['bytes_sent']) / time_diff
+                info['recv_rate'] = (info['bytes_recv'] - prev['bytes_recv']) / time_diff
+
+                # Calculate current protocol-specific rates and update history
+                for proto in self.protocols:
+                    sent_key, recv_key = f'{proto}_sent', f'{proto}_recv'
+                    info[f'{proto}_sent_rate'] = (info.get(sent_key, 0) - prev.get(sent_key, 0)) / time_diff
+                    info[f'{proto}_recv_rate'] = (info.get(recv_key, 0) - prev.get(recv_key, 0)) / time_diff
+
+                    # Update rate history for the protocol
+                    self.rate_history[pid][proto]['sent_rate'].append(info[f'{proto}_sent_rate'])
+                    self.rate_history[pid][proto]['recv_rate'].append(info[f'{proto}_recv_rate'])
+
+                    # Limit history size to avoid excessive memory usage
+                    max_history_size = 200
+                    if len(self.rate_history[pid][proto]['sent_rate']) > max_history_size:
+                        self.rate_history[pid][proto]['sent_rate'].pop(0)
+                    if len(self.rate_history[pid][proto]['recv_rate']) > max_history_size:
+                        self.rate_history[pid][proto]['recv_rate'].pop(0)
+
+                    # Calculate average rates for the protocol
+                    info[f'{proto}_avg_sent_rate'] = (
+                            sum(self.rate_history[pid][proto]['sent_rate']) / len(self.rate_history[pid][proto]['sent_rate'])
+                    )
+                    info[f'{proto}_avg_recv_rate'] = (
+                            sum(self.rate_history[pid][proto]['recv_rate']) / len(self.rate_history[pid][proto]['recv_rate'])
+                    )
+
+            self.previous_counts[pid] = {
+                'time': current_time,
+                'bytes_sent': info['bytes_sent'],
+                'bytes_recv': info['bytes_recv'],
+                **{f'{proto}_sent': info.get(f'{proto}_sent', 0) for proto in self.protocols},
+                **{f'{proto}_recv': info.get(f'{proto}_recv', 0) for proto in self.protocols},
+            }
+
+        self.last_update_time = current_time
+
+    def generate_title(self):
+        """
+        Dynamically generate the title based on initialized parameters.
+
+        Returns:
+            str: Generated title.
+        """
+        title = f"Process Network Usage ({self.unit} Sent/Recv)"
+        title += f", TopN: {self.top_n}"
+        title += f", RefreshRate: {self.refresh_rate}s"
+        title += f", GroupBy: {self.group_by}"
+        if self.pid_filter:
+            title += f", PIDFilter: {', '.join(map(str, self.pid_filter))}"
+        if self.proc_filter:
+            title += f", ProcFilter: {', '.join(map(str, self.proc_filter))}"
+        if self.min_bytes_threshold:
+            title += f", MinBytesThreshold: {self.min_bytes_threshold} bytes"
+        title += f", Protocols: {', '.join(self.protocols)}"
+        return title
+
+    def _generate_table(self):
+        """
+        Generate a Rich table displaying process network usage for specified protocols.
+        :return: Rich Table object.
+        """
+
+        # table = Table(title=f"Process Network Usage ({self.unit} Sent/Recv), GroupBy: {self.group_by}", expand=True)
+        table = Table(title=self.generate_title(), expand=True)
+        if self.group_by == "pid":
+            table.add_column(f"PID", justify="right", style="cyan")
+
+        table.add_column("Name", style="green")
+
+        table.add_column("Total Sent", justify="right", style="magenta")
+        table.add_column("Total Recv", justify="right", style="magenta")
+
+        # Add protocol-specific columns dynamically
+        for proto in self.protocols:
+            table.add_column(f"{proto.upper()} Sent(AVG)", justify="right", style="yellow")
+            table.add_column(f"{proto.upper()} Recv(AVG)", justify="right", style="yellow")
+
+        # Sort processes by the sum of all protocol rates
+        sorted_pids = sorted(
+            self.process_network.keys(),
+            key=lambda pid: sum(
+                self.process_network[pid].get(f"{proto}_sent", 0) + self.process_network[pid].get(f"{proto}_recv", 0)
+                for proto in self.protocols
+            ),
+            reverse=True
+        )[:self.top_n]
+
+        for pid in sorted_pids:
+            info = self.process_network[pid]
+
+            # Basic process details
+            row = [
+                # str(pid),
+                f"{info['comm']}",
+                f"{format_size(info['bytes_sent'])}",
+                f"{format_size(info['bytes_recv'])}",
+            ]
+
+            if self.group_by == "pid":
+                row.insert(0, str(pid))
+
+            # Add protocol-specific details
+            for proto in self.protocols:
+                sent_rate = format_network_traffic(info.get(f'{proto}_sent_rate', 0), unit=self.unit)
+                sent_avg_rate = format_network_traffic(info.get(f'{proto}_avg_sent_rate', 0), unit=self.unit, show_unit=False)
+                recv_rate = format_network_traffic(info.get(f'{proto}_recv_rate', 0), unit=self.unit)
+                avg_recv_rate = format_network_traffic(info.get(f'{proto}_avg_recv_rate', 0), unit=self.unit, show_unit=False)
+                row.append(f"{sent_rate} [dim]{sent_avg_rate}[/dim]")
+                row.append(f"{recv_rate} [dim]{avg_recv_rate}[/dim]")
+            table.add_row(*row)
+
+        return table
+
+    def _process_callbacks(self):
+        """
+        Process the callback queue.
+        """
+        while not self.callback_queue.empty():
+            data = self.callback_queue.get()
+            result = self.callback(data)
+            if self.exit_signal and result == self.exit_signal:
+                self.is_running = False
+                self.exit_event.set()
+                break
+
+    # def run(self):
+        # """
+        # Run the NetworkMonitor (utilize data via callbacks or external logic).
+        # """
+        # if not self.bpf:
+        #     self.console.print("[Error] BPF not initialized. Exiting.", style="bold red")
+        #     return
+        #
+        # self.console.print("Starting NetworkMonitor...", style="bold green")
+        # try:
+        #     # while not self.exit_event.is_set():
+        #     while self.is_running:
+        #
+        #         self.bpf.perf_buffer_poll(timeout=1000)
+        #         self._update_rates()
+        #         self._process_callbacks()
+        #         time.sleep(1 / self.refresh_rate)
+        #
+        # except SystemExit:
+        #     self.console.print("[bold yellow]Exiting NetworkMonitor...[/bold yellow]")
+        #     # self.is_running = False
+        # except KeyboardInterrupt:
+        #     self.console.print("Stopping NetworkMonitor.", style="bold yellow")
+        #
+        # finally:
+        #     self.is_running = False
+        #     self.console.print("[bold red]NetworkMonitor stopped.[/bold red]")
+
+    def run(self):
+        """
+        ProcNetMonitor를 실행합니다. `is_running`이 `True`인 동안 루프를 계속합니다.
+        """
+        if not self.bpf:
+            self.console.print("[Error] BPF not initialized. Exiting.", style="bold red")
+            return
+
+        self.console.print("Starting NetworkMonitor...", style="bold green")
+        try:
+            while self.is_running:
+                self.bpf.perf_buffer_poll(timeout=1000)
+                self._update_rates()
+                self._process_callbacks()
+                time.sleep(1 / self.refresh_rate)
+        except SystemExit:
+            self.console.print("[bold yellow]Exiting NetworkMonitor...[/bold yellow]")
+        except KeyboardInterrupt:
+            self.console.print("Stopping NetworkMonitor.", style="bold yellow")
+        finally:
+            self.is_running = False
+            self.console.print("[bold red]NetworkMonitor stopped.[/bold red]")
+
+
+    def run_live(self):
+        """
+        Display real-time tables using Rich Live.
+        """
+        if not self.bpf:
+            self.console.print("[Error] BPF not initialized. Exiting.", style="bold red")
+            return
+
+        with Live(self._generate_table(), refresh_per_second=self.refresh_rate, console=self.console) as live:
+            try:
+                while self.is_running:
+                    self.bpf.perf_buffer_poll(timeout=1000)
+                    self._update_rates()
+                    self._process_callbacks()
+                    live.update(self._generate_table())
+                    time.sleep(1 / self.refresh_rate)
+            except KeyboardInterrupt:
+                self.console.print("Stopping NetworkMonitor.", style="bold yellow")
+
+    def update_data(self):
+        """
+        Poll eBPF events and update the process_network data.
+        """
+        if not self.bpf:
+            raise RuntimeError("BPF is not initialized.")
+
+        # eBPF 이벤트 폴링
+        self.bpf.perf_buffer_poll(timeout=1000)
+
+        # 네트워크 전송/수신 속도 갱신
+        self._update_rates()
+
+    def get_latest_network_data(self, top_n=None):
+        """
+        Return the latest network usage data, optionally limited to the top N processes.
+
+        Args:
+            top_n (int): Number of top processes to return.
+
+        Returns:
+            List[Dict[str, Any]]: List of process network usage dictionaries.
+        """
+        self.update_data()
+        return self.get_top_n(top_n or self.top_n)
+
+    def get_top_n(self, n: Optional[int] = None) -> List[Dict[str, Union[int, str, float]]]:
+        """
+        Retrieve the top N processes by network usage.
+
+        :param n: Number of top processes to retrieve. Defaults to self.top_n.
+        :return: List of top N processes sorted by (bytes_sent + bytes_recv).
+        """
+        n = n or self.top_n
+        with threading.Lock():
+            sorted_pids = sorted(
+                self.process_network.keys(),
+                key=lambda pid: self.process_network[pid]['bytes_sent'] + self.process_network[pid]['bytes_recv'],
+                reverse=True
+            )
+            top_pids = sorted_pids[:n]
+            top_processes = [self.process_network[pid] for pid in top_pids]
+        return top_processes
+
+    def _handle_signal(self, sig, frame):
+        """
+        Handle signals for cleanup.
+        """
+        self.console.print(f"\nExiting... signal={sig}, frame={frame}", style="bold red")
+        self.is_running = False
+        self.exit_event.set()
 
 
 class OverrideDNS:

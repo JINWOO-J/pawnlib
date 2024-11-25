@@ -33,9 +33,9 @@ from pawnlib.typing import (
     random_private_key,
     remove_tags,
     is_valid_url,
-    int_to_loop_hex
+    int_to_loop_hex,
+    format_size
 )
-
 import datetime
 
 class TestTyping(unittest.TestCase):
@@ -130,6 +130,14 @@ class TestTyping(unittest.TestCase):
         self.assertEqual(convert_bytes(100_000_000), "95.4 MB")
         self.assertEqual(convert_bytes(10_000_000_000), "9.3 GB")
         self.assertEqual(convert_bytes(10_000_000_000_000), "9.1 TB")
+
+    def test_format_size(self,):
+        self.assertEqual(format_size(10_000), "9.77 KB")
+        self.assertEqual(format_size(100_000), "97.66 KB")
+        self.assertEqual(format_size(100_000_000), "95.37 MB")
+        self.assertEqual(format_size(10_000_000_000), "9.31 GB")
+        self.assertEqual(format_size(10_000_000_000_000), "9.09 TB")
+
 
     def test_str2bool_true_ok(self, name=None, function=None, param=None, expected_value=None):
         true_list = ("yes", "true", "t", "1", "True", "TRUE")

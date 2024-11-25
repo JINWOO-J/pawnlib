@@ -18,6 +18,127 @@ import logging
 
 from pawnlib.config.logging_config import setup_logger
 
+
+class NullByteRemover:
+    def __init__(self, file_paths, chunk_size=1024 * 1024, replace_with=None):
+        """
+        A class to remove null bytes from files.
+
+        :param file_paths: List of file paths or a single file path.
+        :param chunk_size: Size of the chunks to read from the file (default is 1 MB).
+        :param replace_with: Bytes to replace null bytes with (default is empty bytes).
+
+        Example:
+
+            .. code-block:: python
+
+                remover = NullByteRemover(["file1.txt", "file2.txt"])
+                remover.remove_null_bytes()
+
+                remover = NullByteRemover("single_file.txt", replace_with=b' ')
+                remover.remove_null_bytes()
+
+        """
+        self.file_paths = file_paths if isinstance(file_paths, list) else [file_paths]
+        self.chunk_size = chunk_size
+        self.replace_with = replace_with if replace_with is not None else b''
+        self.report = []
+
+    def run(self):
+        self.remove_null_bytes()
+        self.print_report()
+
+    def check_null_bytes(self, file_path):
+        """
+        Check if the file contains null bytes.
+
+        :param file_path: Path to the file to check.
+        :return: True if null bytes are found, otherwise False.
+
+        Example:
+
+            .. code-block:: python
+
+                has_null_bytes = remover.check_null_bytes("file1.txt")
+                print(has_null_bytes)  # >> True or False
+
+        """
+        with open(file_path, 'rb') as f:
+            while chunk := f.read(self.chunk_size):
+                if b'\x00' in chunk:
+                    return True
+        return False
+
+    def remove_null_bytes(self):
+        """
+        Remove null bytes from the specified files and create new files without null bytes.
+
+        Example:
+
+            .. code-block:: python
+
+                remover.remove_null_bytes()
+
+        """
+        for file_path in self.file_paths:
+            # Check for null bytes
+            if not self.check_null_bytes(file_path):
+                print(f"No null bytes found: {file_path} - Skipping processing.")
+                continue
+
+            start_time = time.time()  # Record start time
+            original_size = os.path.getsize(file_path)
+            new_file_path = f"{file_path}_recovered"
+            null_byte_count = 0
+            total_bytes_processed = 0
+
+            with open(file_path, 'rb') as f_in, open(new_file_path, 'wb') as f_out:
+                while data := f_in.read(self.chunk_size):
+                    clean_data = data.replace(b'\x00', self.replace_with)
+                    null_byte_count += data.count(b'\x00')
+                    f_out.write(clean_data)
+                    total_bytes_processed += len(data)
+                    self._show_progress(total_bytes_processed, original_size, file_path)
+
+            # Report details after processing
+            self.report.append({
+                'File Name': file_path,
+                'Original Size': original_size,
+                'Recovered Size': os.path.getsize(new_file_path),
+                'Null Byte Count': null_byte_count,
+                'Execution Time': time.time() - start_time
+            })
+
+    @staticmethod
+    def _show_progress(processed, total, file_path):
+        """
+        Display the progress of file processing.
+
+        :param processed: Number of bytes processed so far.
+        :param total: Total number of bytes in the original file.
+        :param file_path: Path to the current file being processed.
+        """
+        percent = processed / total * 100
+        sys.stdout.write(f"\r{file_path}: {percent:.2f}% completed ({processed}/{total} bytes)")
+        sys.stdout.flush()
+        if processed >= total:
+            print()  # New line after completion
+
+    def print_report(self):
+        """
+        Print a detailed report of the processing results after completion.
+
+        This includes information about each processed file such as size and null byte count.
+        """
+        for file_report in self.report:
+            print(f"File Name: {file_report['File Name']}")
+            print(f"Original Size: {file_report['Original Size']} bytes")
+            print(f"Recovered Size: {file_report['Recovered Size']} bytes")
+            print(f"Null Byte Count: {file_report['Null Byte Count']} occurrences")
+            print(f"Execution Time: {file_report['Execution Time']:.2f} seconds")
+            print("-" * 40)
+
+
 class Tail:
     """
     Tail class for monitoring log files with support for both synchronous and asynchronous modes.
@@ -92,95 +213,6 @@ class Tail:
     def _get_inode(self, file_path):
         """Get the inode of the file."""
         return os.stat(file_path).st_ino
-
-    # async def _follow_async(self, file_path: str):
-    #     try:
-    #         async with aiofiles.open(file_path, mode='r') as file:
-    #             await file.seek(0, os.SEEK_END)
-    #             self.logger.debug(f"Started async monitoring on file: {file_path}")
-    #
-    #             while True:
-    #                 line = await file.readline()
-    #                 if not line:
-    #                     await asyncio.sleep(0.1)
-    #                     continue
-    #
-    #                 await self._process_line(line, file_path)
-    #
-    #     except Exception as e:
-    #         self.logger.error(f"Error occurred while asynchronously monitoring file {file_path}: {e}")
-
-    # async def _follow_async(self, file_path: str):
-    #     while True:
-    #         try:
-    #             if not os.path.exists(file_path):
-    #                 self.logger.warning(f"Log file {file_path} not found. Waiting for it to be created...")
-    #                 await asyncio.sleep(1)  # Wait for the file to be recreated
-    #                 continue
-    #
-    #             async with aiofiles.open(file_path, mode='r') as file:
-    #                 await file.seek(0, os.SEEK_END)
-    #                 self.file_inodes[file_path] = self._get_inode(file_path)
-    #                 self.logger.debug(f"Started async monitoring on file: {file_path}")
-    #
-    #                 while True:
-    #                     current_inode = self._get_inode(file_path)
-    #                     if self.file_inodes[file_path] != current_inode:
-    #                         self.file_inodes[file_path] = current_inode
-    #                         self.logger.info(f"Log file {file_path} rotated. Reopening new file.")
-    #                         break  # Exit loop to reopen new file
-    #
-    #                     line = await file.readline()
-    #                     if not line:
-    #                         await asyncio.sleep(0.1)
-    #                         continue
-    #
-    #                     await self._process_line(line, file_path)
-    #
-    #         except FileNotFoundError:
-    #             self.logger.error(f"Error monitoring file {file_path}: File not found. Retrying...")
-    #             await asyncio.sleep(1)  # Retry after delay if the file is not found
-    #         except Exception as e:
-    #             self.logger.error(f"Error occurred while asynchronously monitoring file {file_path}: {e}")
-    #             break
-
-    # async def _follow_async(self, file_path: str):
-    #     retry_count = 0
-    #     while retry_count <= self.max_retries:
-    #         try:
-    #             if not os.path.exists(file_path):
-    #                 self.logger.warning(f"Log file {file_path} not found. Waiting for it to be created...")
-    #                 await asyncio.sleep(1)  # Wait for the file to be recreated
-    #                 continue
-    #
-    #             async with aiofiles.open(file_path, mode='r') as file:
-    #                 await file.seek(0, os.SEEK_END)
-    #                 self.file_inodes[file_path] = self._get_inode(file_path)
-    #                 self.logger.debug(f"Started async monitoring on file: {file_path}")
-    #
-    #                 while True:
-    #                     current_inode = self._get_inode(file_path)
-    #                     if self.file_inodes[file_path] != current_inode:
-    #                         self.file_inodes[file_path] = current_inode
-    #                         self.logger.info(f"Log file {file_path} rotated. Reopening new file.")
-    #                         break  # Exit loop to reopen new file
-    #
-    #                     line = await file.readline()
-    #                     if not line:
-    #                         await asyncio.sleep(0.1)
-    #                         continue
-    #
-    #                     await self._process_line(line, file_path)
-    #             retry_count = 0  # Reset retry count after successful file access
-    #
-    #         except FileNotFoundError:
-    #             retry_count += 1
-    #             backoff_time = min(2 ** retry_count, 60)  # Exponential backoff, max 60 seconds
-    #             self.logger.warning(f"File '{file_path}' not found. Retrying in {backoff_time} seconds. Retry count: {retry_count}")
-    #             await asyncio.sleep(backoff_time)
-    #         except Exception as e:
-    #             self.logger.error(f"Error occurred while monitoring file {file_path}: {e}")
-    #             break
 
     async def _handle_retry(self, file_path, retry_count):
         """
@@ -277,20 +309,6 @@ class Tail:
             except Exception as e:
                 self.logger.error(f"Error occurred while synchronously monitoring file {file_path}: {e}")
                 break
-    # async def _process_line(self, line: str, file_path: str):
-    #     line = line.strip()
-    #     if self._should_process(line):
-    #         try:
-    #             formatted_line = self.formatter(line) if self.formatter else line
-    #             await self.callback(formatted_line)
-    #             self.logger.debug(f"Successfully processed a log line from {file_path}: {formatted_line}")
-    #         except Exception as e:
-    #             self.logger.error(f"Error occurred while executing callback on line from {file_path}: {e}")
-
-    # async def _process_line(self, line, file_path):
-    #     line = line.strip()
-    #     if any(f.search(line) for f in self.filters):
-    #         await self.callback(line)
 
     async def _process_line(self, line: str, file_path: str):
         line = line.strip()
@@ -350,6 +368,60 @@ class Tail:
             # Synchronous mode: directly call the sync methods
             for path in self.log_file_paths:
                 self._follow_sync(path)
+
+
+def check_path(path, detailed=False):
+    """
+    Check if the provided path is a file, a directory, or neither.
+    Optionally return extended details about the path.
+
+    :param path: The path to check.
+    :type path: str
+    :param detailed: If True, returns a dictionary with additional information about the path.
+                     If False, returns only the type as a string.
+    :type detailed: bool
+    :return: If detailed=True, returns a dictionary with path type, existence, readability, and writability.
+             If detailed=False, returns only the type of the path as a string ('file', 'directory', or 'neither').
+    :rtype: dict | str
+
+    Example usage:
+
+        >>> check_path("/path/to/file.txt")
+        'file'
+
+        >>> check_path("/path/to/file.txt", detailed=True)
+        {'type': 'file', 'exists': True, 'readable': True, 'writable': False}
+
+        >>> check_path("/path/to/directory")
+        'directory'
+
+        >>> check_path("/path/to/directory", detailed=True)
+        {'type': 'directory', 'exists': True, 'readable': True, 'writable': True}
+
+        >>> check_path("/path/to/unknown")
+        None
+
+        >>> check_path("/path/to/unknown", detailed=True)
+        {'type': None, 'exists': False, 'readable': False, 'writable': False}
+
+    Notes:
+        - `detailed=False` by default, returning only the type of the path as a string.
+        - If `detailed=True`, additional details (existence, readability, writability) are provided in a dictionary.
+    """
+    path_info = {
+        "type": None,
+        "exists": os.path.exists(path),
+        "readable": os.access(path, os.R_OK),
+        "writable": os.access(path, os.W_OK),
+    }
+
+    if path_info["exists"]:
+        if os.path.isfile(path):
+            path_info["type"] = "file"
+        elif os.path.isdir(path):
+            path_info["type"] = "directory"
+
+    return path_info if detailed else path_info["type"]
 
 
 def check_file_overwrite(filename, answer=None) -> bool:
