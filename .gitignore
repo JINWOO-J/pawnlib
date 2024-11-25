@@ -1,4 +1,5 @@
 # temp directory for testing
+last_blockheight.txt
 config.ini
 http_config.ini
 tests/temp/*
