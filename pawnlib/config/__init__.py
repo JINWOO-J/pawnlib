@@ -13,5 +13,7 @@ from .logging_config import (
     ConsoleLoggerAdapter,
     setup_logger,
     getPawnLogger,
-    setup_app_logger
+    setup_app_logger,
+    add_logger,
+    LoggerMixin,
 )

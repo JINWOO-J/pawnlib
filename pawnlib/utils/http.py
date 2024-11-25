@@ -11,7 +11,7 @@ from datetime import datetime
 from pawnlib.exceptions.notifier import notify_exception
 
 from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose, pconf, SimpleNamespace, Null
-from pawnlib.config.logging_config import ConsoleLoggerAdapter, setup_logger
+from pawnlib.config.logging_config import ConsoleLoggerAdapter, setup_logger, LoggerMixin
 from pawnlib.output import (
     NoTraceBackException,
     dump, syntax_highlight, kvPrint, debug_logging,
@@ -3030,7 +3030,7 @@ class GoloopWebsocket(CallWebsocket):
             return resp
 
 
-class AsyncCallWebsocket:
+class AsyncCallWebsocket(LoggerMixin):
     def __init__(
             self,
             url: str,
@@ -3072,7 +3072,8 @@ class AsyncCallWebsocket:
         self.on_last_status = ""
 
         # self.logger = ConsoleLoggerAdapter(logger, "AsyncCallWebsocket", verbose > 0)
-        self.logger = setup_logger(logger, "pawnlib.http.AsyncCallWebsocket", verbose)
+        # self.logger = setup_logger(logger, "pawnlib.http.AsyncCallWebsocket", verbose)
+        self.logger = logger or self.get_logger()
 
         if ssl_options is None:
             self.ssl_options = ssl.create_default_context()
@@ -3357,7 +3358,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         self.check_tx_result_enabled = check_tx_result_enabled
 
         # self.logger = setup_logger(logger, "pawnlib.http.AsyncGoloopWebsocket", verbose)
-        self.logger = logger or logging.getLogger(__name__)
+        self.logger = logger or self.get_logger()
 
         self.logger.info("Start AsyncGoloopWebsocket")
 

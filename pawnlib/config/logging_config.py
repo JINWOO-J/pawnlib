@@ -1022,3 +1022,23 @@ def getPawnLogger(name=None, verbose=0):
     new_logger = ConsoleLoggerAdapter(logger_name=name, verbose=verbose)
     ConsoleLoggerAdapter._global_registry[name] = new_logger
     return new_logger
+
+
+def add_logger(cls):
+    """
+    Decorator to add a logger attribute to a class.
+    """
+    class Wrapped(cls):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.logger = logging.getLogger(f"{self.__module__}.{self.__class__.__name__}")
+    return Wrapped
+
+
+class LoggerMixin:
+    def get_logger(self):
+        """
+        Returns a logger instance with a name in the format 'module_name.ClassName'.
+        """
+        return logging.getLogger(f"{self.__module__}.{self.__class__.__name__}")
+
