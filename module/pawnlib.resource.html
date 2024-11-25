@@ -1,0 +1,788 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.resource package &mdash; Pawnlib v2.0.79</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+
+  
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pawnlib.typing package" href="pawnlib.typing.html" />
+    <link rel="prev" title="pawnlib.output package" href="pawnlib.output.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pawnlib.resource package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-resource-net-module">pawnlib.resource.net module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.EVENT_TCP_SEND"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.EVENT_TCP_SEND</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.EVENT_TCP_RECV"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.EVENT_TCP_RECV</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.EVENT_UDP_SEND"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.EVENT_UDP_SEND</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.EVENT_UDP_RECV"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.EVENT_UDP_RECV</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.__init__"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.setup_signal_handlers"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.setup_signal_handlers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.get_process_cmdline"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.get_process_cmdline()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.generate_title"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.generate_title()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.run"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.run_live"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.run_live()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.update_data"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.update_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.get_latest_network_data"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.get_latest_network_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.ProcNetMonitor.get_top_n"><code class="docutils literal notranslate"><span class="pre">ProcNetMonitor.get_top_n()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.OverrideDNS"><code class="docutils literal notranslate"><span class="pre">OverrideDNS</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.OverrideDNS.new_getaddrinfo"><code class="docutils literal notranslate"><span class="pre">OverrideDNS.new_getaddrinfo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.OverrideDNS.set"><code class="docutils literal notranslate"><span class="pre">OverrideDNS.set()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.OverrideDNS.unset"><code class="docutils literal notranslate"><span class="pre">OverrideDNS.unset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.get_public_ip"><code class="docutils literal notranslate"><span class="pre">get_public_ip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.FindFastestRegion"><code class="docutils literal notranslate"><span class="pre">FindFastestRegion</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.FindFastestRegion.run"><code class="docutils literal notranslate"><span class="pre">FindFastestRegion.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.FindFastestRegion.find_fastest_region"><code class="docutils literal notranslate"><span class="pre">FindFastestRegion.find_fastest_region()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.FindFastestRegion.get_time"><code class="docutils literal notranslate"><span class="pre">FindFastestRegion.get_time()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.FindFastestRegion.sorted_results"><code class="docutils literal notranslate"><span class="pre">FindFastestRegion.sorted_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.FindFastestRegion.print_results"><code class="docutils literal notranslate"><span class="pre">FindFastestRegion.print_results()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.ping_host"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.ping_host()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.try_ping_host"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.try_ping_host()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.scan_all"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.scan_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.check_and_scan_host"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.check_and_scan_host()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.scan_port"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.scan_port()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.calculate_scan_range"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.calculate_scan_range()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.scan"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.scan()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.get_ips_to_scan"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.get_ips_to_scan()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.wrap_scan"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.wrap_scan()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.ip_to_int"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.ip_to_int()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.int_to_ip"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.int_to_ip()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.get_results"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.get_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.print_scan_results"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.print_scan_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.resource.net.AsyncPortScanner.run_scan"><code class="docutils literal notranslate"><span class="pre">AsyncPortScanner.run_scan()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.get_local_ip"><code class="docutils literal notranslate"><span class="pre">get_local_ip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.get_hostname"><code class="docutils literal notranslate"><span class="pre">get_hostname()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.extract_host_port"><code class="docutils literal notranslate"><span class="pre">extract_host_port()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.check_port"><code class="docutils literal notranslate"><span class="pre">check_port()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.listen_socket"><code class="docutils literal notranslate"><span class="pre">listen_socket()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.wait_for_port_open"><code class="docutils literal notranslate"><span class="pre">wait_for_port_open()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.get_location"><code class="docutils literal notranslate"><span class="pre">get_location()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.resource.net.get_location_with_ip_api"><code class="docutils literal notranslate"><span class="pre">get_location_with_ip_api()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-resource-server-module">pawnlib.resource.server module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pawnlib.resource package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/module/pawnlib.resource.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pawnlib-resource-package">
+<h1>pawnlib.resource package<a class="headerlink" href="#pawnlib-resource-package" title="Permalink to this heading"></a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="pawnlib-resource-net-module">
+<h2>pawnlib.resource.net module<a class="headerlink" href="#pawnlib-resource-net-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.resource.net"></span><dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ProcNetMonitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Mbps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pid_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proc_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_bytes_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_signal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'EXIT'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#ProcNetMonitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>ProcNetMonitor monitors network usage of processes using eBPF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>top_n</strong> (<em>optional</em>) – The top N processes to display in the table.
+<a href="#id5"><span class="problematic" id="id6">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>refresh_rate</strong> (<em>optional</em>) – The data refresh rate (refreshes per second).
+<a href="#id7"><span class="problematic" id="id8">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>group_by</strong> (<em>optional</em>) – How to group processes (“pid” or “name”).
+<a href="#id9"><span class="problematic" id="id10">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'pid'</span></code></p></li>
+<li><p><strong>unit</strong> (<em>optional</em>) – The unit for displaying rates (e.g., “Mbps”).
+<a href="#id11"><span class="problematic" id="id12">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'Mbps'</span></code></p></li>
+<li><p><strong>protocols</strong> (<em>optional</em>) – List of protocols to monitor. Defaults to [“tcp”, “udp”].
+<a href="#id13"><span class="problematic" id="id14">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>pid_filter</strong> (<em>optional</em>) – List of PIDs to monitor. Only these PIDs will be tracked.
+<a href="#id15"><span class="problematic" id="id16">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>proc_filter</strong> (<em>optional</em>) – List of process names to monitor. Only these processes will be tracked.
+<a href="#id17"><span class="problematic" id="id18">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>min_bytes_threshold</strong> (<em>optional</em>) – Minimum number of bytes to consider for monitoring.
+<a href="#id19"><span class="problematic" id="id20">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p><strong>callback</strong> (<em>optional</em>) – A user-defined function to be called when data is updated.
+<a href="#id21"><span class="problematic" id="id22">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>exit_signal</strong> (<em>optional</em>) – A string used as the termination signal. When this string is detected,
+the monitoring process will stop and the program will exit. Default is “EXIT”.
+<a href="#id23"><span class="problematic" id="id24">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'EXIT'</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example 1: Monitor top 5 processes with TCP and UDP protocols</span>
+<span class="k">def</span> <span class="nf">handle_update</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Group: </span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">, Sent: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_sent&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> bytes, Recv: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_recv&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
+
+<span class="n">monitor</span> <span class="o">=</span> <span class="n">ProcNetMonitor</span><span class="p">(</span><span class="n">top_n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">protocols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;udp&quot;</span><span class="p">],</span> <span class="n">callback</span><span class="o">=</span><span class="n">handle_update</span><span class="p">)</span>
+<span class="n">monitor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c1"># Example 2: Monitor specific PIDs</span>
+<span class="k">def</span> <span class="nf">handle_specific_pids</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PID: </span><span class="si">{</span><span class="n">pid</span><span class="si">}</span><span class="s2">, Sent: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_sent&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> bytes, Recv: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_recv&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
+
+<span class="n">monitor</span> <span class="o">=</span> <span class="n">ProcNetMonitor</span><span class="p">(</span><span class="n">pid_filter</span><span class="o">=</span><span class="p">[</span><span class="mi">1234</span><span class="p">,</span> <span class="mi">5678</span><span class="p">],</span> <span class="n">callback</span><span class="o">=</span><span class="n">handle_specific_pids</span><span class="p">)</span>
+<span class="n">monitor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c1"># Example 3: Monitor specific process names</span>
+<span class="k">def</span> <span class="nf">handle_specific_procs</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">proc</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process: </span><span class="si">{</span><span class="n">proc</span><span class="si">}</span><span class="s2">, Sent: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_sent&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> bytes, Recv: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_recv&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
+
+<span class="n">monitor</span> <span class="o">=</span> <span class="n">ProcNetMonitor</span><span class="p">(</span><span class="n">proc_filter</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;nginx&quot;</span><span class="p">],</span> <span class="n">callback</span><span class="o">=</span><span class="n">handle_specific_procs</span><span class="p">)</span>
+<span class="n">monitor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c1"># Example 4: Set a custom refresh rate and exit signal</span>
+<span class="k">def</span> <span class="nf">handle_exit</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Received data, checking exit condition...&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">some_condition</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;EXIT&#39;</span>
+
+<span class="n">monitor</span> <span class="o">=</span> <span class="n">ProcNetMonitor</span><span class="p">(</span><span class="n">refresh_rate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">exit_signal</span><span class="o">=</span><span class="s2">&quot;EXIT&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
+<span class="n">monitor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Initialize the ProcNetMonitor class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>top_n</strong> (<em>optional</em>) – The top N processes to display in the table.
+<a href="#id25"><span class="problematic" id="id26">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>refresh_rate</strong> (<em>optional</em>) – The data refresh rate (refreshes per second).
+<a href="#id27"><span class="problematic" id="id28">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>group_by</strong> (<em>optional</em>) – How to group processes (“pid” or “name”).
+<a href="#id29"><span class="problematic" id="id30">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'pid'</span></code></p></li>
+<li><p><strong>unit</strong> (<em>optional</em>) – The unit for displaying rates (e.g., “Mbps”).
+<a href="#id31"><span class="problematic" id="id32">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'Mbps'</span></code></p></li>
+<li><p><strong>protocols</strong> (<em>optional</em>) – List of protocols to monitor. Defaults to [“tcp”, “udp”].
+<a href="#id33"><span class="problematic" id="id34">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>pid_filter</strong> (<em>optional</em>) – List of PIDs to monitor. Only these PIDs will be tracked.
+<a href="#id35"><span class="problematic" id="id36">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>proc_filter</strong> (<em>optional</em>) – List of process names to monitor. Only these processes will be tracked.
+<a href="#id37"><span class="problematic" id="id38">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>min_bytes_threshold</strong> (<em>optional</em>) – Minimum number of bytes to consider for monitoring.
+<a href="#id39"><span class="problematic" id="id40">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p><strong>callback</strong> (<em>optional</em>) – A user-defined function to be called when data is updated.
+<a href="#id41"><span class="problematic" id="id42">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>exit_signal</strong> (<em>optional</em>) – A string used as the termination signal. When this string is detected,
+the monitoring process will stop and the program will exit. Default is “EXIT”.
+<a href="#id43"><span class="problematic" id="id44">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'EXIT'</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.EVENT_TCP_SEND">
+<span class="sig-name descname"><span class="pre">EVENT_TCP_SEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.EVENT_TCP_SEND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.EVENT_TCP_RECV">
+<span class="sig-name descname"><span class="pre">EVENT_TCP_RECV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.EVENT_TCP_RECV" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.EVENT_UDP_SEND">
+<span class="sig-name descname"><span class="pre">EVENT_UDP_SEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.EVENT_UDP_SEND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.EVENT_UDP_RECV">
+<span class="sig-name descname"><span class="pre">EVENT_UDP_RECV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.EVENT_UDP_RECV" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Mbps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pid_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proc_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_bytes_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_signal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'EXIT'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#ProcNetMonitor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize the ProcNetMonitor class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>top_n</strong> (<em>optional</em>) – The top N processes to display in the table.
+<a href="#id45"><span class="problematic" id="id46">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>refresh_rate</strong> (<em>optional</em>) – The data refresh rate (refreshes per second).
+<a href="#id47"><span class="problematic" id="id48">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>group_by</strong> (<em>optional</em>) – How to group processes (“pid” or “name”).
+<a href="#id49"><span class="problematic" id="id50">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'pid'</span></code></p></li>
+<li><p><strong>unit</strong> (<em>optional</em>) – The unit for displaying rates (e.g., “Mbps”).
+<a href="#id51"><span class="problematic" id="id52">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'Mbps'</span></code></p></li>
+<li><p><strong>protocols</strong> (<em>optional</em>) – List of protocols to monitor. Defaults to [“tcp”, “udp”].
+<a href="#id53"><span class="problematic" id="id54">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>pid_filter</strong> (<em>optional</em>) – List of PIDs to monitor. Only these PIDs will be tracked.
+<a href="#id55"><span class="problematic" id="id56">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>proc_filter</strong> (<em>optional</em>) – List of process names to monitor. Only these processes will be tracked.
+<a href="#id57"><span class="problematic" id="id58">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>min_bytes_threshold</strong> (<em>optional</em>) – Minimum number of bytes to consider for monitoring.
+<a href="#id59"><span class="problematic" id="id60">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p><strong>callback</strong> (<em>optional</em>) – A user-defined function to be called when data is updated.
+<a href="#id61"><span class="problematic" id="id62">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>exit_signal</strong> (<em>optional</em>) – A string used as the termination signal. When this string is detected,
+the monitoring process will stop and the program will exit. Default is “EXIT”.
+<a href="#id63"><span class="problematic" id="id64">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'EXIT'</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.setup_signal_handlers">
+<span class="sig-name descname"><span class="pre">setup_signal_handlers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#ProcNetMonitor.setup_signal_handlers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.setup_signal_handlers" title="Permalink to this definition"></a></dt>
+<dd><p>Set up signal handlers to perform cleanup on script termination.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.get_process_cmdline">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_process_cmdline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#ProcNetMonitor.get_process_cmdline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.get_process_cmdline" title="Permalink to this definition"></a></dt>
+<dd><p>Get the command-line arguments of a process by PID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.generate_title">
+<span class="sig-name descname"><span class="pre">generate_title</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#ProcNetMonitor.generate_title"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.generate_title" title="Permalink to this definition"></a></dt>
+<dd><p>Dynamically generate the title based on initialized parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generated title.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#ProcNetMonitor.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.run" title="Permalink to this definition"></a></dt>
+<dd><p>ProcNetMonitor를 실행합니다. <a href="#id1"><span class="problematic" id="id2">`</span></a>is_running`이 <a href="#id3"><span class="problematic" id="id4">`</span></a>True`인 동안 루프를 계속합니다.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.run_live">
+<span class="sig-name descname"><span class="pre">run_live</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#ProcNetMonitor.run_live"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.run_live" title="Permalink to this definition"></a></dt>
+<dd><p>Display real-time tables using Rich Live.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.update_data">
+<span class="sig-name descname"><span class="pre">update_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#ProcNetMonitor.update_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.update_data" title="Permalink to this definition"></a></dt>
+<dd><p>Poll eBPF events and update the process_network data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.get_latest_network_data">
+<span class="sig-name descname"><span class="pre">get_latest_network_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#ProcNetMonitor.get_latest_network_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.get_latest_network_data" title="Permalink to this definition"></a></dt>
+<dd><p>Return the latest network usage data, optionally limited to the top N processes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>top_n</strong> (<em>int</em>) – Number of top processes to return.
+<a href="#id65"><span class="problematic" id="id66">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of process network usage dictionaries.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.ProcNetMonitor.get_top_n">
+<span class="sig-name descname"><span class="pre">get_top_n</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#ProcNetMonitor.get_top_n"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.ProcNetMonitor.get_top_n" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the top N processes by network usage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Number of top processes to retrieve. Defaults to self.top_n.
+<a href="#id67"><span class="problematic" id="id68">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of top N processes sorted by (bytes_sent + bytes_recv).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.resource.net.OverrideDNS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OverrideDNS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipaddr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#OverrideDNS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.OverrideDNS" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Change the Domain Name using socket</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
+<span class="n">net</span><span class="o">.</span><span class="n">OverrideDNS</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span> <span class="n">ipaddr</span><span class="o">=</span><span class="n">ipaddr</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.OverrideDNS.new_getaddrinfo">
+<span class="sig-name descname"><span class="pre">new_getaddrinfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#OverrideDNS.new_getaddrinfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.OverrideDNS.new_getaddrinfo" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.OverrideDNS.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#OverrideDNS.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.OverrideDNS.set" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.OverrideDNS.unset">
+<span class="sig-name descname"><span class="pre">unset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#OverrideDNS.unset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.OverrideDNS.unset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.resource.net.get_public_ip">
+<span class="sig-name descname"><span class="pre">get_public_ip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#get_public_ip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.get_public_ip" title="Permalink to this definition"></a></dt>
+<dd><p>The get_public_ip function returns the public IP address of the machine it is called on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>use_cache</strong> (<em>bool</em>) – Whether to use the cached public IP if available
+<a href="#id69"><span class="problematic" id="id70">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The public ip address of the server</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
+<span class="n">net</span><span class="o">.</span><span class="n">get_public_ip</span><span class="p">()</span>
+
+<span class="n">net</span><span class="o">.</span><span class="n">get_public_ip</span><span class="p">(</span><span class="n">use_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.resource.net.FindFastestRegion">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FindFastestRegion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aws_regions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#FindFastestRegion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.FindFastestRegion" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.FindFastestRegion.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#FindFastestRegion.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.FindFastestRegion.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.FindFastestRegion.find_fastest_region">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_fastest_region</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#FindFastestRegion.find_fastest_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.FindFastestRegion.find_fastest_region" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.FindFastestRegion.get_time">
+<span class="sig-name descname"><span class="pre">get_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NULL'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#FindFastestRegion.get_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.FindFastestRegion.get_time" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.FindFastestRegion.sorted_results">
+<span class="sig-name descname"><span class="pre">sorted_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'run_time'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#FindFastestRegion.sorted_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.FindFastestRegion.sorted_results" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.FindFastestRegion.print_results">
+<span class="sig-name descname"><span class="pre">print_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#FindFastestRegion.print_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.FindFastestRegion.print_results" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AsyncPortScanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">65535)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_concurrency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ping_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fast_scan_ports</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[22,</span> <span class="pre">80,</span> <span class="pre">443]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Asynchronous Port Scanner class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ip_range</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Tuple of start and end IP addresses to scan.</p></li>
+<li><p><strong>port_range</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <em>optional</em>) – Tuple of start and end ports to scan. Default is all ports (0, 65535).
+<a href="#id71"><span class="problematic" id="id72">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">65535)</span></code></p></li>
+<li><p><strong>max_concurrency</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Maximum number of concurrent scans. Default is 30.
+<a href="#id73"><span class="problematic" id="id74">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">30</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scanner</span> <span class="o">=</span> <span class="n">AsyncPortScanner</span><span class="p">((</span><span class="s2">&quot;192.168.0.1&quot;</span><span class="p">,</span> <span class="s2">&quot;192.168.0.255&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">scanner</span><span class="o">.</span><span class="n">scan_all</span><span class="p">())</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.ping_host">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ping_host</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.ping_host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.ping_host" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.try_ping_host">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">try_ping_host</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.try_ping_host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.try_ping_host" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.scan_all">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scan_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fast_scan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.scan_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.scan_all" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.check_and_scan_host">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_and_scan_host</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.check_and_scan_host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.check_and_scan_host" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.scan_port">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scan_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.scan_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.scan_port" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.calculate_scan_range">
+<span class="sig-name descname"><span class="pre">calculate_scan_range</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.calculate_scan_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.calculate_scan_range" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.scan">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fast_scan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.scan" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.get_ips_to_scan">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_ips_to_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fast_scan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.get_ips_to_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.get_ips_to_scan" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.wrap_scan">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wrap_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.wrap_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.wrap_scan" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.ip_to_int">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ip_to_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.ip_to_int"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.ip_to_int" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.int_to_ip">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">int_to_ip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip_int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.int_to_ip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.int_to_ip" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.get_results">
+<span class="sig-name descname"><span class="pre">get_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.get_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.get_results" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.print_scan_results">
+<span class="sig-name descname"><span class="pre">print_scan_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.print_scan_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.print_scan_results" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.resource.net.AsyncPortScanner.run_scan">
+<span class="sig-name descname"><span class="pre">run_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fast_scan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#AsyncPortScanner.run_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.AsyncPortScanner.run_scan" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.resource.net.get_local_ip">
+<span class="sig-name descname"><span class="pre">get_local_ip</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#get_local_ip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.get_local_ip" title="Permalink to this definition"></a></dt>
+<dd><p>Get the local IP address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
+<span class="n">net</span><span class="o">.</span><span class="n">get_local_ip</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.resource.net.get_hostname">
+<span class="sig-name descname"><span class="pre">get_hostname</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#get_hostname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.get_hostname" title="Permalink to this definition"></a></dt>
+<dd><p>Get the local hostname</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
+<span class="n">net</span><span class="o">.</span><span class="n">get_hostname</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.resource.net.extract_host_port">
+<span class="sig-name descname"><span class="pre">extract_host_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#extract_host_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.extract_host_port" title="Permalink to this definition"></a></dt>
+<dd><p>The extract_host_port function extracts the host and port from a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>host</strong> – Extract the hostname from the url</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple of the host and port number</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
+<span class="n">net</span><span class="o">.</span><span class="n">extract_host_port</span><span class="p">(</span><span class="s2">&quot;http://127.0.0.1:8000&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.resource.net.check_port">
+<span class="sig-name descname"><span class="pre">check_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tcp'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#check_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.check_port" title="Permalink to this definition"></a></dt>
+<dd><p>Returns boolean with checks if the port is open</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – ipaddress os hostname
+<a href="#id75"><span class="problematic" id="id76">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>port</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – destination port number
+<a href="#id77"><span class="problematic" id="id78">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p><strong>timeout</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – timeout sec
+<a href="#id79"><span class="problematic" id="id80">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">3.0</span></code></p></li>
+<li><p><strong>protocol</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'tcp'</span></code>, <code class="docutils literal notranslate"><span class="pre">'udp'</span></code>], <em>optional</em>) – type of protocol
+<a href="#id81"><span class="problematic" id="id82">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'tcp'</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
+<span class="n">net</span><span class="o">.</span><span class="n">check_port</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.resource.net.listen_socket">
+<span class="sig-name descname"><span class="pre">listen_socket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#listen_socket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.listen_socket" title="Permalink to this definition"></a></dt>
+<dd><p>Create a socket object and bind it to the host and port provided.
+Listen for incoming connections on that socket, with a maximum of 5 connections in the queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> – str - hostname of the machine where the server is running</p></li>
+<li><p><strong>port</strong> – int - port number that the server will listen on</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>socket - a socket object</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># create a socket object and bind it to localhost and port 8080</span>
+<span class="n">sock</span> <span class="o">=</span> <span class="n">listen_socket</span><span class="p">(</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8080</span><span class="p">)</span>
+
+<span class="c1"># listen for incoming connections</span>
+<span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.resource.net.wait_for_port_open">
+<span class="sig-name descname"><span class="pre">wait_for_port_open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tcp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#wait_for_port_open"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.wait_for_port_open" title="Permalink to this definition"></a></dt>
+<dd><p>Wait for a port to open. Useful when writing scripts which need to wait for a server to be available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – hostname or ipaddress
+<a href="#id83"><span class="problematic" id="id84">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>port</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – port
+<a href="#id85"><span class="problematic" id="id86">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p><strong>timeout</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – timeout seconds (float)
+<a href="#id87"><span class="problematic" id="id88">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">3.0</span></code></p></li>
+<li><p><strong>protocol</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'tcp'</span></code>, <code class="docutils literal notranslate"><span class="pre">'udp'</span></code>], <em>optional</em>) – tcp or udp
+<a href="#id89"><span class="problematic" id="id90">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">'tcp'</span></code></p></li>
+<li><p><strong>sleep</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – sleep fime seconds (float)
+<a href="#id91"><span class="problematic" id="id92">|default|</span></a> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span>
+<span class="n">net</span><span class="o">.</span><span class="n">wait_for_port_open</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+
+<span class="c1">## ⠏  Wait for port open 127.0.0.1:9900 ... 6</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.resource.net.get_location">
+<span class="sig-name descname"><span class="pre">get_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ipaddress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#get_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.get_location" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.resource.net.get_location_with_ip_api">
+<span class="sig-name descname"><span class="pre">get_location_with_ip_api</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/resource/net.html#get_location_with_ip_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.resource.net.get_location_with_ip_api" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="pawnlib-resource-server-module">
+<h2>pawnlib.resource.server module<a class="headerlink" href="#pawnlib-resource-server-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">server</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pawnlib.output.html" class="btn btn-neutral float-left" title="pawnlib.output package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pawnlib.typing.html" class="btn btn-neutral float-right" title="pawnlib.typing package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
