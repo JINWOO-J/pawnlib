@@ -14,6 +14,7 @@ Subpackages
    pawnlib.resource
    pawnlib.cli
    pawnlib.utils
+   pawnlib.metrics
 
 Module contents
 ---------------
