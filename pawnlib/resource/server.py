@@ -4,13 +4,14 @@ import platform
 import os
 import subprocess
 import re
+from typing import Callable, Union, Dict, List
+from collections import OrderedDict, defaultdict
 from pawnlib.utils import http
-from pawnlib.typing import is_valid_ipv4, split_every_n
+from pawnlib.typing import is_valid_ipv4, split_every_n, format_size
 from pawnlib.config import pawn
 from pawnlib.output import print_grid
-from typing import Callable
-from collections import OrderedDict, defaultdict
-from pawnlib.typing.converter import PrettyOrderedDict, dict_to_line
+from pawnlib.typing.converter import PrettyOrderedDict, dict_to_line, format_network_traffic
+from pawnlib.resource.net import ProcNetMonitor
 
 import shutil
 import random
@@ -22,10 +23,17 @@ import struct
 import statistics
 from concurrent.futures import ThreadPoolExecutor
 from rich.progress import Progress, TaskID, TextColumn, BarColumn, TimeRemainingColumn, TimeElapsedColumn
-from rich.table import Table
 import json
-
+import psutil
 import signal
+import sys
+
+from rich.table import Table
+from rich.panel import Panel
+from rich.layout import Layout
+from rich.live import Live
+from rich.console import Console
+import threading
 
 
 def hex_mask_to_cidr(hex_mask):
@@ -46,11 +54,6 @@ def hex_mask_to_cidr(hex_mask):
 
             server.hex_mask_to_cidr("FF00")
             # >> 8
-
-
-
-
-
     """
     try:
         # Convert hexadecimal mask to integer
@@ -391,6 +394,473 @@ def get_default_route_and_interface_macos():
     return None, None
 
 
+
+class ProcessMonitor:
+    def __init__(self, console: Console = None, n: int = 5):
+        self.console = console if console else Console()
+        self.process_number = n
+        self.previous_usage = {}
+        self.stop_event = threading.Event()
+        self.proc_net_monitor =  ProcNetMonitor(
+                                                        top_n=5,
+                                                        refresh_rate=1,
+                                                        group_by="pid",
+                                                        unit="Mbps",
+                                                        protocols=["tcp", "udp"]
+                                                )
+
+        self._proc_net_monitor_thread = threading.Thread(target=self._run_proc_net_monitor, daemon=True)
+        self._proc_net_monitor_thread.start()
+
+    def _run_proc_net_monitor(self):
+        """
+        ProcNetMonitor.run()을 실행하는 스레드.
+        """
+        self.proc_net_monitor.run()
+
+
+    def stop(self):
+        """
+        모든 작업 종료
+        """
+        # self.stop_event.set()
+        # self.proc_net_monitor.is_running = False  # 종료 신호 설정
+        # self._proc_net_monitor_thread.join()
+        # self.console.print("ProcNetMonitor stopped.", style="bold green")
+
+
+        self.console.print("Stopping ProcessMonitor...", style="bold yellow")
+        self.proc_net_monitor.is_running = False  # 종료 신호 설정
+
+        if self._proc_net_monitor_thread:
+            self._proc_net_monitor_thread.join()
+            self.console.print("ProcessMonitor stopped.", style="bold green")
+
+    def stop(self):
+        """
+        모든 모니터링 작업을 종료합니다.
+        """
+        self.console.print("Stopping ProcessMonitor...", style="bold yellow")
+        self.proc_net_monitor.is_running = False  # ProcNetMonitor 루프 종료 신호 설정
+        self._proc_net_monitor_thread.join()  # 스레드가 종료될 때까지 대기
+        self.console.print("ProcessMonitor stopped.", style="bold green")
+
+
+    def get_top_processes(self, n: int = 5, resource: str = "memory") -> List[Dict[str, Union[str, float]]]:
+        processes = []
+        all_processes = list(psutil.process_iter(['pid', 'name']))
+
+        if resource == "cpu":
+            for proc in all_processes:
+                try:
+                    proc.cpu_percent(interval=None)
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess, AttributeError):
+                    pass
+            time.sleep(1)
+
+        for proc in all_processes:
+            try:
+                if resource == "memory":
+                    memory_percent = proc.memory_percent()
+                    processes.append({
+                        'pid': proc.pid,
+                        'name': proc.name(),
+                        'memory_percent': memory_percent
+                    })
+                elif resource == "cpu":
+                    cpu_percent = proc.cpu_percent(interval=None)
+                    processes.append({
+                        'pid': proc.pid,
+                        'name': proc.name(),
+                        'cpu_percent': cpu_percent
+                    })
+                elif resource == "io":
+                    if sys.platform == "darwin":
+                        continue  # macOS에서는 I/O 카운터를 지원하지 않습니다.
+
+                    io_counters = proc.io_counters()
+
+                    if io_counters:
+                        processes.append({
+                            'pid': proc.pid,
+                            'name': proc.name(),
+                            'io_read_bytes': io_counters.read_bytes,
+                            'io_write_bytes': io_counters.write_bytes
+                        })
+                # elif resource == "network":
+                #     net_usage = self.get_process_network_usage(proc.pid)
+                #     if net_usage:
+                #         processes.append(net_usage)
+
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess, AttributeError):
+                continue
+
+        # 정렬 및 상위 n개 반환
+        if resource in ["memory", "cpu"]:
+            key = 'memory_percent' if resource == "memory" else 'cpu_percent'
+            return sorted(processes, key=lambda x: x.get(key, 0), reverse=True)[:n]
+        elif resource == "io":
+            return sorted(
+                processes,
+                key=lambda x: x.get('io_read_bytes', 0) + x.get('io_write_bytes', 0),
+                reverse=True
+            )[:n]
+        elif resource == "network":
+            return sorted(
+                processes,
+                key=lambda x: x.get('tx_bytes', 0) + x.get('rx_bytes', 0),
+                reverse=True
+            )[:n]
+        else:
+            return []
+
+
+    def get_network_usage_from_monitor(self) -> List[Dict[str, Union[int, str, float]]]:
+        """
+        Fetch network usage data from ProcNetMonitor.
+
+        Returns:
+            List[Dict[str, Union[int, str, float]]]: Process network usage data.
+        """
+        if not self.proc_net_monitor:
+            self.console.print("[red]ProcNetMonitor instance is not available![/red]")
+            return []
+
+        try:
+            # Use ProcNetMonitor to fetch top N processes
+            # res = self.proc_net_monitor.get_top_n(self.process_number)
+            return self.proc_net_monitor.get_top_n(self.process_number)
+        except Exception as e:
+            self.console.print(f"[red]Error fetching network usage: {e}[/red]")
+            return []
+
+
+    # def get_process_network_usage(self, pid: int) -> Union[Dict[str, Union[int, str, float]], None]:
+    #     """
+    #     Calculate the per-second network usage (RX and TX bytes) for a specific process.
+    #     :param pid: Process ID to monitor.
+    #     :return: Dictionary with process network usage data or None if unavailable.
+    #     """
+    #     net_file = f"/proc/{pid}/net/dev"
+    #     if not os.path.exists(net_file):
+    #         return None
+    #
+    #     tx_bytes = 0
+    #     rx_bytes = 0
+    #
+    #     try:
+    #         # Read the /proc/<pid>/net/dev file to get RX and TX bytes
+    #         with open(net_file, 'r') as f:
+    #             lines = f.readlines()
+    #             for line in lines[2:]:  # Skip header lines
+    #                 data = line.split()
+    #                 rx_bytes += int(data[1])  # Received bytes
+    #                 tx_bytes += int(data[9])  # Transmitted bytes
+    #
+    #         # Get current timestamp
+    #         current_time = time.time()
+    #
+    #         # Initialize or calculate per-second usage
+    #         if pid in self.previous_usage:
+    #             prev_rx, prev_tx, prev_time = self.previous_usage[pid]
+    #             time_diff = current_time - prev_time
+    #
+    #             # Avoid division by zero
+    #             if time_diff > 0:
+    #                 rx_rate = (rx_bytes - prev_rx) / time_diff  # Bytes per second
+    #                 tx_rate = (tx_bytes - prev_tx) / time_diff  # Bytes per second
+    #             else:
+    #                 rx_rate = tx_rate = 0
+    #         else:
+    #             # No previous data, initialize rates to 0
+    #             rx_rate = tx_rate = 0
+    #
+    #         # Update the previous usage for the next calculation
+    #         self.previous_usage[pid] = (rx_bytes, tx_bytes, current_time)
+    #
+    #         return {
+    #             'pid': pid,
+    #             'name': psutil.Process(pid).name(),
+    #             'rx_bytes': rx_bytes,
+    #             'tx_bytes': tx_bytes,
+    #             'rx_rate': rx_rate,  # RX bytes per second
+    #             'tx_rate': tx_rate   # TX bytes per second
+    #         }
+    #
+    #     except (FileNotFoundError, ProcessLookupError, PermissionError):
+    #         return None
+
+    def create_resource_table(self, processes: List[Dict[str, Union[str, float]]], resource: str) -> Table:
+        """
+        리소스 데이터에 대한 리치 테이블 생성.
+        """
+        table = Table(title=f"Top Processes by {resource.capitalize()} Usage", expand=True)
+
+        table.add_column("PID", justify="right", style="cyan", width=8)
+        table.add_column("Name", style="green", width=25)
+
+        if resource == "memory":
+            table.add_column("Memory %", justify="right", style="magenta", width=10)
+        elif resource == "cpu":
+            table.add_column("CPU %", justify="right", style="magenta", width=10)
+        elif resource == "io":
+            table.add_column("IO Read (MB)", justify="right", style="yellow", width=12)
+            table.add_column("IO Write (MB)", justify="right", style="yellow", width=12)
+        elif resource == "network":
+            table.add_column("RX Bytes", justify="right", style="blue", width=15)
+            table.add_column("TX Bytes", justify="right", style="blue", width=15)
+
+        for proc in processes:
+            if resource == "memory":
+                table.add_row(
+                    str(proc['pid']),
+                    proc['name'],
+                    f"{proc.get('memory_percent', 0):.2f}%"
+                )
+            elif resource == "cpu":
+                table.add_row(
+                    str(proc['pid']),
+                    proc['name'],
+                    f"{proc.get('cpu_percent', 0):.2f}%"
+                )
+            elif resource == "io":
+                read_mb = proc.get('io_read_bytes', 0) / (1024 * 1024)
+                write_mb = proc.get('io_write_bytes', 0) / (1024 * 1024)
+                table.add_row(
+                    str(proc['pid']),
+                    proc['name'],
+                    f"{read_mb:.2f}",
+                    f"{write_mb:.2f}"
+                )
+            elif resource == "network":
+                row = [
+                    str(proc.get('pid', 'N/A')),
+                    proc['comm'],
+                    format_network_traffic(proc.get('tcp_sent_rate', 0)),
+                    format_network_traffic(proc.get('tcp_recv_rate', 0)),
+                ]
+                # for proto in self.proc_net_monitor.protocols:
+                #     sent_rate = format_network_traffic(proc.get(f'{proto}_sent_rate', 0), unit=self.proc_net_monitor.unit)
+                #     sent_avg_rate = format_network_traffic(proc.get(f'{proto}_avg_sent_rate', 0), unit=self.proc_net_monitor.unit, show_unit=False)
+                #     recv_rate = format_network_traffic(proc.get(f'{proto}_recv_rate', 0), unit=self.proc_net_monitor.unit)
+                #     recv_avg_rate = format_network_traffic(proc.get(f'{proto}_avg_recv_rate', 0), unit=self.proc_net_monitor.unit, show_unit=False)
+                #     row.append(f"{sent_rate} [dim]{sent_avg_rate}[/dim]")
+                #     row.append(f"{recv_rate} [dim]{recv_avg_rate}[/dim]")
+                table.add_row(*row)
+
+        return table
+
+    def create_dashboard(self) -> Layout:
+        try:
+            memory_processes = self.get_top_processes(n=self.process_number, resource="memory")
+            cpu_processes = self.get_top_processes(n=self.process_number, resource="cpu")
+            io_processes = self.get_top_processes(n=self.process_number, resource="io")
+
+            # Fetch network data from ProcNetMonitor
+            network_processes = self.get_network_usage_from_monitor()
+
+            # network_processes = self.get_top_processes(n=self.process_number, resource="network")
+
+
+            memory_table = self.create_resource_table(memory_processes, resource="memory")
+            cpu_table = self.create_resource_table(cpu_processes, resource="cpu")
+            io_table = self.create_resource_table(io_processes, resource="io")
+            network_table = self.create_resource_table(network_processes, resource="network")
+
+
+            memory_panel = Panel(memory_table, title="[bold magenta]Memory Usage[/bold magenta]", border_style="magenta")
+            cpu_panel = Panel(cpu_table, title="[bold cyan]CPU Usage[/bold cyan]", border_style="cyan")
+            io_panel = Panel(io_table, title="[bold yellow]I/O Usage[/bold yellow]", border_style="yellow")
+            network_panel = Panel(network_table, title="[bold yellow]Network Usage[/bold yellow]", border_style="yellow")
+
+            layout = Layout()
+            layout.split_column(
+                Layout(name="row1", ratio=1),
+                Layout(name="row2", ratio=1)
+            )
+
+            layout["row1"].split_row(
+                Layout(memory_panel, name="memory"),
+                Layout(cpu_panel, name="cpu")
+            )
+            layout["row2"].split_row(
+                Layout(io_panel, name="io"),
+                Layout(network_panel, name="network")
+            )
+
+            return layout
+        except Exception as e:
+            self.console.print(f"[red]Error in create_dashboard: {e}[/red]")
+            return Layout()
+    #
+    # def run_live(self):
+    #     try:
+    #         with Live(console=self.console, refresh_per_second=1) as live:
+    #             while True:
+    #                 dashboard = self.create_dashboard()
+    #                 live.update(dashboard)
+    #                 time.sleep(1)
+    #     except Exception as e:
+    #         self.console.print(f"[red]An error occurred in run_live: {e}[/red]")
+
+    def run_live(self):
+        """
+        실시간 대시보드를 표시합니다.
+        """
+        with Live(self.create_dashboard(), refresh_per_second=1, console=self.console) as live:
+            try:
+                while self.proc_net_monitor.is_running:
+                    live.update(self.create_dashboard())
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                self.console.print("Stopping NetworkMonitor.", style="bold yellow")
+                self.stop()
+
+
+class MemoryStatus:
+    def __init__(self, proc_path="/proc"):
+        self.proc_path = proc_path
+        self.last_check_time = 0
+        self.cached_result = None
+        self.cache_duration = 1  # 캐시 유효 시간 (초)
+        self.memory_history = []
+        self.pressure_paths_checked = True  # 경로 확인 여부
+
+    @staticmethod
+    def read_stats_file(file_path: str) -> str:
+        try:
+            with open(file_path, 'r') as f:
+                return f.read()
+        except IOError as e:
+            raise IOError(f"Error reading file {file_path}: {e}")
+
+    @staticmethod
+    def parse_meminfo(meminfo: str) -> Dict[str, int]:
+        result = {}
+        for line in meminfo.splitlines():
+            if ':' in line:
+                key, value = line.split(':')
+                result[key.strip()] = int(value.split()[0])
+        return result
+
+    def get_memory_pressure(self) -> Dict[str, float]:
+
+        if self.pressure_paths_checked:
+            paths = [f'{self.proc_path}/pressure/memory', '/sys/fs/cgroup/memory.pressure']
+            for path in paths:
+                try:
+                    with open(path, 'r') as f:
+                        pressure = f.read().strip().split()
+                        self.pressure_paths_checked = True
+                        return {
+                            "some_avg10": float(pressure[1].split('=')[1]),
+                            "some_avg60": float(pressure[2].split('=')[1]),
+                            "some_avg300": float(pressure[3].split('=')[1]),
+                            "full_avg10": float(pressure[5].split('=')[1]),
+                            "full_avg60": float(pressure[6].split('=')[1]),
+                            "full_avg300": float(pressure[7].split('=')[1])
+                        }
+                except:
+                    # self.pressure_paths_checked = False
+                    continue
+            self.pressure_paths_checked = False
+            return {}
+
+    @staticmethod
+    def get_top_memory_processes(n: int = 5) -> List[Dict[str, Union[str, float]]]:
+        processes = []
+        for proc in psutil.process_iter(['pid', 'name', 'memory_percent']):
+            try:
+                processes.append({
+                    'pid': proc.info['pid'],
+                    'name': proc.info['name'],
+                    'memory_percent': proc.info['memory_percent']
+                })
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+        return sorted(processes, key=lambda x: x['memory_percent'], reverse=True)[:n]
+
+    def get_huge_pages_info(self) -> Dict[str, int]:
+        meminfo = self.parse_meminfo(self.read_stats_file(f"{self.proc_path}/meminfo"))
+        return {
+            "HugePages_Total": meminfo.get("HugePages_Total", 0),
+            "HugePages_Free": meminfo.get("HugePages_Free", 0),
+            "HugePages_Rsvd": meminfo.get("HugePages_Rsvd", 0),
+            "HugePages_Surp": meminfo.get("HugePages_Surp", 0),
+            "Hugepagesize": meminfo.get("Hugepagesize", 0)
+        }
+
+    def get_memory_status(self, unit: str = "GB", output_format: str = "dict") -> Union[Dict, str]:
+        current_time = time.time()
+        if current_time - self.last_check_time < self.cache_duration and self.cached_result:
+            return self.cached_result
+
+        try:
+            meminfo = self.read_stats_file(f"{self.proc_path}/meminfo")
+            meminfo_dict = self.parse_meminfo(meminfo)
+        except IOError as e:
+            raise RuntimeError(f"Failed to read memory information: {e}")
+
+        units = {"KB": 1, "MB": 1024, "GB": 1024 * 1024, "TB": 1024 * 1024 * 1024}
+        if unit.upper() not in units:
+            raise ValueError(f"Invalid unit: {unit}. Choose from KB, MB, GB, TB.")
+        unit_multiplier = units[unit.upper()]
+
+        total_mem = meminfo_dict["MemTotal"] / unit_multiplier
+        free_mem = meminfo_dict["MemFree"] / unit_multiplier
+        avail_mem = meminfo_dict["MemAvailable"] / unit_multiplier
+        cached_mem = meminfo_dict["Cached"] / unit_multiplier
+        buffers_mem = meminfo_dict.get("Buffers", 0) / unit_multiplier
+        swap_total = meminfo_dict.get("SwapTotal", 0) / unit_multiplier
+        swap_free = meminfo_dict.get("SwapFree", 0) / unit_multiplier
+
+        used_mem = total_mem - free_mem - cached_mem - buffers_mem
+        swap_used = swap_total - swap_free
+        percent_used = 100 * (total_mem - avail_mem) / total_mem
+        swap_percent = 100 * swap_used / swap_total if swap_total > 0 else 0
+
+        result = {
+            "total": round(total_mem, 2),
+            "used": round(used_mem, 2),
+            "free": round(free_mem, 2),
+            "available": round(avail_mem, 2),
+            "cached": round(cached_mem, 2),
+            "buffers": round(buffers_mem, 2),
+            "percent": round(percent_used, 2),
+            "swap_total": round(swap_total, 2),
+            "swap_used": round(swap_used, 2),
+            "swap_free": round(swap_free, 2),
+            "swap_percent": round(swap_percent, 2),
+            "unit": unit,
+            "pressure": self.get_memory_pressure(),
+            "top_processes": self.get_top_memory_processes(),
+            "huge_pages": self.get_huge_pages_info()
+        }
+
+        self.memory_history.append((current_time, percent_used))
+        if len(self.memory_history) > 60:
+            self.memory_history.pop(0)
+
+        result["memory_trend"] = [{"time": t, "percent": p} for t, p in self.memory_history]
+
+        self.last_check_time = current_time
+        self.cached_result = result
+
+        if output_format == "dict":
+            return result
+        elif output_format == "json":
+            return json.dumps(result, indent=2)
+        elif output_format == "text":
+            return "\n".join([f"{k}: {v}" for k, v in result.items()])
+        else:
+            raise ValueError(f"Invalid output format: {output_format}. Choose from dict, json, text.")
+
+    def check_memory_threshold(self, threshold: float = 90.0) -> bool:
+        """메모리 사용량이 임계값을 초과하는지 확인"""
+        status = self.get_memory_status()
+        return status['percent'] > threshold
+
+
 class SystemMonitor:
     def __init__(self, interval=1, proc_path="/proc"):
         if interval <= 0:
@@ -402,7 +872,12 @@ class SystemMonitor:
         self.prev_cpu_data = self.parse_cpu_stat()
         self.prev_disk_stats = self.read_disk_stats()
 
-    def read_stats_file(self, filename=""):
+        self.mem_status = MemoryStatus(proc_path=self.proc_path)
+        self.cached_result = None
+        self.cache_duration = 1
+
+    @staticmethod
+    def read_stats_file(filename=""):
         with open(filename) as f:
             return f.readlines()
 
@@ -543,37 +1018,8 @@ class SystemMonitor:
         return disk_usage
 
     def get_memory_status(self, unit="GB"):
-        meminfo = self.read_stats_file(f"{self.proc_path}/meminfo")
-        meminfo_dict = self.parse_meminfo(meminfo)
-
-        units = {"KB": 1, "MB": 1024, "GB": 1024 * 1024}
-        unit_multiplier = units.get(unit.upper(), 1024 * 1024)
-
-        total_mem = meminfo_dict["MemTotal"] / unit_multiplier
-        free_mem = meminfo_dict["MemFree"] / unit_multiplier
-        avail_mem = meminfo_dict["MemAvailable"] / unit_multiplier
-        cached_mem = meminfo_dict["Cached"] / unit_multiplier
-
-        used_mem = total_mem - free_mem
-        percent_used = 100 * used_mem / total_mem
-
-        return {
-            "total": round(total_mem, 2),
-            "used": round(used_mem, 2),
-            "free": round(free_mem, 2),
-            "avail": round(avail_mem, 2),
-            "cached": round(cached_mem, 2),
-            "percent": round(percent_used, 2),
-            "unit": unit
-        }
-
-    @staticmethod
-    def parse_meminfo(lines):
-        meminfo = {}
-        for line in lines:
-            key, value = line.split(":")
-            meminfo[key] = int(value.strip().split()[0])
-        return meminfo
+        result = self.mem_status.get_memory_status(unit=unit)
+        return result
 
     def get_system_status(self):
         time.sleep(self.interval)

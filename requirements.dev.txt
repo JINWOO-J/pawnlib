@@ -43,3 +43,5 @@ pandoc~=2.3
 aiodocker~=0.21.0
 aiofiles>=22.1.0
 python-dotenv>=0.21.1
+tqdm~=4.65.0
+toml~=0.10.2

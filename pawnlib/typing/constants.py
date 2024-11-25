@@ -297,6 +297,43 @@ class NumericConstants:
     E = 2.71828
     GOLDEN_RATIO = (1 + 5 ** 0.5) / 2
 
+class UnitMultiplierConstants:
+    """
+    Constants for data transfer units with standardized multipliers for conversions.
+    """
+    BPS = 1
+    KBPS = 1024
+    MBPS = 1024 ** 2
+    GBPS = 1024 ** 3
+    TBPS = 1024 ** 4
+    BITS_PER_SECOND = 1 / 8
+    KILOBITS_PER_SECOND = 1024 / 8
+    MEGABITS_PER_SECOND = (1024 ** 2) / 8
+    GIGABITS_PER_SECOND = (1024 ** 3) / 8
+    TERABITS_PER_SECOND = (1024 ** 4) / 8
+
+    UNIT_MULTIPLIERS = {
+        "B/s": BPS,
+        "KB/s": KBPS,
+        "MB/s": MBPS,
+        "GB/s": GBPS,
+        "TB/s": TBPS,
+        "bps": BITS_PER_SECOND,
+        "Kbps": KILOBITS_PER_SECOND,
+        "Mbps": MEGABITS_PER_SECOND,
+        "Gbps": GIGABITS_PER_SECOND,
+        "Tbps": TERABITS_PER_SECOND,
+    }
+
+    @classmethod
+    def get_unit_multiplier(cls, unit: str) -> float:
+        """
+        Retrieve the multiplier for the specified unit.
+
+        :param unit: The unit (e.g., "MB/s", "Kbps").
+        :return: Multiplier for converting to bytes.
+        """
+        return cls.UNIT_MULTIPLIERS.get(unit, cls.BPS)
 
 class AddressConstants:
     ICON_ADDRESS = 42
@@ -641,6 +678,7 @@ class AllConstants(
     # MediaTypeConstants,
     BooleanConstants,
     NumericConstants,
+    UnitMultiplierConstants,
     AddressConstants,
     TimeStampDigits,
     ICONConstants,

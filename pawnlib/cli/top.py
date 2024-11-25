@@ -1,57 +1,56 @@
 #!/usr/bin/env python3
-import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
-from pawnlib.typing import StackList, list_to_oneline_string, str2bool, shorten_text
+from pawnlib.typing import StackList, list_to_oneline_string, str2bool, shorten_text, get_procfs_path
 from pawnlib.resource import (
     SystemMonitor, get_cpu_load, get_interface_ips, get_platform_info,
-    get_mem_info, get_netstat_count, get_hostname
+    get_mem_info, get_netstat_count, get_hostname, ProcessMonitor
 )
-from pawnlib.output import is_file
+from pawnlib.models.response import CriticalText
+from pawnlib.resource.net import ProcNetMonitor
 import os
-import re
 
 from rich.live import Live
 from rich.table import Table
 from rich.align import Align
-from rich.text import Text
 from rich.panel import Panel
 from rich import box
 from pawnlib.typing import todaydate
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
 import time
 
-__description__ = "This is a tool to measure your server's resources."
+__description__ = "A simple and powerful tool for monitoring server resources in real time."
 
 __epilog__ = (
-    "This tool is designed for monitoring your server's resource usage.\n\n"
-    "With various options, users can obtain detailed information \n"
-    "about different resources of the server such as network traffic, CPU usage, memory usage, etc\n"
-    "It is particularly useful for system administrators and DevOps engineers.\n\n"
-    "Usage examples:\n\n"
-    "  1. Default monitoring: Execute `$ pawns top` to monitor system resources with default settings.\n\n"
-    "   `pawns top`\n\n"
-    "  2. Verbose mode: Add the `-v` option to output more detailed information.\n\n"
-    "\t `pawns top -v` \n\n"
-    "  3. Quiet mode: Use the `-q` option to suppress all messages except for logs.\n\n"
-    "\t `pawns top -q`\n\n"
-    "  4. Set update interval: Use the `-i` option to set the interval for updating monitoring information in seconds.\n\n"
-    "\t `pawns top -i 5` \n\n"
-    "  5. Specify output format: Use the `-t` option to output the results in one of the formats: 'live', 'tab', 'line'.\n\n"
-    "\t `pawns top -t live`\n\n"
-    "  6. Network mode: Specify \"net\" as the `command` argument to monitor only network-related information.\n\n"
-    "\t `pawns top net`\n\n"
-    "Each option is designed to help users monitor the state of the system according to their needs. For more detailed usage of options, check with `--help`."
+    "This tool is a comprehensive solution for monitoring your server's resource usage. \n\n"
+    "Features include real-time tracking of network traffic, CPU, memory, and disk usage, \n"
+    "making it an indispensable tool for system administrators and DevOps professionals.\n\n"
+    "Here are some usage examples to get you started:\n\n"
+    "  1. **Basic Monitoring:** Monitor system resources with default settings. \n"
+    "     Example: `pawns top`\n\n"
+    "  2. **Detailed View:** Use `-v` to increase verbosity and get more detailed logs.\n"
+    "     Example: `pawns top -v`\n\n"
+    "  3. **Minimal Output:** Use `-q` for quiet mode to suppress standard output.\n"
+    "     Example: `pawns top -q`\n\n"
+    "  4. **Custom Update Interval:** Adjust the refresh rate with `-i` to set the interval in seconds.\n"
+    "     Example: `pawns top -i 5`\n\n"
+    "  5. **Output Formats:** Choose between 'live' and 'line' output styles with `-t`.\n"
+    "     Example: `pawns top -t live`\n\n"
+    "  6. **Network-Specific Monitoring:** Focus solely on network traffic and protocols.\n"
+    "     Example: `pawns top net`\n\n"
+    "  7. **Advanced Filters:** Use advanced options to filter processes by PID, name, or network protocols.\n"
+    "     Example: `pawns top proc --pid-filter 1234 --protocols tcp udp`\n\n"
+    "Key options:\n"
+    "  --top-n              Specify the number of top processes to display.\n"
+    "  --refresh-rate       Set the data refresh rate in seconds.\n"
+    "  --unit               Choose the unit for network traffic (e.g., Mbps, Gbps).\n"
+    "  --group-by           Group processes by PID or name.\n\n"
+    "This flexibility allows you to tailor the tool to your specific needs. \n"
+    "For more detailed usage, run `--help` or refer to the documentation."
 )
 
-
-if str2bool(os.environ.get("IS_DOCKER")) and is_file("/rootfs/proc"):
-    PROCFS_PATH = "/rootfs/proc"
-    pawn.console.log("Running in Docker mode on " + PROCFS_PATH)
-else:
-    PROCFS_PATH = "/proc"
-
+PROCFS_PATH = get_procfs_path()
 
 def get_parser():
     parser = CustomArgumentParser(
@@ -71,70 +70,45 @@ def get_arguments(parser):
     parser.add_argument('-i', '--interval', type=float, help='interval sleep time seconds. (default: %(default)s)', default=1)
     parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
     parser.add_argument('-t', '--print-type', type=str, help='printing type  %(default)s)', default="line", choices=["live", "line"])
+
+
+    parser.add_argument(
+        '--top-n', type=int, default=10,
+        help="The number of top processes to display in the table. Default: %(default)s."
+    )
+    # parser.add_argument(
+    #     '--refresh-rate', type=int, default=2,
+    #     help="The data refresh rate in seconds. Default: %(default)s."
+    # )
+    parser.add_argument(
+        '--group-by', type=str, default="pid", choices=["pid", "name"],
+        help="Criteria for grouping processes (e.g., 'pid' or 'name'). Default: %(default)s."
+    )
+    parser.add_argument(
+        '--unit', type=str, default="Mbps", choices=['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps'],
+        help="Unit for displaying network traffic (e.g., 'bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps'). Default: %(default)s."
+    )
+    parser.add_argument(
+        '--protocols', nargs='+', default=["tcp", "udp"],
+        help="List of protocols to monitor. Defaults to %(default)s."
+    )
+    parser.add_argument(
+        '--pid-filter', type=int, nargs='*',
+        help="Filter processes by specific process IDs."
+    )
+    parser.add_argument(
+        '--proc-filter', type=str, nargs='*',
+        help="Filter processes by name."
+    )
+    parser.add_argument(
+        '--min-bytes-threshold', type=int, default=0,
+        help="Minimum bytes threshold for displaying processes. Default: %(default)s."
+    )
+    parser.add_argument(
+        '--callback', type=str,
+        help="Path to a user-defined Python script to execute when data is updated."
+    )
     return parser
-
-
-class CriticalText:
-    def __init__(self, column="", value="",  cores=1, warning_percent=75, medium_percent=50, low_percent=30, align_space=0):
-        self.column = column
-        self.value = value
-        self.number_value = self.extract_first_number(str(value))
-        self.align_space = align_space
-
-        self.critical_limit_dict = {
-            "net_in": 100,
-            "net_out": 100,
-            "usr": 80,
-            "sys": 80,
-            "mem_used": 99.5,
-            "disk_rd":  400,
-            "disk_wr":  400,
-            "load":  int(cores),
-            "i/o":  int(cores) * 2,
-            # "cached":  10,
-        }
-        self.warning_percent = warning_percent
-        self.medium_percent = medium_percent
-        self.low_percent = low_percent
-
-    @staticmethod
-    def extract_first_number(text):
-        match = re.match(r'\d+(\.\d+)?', text)
-        if match:
-            return float(match.group())
-        return None
-
-    def check_limit(self):
-        limit_value = self.critical_limit_dict.get(self.column)
-        if limit_value:
-            if self.number_value >= limit_value:
-                return "bold red"
-            elif self.number_value >= (limit_value * self.warning_percent / 100):
-                return "#FF9C3F"
-            elif self.number_value >= (limit_value * self.medium_percent / 100):
-                return "yellow"
-            elif self.number_value >= (limit_value * self.low_percent / 100):
-                return "green"
-        return "white"
-
-    def return_text(self):
-        return Text(f"{self.value:>{self.align_space}}", self.check_limit())
-        # return self.format_value_color()
-
-    def __str__(self):
-        return Text(f"{self.value:>{self.align_space}}", self.check_limit())
-
-    # @staticmethod
-    def format_value_color(self):
-        formatted_text = ""
-        color = self.check_limit()
-        parts = self.value.split()
-        for part in parts:
-            if any(char.isdigit() for char in part):
-                formatted_text += f'[{color}]{part}[/{color}] '
-            else:
-                formatted_text += f'[gray]{part}[/gray]'
-        return f"{formatted_text:>{self.align_space+(len(color)*2)+1}}"
 
 
 def print_banner():
@@ -162,7 +136,6 @@ def main():
     pawn.set(
         PAWN_CONFIG_FILE=config_file,
         PAWN_PATH=args.base_dir,
-
         PAWN_CONSOLE=dict(
             redirect=True,
             record=True,
@@ -196,7 +169,26 @@ def main():
     system_monitor = SystemMonitor(interval=args.interval, proc_path=PROCFS_PATH)
     table_title = f"🐰 {hostname} <{system_info.get('model')},  {system_info.get('cores')} cores, {get_mem_info().get('mem_total')} GB> 🐰"
 
-    if args.print_type == "live":
+    if args.command == "proc_net":
+        net_mon = ProcNetMonitor(
+            top_n=args.top_n,
+            refresh_rate=args.interval,
+            group_by=args.group_by,
+            unit=args.unit,
+            protocols=args.protocols,
+            pid_filter=args.pid_filter,
+            proc_filter=args.proc_filter,
+            min_bytes_threshold=args.min_bytes_threshold,
+        )
+        net_mon.run_live()
+
+    elif args.command == "proc":
+        proc_mon = ProcessMonitor(
+            n=args.top_n,
+        )
+        proc_mon.run_live()
+
+    elif args.print_type == "live":
         print_live_type_status(table_title=table_title,  system_info=system_info, system_monitor=system_monitor)
     # elif args.print_type == "tab":
     #     print_tabulate_status(system_monitor=system_monitor)
@@ -214,17 +206,13 @@ def print_line_type_status(table_title, system_info, system_monitor, args):
         for column_key, value in data.items():
             align_space = max([len(str(value)), len(column_key)]) + 2
             columns.append(f"[blue][u]{column_key:^{align_space}}[/u][/blue]")
-            _value = CriticalText(column_key, value, cores=system_info.get('cores', 1), align_space=align_space).return_text()
+            _value = CriticalText(column_key, value, cores=system_info.get('cores', 1), align_space=align_space)
             line.append(_value)
 
         if count % term_rows == 0:
-            # print(f"\t{table_title}")
-
             pawn.console.print(Panel(table_title, expand=False))
             print_line_status(columns)
-
         print_line_status(line)
-
         count += 1
 
 
@@ -271,6 +259,57 @@ def get_resources_status(system_monitor: SystemMonitor = None, args=None):
         }
         data.update(netstat.get('COUNT'))
         time.sleep(args.interval)
+
+    elif args.command == "mem":
+        memory = system_monitor.get_memory_status()
+        memory_unit = memory.get('unit')
+        data = {
+            "time": todaydate("time_sec"),
+            # "total": f"{memory.get('total'):.1f}{memory_unit}",
+            "used": f"{memory.get('used'):.1f}{memory_unit}",
+            "free": f"{memory.get('free'):.1f}{memory_unit}",
+            # "available": f"{memory.get('available'):.1f}{memory_unit}",
+            "cached": f"{memory.get('cached'):.1f}{memory_unit}",
+            "buff": f"{memory.get('buffers'):.1f}{memory_unit}",
+            "use_%": f"{memory.get('percent'):.1f}%",
+            "swp_tot": f"{memory.get('swap_total'):.1f}{memory_unit}",
+            "swp_use": f"{memory.get('swap_used'):.1f}{memory_unit}",
+            "swp_free": f"{memory.get('swap_free'):.1f}{memory_unit}",
+            "swp_%": f"{memory.get('swap_percent'):.1f}%",
+            # "memory_trend": f"{memory.get('memory_trend')}",
+        }
+
+        pressure = memory.get('pressure', {})
+        if pressure:
+            data.update({
+                "pressure_some_10": f"{pressure.get('some_avg10', 0):.2f}",
+                "pressure_some_60": f"{pressure.get('some_avg60', 0):.2f}",
+                "pressure_full_10": f"{pressure.get('full_avg10', 0):.2f}",
+                "pressure_full_60": f"{pressure.get('full_avg60', 0):.2f}",
+            })
+
+        # Huge Pages 정보 추가
+        huge_pages = memory.get('huge_pages', {})
+        if huge_pages:
+            data.update({
+                # "huge_total": str(huge_pages.get('HugePages_Total', 0)),
+                # "huge_free": str(huge_pages.get('HugePages_Free', 0)),
+                # "huge_rsvd": str(huge_pages.get('HugePages_Rsvd', 0)),
+                # "huge_surp": str(huge_pages.get('HugePages_Surp', 0)),
+                "huge_size": f"{huge_pages.get('Hugepagesize', 0) / 1024:.0f}MB",
+            })
+
+        time.sleep(args.interval)
+
+    elif args.command == "top_mem":
+        top_processes = system_monitor.mem_status.get_top_memory_processes(n=5)
+        data = {
+            "time": todaydate("time_sec"),
+        }
+        for i, proc in enumerate(top_processes, 1):
+            data[f"proc_mem_{i}"] = f"{proc['name']}({proc['pid']}): {proc['memory_percent']:.2f}%"
+        time.sleep(args.interval)
+
     else:
         memory = system_monitor.get_memory_status()
         network, cpu, disk = system_monitor.collect_system_status()
@@ -288,9 +327,10 @@ def get_resources_status(system_monitor: SystemMonitor = None, args=None):
             "i/o": f"{cpu.get('io_wait'):.2f}",
             "disk_rd": f"{disk['Total'].get('read_mb')}M",
             "disk_wr": f"{disk['Total'].get('write_mb')}M",
-            "mem_total": f"{memory.get('total'):.1f}{memory_unit}",
-            "mem_free": f"{memory.get('free'):.1f}{memory_unit}",
-            "cached": f"{memory.get('cached'):.1f}{memory_unit}",
+            # "mem_total": f"{memory.get('total'):.1f}{memory_unit}",
+            # "mem_free": f"{memory.get('free'):.1f}{memory_unit}",
+            # "cached": f"{memory.get('cached'):.1f}{memory_unit}",
+            "mem_%": f"{memory.get('percent'):.1f}%",
         }
     return data
 
@@ -300,6 +340,7 @@ main.__doc__ = (
 )
 
 if __name__ == '__main__':
+
     try:
         main()
     except Exception as e:

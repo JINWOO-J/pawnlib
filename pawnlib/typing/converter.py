@@ -21,6 +21,7 @@ import statistics
 from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse, urlunparse
 from decimal import Decimal, getcontext, ROUND_DOWN
+from copy import deepcopy
 
 try:
     from typing import Literal, Optional, Union
@@ -451,7 +452,6 @@ class FlatDict(MutableMapping):
         else:
             raise TypeError(f"Unsupported input type for FlatDict initialization. Received value: {value} (type: {type(value).__name__}). Only dictionary-like structures are supported.")
 
-
     def __contains__(self, key):
         """Check to see if the key exists, checking for both delimited and
         not delimited key values.
@@ -594,14 +594,22 @@ class FlatDict(MutableMapping):
             self.__setitem__(new_key, item)
 
     def __str__(self):
-        """Return the string value of the instance.
-        :rtype: str
         """
-        return '{{{}}}'.format(', '.join(
-            ['{!r}: {!r}'.format(k, self[k]) for k in self.keys()]))
+        Return the string representation of FlatDict in the same format as to_dict().
+        """
+        return json.dumps(self.to_dict(), indent=4, ensure_ascii=False)
+
+    def to_dict(self):
+        """
+        Return the flattened representation of the FlatDict as a standard Python dict.
+        """
+        return {k: v for k, v in self.items()}
 
     def as_dict(self):
-        """Return the :class:`~flatdict.FlatDict` as a :class:`dict`
+        """
+        Return the :class:`~flatdict.FlatDict` as a :class:`dict`
+        Return the original nested dictionary structure as it was input.
+        This reverses the flattening process to reconstruct the original data.
         :rtype: dict
         """
         def unpack(parent_key, parent_value):
@@ -812,7 +820,6 @@ class FlatDict(MutableMapping):
         return flattened
 
 
-
 class FlatterDict(FlatDict):
     """Like :class:`~flatdict.FlatDict` but also coerces lists and sets
      to child-dict instances with the offset as the key. Alternative to
@@ -921,6 +928,182 @@ class FlatterDict(FlatDict):
         else:
             return [subset[k] for k in keys]
 
+
+class Flattener(MutableMapping):
+    """
+    Flattener is a dictionary-like object that supports flattening and unflattening
+    nested dictionaries and lists into a single-level dictionary with delimited keys.
+    """
+
+    def __init__(self, value=None, delimiter='.', keep_lists=False):
+        """
+        :param value: Initial value for the Flattener
+        :param delimiter: Delimiter used for flat keys
+        :param keep_lists: Flag to decide whether to keep lists as-is or flatten them
+        """
+        super().__init__()
+        self._values = {}
+        self._delimiter = delimiter
+        self.keep_lists = keep_lists
+        self.original_value = deepcopy(value) if value else None
+        self._initialize_from_value(value)
+
+    def _initialize_from_value(self, value: Any, parent_key: str = "") -> None:
+        """
+        Iteratively flatten the input value into the internal flat dictionary.
+        Supports both dict and list types.
+        """
+        if value is None:
+            return
+
+        stack = [(parent_key, value)]
+        while stack:
+            current_key, current_value = stack.pop()
+
+            if isinstance(current_value, dict):
+                for key, val in current_value.items():
+                    full_key = f"{current_key}{self._delimiter}{key}" if current_key else key
+                    stack.append((full_key, val))
+            elif isinstance(current_value, list) and not self.keep_lists:
+                for index, item in enumerate(current_value):
+                    full_key = f"{current_key}{self._delimiter}{index}" if current_key else str(index)
+                    stack.append((full_key, item))
+            else:
+                self._values[current_key] = current_value
+
+    def __getitem__(self, key):
+        return self._values[key]
+
+    def __setitem__(self, key, value):
+        self._values[key] = value
+
+    def __delitem__(self, key):
+        del self._values[key]
+
+    def __iter__(self):
+        return iter(self._values)
+
+    def __len__(self):
+        return len(self._values)
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self._values}, delimiter='{self._delimiter}', keep_lists={self.keep_lists})"
+
+    def __str__(self) -> str:
+        return json.dumps(self._values, indent=4, ensure_ascii=False)
+
+    def flatten(self):
+        """
+        Return the flattened dictionary representation.
+        :rtype: dict
+        """
+        return dict(self._values)
+
+    def unflatten(self):
+        """
+        Reconstruct the original nested dictionary or list from the flat representation.
+        :rtype: dict or list
+        """
+        result = {}
+
+        for flat_key, value in self._values.items():
+            keys = flat_key.split(self._delimiter)
+            current = result
+            for i, key in enumerate(keys):
+                if key.isdigit():
+                    key = int(key)  # Convert string index to integer
+                if i == len(keys) - 1:
+                    if isinstance(current, list):
+                        while len(current) <= key:
+                            current.append(None)  # Expand the list dynamically
+                        current[key] = value
+                    else:
+                        current[key] = value
+                else:
+                    next_key = keys[i + 1]
+                    is_next_key_digit = next_key.isdigit()
+                    desired_type = list if is_next_key_digit else dict
+                    if isinstance(current, dict):
+                        existing = current.get(key, None)
+                    elif isinstance(current, list):
+                        if isinstance(key, int) and key < len(current):
+                            existing = current[key]
+                        else:
+                            existing = None
+                    else:
+                        existing = None
+                    if existing is None or not isinstance(existing, desired_type):
+                        new_structure = [] if desired_type is list else {}
+                        if isinstance(current, list):
+                            while len(current) <= key:
+                                current.append(None)
+                            current[key] = new_structure
+                        else:
+                            current[key] = new_structure
+                    current = current[key]
+
+        return self._convert_to_list(result)
+
+    @staticmethod
+    def _convert_to_list(obj: Any) -> Any:
+        """
+        Convert dict with integer keys to list if all keys are sequential integers.
+        """
+        if isinstance(obj, dict):
+            try:
+                return [Flattener._convert_to_list(obj[i]) for i in range(len(obj))]
+            except KeyError:
+                pass
+        elif isinstance(obj, list):
+            return [Flattener._convert_to_list(item) for item in obj]
+        return obj
+
+    def to_dict(self):
+        """
+        Return the flattened representation of the FlatDict as a standard Python dict.
+        """
+        return {k: v for k, v in self.items()}
+
+    def as_dict(self):
+        """
+        Return the original nested structure by unflattening the flat dictionary.
+        :rtype: dict or list
+        """
+        return self.unflatten()
+
+    def set_delimiter(self, delimiter):
+        """
+        Set a new delimiter for the flat dictionary.
+        """
+        self._delimiter = delimiter
+
+    def copy(self) -> 'Flattener':
+        """
+        Return a shallow copy of the Flattener object.
+        """
+        return Flattener(
+            value=self.unflatten(),
+            delimiter=self._delimiter,
+            keep_lists=self.keep_lists
+        )
+
+    def get(self, key, default=None):
+        """
+        Get a value from the flattened dictionary or the original structure if not found in the flat dictionary.
+        """
+        if key in self._values:
+            return self._values[key]
+
+        # Traverse the original nested structure to find the value
+        keys = key.split(self._delimiter)
+        current = self.original_value
+        try:
+            for k in keys:
+                k = int(k) if k.isdigit() else k
+                current = current[k]
+            return current
+        except (TypeError, KeyError, IndexError):
+            return default
 
 def base64_decode(text):
     """
@@ -3287,6 +3470,140 @@ def analyze_jail_flags(value: int = 0, return_type="list"):
     return analysis_result
 
 
+def format_network_traffic(size: int, unit=None, per_second: bool = False, use_commas: bool = True, show_unit: bool = True) -> Union[str, float]:
+    """
+    Convert network traffic data to appropriate units (bps, Kbps, Mbps, Gbps).
+
+    :param size: Data size in bytes.
+    :param unit: The desired unit for conversion(e.g., 'Kbps', 'Mbps', 'Gbps'). If None, automatically chooses the best fit unit.
+    :type unit: str, optional
+    :param per_second: If True, use per second transmission units (bps).
+    :param use_commas: If True, add commas to numbers for better readability.
+    :param show_unit: If True, include the unit in the output string. If False, return only the numeric value.
+    :return: Converted string (e.g., '12.34 Mbps' or '12.34 Mbps/s') if show_unit is True, else a float.
+
+    Example:
+
+        .. code-block:: python
+
+        >>> format_network_traffic(1500)
+        '12.00 Kbps'
+        >>> format_network_traffic(1500000, use_commas=True)
+        '1,200.00 Mbps'
+        >>> format_network_traffic(1500000, per_second=True, use_commas=True)
+        '1,200.00 Mbps/s'
+        >>> format_network_traffic(1500000, show_unit=False)
+        1200.00
+    """
+    # Convert bytes to bits
+    size *= 8
+
+    # Define units
+    units = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps']
+
+    if unit:
+        # Validate the fixed unit
+        if unit not in units:
+            raise ValueError(f"Invalid fixed_unit '{unit}'. Must be one of {', '.join(units)}")
+
+        # Find the scale for the fixed unit
+        unit_index = units.index(unit)
+        scaled_size = size / (1000 ** unit_index)
+    else:
+        # Iterate over units and scale appropriately
+        for unit in units:
+            if size < 1000:
+                break
+            size /= 1000  # Scale down
+        scaled_size = size
+
+    # Format the numeric part
+    if use_commas:
+        formatted_size = f"{scaled_size:,.2f}"
+    else:
+        formatted_size = f"{scaled_size:.2f}"
+
+    # Return the result based on show_unit flag
+    if show_unit:
+        unit_suffix = f" {unit}" + ("/s" if per_second else "")
+        return f"{formatted_size}{unit_suffix}"
+    else:
+        return float(formatted_size)
+
+
+def format_size(size, unit=None, unit_type="storage", decimal_places=2, base=1024, use_iec=False, use_commas=True):
+    """
+    Format a size into a human-readable string with appropriate units.
+
+    :param size: The size to format. Must be a non-negative number.
+    :type size: float
+    :param unit: The desired unit for conversion (e.g., 'KB', 'MB', 'GB', etc.). If None, automatically chooses the best fit unit.
+    :type unit: str, optional
+    :param unit_type: The type of units to use ('storage', 'network', or custom). Default is 'storage'.
+    :type unit_type: str, optional
+    :param decimal_places: The number of decimal places to round to. Default is 2.
+    :type decimal_places: int, optional
+    :param base: The base for conversion, either 1024 (default for storage) or 1000 (for network).
+    :type base: int, optional
+    :param use_iec: Whether to use IEC units (KiB, MiB, GiB, ...) instead of SI units.
+    :type use_iec: bool, optional
+    :param use_commas: Whether to include commas in the formatted number.
+    :type use_commas: bool, optional
+
+    :return: Formatted size string with appropriate unit.
+    :rtype: str
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import format_size
+
+            >>> format_size(1536)  # Output: "1.50 KB"
+            >>> format_size(1536000, unit_type="network")  # Output: "12.29 Mbps"
+            >>> format_size(1536000, unit_type="network", use_commas=True)  # Output: "12.29 Mbps"
+            >>> format_size(1536, decimal_places=1, unit_type="storage")  # Output: "1.5 KB"
+    """
+    if not isinstance(size, (int, float)) or size < 0:
+        raise ValueError("Size must be a non-negative number.")
+
+    # Define unit types and corresponding units
+    if unit_type == "storage":
+        si_units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+        iec_units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+    elif unit_type == "network":
+        si_units = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps']
+        iec_units = ['bps', 'Kibps', 'Mibps', 'Gibps', 'Tibps', 'Pibps']
+    else:
+        raise ValueError(f"Unsupported unit_type '{unit_type}'. Choose 'storage' or 'network'.")
+
+    units = iec_units if use_iec else si_units
+
+    # Validate unit
+    if unit and unit not in units:
+        raise ValueError(f"Invalid unit. Choose from: {', '.join(units)}")
+
+    # Convert size to the desired unit or find the best fit
+    if unit:
+        unit_index = units.index(unit)
+        size /= base ** unit_index
+    else:
+        unit_index = 0
+        while size >= base and unit_index < len(units) - 1:
+            size /= base
+            unit_index += 1
+
+    # Format the size with specified decimal places
+    formatted_size = f"{size:.{decimal_places}f}"
+    if use_commas:
+        formatted_size = f"{float(formatted_size):,.{decimal_places}f}"
+
+    # Add unit suffix
+    unit_suffix = f" {units[unit_index]}"
+    return f"{formatted_size}{unit_suffix}"
+
+
+
 def format_text(text="", style="", output_format="slack", custom_delimiters=None, max_length=None):
     """
     Apply the specified Slack, Markdown, or HTML-compatible formatting to the entire text.
@@ -3414,3 +3731,36 @@ def format_link(url, text=None, output_format="slack", custom_delimiters=None, h
             raise ValueError("Custom delimiters must be provided when output_format is 'custom'.")
     else:
         raise ValueError(f"Unsupported output_format: {output_format}")
+
+
+def mask_string(s="", show_last=4, show_length=True):
+    """
+    Mask a string, showing only the last few characters and optionally its length.
+
+    Args:
+        s (str): The string to mask.
+        show_last (int, optional): Number of characters to show at the end. Defaults to 4.
+        show_length (bool, optional): Whether to show the string length. Defaults to True.
+
+    Returns:
+        str: The masked string.
+
+    Example:
+
+    .. code-block:: python
+
+        from pawnlib.typing.converter import mask_string
+
+        >>> uploader.mask_string("AKIAIOSFODNN7EXAMPLE", show_last=4, show_length=True)
+        '*****************MPLE (len=20)'
+    """
+    if not s:
+        return "Not set"
+
+    length = len(s)
+    masked = '*' * (length - show_last) + s[-show_last:]
+
+    if show_length:
+        return f"{masked} (len={length})"
+    else:
+        return masked

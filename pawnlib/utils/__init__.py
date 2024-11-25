@@ -13,6 +13,7 @@ from .operate_handler import (
 )
 from .http import (
     disable_ssl_warnings,
+    append_scheme,
     append_http,
     remove_http,
     append_ws,

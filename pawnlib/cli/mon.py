@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import os
 import asyncio
-import argparse
 
 from aiohttp import ClientSession
 from dotenv import load_dotenv, find_dotenv
-from pawnlib.config import pawn, setup_logger
+from pawnlib.config import pawn, setup_logger, setup_app_logger as _setup_app_logger
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.resource.monitor import SSHMonitor
@@ -13,13 +12,9 @@ from pawnlib.resource.server import get_interface_ips
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter, get_service_specific_arguments
 from typing import List, Dict, Optional, Type, Any
 from pawnlib.typing import (
-    hex_to_number,
-    shorten_text,
     str2bool,
-    is_valid_token_address,
     sys_exit,
     is_valid_url,
-
 )
 from pawnlib.output import print_var, get_script_path, is_file, get_parent_path
 from pawnlib.utils.http import AsyncGoloopWebsocket, NetworkInfo
@@ -31,6 +26,8 @@ from pawnlib.utils.notify import send_slack
 from pawnlib.exceptions.notifier import notify_exception
 import traceback
 from pawnlib.input import get_default_arguments
+import logging
+
 
 IS_DOCKER = str2bool(os.environ.get("IS_DOCKER"))
 
@@ -55,6 +52,12 @@ class ComposeDefaultSettings:
     # DEFAULT_LOG_FILE = ""
     PRIORITY = "env"
 
+def parse_address_list(address_string):
+    """Comma-separated string to list, removing whitespace."""
+    if address_string == "no":
+        return []
+    return [address.strip() for address in address_string.split(',')]
+
 
 def get_parser():
     parser = CustomArgumentParser(
@@ -70,7 +73,7 @@ def add_common_arguments(parser):
     """Add common arguments to both SSH and Wallet parsers."""
     parser.add_argument(
         '--log-type',
-        choices=['console', 'file'],
+        choices=['console', 'file', 'both'],
         default='console',
         help='Choose logger type: console or file (default: console)'
     )
@@ -151,6 +154,7 @@ def get_arguments(parser=None):
     wallet_parser.add_argument(
         '--address-filter',
         help='Comma-separated list of addresses to filter',
+        type=parse_address_list,
         default=None
     )
     wallet_parser.add_argument(
@@ -211,7 +215,7 @@ def load_environment_settings(args) -> dict:
 
         if env_value is not None:
             if is_list:
-                pawn.console.debug(f"Using environment variable for '{attr_name}': {env_value}")
+                pawn.console.debug(f"<is_list> Using environment variable for '{attr_name}': {env_value}")
                 return [item.strip() for item in env_value.split(",") if item.strip()]
             elif value_type == bool:
                 pawn.console.debug(f"Using environment variable for '{attr_name}': {env_value}")
@@ -245,7 +249,6 @@ def load_environment_settings(args) -> dict:
         'verbose': get_setting('verbose', 'VERBOSE', default=1, value_type=int),
         'network_name': get_setting('network_name', 'NETWORK_NAME', default="", value_type=str),
     }
-
     return settings
 
 
@@ -322,7 +325,6 @@ def merge_environment_settings(args):
                 _value = args_value
             else:
                 _value = env_value
-            # pawn.console.log(f"{key}, args_value={args_value}, env_value={env_value}, default={default_value}")
             _settings[key] = _value
     return _settings
 
@@ -512,7 +514,10 @@ def initialize_logger(settings):
     """Set up the logger based on the command and its log type."""
     app_name = f"{settings.get('command')}_watcher"
     pawn.console.log(app_name)
-    return setup_app_logger(log_type=settings.get('log_type'), verbose=settings.get('verbose'), app_name=app_name)
+    # return setup_app_logger(log_type=settings.get('log_type'), verbose=settings.get('verbose'), app_name=app_name)
+    _setup_app_logger(log_type=settings.get('log_type'), verbose=settings.get('verbose'), app_name=app_name)
+
+    return logging.getLogger(__name__)
 
 
 def main():
