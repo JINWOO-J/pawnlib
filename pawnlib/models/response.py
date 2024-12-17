@@ -892,7 +892,7 @@ class CriticalText:
             float: Extracted number or None if no number found.
         """
         match = re.match(r'\d+(\.\d+)?', text)
-        return float(match.group()) if match else None
+        return float(match.group()) if match else 0
 
     def check_limit(self):
         """

@@ -55,6 +55,7 @@ dependencies = [
     "aiofiles>=22.1.0",
     "python-dotenv~=0.21.1",
     "tqdm~=4.65.0",
+    "psutil~=5.9.8",
 ]
 dynamic = ["readme", "version"]
 
@@ -82,7 +83,7 @@ full = [
     "aiodocker~=0.21.0",
     "boto3>=1.28.3",
     "redis~=4.5.1",
-    "aioboto3~=13.2.0"
+    "aioboto3~=11.3.1"
 ]
 
 [project.scripts]
@@ -104,8 +105,8 @@ include = [
 ]
 
 #
-[tool.hatch.metadata.hooks.custom]
-module = "hatch_build:CustomDepsHook"
+#[tool.hatch.metadata.hooks.custom]
+#module = "hatch_build:CustomDepsHook"
 
 [tool.hatch.metadata.hooks.fancy-pypi-readme]
 content-type = "text/markdown"

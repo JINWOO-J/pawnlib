@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import time
@@ -8,16 +9,22 @@ import atexit
 import subprocess
 import threading
 import itertools
+import warnings
 from io import TextIOWrapper
-from typing import Callable, List, Dict, Union
+from typing import Callable, List, Dict, Union, Optional, Any
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from pawnlib.output import dump, debug_print, bcolors
 from pawnlib import typing
 from functools import wraps
 
-from pawnlib.config.globalconfig import pawnlib_config as pawn
+# from pawnlib.config.globalconfig import pawnlib_config as pawn
+from pawnlib.config import pawn, get_logger
 from pawnlib.typing.converter import shorten_text
+
+# warnings.simplefilter('default', DeprecationWarning)
+
+logger = get_logger()
 
 
 class ThreadPoolRunner:
@@ -60,41 +67,50 @@ class ThreadPoolRunner:
         """
         pass
 
-    def run(self):
+    def run(self, tasks=None, timeout: int = None) -> List[Any]:
         """
         Run the function with the given arguments in parallel using a thread pool.
 
-        :return: A list of results from each task.
+        :param tasks: A list or generator of tasks.
+        :type tasks: list or generator
+        :param timeout: Timeout for each task in seconds. If None, no timeout is applied.
+        :type timeout: int or None
+        :return: A list of results from each task, in the same order as the input.
         :rtype: list
         """
-        with ThreadPoolExecutor(max_workers=self.max_workers, initializer=self.initializer_worker) as pool:
-            results = pool.map(self.func, self.tasks)
-            if self.verbose > 0:
-                self.log_results(results)
-        return results
 
-    def run(self):
-        """
-        Run the function with the given arguments in parallel using a thread pool.
+        tasks = tasks or self.tasks
 
-        :return: A list of results from each task.
-        :rtype: list
-        """
         with ThreadPoolExecutor(max_workers=self.max_workers, initializer=self.initializer_worker) as pool:
-            futures = {pool.submit(self.func, task): task for task in self.tasks}
-            results = []
+            futures = {pool.submit(self.func, _task): idx for idx, _task in enumerate(tasks)}
+            results = [None] * len(tasks)
+
             try:
-                for future in as_completed(futures):
-                    result = future.result()
-                    results.append(result)
-                    if self.verbose > 0:
-                        self.log_results(result)
+                for future in as_completed(futures, timeout=timeout):
+                    idx = futures[future]
+                    _task = tasks[idx]
+                    try:
+                        result = future.result(timeout=timeout)
+                        results[idx] = result
+                        if self.verbose > 4:
+                            logger.info(
+                                f"Task {idx} completed. "
+                                f"Function: {self.func.__name__}(), Arguments: {_task}, Result: {result}"
+                            )
+                    except Exception as e:
+                        logger.error(
+                            f"Task {idx} failed. "
+                            f"Function: {self.func.__name__}, Arguments: {_task}, Exception: {e}"
+                        )
+            except TimeoutError:
+                logger.error(f"Timeout exceeded while waiting for tasks to complete.")
             except Exception as e:
-                print(f"Exception encountered: {e}")
+                logger.error(f"Critical error in thread pool execution: {e}")
                 pool.shutdown(wait=False)
                 for future in futures:
                     future.cancel()
                 raise
+
         return results
 
     @staticmethod
@@ -110,32 +126,32 @@ class ThreadPoolRunner:
                 if result:
                     print(result)
 
-    def forever_run(self):
-        """
-        Run the function with the given arguments in parallel using a thread pool indefinitely.
-        """
-        while True:
-            self.run()
-            time.sleep(self.sleep)
-
     # def forever_run(self):
     #     """
     #     Run the function with the given arguments in parallel using a thread pool indefinitely.
     #     """
-    #     try:
-    #         while not self.stop_event.is_set():
-    #             self.run()
-    #             time.sleep(self.sleep)
-    #     except KeyboardInterrupt:
-    #         print("Interrupted by user, stopping...")
-    #         self.stop()
+    #     while True:
+    #         self.run()
+    #         time.sleep(self.sleep)
 
+    def forever_run(self):
+        """
+        Run the function with the given arguments in parallel using a thread pool indefinitely.
+        """
+        try:
+            while not self.stop_event.is_set():
+                self.run()
+                time.sleep(self.sleep)
+        except KeyboardInterrupt:
+            logger.info("Interrupted by user, stopping...")
+            self.stop()
 
     def stop(self):
         """
         Stop the forever_run loop.
         """
         self.stop_event.set()
+
 
 class Daemon(object):
     """
@@ -465,73 +481,424 @@ def execute_function(module_func):
     return globals()[module_func]()
 
 
-def run_execute(text=None, cmd=None, cwd=None, check_output=True, capture_output=True, hook_function=None, debug=False, **kwargs):
-    """
-    Helps run commands
-
-    :param text: just a title name
-    :param cmd: command to be executed
-    :param cwd: the function changes the working directory to cwd
-    :param check_output:
-    :param capture_output:
-    :param hook_function:
-    :param debug:
-    :return:
-    """
-
-    if cmd is None:
-        cmd = text
-
-    start = time.time()
-
-    result = dict(
-        stdout=[],
-        stderr=None,
-        return_code=0,
-        line_no=0
+def run_execute(*args, **kwargs):
+    warnings.warn(
+        "run_execute is deprecated. Use execute_command instead.",
+        DeprecationWarning,
+        stacklevel=2
     )
+    return execute_command(*args, **kwargs)
 
-    if text != cmd:
-        text = f"text='{text}', cmd='{cmd}' :: "
+
+# def execute_command(*args, **kwargs):
+#     return run_execute(*args, **kwargs)
+
+#
+# def execute_command(
+#         cmd: str,
+#         text: Optional[str] = None,
+#         cwd: Optional[str] = None,
+#         check_output: bool = True,
+#         capture_output: bool = True,
+#         hook_function: Optional[Callable[[str, int], None]] = None,
+#         debug: bool = False,
+#         **kwargs
+# ) -> Dict[str, Any]:
+#     """
+#     Executes a shell command and captures its output.
+#
+#     Args:
+#         cmd (str): Command to be executed.
+#         text (str, optional): Descriptive text or title for the command.
+#         cwd (str, optional): Working directory to execute the command in.
+#         check_output (bool, optional): If True, logs the command execution result.
+#         capture_output (bool, optional): If True, captures the command's stdout.
+#         hook_function (Callable[[str, int], None], optional): Function to process each line of stdout.
+#         debug (bool, optional): If True, prints debug information.
+#         **kwargs: Additional keyword arguments to pass to the hook_function.
+#
+#     Returns:
+#         Dict[str, Any]: A dictionary containing the command's execution results.
+#
+#     Raises:
+#         OSError: If an error occurs while executing the command.
+#     """
+#     start_time = time.time()
+#
+#     result = {
+#         "stdout": [],
+#         "stderr": None,
+#         "return_code": 0,
+#         "line_no": 0,
+#         "elapsed": 0.0,
+#     }
+#
+#     if text is None:
+#         text = cmd
+#     else:
+#         text = f"{text} (cmd='{cmd}')"
+#
+#     if debug:
+#         logger.debug(f"Executing command: {cmd}")
+#
+#     try:
+#         process = subprocess.Popen(
+#             cmd,
+#             cwd=cwd,
+#             shell=True,
+#             stdout=subprocess.PIPE,
+#             stderr=subprocess.PIPE,
+#             text=True,  # Replaces 'universal_newlines=True'
+#         )
+#
+#         # Process stdout line by line
+#         if process.stdout:
+#             for line in process.stdout:
+#                 line_stripped = line.strip()
+#                 if line_stripped:
+#                     if callable(hook_function):
+#                         hook_function(line=line_stripped, line_no=result['line_no'], **kwargs)
+#
+#                     if capture_output:
+#                         result["stdout"].append(line_stripped)
+#
+#                     result['line_no'] += 1
+#
+#         # Wait for the process to complete and capture stderr
+#         _, stderr = process.communicate()
+#
+#         result["return_code"] = process.returncode
+#         if stderr:
+#             result["stderr"] = stderr.strip()
+#
+#     except Exception as e:
+#         result['stderr'] = str(e)
+#         raise OSError(f"Error while running command '{cmd}': {e}") from e
+#
+#     end_time = time.time()
+#     result['elapsed'] = round(end_time - start_time, 3)
+#
+#     if check_output:
+#         if result.get("stderr"):
+#             logger.error(f"[FAIL] {text}, Error: '{result.get('stderr')}'")
+#         else:
+#             logger.info(f"[ OK ] {text}, elapsed={result['elapsed']}s")
+#
+#     return result
+
+
+def execute_command(
+        cmd: str,
+        text: Optional[str] = None,
+        cwd: Optional[str] = None,
+        check_output: bool = True,
+        capture_output: bool = True,
+        hook_function: Optional[Callable[[str, int], None]] = None,
+        debug: bool = False,
+        use_spinner: bool = False,
+        spinner_type: str = "dots",
+        spinner_text: Optional[str] = None,
+        **kwargs
+) -> Dict[str, Any]:
+    """
+    Executes a shell command and captures its output, with an optional spinner for visual feedback.
+
+    Args:
+        cmd (str): Command to be executed.
+        text (str, optional): Descriptive text or title for the command.
+        cwd (str, optional): Working directory to execute the command in.
+        check_output (bool, optional): If True, logs the command execution result.
+        capture_output (bool, optional): If True, captures the command's stdout.
+        hook_function (Callable[[str, int], None], optional): Function to process each line of stdout.
+        debug (bool, optional): If True, prints debug information.
+        use_spinner (bool, optional): If True, shows a spinner while the command executes.
+        spinner_type (str, optional): The type of spinner to use (from Rich library).
+        spinner_text (str, optional): Custom text to display alongside the spinner.
+        **kwargs: Additional keyword arguments to pass to the hook_function.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the command's execution results.
+
+    Raises:
+        OSError: If an error occurs while executing the command.
+    """
+    start_time = time.time()
+
+    result = {
+        "stdout": [],
+        "stderr": None,
+        "return_code": 0,
+        "line_no": 0,
+        "elapsed": 0.0,
+    }
+
+    if text is None:
+        text = cmd
     else:
-        text = f"cmd='{cmd}'"
+        text = f"{text} (cmd='{cmd}')"
+
+    if spinner_text is None:
+        spinner_text = f"Executing: {text}"
+
+    if debug:
+        pawn.console.log(f"Executing command: {text}")
 
     try:
-        process = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, shell=True)
-
-        for line in process.stdout:
-            line_striped = line.strip()
-            if line_striped:
-                if callable(hook_function):
-                    if hook_function == print:
-                        print(f"[{result['line_no']}] {line_striped}")
-                    else:
-                        hook_function(line=line_striped, line_no=result['line_no'], **kwargs)
-
-                if capture_output:
-                    result["stdout"].append(line_striped)
-                result['line_no'] += 1
-
-        out, err = process.communicate()
-
-        if process.returncode:
-            result["return_code"] = process.returncode
-            result["stderr"] = err.strip()
+        if use_spinner:
+            with pawn.console.status(spinner_text, spinner="dots"):
+                process = subprocess.Popen(
+                    cmd,
+                    cwd=cwd,
+                    shell=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,  # Replaces 'universal_newlines=True'
+                )
+                result = _process_command_output(process, capture_output, hook_function, result, **kwargs)
+        else:
+            process = subprocess.Popen(
+                cmd,
+                cwd=cwd,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            result = _process_command_output(process, capture_output, hook_function, result, **kwargs)
 
     except Exception as e:
-        result['stderr'] = e
-        raise OSError(f"Error while running command cmd='{cmd}', error='{e}'")
+        result['stderr'] = str(e)
+        raise OSError(f"Error while running command '{cmd}': {e}") from e
 
-    end = round(time.time() - start, 3)
+    end_time = time.time()
+    result['elapsed'] = round(end_time - start_time, 3)
 
     if check_output:
         if result.get("stderr"):
-            # cprint(f"[FAIL] {text}, Error = '{result.get('stderr')}'", "red")
-            pawn.error_logger.info(f"[FAIL] {text}, Error = '{result.get('stderr')}'") if pawn.error_logger else False
+            logger.error(f"[bold red][FAIL][/bold red] {text}, Error: '{result.get('stderr')}'")
         else:
-            # cprint(f"[ OK ] {text}, timed={end}", "green")
-            pawn.app_logger.info(f"[ OK ] {text}, timed={end}") if pawn.app_logger else False
+            logger.info(f"[bold green][ OK ][/bold green] {text}, elapsed={result['elapsed']}s")
+
     return result
+
+
+def _process_command_output(process, capture_output, hook_function, result, **kwargs):
+    """
+    Processes the output from the subprocess.
+    """
+    if process.stdout:
+        for line in process.stdout:
+            line_stripped = line.strip()
+            if line_stripped:
+                if callable(hook_function):
+                    hook_function(line=line_stripped, line_no=result['line_no'], **kwargs)
+
+                if capture_output:
+                    result["stdout"].append(line_stripped)
+
+                result['line_no'] += 1
+
+    # Wait for the process to complete and capture stderr
+    _, stderr = process.communicate()
+
+    result["return_code"] = process.returncode
+    if stderr:
+        result["stderr"] = stderr.strip()
+
+    return result
+
+
+def execute_command_batch(
+        tasks: Union[List[str], List[Dict[str, Any]]],
+        stop_on_error: bool = False,
+        slack_url: Optional[str] = None,
+        default_kwargs: Optional[Dict[str, Any]] = None,
+        function_registry=None,
+) -> List[Dict[str, Any]]:
+    """
+    Executes a batch of tasks, where each task can be a string (command) or a dictionary
+    containing arguments for execute_command. Handles errors and sends optional Slack notifications.
+
+    Args:
+        tasks (Union[List[str], List[Dict[str, Any]]]): List of commands (as strings or dictionaries).
+        stop_on_error (bool, optional): If True, stops execution upon encountering an error.
+        slack_url (str, optional): Slack webhook URL for sending notifications.
+        default_kwargs (Dict[str, Any], optional): Default arguments to apply to each task.
+
+    Returns:
+        List[Dict[str, Any]]: A list of results from execute_command for each task.
+    """
+    from pawnlib.utils.notify import send_slack
+    function_registry = function_registry or {}
+    results = []
+    default_kwargs = default_kwargs or {"debug":False, "check_output": False}
+
+    for idx, task_item in enumerate(tasks):
+        # If task is a string, treat it as a simple command
+        if isinstance(task_item, str):
+            task_args = {"cmd": task_item}
+        elif isinstance(task_item, dict):
+            task_args = task_item
+        else:
+            logger.error(f"Invalid task format at index {idx}. Skipping task.")
+            continue
+
+        # Merge with default kwargs, with task-specific arguments taking precedence
+        task_args = {**default_kwargs, **task_args}
+        # Extract 'cmd' for logging purposes
+        cmd = task_args.get('cmd')
+        task_type = task_args.get('type', 'shell')
+
+        if not cmd:
+            logger.error(f"Task {idx + 1} is missing the 'cmd' argument.")
+            continue
+
+        text = task_args.get('text', f"Task {idx + 1}/{len(tasks)}: {cmd}")
+        status_emoji = "🚀"  # Default emoji for in-progress status
+
+        try:
+            if task_type == "function":
+                result = execute_registered_function(cmd, function_registry=function_registry)
+                cmd += "()"
+            else:
+                result = execute_command(**task_args)
+
+            # success = result["return_code"] == 0
+            success = result["return_code"] in [0, 2]
+            elapsed = result["elapsed"]
+            error_msg = result.get('stderr')
+
+            status_emoji = "✅" if success else "❌"
+            status = "SUCCESS" if success else "FAILED"
+
+            if task_args.get('text'):
+                text_command = f"{task_args.get('text')} (cmd='{cmd}')"
+            else:
+                text_command = f"Command: '{cmd}'"
+
+            logger.info(
+                # f"{status_emoji} Task {idx + 1}/{len(tasks)} | Command: '{cmd}' | Status: {status} | "
+                f"{status_emoji} Task {idx + 1}/{len(tasks)} | {text_command} | Status: {status} | "
+                f"Elapsed: {elapsed:.3f}s"
+            )
+            if error_msg:
+                logger.error(f"{status_emoji} Task {idx + 1}/{len(tasks)} | {error_msg}")
+            results.append(result)
+
+            if slack_url:
+                command_stdout = shorten_text("\n".join(result.get("stdout", [])) if success else "", width=30)
+                command_stderr =  shorten_text(result.get("stderr", "") if not success else "", width=30, truncate_side="left")
+
+                send_slack(
+                    url=slack_url,
+                    msg_text={
+                        "Command": cmd,
+                        "Elapsed": f"{elapsed:.3f}s",
+                        # "Output": "\n".join(result.get("stdout", [])) if success else "",
+                        "Output": command_stdout,
+                        # "Error": result.get("stderr", "") if not success else "",
+                        "Error": command_stderr,
+                        "Return Code": result['return_code']
+                    },
+                    title=f"Task {idx + 1}/{len(tasks)} {status}",
+                    send_user_name="TaskRunnerBot",
+                    msg_level="info" if success else "error",
+                    status="success" if success else "failed"
+                )
+
+            if not success and stop_on_error:
+                logger.error("Execution stopped due to an error.")
+                break
+
+        except Exception as e:
+            status_emoji = "❌"
+            logger.error(
+                f"{status_emoji} Task {idx + 1}/{len(tasks)} | Command: '{cmd}' | Status: EXCEPTION | "
+                f"Error: {e}"
+            )
+            result = {
+                "cmd": cmd,
+                "stdout": [],
+                "stderr": str(e),
+                "return_code": -1,
+                "elapsed": None,
+            }
+            results.append(result)
+
+            # Send Slack notification for exception
+            if slack_url:
+                send_slack(
+                    url=slack_url,
+                    msg_text={
+                        "Command": cmd,
+                        "Error": str(e)
+                    },
+                    title=f"Task {idx + 1}/{len(tasks)} Exception",
+                    send_user_name="TaskRunnerBot",
+                    msg_level="error",
+                    status="critical"
+                )
+
+            if stop_on_error:
+                logger.error("Execution stopped due to an exception.")
+                break
+
+    return results
+
+
+def execute_registered_function(function_name: str, args: Optional[Dict[str, Any]] = None, debug: bool = False, function_registry=None) -> Dict[str, Any]:
+    """
+    Executes the specified function by name and returns the result.
+
+    Args:
+        function_name (str): The name of the function to execute.
+        args (Optional[Dict[str, Any]]): A dictionary of arguments to pass to the function.
+        debug (bool, optional): If True, enables debug logging.
+        function_registry (dict, optional): A registry of available functions.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the execution results, including 'stdout', 'stderr', 'return_code', 'line_no', and 'elapsed'.
+    """
+    try:
+        func = function_registry.get(function_name)
+
+        if not callable(func):
+            raise ValueError(f"{function_name} is not a callable function.")
+        if debug:
+            logger.info(f"Executing function: {function_name} with args: {args}")
+
+        start_time = time.time()
+        result = func(**(args or {}))
+        end_time = time.time()
+        elapsed = round(end_time - start_time, 3)
+
+        return {
+            "stdout": [str(result)],
+            "stderr": None,
+            "return_code": 0,
+            "line_no": 0,
+            "elapsed": elapsed,
+        }
+    except AttributeError:
+        error_msg = f"Function '{function_name}' not found."
+        logger.error(error_msg)
+        return {
+            "stdout": [],
+            "stderr": error_msg,
+            "return_code": -1,
+            "line_no": 0,
+            "elapsed": 0.0,
+        }
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"Error executing function '{function_name}': {error_msg}")
+        return {
+            "stdout": [],
+            "stderr": error_msg,
+            "return_code": -1,
+            "line_no": 0,
+            "elapsed": 0.0,
+        }
 
 
 def hook_print(*args, **kwargs):

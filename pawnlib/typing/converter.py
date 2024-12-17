@@ -1940,6 +1940,55 @@ def list_to_oneline_string(list_param: list, split_str: str = "."):
     return return_value
 
 
+def list_to_dict_by_key(list_of_dicts, key):
+    """
+    Converts a list of dictionaries into a dictionary, using a specified key from each dictionary as the new key.
+
+    This function iterates through a list of dictionaries, and for each dictionary,
+    it checks if the specified key exists. If the key is present, it adds the dictionary
+    to the resulting dictionary using the value of the specified key as the new key.
+
+    :param list_of_dicts: List of dictionaries to be converted.
+    :type list_of_dicts: list[dict]
+    :param key: The key whose value will be used as the new key in the resulting dictionary.
+    :type key: str
+    :return: A dictionary with keys derived from the specified key in each dictionary.
+    :rtype: dict
+
+    Example:
+
+        .. code-block:: python
+
+            list_of_dicts = [
+                {"id": 1, "name": "Alice"},
+                {"id": 2, "name": "Bob"},
+                {"id": 3, "name": "Charlie"}
+            ]
+            result = list_to_dict_by_key(list_of_dicts, "id")
+
+            # Output:
+            # {
+            #     1: {"id": 1, "name": "Alice"},
+            #     2: {"id": 2, "name": "Bob"},
+            #     3: {"id": 3, "name": "Charlie"}
+            # }
+
+            result = list_to_dict_by_key(list_of_dicts, "name")
+
+            # Output:
+            # {
+            #     "Alice": {"id": 1, "name": "Alice"},
+            #     "Bob": {"id": 2, "name": "Bob"},
+            #     "Charlie": {"id": 3, "name": "Charlie"}
+            # }
+    """
+    result = {}
+    for item in list_of_dicts:
+        if key in item:
+            result[item[key]] = item
+    return result
+
+
 def long_to_bytes(val, endianness='big'):
     """
 
@@ -2544,7 +2593,7 @@ def influx_key_value(key_values: dict, sep: str = ",", operator: str = "="):
     return result
 
 
-def extract_values_in_list(key: Any, list_of_dicts: list = []):
+def extract_values_in_list(key: Any = "", list_of_dicts: list = []):
     """
     Extract the values from a list of dictionaries.
 
@@ -3733,34 +3782,211 @@ def format_link(url, text=None, output_format="slack", custom_delimiters=None, h
         raise ValueError(f"Unsupported output_format: {output_format}")
 
 
-def mask_string(s="", show_last=4, show_length=True):
+def mask_string(s="", show_chars=4, show_length=True, align='right', mask_char='*'):
     """
-    Mask a string, showing only the last few characters and optionally its length.
+    Mask a string by showing a specific number of characters at the specified position
+    (left, right, center, or side), and optionally display the string's length.
 
     Args:
         s (str): The string to mask.
-        show_last (int, optional): Number of characters to show at the end. Defaults to 4.
+        show_chars (int, optional): Number of characters to show. Defaults to 4.
         show_length (bool, optional): Whether to show the string length. Defaults to True.
+        align (str, optional): Position of the visible characters: 'left', 'right', 'center', or 'side'. Defaults to 'right'.
+        mask_char (str, optional): Character used for masking. Defaults to '*'.
 
     Returns:
         str: The masked string.
 
-    Example:
+    Raises:
+        ValueError: If `align` is not one of 'left', 'right', 'center', or 'side'.
+
+    Examples:
 
     .. code-block:: python
 
         from pawnlib.typing.converter import mask_string
 
-        >>> uploader.mask_string("AKIAIOSFODNN7EXAMPLE", show_last=4, show_length=True)
+        >>> mask_string("AKIAIOSFODNN7EXAMPLE", show_chars=4, align='right')
         '*****************MPLE (len=20)'
+
+        >>> mask_string("AKIAIOSFODNN7EXAMPLE", show_chars=4, align='side')
+        'AKIA************MPLE (len=20)'
+
+        >>> mask_string("AKIAIOSFODNN7EXAMPLE", show_chars=6, align='center', mask_char='#')
+        '####SFODNN####### (len=20)'
+
+        >>> mask_string("AKIAIOSFODNN7EXAMPLE", show_chars=4, mask_char="🔒")
+        '🔒🔒🔒🔒🔒🔒🔒🔒🔒🔒🔒🔒🔒🔒🔒MPLE (len=20)'
+
+        >>> mask_string("SECRET-DATA", show_chars=5, mask_char="🍩")
+        '🍩🍩🍩🍩🍩🍩-DATA (len=11)'
+
+        >>> mask_string("CONFIDENTIAL", show_chars=3, align='center', mask_char="🌟")
+        '🌟🌟🌟🌟🌟🌟🌟IAL🌟🌟🌟🌟🌟🌟 (len=12)'
+
     """
     if not s:
         return "Not set"
 
     length = len(s)
-    masked = '*' * (length - show_last) + s[-show_last:]
 
-    if show_length:
-        return f"{masked} (len={length})"
+    # If show_chars exceeds or equals the string length, return the full string
+    if show_chars >= length:
+        result = s
     else:
-        return masked
+        # Determine masking behavior based on `align`
+        if align == 'right':
+            result = mask_char * (length - show_chars) + s[-show_chars:]
+        elif align == 'left':
+            result = s[:show_chars] + mask_char * (length - show_chars)
+        elif align == 'center':
+            half_mask = (length - show_chars) // 2
+            remainder = (length - show_chars) % 2
+            result = (
+                    mask_char * half_mask +
+                    s[half_mask:half_mask + show_chars] +
+                    mask_char * (half_mask + remainder)
+            )
+        elif align == 'side':
+            half_visible = show_chars // 2
+            remainder = show_chars % 2
+            result = (
+                    s[:half_visible + remainder] +
+                    mask_char * (length - show_chars) +
+                    s[-half_visible:]
+            )
+        else:
+            raise ValueError("The 'align' parameter must be one of 'left', 'right', 'center', or 'side'.")
+
+    # Append length if requested
+    if show_length:
+        result = f"{result} (len={length})"
+
+    return result
+
+
+def format_hx_addresses_recursively(data={}, preps_name_info={}):
+    """
+    Recursively formats a nested dictionary or list by appending node names to values starting with 'hx'.
+
+    :param data: The nested dictionary or list to process.
+    :type data: dict or list
+    :param preps_name_info: A dictionary mapping 'hx' addresses to their corresponding node names.
+    :type preps_name_info: dict
+    :return: The updated dictionary or list with formatted 'hx' addresses.
+    :rtype: dict or list
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import format_hx_addresses_recursively
+
+            data = {
+                "roots": {
+                    "8.9.19.17:7100": "hx1ab5883939f2fd478e92aa1260438aa1f03440c1",
+                    "14.6.28.6:7100": "hxaf3fb9a9ff98df2145a36dabfcaa3837a289496b"
+                },
+                "children": [
+                    {"addr": "1.3.8.70:7100", "id": "hxa62afdeda4eba10f141fa5ef21796ac2bdcc6629"},
+                    {"addr": "14.6.28.64:7100", "id": "hx2a3fb9a9ff98df2145936d2bfcaa3837a289496b"}
+                ]
+            }
+
+            preps_name_info = {
+                "hx1ab5883939f2fd478e92aa1260438aa1f03440c1": "Node1",
+                "hxaf3fb9a9ff98df2145a36dabfcaa3837a289496b": "Node2",
+                "hx2a3fb9a9ff98df2145936d2bfcaa3837a289496b": "Node3"
+            }
+
+            result = format_hx_addresses_recursively(data, preps_name_info)
+            # Output:
+            # {
+            #     "roots": {
+            #         "8.9.19.17:7100": "hx1ab5883939f2fd478e92aa1260438aa1f03440c1 (Node1)",
+            #         "14.6.28.6:7100": "hxaf3fb9a9ff98df2145a36dabfcaa3837a289496b (Node2)"
+            #     },
+            #     "children": [
+            #         {"addr": "1.3.8.70:7100", "id": "hxa62afdeda4eba10f141fa5ef21796ac2bdcc6629 (Node3)"},
+            #         {"addr": "14.6.28.64:7100", "id": "hx2a3fb9a9ff98df2145936d2bfcaa3837a289496b (Node2)"}
+            #     ]
+            # }
+    """
+    if isinstance(data, dict):
+        for key, value in data.items():
+            data[key] = format_hx_addresses_recursively(value, preps_name_info)
+    elif isinstance(data, list):
+        for index, item in enumerate(data):
+            data[index] = format_hx_addresses_recursively(item, preps_name_info)
+    elif isinstance(data, str) and data.startswith("hx"):
+        node_name = preps_name_info.get(data, "Unknown")
+        return f"{data}[green] ({node_name})[/green]"
+
+    return data
+
+
+def filter_by_key(data, target_key):
+    """
+    Recursively filters a nested dictionary or list to find and return the value of a specific key.
+
+    :param data: The nested dictionary or list to search.
+    :type data: dict or list
+    :param target_key: The key to search for.
+    :type target_key: str
+    :return: The value(s) associated with the target key.
+    :rtype: dict, list, or any
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import filter_by_key
+
+            # Example 1: Nested dictionary search
+            data = {
+                "level1": {
+                    "level2": {
+                        "target": "value1",
+                        "other": "value2"
+                    },
+                    "another_level2": {
+                        "target": "value3"
+                    }
+                }
+            }
+            result = filter_by_key(data, "target")
+            # Output: {'level1': {'level2': {'target': 'value1'}, 'another_level2': {'target': 'value3'}}}
+
+            # Example 2: Nested list search
+            data = [
+                {"key1": "value1", "target": "value2"},
+                {"key2": {"target": "value3"}}
+            ]
+            result = filter_by_key(data, "target")
+            # Output: [{'target': 'value2'}, {'key2': {'target': 'value3'}}]
+
+            # Example 3: No matching key
+            data = {"key1": {"key2": {"key3": "value"}}}
+            result = filter_by_key(data, "non_existent_key")
+            # Output: None
+    """
+    if isinstance(data, dict):
+        result = {}
+        for key, value in data.items():
+            if key == target_key:
+                result[key] = value
+            else:
+                filtered = filter_by_key(value, target_key)
+                if filtered:
+                    result[key] = filtered
+        return result if result else None
+
+    elif isinstance(data, list):
+        result = []
+        for item in data:
+            filtered = filter_by_key(item, target_key)
+            if filtered:
+                result.append(filtered)
+        return result if result else None
+
+    return None

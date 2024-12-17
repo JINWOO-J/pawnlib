@@ -169,12 +169,12 @@ def get_range_day_of_month(year: int, month: int, return_unix: bool = True):
     return first_day, last_day
 
 
-def todaydate(date_type: Literal["file", "time", "time_sec", "hour", "ms", "log", "log_ms", "ms_text", "unix", "ms_unix"] = None) -> str:
+def todaydate(date_type: Literal["file", "md", "time", "time_sec", "hour", "ms", "log", "log_ms", "ms_text", "unix", "ms_unix"] = None) -> str:
     """
 
     This functions will be returned today date string.
 
-    :param date_type: file, time, time_sec, hour, ms, ms_text, unix, ms_unix
+    :param date_type: file, md, time, time_sec, hour, ms, ms_text, unix, ms_unix
     :return:
 
     Example:
@@ -192,6 +192,8 @@ def todaydate(date_type: Literal["file", "time", "time_sec", "hour", "ms", "log"
     """
     if date_type is None:
         return '%s' % datetime.datetime.now().strftime("%Y%m%d")
+    elif date_type == "md":
+        return '%s' % datetime.datetime.now().strftime("%m%d")
     elif date_type == "file":
         return '%s' % datetime.datetime.now().strftime("%Y%m%d_%H%M")
     elif date_type == "time":

@@ -11,6 +11,7 @@ from pawnlib.models.response import CriticalText
 from pawnlib.resource.net import ProcNetMonitor
 import os
 
+from rich.layout import Layout
 from rich.live import Live
 from rich.table import Table
 from rich.align import Align
@@ -69,7 +70,7 @@ def get_arguments(parser):
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
     parser.add_argument('-i', '--interval', type=float, help='interval sleep time seconds. (default: %(default)s)', default=1)
     parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
-    parser.add_argument('-t', '--print-type', type=str, help='printing type  %(default)s)', default="line", choices=["live", "line"])
+    parser.add_argument('-t', '--print-type', type=str, help='printing type  %(default)s)', default="line", choices=["live", "layout", "line"])
 
 
     parser.add_argument(
@@ -189,29 +190,54 @@ def main():
         proc_mon.run_live()
 
     elif args.print_type == "live":
-        print_live_type_status(table_title=table_title,  system_info=system_info, system_monitor=system_monitor)
+        print_rich_live_type_status(table_title=table_title,  system_info=system_info, system_monitor=system_monitor)
     # elif args.print_type == "tab":
     #     print_tabulate_status(system_monitor=system_monitor)
     elif args.print_type == "line":
-        print_line_type_status(table_title=table_title, system_info=system_info, system_monitor=system_monitor, args=args)
+        print_simple_line_type_status(table_title=table_title, system_info=system_info, system_monitor=system_monitor, args=args)
+
+    elif args.print_type == "layout":
+        print_rich_layout_type_status(table_title=table_title, system_info=system_info, system_monitor=system_monitor, args=args)
 
 
-def print_line_type_status(table_title, system_info, system_monitor, args):
+def print_simple_line_type_status(table_title, system_info, system_monitor, args):
     count = 0
+
     while True:
         columns, term_rows = os.get_terminal_size()
         data = get_resources_status(system_monitor=system_monitor, args=args)
-        line = []
-        columns = []
+
+        column_widths = {
+            "time": 8,
+            "net_in": 9,
+            "net_out": 9,
+            "pk_in": 10,
+            "pk_out": 10,
+            "load": 5,
+            "usr": 6,
+            "sys": 6,
+            "i/o": 6,
+            "mem_%": 6,
+        }
+
         for column_key, value in data.items():
-            align_space = max([len(str(value)), len(column_key)]) + 2
-            columns.append(f"[blue][u]{column_key:^{align_space}}[/u][/blue]")
+            align_space = max(len(str(value)), len(column_key)) + 3
+            if column_key not in column_widths:  # Avoid overwriting custom values
+                column_widths[column_key] = align_space
+
+        # Prepare headers and lines with calculated widths
+        headers = []
+        line = []
+        for column_key, value in data.items():
+            align_space = column_widths[column_key]
+            headers.append(f"[blue][u]{column_key:>{align_space}}[/u][/blue]")
             _value = CriticalText(column_key, value, cores=system_info.get('cores', 1), align_space=align_space)
             line.append(_value)
 
         if count % term_rows == 0:
             pawn.console.print(Panel(table_title, expand=False))
-            print_line_status(columns)
+            print_line_status(headers)
+
         print_line_status(line)
         count += 1
 
@@ -223,29 +249,103 @@ def print_line_status(line):
     print()
 
 
-def print_live_type_status(table_title="",  system_info={}, system_monitor: SystemMonitor = None):
-    lines = []
-    with Live(console=pawn.console, refresh_per_second=2) as live_table:
+def print_rich_live_type_status(table_title="", system_info={}, system_monitor: SystemMonitor = None):
+    lines = []  # Buffer to store rows of data
+    with Live(console=pawn.console, auto_refresh=False, refresh_per_second=10, screen=False) as live_table:
         while True:
             columns, rows = os.get_terminal_size()
-            diff_rows = len(lines) - rows
-            table = Table(title=table_title, box=box.SIMPLE)
+            if columns < 20 or rows < 5:  # Check minimum terminal size
+                pawn.console.print("[red]Terminal size too small to render the table![/red]")
+                time.sleep(1)
+                continue
 
             data = get_resources_status(system_monitor=system_monitor)
-            line = []
-            for column_key, value in data.items():
+            table = Table(title=table_title, box=box.SIMPLE)
+            data_keys = list(data.keys())
+            for column_key in data_keys:
                 table.add_column(column_key, justify='right')
-                line.append(CriticalText(column_key, value, cores=system_info.get('cores', 1)).return_text())
+
+            line = [
+                CriticalText(column_key, value, cores=system_info.get("cores", 1)).return_text()
+                for column_key, value in data.items()
+            ]
+
+            if len(line) < len(data_keys):
+                line.extend([""] * (len(data_keys) - len(line)))  # Fill missing columns with empty strings
+            elif len(line) > len(data_keys):
+                line = line[:len(data_keys)]  # Trim excess columns
             lines.append(line)
 
-            for line in lines:
-                table.add_row(*line)
-
-            if len(lines) >= rows - 5:
+            if len(lines) > rows - 6:  # Leave space for title and padding
                 lines.pop(0)
-            if diff_rows > -6:
-                del lines[:6]
+
+            for idx, line in enumerate(lines):
+                try:
+                    table.add_row(*line)
+                except IndexError as e:
+                    pawn.console.print(f"[red]Error adding row at index {idx}: {line}[/red]")
+                    pawn.console.print(f"[red]Expected columns: {len(data_keys)}, Got: {len(line)}[/red]")
+                    raise e
             live_table.update(Align.center(table))
+            live_table.refresh()
+
+
+def print_rich_layout_type_status(table_title="", system_info={}, system_monitor=None):
+
+    layout = Layout()
+    layout.split(
+        Layout(name="header", size=3),  # Header section with fixed size
+        Layout(name="body"),           # Body section for the table (dynamic size)
+        Layout(name="footer", size=3)  # Footer section with fixed size
+    )
+
+    layout["header"].update(f"[bold magenta]{table_title}[/bold magenta]")
+    layout["footer"].update("[green]Press Ctrl+C to exit[/green]")
+
+    lines = []  # Buffer to store rows of data
+
+    with Live(layout, console=pawn.console, auto_refresh=False, refresh_per_second=10, screen=False) as live_layout:
+        while True:
+            columns, rows = os.get_terminal_size()
+            if columns < 20 or rows < 10:  # Check minimum terminal size
+                pawn.console.print("[red]Terminal size too small to render the table![/red]")
+                time.sleep(1)
+                continue
+
+            data = get_resources_status(system_monitor=system_monitor)
+
+            table = Table(title=table_title, box=box.SIMPLE)
+            data_keys = list(data.keys())
+
+            for column_key in data_keys:
+                table.add_column(column_key, justify='right')
+
+            line = [
+                CriticalText(column_key, value, cores=system_info.get("cores", 1)).return_text()
+                for column_key, value in data.items()
+            ]
+
+            if len(line) < len(data_keys):
+                line.extend([""] * (len(data_keys) - len(line)))  # Fill missing columns with empty strings
+            elif len(line) > len(data_keys):
+                line = line[:len(data_keys)]  # Trim excess columns
+
+            lines.append(line)
+
+            if len(lines) > rows - 8:  # Leave space for header and footer
+                lines.pop(0)
+
+            for idx, line in enumerate(lines):
+                try:
+                    table.add_row(*line)
+                except IndexError as e:
+                    pawn.console.print(f"[red]Error adding row at index {idx}: {line}[/red]")
+                    pawn.console.print(f"[red]Expected columns: {len(data_keys)}, Got: {len(line)}[/red]")
+                    raise e
+
+            layout["body"].update(Align.center(table))
+            live_layout.refresh()
+            time.sleep(0.6)  # Simulate delay between updates (adjust as needed)
 
 
 def get_resources_status(system_monitor: SystemMonitor = None, args=None):

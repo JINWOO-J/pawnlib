@@ -80,7 +80,6 @@ def main():
     args, unknown = parser.parse_known_args()
 
     pawn.console.log(f"args = {args}")
-
     res = server.get_aws_metadata(meta_ip=args.metadata_ip, timeout=args.timeout)
     if args.output_format == "json":
         print(syntax_highlight(res))

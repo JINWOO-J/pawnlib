@@ -19,7 +19,7 @@ from pawnlib.output import (
     print_json)
 from pawnlib.resource import net
 from pawnlib.typing import date_utils
-from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, Flattener, FlatterDict, flatten, shorten_text, StackList, replace_path_with_suffix, format_text, format_link, remove_ascii_and_tags
+from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, Flattener, FlatterDict, flatten, shorten_text, StackList, replace_path_with_suffix, format_text, format_link, remove_ascii_and_tags, list_to_dict_by_key
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
 from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit, is_hex, is_valid_tx_hash, check_key_and_type
@@ -496,7 +496,7 @@ class IconRpcTemplates:
         return self._params_hint
 
 
-class IconRpcHelper:
+class IconRpcHelper(LoggerMixin):
     def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=True, debug=False,
                  required_sign_methods=None, wait_sleep=1, tx_method="icx_getTransactionResult", logger=None,
                  margin_steps=0, verbose=0, use_hex_value=False, **kwargs):
@@ -509,7 +509,10 @@ class IconRpcHelper:
         self.debug = debug
         self.wait_sleep = wait_sleep
         self.tx_method = tx_method
-        self.logger = setup_logger(logger, "IconRpcHelper", verbose)
+
+        # self.logger = setup_logger(logger, "IconRpcHelper", verbose)
+        self.logger = self.get_logger()
+
         self.margin_steps = margin_steps
         self.use_hex_value = use_hex_value
         self.kwargs = kwargs
@@ -4203,9 +4206,41 @@ class AsyncIconRpcHelper:
         response = await self.execute_rpc_call(url=target_url, method='icx_getNetworkInfo', return_key="result")
         return response if response else 0
 
-    async def get_preps(self, url: Optional[str] = None):
+    async def get_preps(self, url: Optional[str] = None, return_dict_key=""):
         target_url = url or self.url
-        return await self.execute_rpc_call(url=target_url, governance_address=const.CHAIN_SCORE_ADDRESS, method='getPReps', return_key="result.preps")
+        result = await self.execute_rpc_call(url=target_url, governance_address=const.CHAIN_SCORE_ADDRESS, method='getPReps', return_key="result.preps")
+
+        if return_dict_key:
+            return list_to_dict_by_key(result, return_dict_key)
+        return result
+
+    async def get_node_name_by_address(self):
+        """
+        Retrieves a dictionary mapping node addresses to their corresponding names.
+
+        This function calls `get_preps` to fetch the full dictionary of P-Rep information
+        and then filters it to create a new dictionary where the keys are `nodeAddress`
+        and the values are `name`.
+
+        :return: A dictionary with `nodeAddress` as keys and `name` as values.
+        :rtype: dict
+
+        Example:
+            .. code-block:: python
+
+                # Example output
+                {
+                    "hx12ffd8a005f9bc0a3164c2d133a0ed5ecfe70c21": "Clue",
+                    "hx34a8e8a005f9bc0b3164c2d133a0ed5ecfe70c22": "NodeX",
+                    ...
+                }
+        """
+        preps_info = await self.get_preps(return_dict_key="nodeAddress")
+
+        # Create a new dictionary with nodeAddress as the key and name as the value
+        result = {address: info['name'] for address, info in preps_info.items()}
+        return result
+
 
     async def get_validator_info(self, url: Optional[str] = None):
         target_url = url or self.url

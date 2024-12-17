@@ -1,9 +1,8 @@
 import traceback
-from pawnlib.utils.notify import send_slack
-from pawnlib.config import setup_logger
+from pawnlib.config import LoggerMixin
 
 
-class ExceptionNotifier:
+class ExceptionNotifier(LoggerMixin):
     def __init__(self, logger=None, slack_status="failed", slack_msg_level="error", slack_icon=":alert:", slack_url=None):
         """
         Initializes the ExceptionNotifier with logging and Slack notification settings.
@@ -14,7 +13,7 @@ class ExceptionNotifier:
         :param slack_icon: Emoji icon for Slack message (default: ':alert:').
         :param slack_url: The Slack webhook URL. If None, it will use the environment variable.
         """
-        self.logger = setup_logger(logger, "ExceptionNotifier", 1)
+        self.logger = logger or self.get_logger()
         self.slack_status = slack_status
         self.slack_msg_level = slack_msg_level
         self.slack_icon = slack_icon
@@ -28,6 +27,7 @@ class ExceptionNotifier:
         :param additional_message: Additional message to send along with the exception details (optional).
         """
         # Log the error with the logger
+        from pawnlib.utils.notify import send_slack
         self.logger.error(f"Unexpected error: {e}")
 
         # Capture the full traceback as a string

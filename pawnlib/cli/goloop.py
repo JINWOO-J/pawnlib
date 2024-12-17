@@ -3,15 +3,17 @@ import asyncio
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
-from pawnlib.utils.http import IconRpcHelper, NetworkInfo, AsyncIconRpcHelper, CallHttp
-from pawnlib.typing import StackList, list_to_oneline_string, str2bool, shorten_text, get_procfs_path, dict_to_line
-from pawnlib.metrics.tracker import TPSCalculator, SyncSpeedTracker, BlockDifferenceTracker, calculate_reset_percentage
-
+from pawnlib.utils.http import  NetworkInfo, AsyncIconRpcHelper, append_http
+from pawnlib.typing import StackList, format_hx_addresses_recursively, filter_by_key
+from pawnlib.metrics.tracker import TPSCalculator, SyncSpeedTracker, BlockDifferenceTracker, calculate_reset_percentage, calculate_pruning_percentage
+from collections import deque
 import os
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
 from pawnlib.typing.date_utils import format_seconds_to_hhmmss, second_to_dayhhmm
 import time
 from rich.tree import Tree
+import json
+
 
 __description__ = "A powerful and flexible tool for real-time blockchain node and network monitoring."
 
@@ -33,22 +35,22 @@ __epilog__ = (
     "Examples:",
     "---------",
     "1. **Monitor Node Stats**:",
-    "   ./local_cli.py goloop stats --url http://localhost:9000",
+    "   pawns goloop stats --url http://localhost:9000",
     "",
     "2. **View Node Information**:",
-    "   ./local_cli.py goloop info --url http://localhost:9000",
+    "   pawns goloop info --url http://localhost:9000",
     "",
     "3. **Add Comparison with External Node**:",
-    "   ./local_cli.py goloop stats --url http://localhost:9000 --compare-url http://external-node.com",
+    "   pawns goloop stats --url http://localhost:9000 --compare-url http://external-node.com",
     "",
     "4. **Set Custom Update Interval**:",
-    "   ./local_cli.py goloop stats --url http://localhost:9000 --interval 2",
+    "   pawns goloop stats --url http://localhost:9000 --interval 2",
     "",
     "5. **Verbose Output for Debugging**:",
-    "   ./local_cli.py goloop stats --url http://localhost:9000 --verbose",
+    "   pawns goloop stats --url http://localhost:9000 --verbose",
     "",
     "6. **Quiet Mode for Minimal Logs**:",
-    "   ./local_cli.py goloop stats --url http://localhost:9000 --quiet",
+    "   pawns goloop stats --url http://localhost:9000 --quiet",
     "",
     "Options:",
     "--------",
@@ -79,17 +81,41 @@ def get_parser():
 def get_arguments(parser):
     parser.add_argument('command',
                         help='The action to perform. Choose "stats" to monitor the node or "info" to display node details.',
-                        choices=['stats', 'info'],
+                        choices=['stats', 'check', 'info'],
                         type=str, nargs='?', default="stats"
                         )
     parser.add_argument('-c', '--config-file', type=str, help='config', default="config.ini")
     parser.add_argument('-v', '--verbose', action='count', help='verbose mode. view level (default: %(default)s)', default=1)
     parser.add_argument('-q', '--quiet', action='count', help='Quiet mode. Dont show any messages. (default: %(default)s)', default=0)
-    parser.add_argument('-i', '--interval', type=float, help='interval sleep time seconds. (default: %(default)s)', default=1)
+    parser.add_argument('-i', '--interval', type=float, help='interval sleep time seconds. (default: %(default)s)', default=2)
     parser.add_argument('-b', '--base-dir', type=str, help='base dir for httping (default: %(default)s)', default=os.getcwd())
     parser.add_argument('-u', '--url', type=str, help='printing type  %(default)s)', default="localhost:9000")
     parser.add_argument('-cu', '--compare-url', type=str, help='compare url  %(default)s)', default=None)
+    parser.add_argument('-f', '--filter', type=str, help='Filtering key', default=None)
     return parser
+
+
+def save_output(data, file_path, format='text'):
+    """
+    Saves output to a file in the specified format.
+
+    :param data: The data to be saved.
+    :param file_path: The path to the output file.
+    :param format: The format of the output, 'json' or 'text'.
+    """
+    try:
+        if format == 'json':
+            with open(file_path, 'w') as f:
+                json.dump(data, f, indent=4)
+        elif format == 'text':
+            with open(file_path, 'w') as f:
+                if isinstance(data, str):
+                    f.write(data)
+                else:
+                    f.write(json.dumps(data, indent=4))
+        print(f"[green]Output saved to {file_path} in {format} format.[/green]")
+    except Exception as e:
+        print(f"[red]Failed to save output:[/red] {e}")
 
 
 def print_banner():
@@ -116,34 +142,40 @@ def build_flat_key(key_path, key):
     return f"{key_path}.{key}" if key_path else key
 
 
-def add_items_to_tree(tree, data):
+def add_items_to_tree(tree, data, filter_key=None):
     """
     Recursively adds items from the dictionary to the tree.
 
     :param tree: The Rich Tree object to add items to.
     :param data: The current data (dict or list).
+    :param filter_key: Optional key to filter and display only the corresponding data.
+    :type filter_key: str or None
+
     """
     if isinstance(data, dict):
         for key, value in data.items():
+            if key == "preps_name_info":
+                continue
+
             if key == 'network':
-                network_tree = format_network_info(value)
+                network_tree = format_network_info(value, filter_key=filter_key)
                 tree.add(network_tree)
             elif isinstance(value, dict):
                 branch = tree.add(f"[bold blue]{key}[/bold blue]")
-                add_items_to_tree(branch, value)
+                add_items_to_tree(branch, value, filter_key=filter_key)
             elif isinstance(value, list):
                 branch = tree.add(f"[bold green]{key}[/bold green] ({len(value)})")
-                add_items_to_tree(branch, value)
+                add_items_to_tree(branch, value, filter_key=filter_key)
             else:
                 tree.add(f"[bold cyan]{key}[/bold cyan]: [green]{value}[/green]")
     elif isinstance(data, list):
         for index, item in enumerate(data):
             if isinstance(item, dict):
                 branch = tree.add(f"[bold magenta]{index}[/bold magenta]")
-                add_items_to_tree(branch, item)
+                add_items_to_tree(branch, item, filter_key=filter_key)
             elif isinstance(item, list):
                 branch = tree.add(f"[bold magenta]{index}[/bold magenta] (List)")
-                add_items_to_tree(branch, item)
+                add_items_to_tree(branch, item, filter_key=filter_key)
             else:
                 tree.add(f"[bold magenta]{index}[/bold magenta]: [green]{item}[/green]")
     else:
@@ -177,15 +209,24 @@ def add_subsection_to_tree(tree, title, items, formatter=lambda x: x):
         tree.add(f"{title}: {items if items else 'None'}")
 
 
-def format_p2p_info(p2p):
+def get_node_name(preps_name_info={}, node_address=None):
+    node_name = f"({preps_name_info.get(node_address)})"
+    return f"{node_address}{node_name}"
+
+
+def format_p2p_info(p2p, filter_key=None):
     """
-    Formats the P2P information into a Rich Tree.
+    Formats the P2P information into a Rich Tree with optional filtering.
 
     :param p2p: Dictionary containing P2P information.
+    :param filter_key: Optional key to filter and display only the corresponding data.
+    :type filter_key: str or None
     :return: A Rich Tree object representing the P2P information.
     """
     p2p_tree = Tree("p2p")
+    preps_name = pawn.get('preps_name_info')
 
+    # Define subsections
     subsections = {
         "children": p2p.get('children', []),
         "friends": p2p.get('friends', []),
@@ -200,8 +241,14 @@ def format_p2p_info(p2p):
         "uncles": p2p.get('uncles', [])
     }
 
+    # Apply filtering if filter_key is provided
+    if filter_key:
+        subsections = {filter_key: subsections.get(filter_key, None)}
+
+    subsections = format_hx_addresses_recursively(subsections, preps_name)
+
     for title, items in subsections.items():
-        if title in ["friends", "nephews", "orphanages"]:
+        if title in ["friends", "nephews", "orphanages", "uncles"]:
             add_subsection_to_tree(
                 p2p_tree,
                 title.capitalize(),
@@ -212,15 +259,16 @@ def format_p2p_info(p2p):
             add_subsection_to_tree(
                 p2p_tree,
                 title.capitalize(),
-                items
+                items,
             )
-        elif title == "self":
-            self_info = p2p.get('self', {})
+        # elif title == "self":
+        elif title in ["self", "parent"]:
+            self_info = p2p.get(title, {})
             if self_info:
                 self_str = f"ID: {self_info.get('id', 'N/A')}, Addr: {self_info.get('addr', 'N/A')}, In: {self_info.get('in', 'N/A')}, Role: {self_info.get('role', 'N/A')}"
-                p2p_tree.add(f"Self: {self_str}")
+                p2p_tree.add(f"{title.title()}: {self_str}")
             else:
-                p2p_tree.add("Self: None")
+                p2p_tree.add(f"{title.title()}: None")
         else:
             # Handle Children, Others, Uncles which are lists
             add_subsection_to_tree(
@@ -232,17 +280,19 @@ def format_p2p_info(p2p):
 
     return p2p_tree
 
-def format_network_info(network):
+def format_network_info(network, filter_key=None):
     """
     Formats the entire network information into a Rich Tree.
 
     :param network: Dictionary containing network information.
+    :param filter_key: Optional key to filter and display only the corresponding data.
+    :type filter_key: str or None
     :return: A Rich Tree object representing the network information.
     """
     network_tree = Tree("network")
     p2p = network.get('p2p', {})
     if p2p:
-        p2p_tree = format_p2p_info(p2p)
+        p2p_tree = format_p2p_info(p2p, filter_key=filter_key)
         network_tree.add(p2p_tree)
     else:
         network_tree.add("p2p: None")
@@ -250,16 +300,29 @@ def format_network_info(network):
     return network_tree
 
 
-async def fetch_icon_data(url=""):
+async def fetch_icon_data(url="", guessed_network_endpoint=""):
     rpc_helper = AsyncIconRpcHelper(
         url=url,
         logger=pawn.console
     )
+    if not await check_network_api_availability(url):
+        pawn.console.log(f"Cannot connect to {url}")
+        return {}
+
     await rpc_helper.initialize()
+
+    if guessed_network_endpoint:
+        preps_name_info =  await rpc_helper.get_node_name_by_address()
+    else:
+        preps_name_info = {}
+
+    pawn.set(preps_name_info=preps_name_info)
+
     last_block_height = await rpc_helper.get_last_blockheight()
     chain_info = await rpc_helper.fetch("/admin/chain", return_first=True)
     node_info =  await rpc_helper.fetch("/admin/chain/icon_dex")
     network_info =  await rpc_helper.get_network_info()
+
     await rpc_helper.session.close()
 
     return {
@@ -267,6 +330,7 @@ async def fetch_icon_data(url=""):
         "network_info": network_info,
         "chain_info": chain_info,
         "last_block_height": last_block_height,
+        "preps_name_info": preps_name_info
     }
 
 
@@ -281,9 +345,9 @@ async def fetch_admin_chain(target_url="", external_url=""):
     Returns:
         dict: A dictionary containing data from the target and external nodes with elapsed time.
     """
-    async with AsyncIconRpcHelper(logger=pawn.console, timeout=2, return_with_time=True) as rpc_helper:
+    async with AsyncIconRpcHelper(logger=pawn.console, timeout=2, return_with_time=True, retries=1) as rpc_helper:
         try:
-            # Fetch data from the target node
+            # await check_network_api_availability(target_url)
             target_node, target_node_time = await rpc_helper.fetch(
                 url=f"{target_url}/admin/chain", return_first=True
             )
@@ -315,6 +379,48 @@ async def fetch_admin_chain(target_url="", external_url=""):
         "target_node": target_node,
         "external_node": external_node,
     }
+
+
+async def is_port_open(host, port):
+    """
+    Checks if a specific port on a host is open.
+
+    :param host: The hostname or IP address to check.
+    :param port: The port number to check.
+    :return: True if the port is open, False otherwise.
+    """
+    try:
+        reader, writer = await asyncio.open_connection(host, port)
+        writer.close()
+        await writer.wait_closed()
+        return True
+    except Exception:
+        return False
+
+async def check_network_api_availability(network_api):
+    """
+    Checks if the network API is available and the port is open.
+
+    :param network_api: The network API URL to check.
+    :return: True if the network API is available, False otherwise.
+    """
+    from urllib.parse import urlparse
+    parsed_url = urlparse(append_http(network_api))
+
+    host = parsed_url.hostname
+    port = parsed_url.port
+
+    if not host or not port:
+        pawn.console.log("[red]Invalid network API URL provided.[/red]")
+        return False
+
+    is_open = await is_port_open(host, port)
+
+    if not is_open:
+        pawn.console.log(f"[red]Port {port} on {host} is not open.[/red]")
+        return False
+    pawn.console.log(f"[green]Port {port} on {host} is open and accessible.[/green]")
+    return True
 
 
 def display_stats(network_api, compare_api=None, history_size=100, interval=2, log_interval=20):
@@ -363,6 +469,7 @@ def display_stats(network_api, compare_api=None, history_size=100, interval=2, l
     while True:
         try:
             start_time = time.time()
+
             result = asyncio.run(fetch_admin_chain(target_url=network_api, external_url=compare_api))
 
             target_node = result.get('target_node', {})
@@ -370,8 +477,9 @@ def display_stats(network_api, compare_api=None, history_size=100, interval=2, l
             current_time = time.time()
 
             if current_height is None or not isinstance(current_height, int):
-                pawn.console.log("[red]Error:[/red] Invalid 'height' value received.")
-                continue
+                pawn.console.log(f"[red]Error:[/red] Invalid 'height' value received from {network_api}.")
+                time.sleep(2)
+                return
 
             sync_speed_tracker.update(current_height, current_time)
             average_sync_speed = sync_speed_tracker.get_average_sync_speed()
@@ -409,12 +517,25 @@ def display_stats(network_api, compare_api=None, history_size=100, interval=2, l
 
             if target_node.get('state') != "started" or target_node.get('lastError'):
                 target_state = target_node.get('state')
+                percent_state = ""
+                target_state_pct = ""
+
                 if "reset" in target_state:
-                    percent_state = calculate_reset_percentage(target_state)
-                    target_state_pct = f"Progress  {percent_state.get('progress')}% | "
+                    try:
+                        percent_state = calculate_reset_percentage(target_state)
+                        target_state_pct = f"Progress  {percent_state.get('progress')}% | "
+                    except:
+                        pass
+
+                elif "pruning" in target_state:
+                    try:
+                        percent_state = calculate_pruning_percentage(target_state)
+                        target_state_pct = f"Progress  {percent_state.get('progress')}% ({percent_state.get('resolve_progress_percentage')}%) | "
+                    except:
+                        pass
                 else:
                     target_state_pct = ""
-                dynamic_parts.append(f"[red]{target_state_pct}State: {target_node['state']} | lastError: {target_node['lastError']}{target_state_pct}")
+                dynamic_parts.append(f"[red]{target_state_pct}State: {target_node['state']} | lastError: {target_node['lastError']}")
 
             dynamic_log_message = " | ".join(dynamic_parts)
 
@@ -440,6 +561,146 @@ def display_stats(network_api, compare_api=None, history_size=100, interval=2, l
         except Exception as e:
             pawn.console.log(f"[red]Exception occurred:[/red] {e}")
             time.sleep(interval)
+
+
+async def find_open_ports(start_port=9000, end_port=9999):
+
+    tasks = [check_port(port) for port in range(start_port, end_port + 1)]
+    results = await asyncio.gather(*tasks)
+    open_ports = [port for port, is_open in results if is_open]
+    pawn.console.log(f"Checking for open ports... ({start_port} ~ {end_port}), Found: {open_ports}")
+    return open_ports
+
+
+async def check_port(port):
+    loop = asyncio.get_event_loop()
+    try:
+        await loop.create_connection(lambda: asyncio.Protocol(), 'localhost', port)
+        pawn.console.debug(f"Port {port} is open.")
+        return port, True
+    except:
+        return port, False
+
+
+def calculate_tps(heights, times, sleep_duration=1):
+    if len(heights) < 2:
+        return 0, 0
+        # 최근 TPS 및 평균 TPS 계산
+    recent_tx_count = heights[-1] - heights[-2]
+    avg_tx_count = heights[-1] - heights[0]
+
+    recent_tps = recent_tx_count / sleep_duration if sleep_duration > 0 else 0
+    avg_tps = avg_tx_count / (times[-1] - times[0]) if (times[-1] - times[0]) > 0 else 0
+
+    return recent_tps, avg_tps, recent_tx_count
+
+
+async def find_and_check_stat(sleep_duration=2):
+    refresh_interval = 30  # 포트 갱신 간격 (초)
+    last_refresh_time = asyncio.get_event_loop().time()
+
+    # 초기 포트 스캔
+    open_ports = await find_open_ports()
+    if not open_ports:
+        pawn.console.log("No open ports found. Exiting.")
+        return
+
+    block_heights = {port: deque(maxlen=60) for port in open_ports}
+    block_times = {port: deque(maxlen=60) for port in open_ports}
+    consecutive_failures = {port: 0 for port in open_ports}
+
+    async with AsyncIconRpcHelper(logger=pawn.console, timeout=2, return_with_time=False, retries=1) as rpc_helper:
+
+        while True:
+            current_time = asyncio.get_event_loop().time()
+
+            # 주기적 포트 갱신 (초기 스캔 이후)
+            if current_time - last_refresh_time >= refresh_interval:
+                new_open_ports = await find_open_ports()
+                last_refresh_time = current_time
+
+                # 새로운 포트 추가
+                for port in new_open_ports:
+                    if port not in open_ports:
+                        open_ports.append(port)
+                        block_heights[port] = deque(maxlen=60)
+                        block_times[port] = deque(maxlen=60)
+                        consecutive_failures[port] = 0
+
+                # 닫힌 포트 제거
+                closed_ports = [port for port in open_ports if port not in new_open_ports]
+                for port in closed_ports:
+                    open_ports.remove(port)
+                    del block_heights[port]
+                    del block_times[port]
+                    del consecutive_failures[port]
+
+            # tasks = [fetch_chain(rpc_helper.session, port) for port in open_ports]
+            # tasks = [rpc_helper.fetch(f":{port}/admin/chain", return_first=True) for port in open_ports]
+            tasks = [rpc_helper.fetch(url=f"http://localhost:{port}/admin/chain", return_first=True) for port in open_ports]
+            results = await asyncio.gather(*tasks)
+
+            active_ports = 0
+            total_ports = len(open_ports)
+
+            for port, result in zip(open_ports, results):
+                if result is not None:
+                    active_ports += 1
+                    nid = result['nid']
+                    height = result['height']
+                    state = result['state']
+                    if state == "started":
+                        state = ""
+                    elif "reset" in state:
+                        _state = calculate_reset_percentage(state)
+                        state = f"reset {_state.get('reset_percentage')}%"
+                    elif "pruning" in state:
+                        _state = calculate_pruning_percentage(state)
+                        # state = f"reset {_state.get('reset_percentage')}%"
+                        state = f"Progress  {_state.get('progress')}% ({_state.get('resolve_progress_percentage')}%) | "
+
+                    block_heights[port].append(height)
+                    block_times[port].append(current_time)
+
+                    if len(block_heights[port]) >= 2:
+                        recent_tps, avg_tps, recent_tx_count = calculate_tps(
+                            list(block_heights[port]),
+                            list(block_times[port]),
+                            sleep_duration=sleep_duration
+                        )
+                        status = "ok"
+                        consecutive_failures[port] = 0
+                    else:
+                        recent_tps = avg_tps = recent_tx_count = 0
+                        status = 'initializing'
+                else:
+                    status = 'no result'
+                    nid = 'N/A'
+                    height = 'N/A'
+                    recent_tps = avg_tps = recent_tx_count = 0
+                    consecutive_failures[port] += 1
+
+                if consecutive_failures[port] >= 3:
+                    status = 'warn'
+
+                if status != "ok":
+                    status_color = "[red]"
+                elif avg_tps == 0 and recent_tps == 0:
+                    status_color = "[red]"
+                elif avg_tps and avg_tps > 1:
+                    status_color = "[yellow]"
+                else:
+                    status_color = "[dim]"
+
+                try:
+                    pawn.console.log(f'{status_color}Port {port}: Status={status:<3}, Height={height:,}, nid={nid}, '
+                                     f'TPS(AVG)={avg_tps:5.2f}, [dim]TPS={recent_tps:5.2f}[/dim], '
+                                     f'TX Cnt={recent_tx_count:<3},{state}')
+                except Exception as e:
+                    pawn.console.log(f"Error: {e}")
+
+            pawn.console.debug(f"Active Ports: {active_ports}/{total_ports}")
+            await asyncio.sleep(sleep_duration)
 
 
 def main():
@@ -483,15 +744,29 @@ def main():
         )
     print_banner()
     pawn.console.log(args)
-    network_info = NetworkInfo(network_api=args.url)
+    network_info = NetworkInfo(network_api=append_http(args.url))
 
     if args.command == "info":
         try:
-            result = asyncio.run(fetch_icon_data(network_info.endpoint))
-            root_tree = Tree("Result")
-            add_items_to_tree(root_tree, result)
-            pawn.console.rule("[bold blue]Node Info[/bold blue]")
-            pawn.console.print(root_tree)
+            guessed_network = guess_network(network_info)
+            guessed_network.get('endpoint')
+
+            result = asyncio.run(fetch_icon_data(network_info.endpoint, guessed_network.get('endpoint')))
+
+            if args.filter:
+                filtered_result = filter_by_key(result, args.filter)
+                pawn.console.rule(f"[bold blue]Filtered by '{args.filter}'[/bold blue]")
+                # pawn.console.log(filtered_result[args.filter])
+
+                root_tree = Tree(f"Filtered: {args.filter}")
+                add_items_to_tree(root_tree, filtered_result, filter_key=args.filter)
+                pawn.console.log(root_tree)
+
+            else:
+                root_tree = Tree("Result")
+                add_items_to_tree(root_tree, result)
+                pawn.console.rule("[bold blue]Node Info[/bold blue]")
+                pawn.console.print(root_tree)
         except Exception as e:
             pawn.console.log(f"[red]Error fetching node info:[/red] {e}")
     elif args.command == "stats":
@@ -524,8 +799,25 @@ def main():
             display_stats(network_api=network_info.network_api, compare_api=_compare_api, interval=args.interval)
         except Exception as e:
             pawn.console.log(f"[red]Error during stats display:[/red] {e}")
-
         display_stats(network_api=network_info.network_api, compare_api=_compare_api, interval=args.interval)
+
+    elif args.command == "check":
+        asyncio.run(find_and_check_stat(sleep_duration=args.interval))
+
+
+def guess_network(network_info):
+    try:
+        guessed_network = network_info.find_network_by_platform_and_nid(
+            platform=network_info.platform,
+            nid=network_info.nid
+        )
+        pawn.console.log(f"[green]Guessed network info:[/green] {guessed_network}")
+        pawn.console.log(f"[green]Guessed network name:[/green] {guessed_network.get('network_name')}")
+        return guessed_network
+    except Exception as e:
+        pawn.console.log(f"{e}")
+        return {}
+
 
 
 main.__doc__ = (

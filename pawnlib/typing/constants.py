@@ -540,6 +540,16 @@ class LoggingConstants:
         0: logging.WARNING,
         1: logging.INFO,
         2: logging.DEBUG,
+        # 3: 15
+    }
+
+    VERBOSE_LEVEL_STRINGS = {
+        # 0: logging.CRITICAL,
+        # 1: logging.ERROR,
+        0: "WARNING",
+        1: "INFO",
+        2: "DEBUG",
+        # 3: "TRACE",
     }
 
     LOG_LEVELS = {
@@ -548,7 +558,10 @@ class LoggingConstants:
         "WARNING": logging.WARNING,
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
+        # "TRACE": 15,
     }
+
+    LEVEL_NAMES = {v: k for k, v in LOG_LEVELS.items()}
 
     @staticmethod
     def get_level(name: str) -> logging.Logger:
@@ -557,6 +570,25 @@ class LoggingConstants:
     @staticmethod
     def get_level_keys() -> list:
         return list(LoggingConstants.LOG_LEVELS.keys())
+
+    # @staticmethod
+    # def get_level_name(level: int) -> str:
+    #     """Return the string representation of a log level."""
+    #     return LoggingConstants.LEVEL_NAMES.get(level, "UNKNOWN")
+
+    @staticmethod
+    def get_level_name(verbose: int) -> str:
+        """
+        Retrieve the log level string for a given verbosity level.
+        - If the key is less than 0 or not found, return the 0's value.
+        - If the key exceeds the maximum, return the maximum key's value.
+        """
+        log_level_string = LoggingConstants.VERBOSE_LEVEL_STRINGS
+        if verbose < 0:
+            return log_level_string[0]
+        max_key = max(log_level_string.keys())
+        return log_level_string.get(verbose, log_level_string[max_key])
+
 
 class TerminalColor:
     """
