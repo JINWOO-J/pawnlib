@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.cli.net &mdash; Pawnlib v2.0.89</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.cli.net</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.cli.net</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">pawnlib.builder.generator</span> <span class="kn">import</span> <span class="n">generate_banner</span>
+<span class="kn">from</span> <span class="nn">pawnlib.__version__</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
+<span class="kn">from</span> <span class="nn">pawnlib.config</span> <span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span><span class="p">,</span> <span class="n">pconf</span>
+<span class="kn">from</span> <span class="nn">pawnlib.utils</span> <span class="kn">import</span> <span class="n">disable_ssl_warnings</span>
+<span class="kn">from</span> <span class="nn">pawnlib.resource</span> <span class="kn">import</span> <span class="n">net</span><span class="p">,</span> <span class="n">wait_for_port_open</span>
+<span class="kn">from</span> <span class="nn">pawnlib.typing</span> <span class="kn">import</span> <span class="n">is_valid_ipv4</span><span class="p">,</span> <span class="n">sys_exit</span>
+
+<span class="kn">from</span> <span class="nn">pawnlib.input.prompt</span> <span class="kn">import</span> <span class="n">CustomArgumentParser</span><span class="p">,</span> <span class="n">ColoredHelpFormatter</span>
+
+<span class="n">NONE_STRING</span> <span class="o">=</span> <span class="s2">&quot;__NOT_DEFINED_VALUE__&quot;</span>
+<span class="n">__description__</span> <span class="o">=</span> <span class="s2">&quot;This is a tool to measure your server&#39;s resources.&quot;</span>
+
+<span class="n">__epilog__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;This script provides various options to check the network status.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Usage examples:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  1. Network check in verbose mode:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Executes the &#39;check&#39; command for network testing, with &#39;--verbose&#39; option for additional output.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns net check --verbose`</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+    <span class="s2">&quot;  2. Wait for a specific host and port to be available:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Uses the &#39;wait&#39; command to wait until the port (80) on the specified host (192.168.1.1) is open.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns net wait --host 192.168.1.1 --port 80`</span><span class="se">\n</span><span class="s2">&quot;</span>
+    
+    <span class="s2">&quot;  3. Scan a range of hosts and ports:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Runs the &#39;scan&#39; command to scan the specified host range (192.168.1.1 to 192.168.1.255) and port range (20 to 80).</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Sets the maximum number of concurrent workers to 50 with &#39;--worker 50&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Outputs only open ports with the &#39;--view-type open&#39; option.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns net scan --host-range 192.168.1.1-192.168.1.255 --port-range 20-80 --worker 50 --view-type open`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    
+
+    <span class="s2">&quot;For more details, use the -h or --help flag.&quot;</span>
+<span class="p">)</span>
+
+<div class="viewcode-block" id="validate_ipv4_or_exit"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.net.validate_ipv4_or_exit">[docs]</a><span class="k">def</span> <span class="nf">validate_ipv4_or_exit</span><span class="p">(</span><span class="n">ipaddr</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_valid_ipv4</span><span class="p">(</span><span class="n">ipaddr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid IP address -&gt; </span><span class="si">{</span><span class="n">ipaddr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validate_host_range"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.net.validate_host_range">[docs]</a><span class="k">def</span> <span class="nf">validate_host_range</span><span class="p">(</span><span class="n">host_range_str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s2">&quot;-&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">host_range_str</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">validate_ipv4_or_exit</span><span class="p">(</span><span class="n">host_range_str</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">host_range_str</span><span class="p">,</span> <span class="n">host_range_str</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentTypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid IP address: &#39;</span><span class="si">{</span><span class="n">host_range_str</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">start_ip</span><span class="p">,</span> <span class="n">end_ip</span> <span class="o">=</span> <span class="n">host_range_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+        <span class="n">validate_ipv4_or_exit</span><span class="p">(</span><span class="n">start_ip</span><span class="p">)</span>
+        <span class="n">validate_ipv4_or_exit</span><span class="p">(</span><span class="n">end_ip</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">start_ip</span><span class="p">,</span> <span class="n">end_ip</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentTypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid host range: &#39;</span><span class="si">{</span><span class="n">host_range_str</span><span class="si">}</span><span class="s2">&#39;. Format should be: start_ip-end_ip&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="validate_port_range"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.net.validate_port_range">[docs]</a><span class="k">def</span> <span class="nf">validate_port_range</span><span class="p">(</span><span class="n">port_range_str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s2">&quot;-&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">port_range_str</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port_range_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">port</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">port</span> <span class="o">&gt;</span> <span class="mi">65535</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span>
+            <span class="k">return</span> <span class="n">port</span><span class="p">,</span> <span class="n">port</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentTypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid port: &#39;</span><span class="si">{</span><span class="n">port_range_str</span><span class="si">}</span><span class="s2">&#39;. Port should be within 0-65535&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 포트 범위의 경우</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">start_port</span><span class="p">,</span> <span class="n">end_port</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">port_range_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">start_port</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">end_port</span> <span class="o">&gt;</span> <span class="mi">65535</span> <span class="ow">or</span> <span class="n">start_port</span> <span class="o">&gt;</span> <span class="n">end_port</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+        <span class="k">return</span> <span class="n">start_port</span><span class="p">,</span> <span class="n">end_port</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentTypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid port range: &#39;</span><span class="si">{</span><span class="n">port_range_str</span><span class="si">}</span><span class="s2">&#39;. Format should be: start_port-end_port and within 0-65535&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.net.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">CustomArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;NET&#39;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="n">__epilog__</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">ColoredHelpFormatter</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="get_arguments"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.net.get_arguments">[docs]</a><span class="k">def</span> <span class="nf">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;command&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Command to execute (check, wait, scan)&#39;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="s1">&#39;wait&#39;</span><span class="p">,</span> <span class="s1">&#39;scan&#39;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Debug mode (True/False)&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Verbose mode (view level)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="s1">&#39;--port&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Port number (e.g., 80)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--host&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Single host IP (e.g., 192.168.1.1)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--host-range&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Host IP range (e.g., 192.168.1.1-192.168.1.255)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--port-range&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Port range (e.g., 20-80)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;0-65535&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="s1">&#39;--worker&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Max concurrency worker count&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="s1">&#39;--timeout&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;timeout&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="s1">&#39;--batch-size&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;timeout&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;--fast-scan&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;fast scan mode&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--view-type&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;open&#39;</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">],</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Type of results to view (open, closed, all)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;open&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="print_banner"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.net.print_banner">[docs]</a><span class="k">def</span> <span class="nf">print_banner</span><span class="p">():</span>
+    <span class="n">banner</span> <span class="o">=</span> <span class="n">generate_banner</span><span class="p">(</span>
+        <span class="n">app_name</span><span class="o">=</span><span class="s2">&quot;NET&quot;</span><span class="p">,</span>
+        <span class="n">author</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;jinwoo&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Network checker&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;graffiti&quot;</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">_version</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">banner</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="initialize_arguments"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.net.initialize_arguments">[docs]</a><span class="k">def</span> <span class="nf">initialize_arguments</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">subparser_name</span> <span class="o">=</span> <span class="s2">&quot;net&quot;</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">PAWN_DEBUG</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">args</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">print_banner</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">args</span><span class="p">,</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="find_fastest_region"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.net.find_fastest_region">[docs]</a><span class="k">def</span> <span class="nf">find_fastest_region</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">ff_region</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">FindFastestRegion</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">ff_region</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="n">ff_region</span><span class="o">.</span><span class="n">print_results</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="format_range"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.net.format_range">[docs]</a><span class="k">def</span> <span class="nf">format_range</span><span class="p">(</span><span class="n">range_tuple</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">range_tuple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; ⏩&#39;</span><span class="si">{</span><span class="n">range_tuple</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.net.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">parser</span> <span class="o">=</span> <span class="n">initialize_arguments</span><span class="p">()</span>
+
+    <span class="n">disable_ssl_warnings</span><span class="p">()</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># if not args.command:</span>
+    <span class="c1">#     parser.error(&quot;ssss&quot;)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;command not found&quot;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;check&quot;</span><span class="p">:</span>
+        <span class="n">find_fastest_region</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;wait&quot;</span><span class="p">:</span>
+        <span class="n">wait_for_port_open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;scan&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">host_range</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">host_range</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">host_range</span> <span class="o">=</span> <span class="n">validate_host_range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">host_range</span><span class="p">)</span>
+        <span class="n">port_range</span> <span class="o">=</span> <span class="n">validate_port_range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">port_range</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔎 Start scanning worker=</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">worker</span><span class="si">}</span><span class="s2">, view_type=</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">view_type</span><span class="si">}</span><span class="s2"> 🔎</span><span class="se">\n</span><span class="s2"> Host range:</span><span class="si">{</span><span class="n">format_range</span><span class="p">(</span><span class="n">host_range</span><span class="p">)</span><span class="si">}</span><span class="s2"> , Port range:</span><span class="si">{</span><span class="n">format_range</span><span class="p">(</span><span class="n">port_range</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">)</span>
+
+        <span class="n">scanner</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">AsyncPortScanner</span><span class="p">(</span>
+            <span class="n">ip_range</span><span class="o">=</span><span class="n">host_range</span><span class="p">,</span>
+            <span class="n">port_range</span><span class="o">=</span><span class="n">port_range</span><span class="p">,</span>
+            <span class="n">max_concurrency</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">worker</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">scanner</span><span class="o">.</span><span class="n">run_scan</span><span class="p">(</span><span class="n">fast_scan</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">fast_scan</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">scanner</span><span class="o">.</span><span class="n">print_scan_results</span><span class="p">(</span><span class="n">view</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">view_type</span><span class="p">)</span></div>
+
+
+<span class="n">main</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__description__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__epilog__</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
