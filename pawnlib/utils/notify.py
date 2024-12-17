@@ -2,7 +2,7 @@ import os
 import re
 import requests
 from pawnlib.config.globalconfig import pawnlib_config as pawn
-from pawnlib.config import setup_logger
+from pawnlib.config import setup_logger, get_logger
 from pawnlib.output import color_print
 from pawnlib.resource import net
 from pawnlib.typing import date_utils, shorten_text, escape_markdown, escape_non_markdown
@@ -328,6 +328,7 @@ def create_slack_payload(
         status: Union[str, StatusType],
         simple_mode: bool,
         icon_emoji: str = "",
+        max_value_length: int = 100,
 ) -> dict:
     """
     Create the payload for sending a message to Slack.
@@ -346,10 +347,17 @@ def create_slack_payload(
     :type simple_mode: bool
     :param icon_emoji: Optional emoji to display as the icon for the message.
     :type icon_emoji: str
+    :param max_value_length: Maximum length for any single value.
+    :type max_value_length: int
 
     :return: Dictionary containing the Slack message payload.
     :rtype: dict
     """
+    def truncate_text(text: str, max_length: int) -> str:
+        """Truncate text if it exceeds the maximum length."""
+        _text = str(text)
+        return _text if len(_text) <= max_length else _text[:max_length - 3] + "..."
+
     emoji = get_status_emoji(status)
     msg_title = title if title else shorten_text(msg_text, width=50)
     p_color = get_level_color(msg_level.lower())
@@ -370,61 +378,16 @@ def create_slack_payload(
                 {"type": "section", "text": {"type": "mrkdwn", "text": f'{category_emoji}{"*Date*":^12s} : {date_utils.todaydate("log")}'}}]
         }]
     }
-    #
-    # payload = {
-    #     "username": send_user_name,
-    #     "text": msg_title,
-    #     "blocks": [{"type": "divider"}],
-    #     "attachments": [{
-    #         "color": f"#{p_color}",
-    #         "blocks": [
-    #             {"type": "header", "text": {"type": "plain_text", "text": msg_title}},
-    #             {"type": "section", "fields": [
-    #                 {"type": "mrkdwn", "text": "*Host*"},
-    #                 {"type": "plain_text", "text": f"{net.get_hostname()}, {net.get_public_ip()}"},
-    #                 {"type": "mrkdwn", "text": "*Date*"},
-    #                 {"type": "plain_text", "text": date_utils.todaydate("log")}
-    #             ]}
-    #         ]
-    #     }]
-    # }
-
-    # payload = {
-    #     "username": send_user_name,
-    #     "text": msg_title,
-    #     "blocks": [{"type": "divider"}],
-    #     "attachments": [{
-    #         "color": f"#{p_color}",
-    #         "blocks": [
-    #             {"type": "header", "text": {"type": "plain_text", "text": msg_title}},
-    #             {
-    #                 "type": "section",
-    #                 "fields": [
-    #                     {"type": "mrkdwn", "text": "*Host*:"},  # Key with markdown
-    #                     {"type": "plain_text", "text": f"{net.get_hostname()}, {net.get_public_ip()}"}  # Value with plain text
-    #                 ]
-    #             },
-    #             {
-    #                 "type": "section",
-    #                 "fields": [
-    #                     {"type": "mrkdwn", "text": "*Date*:"},
-    #                     {"type": "plain_text", "text": date_utils.todaydate('log')}
-    #                 ]
-    #             }
-    #         ]
-    #     }]
-    # }
-
     if simple_mode:
         return {"username": send_user_name, "text": f"{msg_title}\n{msg_text}", "attachments": []}
 
     def _make_attachment(key=None, value=None):
         if key == "Info":
-            text = f'{category_emoji}{"Info":^12s} : {value}'
+            text = f'{category_emoji}{"Info":^12s} : {truncate_text(value, max_value_length)}'
         elif key:
-            text = f'💡{key:^12s}: {value}'
+            text = f'💡{key:^12s}: {truncate_text(value, max_value_length)}'
         elif not key:
-            text = f'{category_emoji}{"Info":^12s} : {msg_text}'
+            text = f'{category_emoji}{"Info":^12s} : {truncate_text(msg_text, max_value_length)}'
         else:
             text = ""
 
@@ -440,13 +403,13 @@ def create_slack_payload(
         if isinstance(msg_text, dict):
             for key, value in msg_text.items():
                 if key:
-                    attachment['blocks'].append(_make_attachment(key, value))
+                    attachment['blocks'].append(_make_attachment(key, truncate_text(value, max_value_length)))
         elif isinstance(msg_text, list):
             for value_in_list in msg_text:
                 if value_in_list:
                     attachment['blocks'].append(_make_attachment(value=value_in_list))
         elif msg_text:
-            attachment['blocks'].append(_make_attachment(value=msg_text))
+            attachment['blocks'].append(_make_attachment(value=truncate_text(msg_text, max_value_length)))
         _attachments.append(attachment)
     payload["attachments"] = _attachments
     return payload

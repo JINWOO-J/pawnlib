@@ -9,7 +9,6 @@ from collections import OrderedDict, defaultdict
 from pawnlib.utils import http
 from pawnlib.typing import is_valid_ipv4, split_every_n, format_size
 from pawnlib.config import pawn
-from pawnlib.output import print_grid
 from pawnlib.typing.converter import PrettyOrderedDict, dict_to_line, format_network_traffic
 from pawnlib.resource.net import ProcNetMonitor
 
@@ -34,6 +33,11 @@ from rich.layout import Layout
 from rich.live import Live
 from rich.console import Console
 import threading
+import requests
+import logging
+import aiohttp
+import asyncio
+logger = logging.getLogger(__name__)
 
 
 def hex_mask_to_cidr(hex_mask):
@@ -1611,6 +1615,95 @@ def aws_data_crawl(url, d, timeout):
                 d[l] = r.get('json')
             else:
                 d[l] = r.get('text')
+
+
+def get_gcp_metadata(meta_ip="metadata.google.internal", timeout=2):
+    meta_url = f'http://{meta_ip}/computeMetadata/v1/'
+    headers = {'Metadata-Flavor': 'Google'}
+    metadict = {}
+
+    def fetch_metadata(path=''):
+        url = f"{meta_url}{path}"
+        try:
+            response = requests.get(url, headers=headers, timeout=timeout)
+            if response.status_code == 200:
+                text = response.text
+                return text.split('\n')
+            else:
+                logger.error(f"Non-200 status code {response.status_code} for URL: {url}")
+                return []
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching GCP metadata at {url}: {e}")
+            return []
+
+    def crawl(path=''):
+        items = fetch_metadata(path)
+        for item in items:
+            if not item:
+                continue
+            if item.endswith('/'):
+                key = item.rstrip('/')
+                metadict[key] = {}
+                crawl(f"{path}{item}")
+            else:
+                item_url = f"{meta_url}{path}{item}"
+                try:
+                    response = requests.get(item_url, headers=headers, timeout=timeout)
+                    if response.status_code == 200:
+                        metadict[item] = response.text
+                    else:
+                        logger.error(f"Failed to fetch metadata for {item}. Status code: {response.status_code}")
+                        metadict[item] = None
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Error fetching GCP metadata at {item_url}: {e}")
+                    metadict[item] = None
+
+    crawl()
+    return metadict
+
+
+async def get_oci_metadata_async(meta_ip="169.254.169.254", timeout=2):
+    meta_url = f'http://{meta_ip}/opc/v1/'
+    headers = {'Authorization': 'Bearer Oracle'}
+    metadict = {}
+
+    async with aiohttp.ClientSession(headers=headers, timeout=aiohttp.ClientTimeout(total=timeout)) as session:
+        async def fetch_metadata(path=''):
+            url = f'{meta_url}{path}'
+            try:
+                async with session.get(url) as response:
+                    if response.status != 200:
+                        return None
+                    text = await response.text()
+                    return text
+            except Exception as e:
+                return None
+
+        # 예제: 주요 메타데이터 항목만 수집
+        paths = [
+            "instance/id",
+            "instance/ocid",
+            "instance/region",
+            "instance/display-name",
+            "instance/availability-domain",
+            "instance/compartment-id",
+        ]
+
+        async def crawl():
+            tasks = []
+            for path in paths:
+                tasks.append(asyncio.create_task(fetch_metadata(path)))
+            results = await asyncio.gather(*tasks)
+            for path, data in zip(paths, results):
+                key = path.split('/')[-1]
+                metadict[key] = data
+
+        await crawl()
+
+    return metadict
+
+def get_oci_metadata(meta_ip="169.254.169.254", timeout=2):
+    return asyncio.run(get_oci_metadata_async(meta_ip, timeout))
 
 
 def io_flags_to_string(flags):

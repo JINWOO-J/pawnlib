@@ -910,16 +910,43 @@ def calculate_reset_percentage(data):
         height = int(match.group(1))         # height
         resolved = int(match.group(2))       # resolved
         unresolved = int(match.group(3))     # unresolved
-
-        # 리셋 비율 계산
         reset_percentage = (resolved / height) * 100
 
-        # 결과 반환
         return {
             "height": height,
             "resolved": resolved,
             "unresolved": unresolved,
             "progress": round(reset_percentage, 2)
+        }
+    else:
+        raise ValueError("Cant parsing data")
+
+
+def calculate_pruning_percentage(data):
+    match = re.search(r'pruning (\d+)/(\d+)\s+resolved=(\d+) unresolved=(\d+)', data)
+
+    if match:
+        current = int(match.group(1))
+        total = int(match.group(2))
+        resolved = int(match.group(3))
+        unresolved = int(match.group(4))
+
+        progress_percentage = (current / total) * 100
+        resolve_progress_percentage = (resolved / total) * 100
+        # progress_percentage = (resolved / (resolved + unresolved)) * 100
+        # 전체 처리해야 할 항목 수 추정
+        # estimated_total = resolved + unresolved
+
+        # 진행률 계산
+        # progress_percentage = (resolved / estimated_total) * 100
+
+        return {
+            "current": current,
+            "total": total,
+            "resolved": resolved,
+            "unresolved": unresolved,
+            "resolve_progress_percentage": round(resolve_progress_percentage, 2),
+            "progress": round(progress_percentage, 2),
         }
     else:
         raise ValueError("Cant parsing data")

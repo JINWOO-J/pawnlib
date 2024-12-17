@@ -307,6 +307,7 @@ def check_url_process(config):
 
     if config.interval and not pconf().args.dry_run:
         time.sleep(config.interval)
+    return "ok"
 
 def print_response_if_verbose(check_url):
     if (pconf().args.verbose > 3 or pconf().args.dry_run)  and hasattr(check_url, "response"):

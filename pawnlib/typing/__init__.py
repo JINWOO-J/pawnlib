@@ -56,6 +56,7 @@ from .converter import (
     dict_to_line,
     dict_none_to_zero,
     list_to_oneline_string,
+    list_to_dict_by_key,
     long_to_bytes,
     PrettyOrderedDict,
     ordereddict_to_dict,
@@ -100,7 +101,9 @@ from .converter import (
     escape_markdown,
     escape_non_markdown,
     analyze_jail_flags,
-    mask_string
+    mask_string,
+    format_hx_addresses_recursively,
+    filter_by_key,
 )
 
 from .constants import (

@@ -1,4 +1,5 @@
 import sys
+import inspect
 import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
@@ -36,6 +37,16 @@ VALID_RICH_TAGS = {
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
 }
 
+# # Add TRACE log level globally
+# TRACE_LEVEL_NUM = 5  # TRACE is lower than DEBUG
+# logging.addLevelName(TRACE_LEVEL_NUM, "TRACE")
+#
+# def trace(self, message, *args, **kwargs):
+#     if self.isEnabledFor(TRACE_LEVEL_NUM):
+#         self._log(TRACE_LEVEL_NUM, message, args, **kwargs)
+#
+# logging.Logger.trace = trace
+#
 
 class PreciseTimeFormatter(logging.Formatter):
     """
@@ -147,7 +158,7 @@ class ConsoleLoggerHandler(logging.Handler):
         stdout (bool): Whether to output logs to standard output.
         console (object): The console object used for output (default is `pawn.console`).
         log_level_short (bool): Whether to use short log level names.
-        simple_format (bool): Whether to use a simplified log format.
+        simple_format (str): Formatting level ("none", "minimal", "detailed", "advanced", "custom").
         exc_info (bool): Whether to include exception information in logs.
 
     Methods:
@@ -178,7 +189,7 @@ class ConsoleLoggerHandler(logging.Handler):
 
             logger.debug("Debugging details.")
     """
-    def __init__(self, verbose=0, stdout=True, log_level_short=False, simple_format=False, exc_info=False, console=None):
+    def __init__(self, verbose=0, stdout=True, log_level_short=False, simple_format="minimal", exc_info=False, console=None):
         """
         Initialize the ConsoleLoggerHandler with customizable options.
 
@@ -189,8 +200,8 @@ class ConsoleLoggerHandler(logging.Handler):
         :type stdout: bool
         :param log_level_short: Whether to use short log level names. Default is False.
         :type log_level_short: bool
-        :param simple_format: Whether to use a simplified log format. Default is False.
-        :type simple_format: bool
+        :param simple_format: Formatting code level ("none", "minimal", "detailed", "advanced", "custom"). Default is minimal.
+        :type simple_format: str
         :param exc_info: Whether to include exception information in logs. Default is False.
         :type exc_info: bool
         :param console: The console object used for output. Default is `pawn.console`.
@@ -223,6 +234,27 @@ class ConsoleLoggerHandler(logging.Handler):
             2: logging.DEBUG
         }.get(self.verbose, logging.DEBUG)
 
+    def _get_code_info(self, record):
+        """
+        Generate code information based on the selected simple_format.
+
+        :param record: The log record.
+        :return: Formatted code info string.
+        """
+        if self.simple_format == "none":
+            return ""
+        elif self.simple_format == "minimal":
+            return f"<{record.name.split('.')[-1]}> "
+        elif self.simple_format == "detailed":
+            return f"<{record.name.split('.')[-1]}:{record.lineno}> "
+        elif self.simple_format == "advanced":
+            file_name = os.path.basename(record.pathname) if record.name == "root" else record.name
+            return f"<{file_name}:{record.lineno} [dim]{record.funcName}()[/dim]> "
+        elif self.simple_format == "custom" and callable(self.simple_format):
+            return self.simple_format(record)  # Expect a custom function
+        else:
+            return ""  # Default for unsupported formats
+
     def emit(self, record):
         """
         Emit a log record by formatting it and sending it to `pawn.console`.
@@ -252,17 +284,9 @@ class ConsoleLoggerHandler(logging.Handler):
                 "info": "[bold green]INFO[/bold green]",
                 "debug": "[bold yellow]DEBUG[/bold yellow]",
             }
-
-
-            if self.simple_format:
-                record_name = record.name
-                record_name = record_name.split(".")[-1]
-                message = f"<{record_name}> {message}"
-            else:
-                message = f"<{record.name}> {message}"
-
+            code_info = self._get_code_info(record)
+            message = f"{code_info}{message}"
             tag = level_tags.get(_level, "[green]INFO[/green]")
-
             if level == "error":
                 if record.exc_info or self.exc_info:
                     exception_traceback = Traceback.from_exception(*record.exc_info) if record.exc_info else None
@@ -328,10 +352,6 @@ class ConsoleLoggerAdapter:
             self.logger = logger.logger
         else:
             self.logger = logger
-
-        # if isinstance(logger, ConsoleLoggerAdapter):
-        #     raise ValueError("Cannot wrap a ConsoleLoggerAdapter inside another ConsoleLoggerAdapter")
-        # self.logger = logger
 
         if self.logger is None:
             self.logger = self._create_default_logger(self.logger_name)
@@ -604,7 +624,7 @@ class BaseFormatter(logging.Formatter):
             logger.error("This is an error message with <rich> tags.")
     """
 
-    def __init__(self, fmt=None, datefmt=None, log_level_short=False, simple_format=False):
+    def __init__(self, fmt=None, datefmt=None, log_level_short=False, simple_format="minimal"):
         super().__init__(fmt, datefmt)
         self.log_level_short = log_level_short
         self.simple_format = simple_format
@@ -704,8 +724,8 @@ class CleanAndDetailTimeFormatter(BaseFormatter):
     :type datefmt: str, optional
     :param log_level_short: Whether to use short names for log levels (e.g., "E" for "ERROR").
     :type log_level_short: bool, optional
-    :param simple_format: Whether to use a simplified format for the log record.
-    :type simple_format: bool, optional
+    :param simple_format: Formatting code level ("none", "minimal", "detailed", "advanced", "custom"). Default is minimal.
+    :type simple_format: str
     :param precision: The number of decimal places for fractional seconds in the timestamp.
                       Defaults to 4.
     :type precision: int, optional
@@ -738,7 +758,7 @@ class CleanAndDetailTimeFormatter(BaseFormatter):
             logger.error("This is an error message with detailed time.")
     """
 
-    def __init__(self, fmt=None, datefmt=None, log_level_short=False, simple_format=False, precision=4):
+    def __init__(self, fmt=None, datefmt=None, log_level_short=False, simple_format="minimal", precision=4):
         """
         Initialize the formatter with optional precision for fractional seconds.
 
@@ -748,8 +768,8 @@ class CleanAndDetailTimeFormatter(BaseFormatter):
         :type datefmt: str, optional
         :param log_level_short: Whether to use short names for log levels (e.g., "E" for "ERROR").
         :type log_level_short: bool, optional
-        :param simple_format: Whether to use a simplified format for the log record.
-        :type simple_format: bool, optional
+        :param simple_format: Formatting code level ("none", "minimal", "detailed", "advanced", "custom"). Default is minimal.
+        :type simple_format: str
         :param precision: The number of decimal places for fractional seconds in the timestamp.
                           Defaults to 4.
         :type precision: int, optional
@@ -846,12 +866,14 @@ def setup_app_logger(
         date_format: str = None,
         log_level: Union[int, str, None] = None,
         log_level_short: bool = True,
-        simple_format: bool = False,
+        simple_format: Union[str, bool] = "minimal",
         exc_info: bool = False,
         rotate_time: str = 'midnight',  # Log rotation time (e.g., 'midnight', 'H', etc.)
         rotate_interval: int = 1,      # Rotation interval (e.g., 1 day, 1 hour)
         backup_count: int = 7,          # Number of backup files to keep
         clear_existing_handlers: bool = False,
+        propagate: bool = True,
+        propagate_scope: str = 'all'  # Options: 'all', 'pawnlib', 'third_party'
 ):
     """
     Configures the application logger with specified settings.
@@ -876,8 +898,8 @@ def setup_app_logger(
     :type log_level: Union[int, str, None]
     :param log_level_short: Whether to use short names for log levels.
     :type log_level_short: bool
-    :param simple_format: Whether to use a simplified format for the logs.
-    :type simple_format: bool
+    :param simple_format: Formatting code level ("none", "minimal", "detailed", "advanced", "custom"). Default is minimal.
+    :type simple_format: str
     :param exc_info: Whether to include exception information in the logs.
     :type exc_info: bool
     :param rotate_time: Time interval for rotating logs (e.g., 'midnight', 'H').
@@ -888,6 +910,10 @@ def setup_app_logger(
     :type backup_count: int
     :param clear_existing_handlers: Whether to clear existing handlers before adding new ones.
     :type clear_existing_handlers: bool
+    :param propagate: Whether to enable log message propagation.
+    :type propagate: bool
+    :param propagate_scope: The scope for applying the propagation setting ('all', 'pawnlib', 'third_party').
+    :type propagate_scope: str
 
     Example:
 
@@ -945,6 +971,7 @@ def setup_app_logger(
     root_logger = logging.getLogger()
     root_logger.setLevel(effective_log_level)
 
+
     if not log_format:
         log_format = '[%(asctime)s] %(levelname)s::%(filename)s/%(funcName)s(%(lineno)d) %(message)s'
 
@@ -990,6 +1017,8 @@ def setup_app_logger(
     if not root_logger.handlers:
         raise ValueError("No handlers were added to the root logger. Please check your `log_type` parameter.")
 
+    # Set propagate on loggers based on propagate and propagate_scope
+    change_propagate_setting(propagate=propagate, propagate_scope=propagate_scope)
     return root_logger
 
 
@@ -1037,10 +1066,88 @@ def add_logger(cls):
     return Wrapped
 
 
+def get_logger(name=None, level=logging.INFO):
+    """
+    Returns a logger instance.
+    If `name` is not provided, it defaults to the caller's module name.
+    """
+
+    if name is None:
+        frame = inspect.currentframe().f_back
+        name = frame.f_globals["__name__"]
+
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        logger.addHandler(logging.NullHandler())
+    logger.setLevel(level)
+    return logger
+
+
 class LoggerMixin:
+    # def get_logger(self):
+    #     """
+    #     Returns a logger instance with a name in the format 'module_name.ClassName'.
+    #     """
+    #     return logging.getLogger(f"{self.__module__}.{self.__class__.__name__}")
+
     def get_logger(self):
         """
         Returns a logger instance with a name in the format 'module_name.ClassName'.
         """
-        return logging.getLogger(f"{self.__module__}.{self.__class__.__name__}")
+        logger_name = f"{self.__module__}.{self.__class__.__name__}"
+        logger = logging.getLogger(logger_name)
+        if not logger.handlers:
+            logger.addHandler(logging.NullHandler())
+        return logger
+
+
+def change_log_level(new_level, logger=None):
+    """
+    Change the log level of the specified logger or the root logger.
+
+    :param new_level: New log level (e.g., 'DEBUG', 'INFO').
+    :param logger: Logger instance to modify. If None, modifies the root logger.
+    """
+    if logger is None:
+        logger = logging.getLogger()  # Default to root logger
+
+    if isinstance(new_level, str):
+        new_level = new_level.upper()
+        if new_level in logging._nameToLevel:
+            logger.setLevel(logging._nameToLevel[new_level])
+        else:
+            raise ValueError(f"Invalid log level: {new_level}")
+    elif isinstance(new_level, int):
+        logger.setLevel(new_level)
+    else:
+        raise ValueError("Log level must be a string or integer.")
+
+
+def change_propagate_setting(propagate: bool = True, propagate_scope: str = 'all'):
+    """
+    Change the propagate setting of loggers based on the specified scope.
+
+    :param propagate: Whether to enable or disable propagation.
+    :type propagate: bool
+    :param propagate_scope: The scope for applying the propagation setting ('all', 'pawnlib', 'third_party').
+    :type propagate_scope: str
+    """
+    valid_scopes = ['all', 'pawnlib', 'third_party']
+    if propagate_scope not in valid_scopes:
+        raise ValueError(f"Invalid propagate_scope: {propagate_scope}. Choose from 'all', 'pawnlib', 'third_party'.")
+
+    for logger_name, logger_instance in logging.Logger.manager.loggerDict.items():
+        if isinstance(logger_instance, logging.Logger):
+            if propagate_scope == 'all':
+                logger_instance.propagate = propagate
+            elif propagate_scope == 'pawnlib':
+                if logger_name.startswith('pawnlib'):
+                    logger_instance.propagate = propagate
+                else:
+                    logger_instance.propagate = not propagate
+            elif propagate_scope == 'third_party':
+                if not logger_name.startswith('pawnlib'):
+                    logger_instance.propagate = propagate
+                else:
+                    logger_instance.propagate = not propagate
 

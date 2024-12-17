@@ -1,4 +1,5 @@
 from .globalconfig import (
+    ConfigHandler,
     nestednamedtuple,
     PawnlibConfig,
     pawnlib_config,
@@ -15,5 +16,8 @@ from .logging_config import (
     getPawnLogger,
     setup_app_logger,
     add_logger,
+    get_logger,
     LoggerMixin,
+    change_log_level,
+    change_propagate_setting
 )

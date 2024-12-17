@@ -30,7 +30,7 @@ def print_banner():
 
 
 def main():
-    setup_app_logger(log_type="both", log_level="debug", simple_format=True)
+    setup_app_logger(log_type="both", log_level="debug", simple_format="detailed")
 
 
     logging.info("[red]aaaa[/red]")

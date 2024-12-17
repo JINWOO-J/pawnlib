@@ -52,7 +52,7 @@ def guess_wallet_type(data):
 
         # Example 1: PrivateKey wallet type
         wallet_data = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-        wallet_type = guess_wallet_type(wallet_data)
+        wallet_type = guess_wallet_type(wallet_data)`
         # wallet_type = "private_key"
 
         # Example 2: JSON wallet type

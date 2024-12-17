@@ -64,7 +64,10 @@ class NullByteRemover:
 
         """
         with open(file_path, 'rb') as f:
-            while chunk := f.read(self.chunk_size):
+            while True:
+                chunk = f.read(self.chunk_size)
+                if not chunk:
+                    break
                 if b'\x00' in chunk:
                     return True
         return False
@@ -93,7 +96,10 @@ class NullByteRemover:
             total_bytes_processed = 0
 
             with open(file_path, 'rb') as f_in, open(new_file_path, 'wb') as f_out:
-                while data := f_in.read(self.chunk_size):
+                while True:
+                    data = f_in.read(self.chunk_size)
+                    if not data:
+                        break
                     clean_data = data.replace(b'\x00', self.replace_with)
                     null_byte_count += data.count(b'\x00')
                     f_out.write(clean_data)

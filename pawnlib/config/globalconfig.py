@@ -3,10 +3,11 @@ import os
 import configparser
 import sys
 import json
+import re
 from uuid import uuid4
 from pathlib import Path
 from typing import Optional, Callable
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from collections.abc import Mapping
 from pawnlib.__version__ import __title__, __version__
 from pawnlib.config.__fix_import import Null
@@ -17,7 +18,10 @@ import copy
 from types import SimpleNamespace
 from functools import partial
 from rich import inspect as rich_inspect
+from rich.table import Table
+from rich.panel import Panel
 from contextlib import contextmanager
+from inspect import stack as inspect_stack
 
 
 class ConfigManager:
@@ -38,6 +42,503 @@ class ConfigManager:
 
     def get(self, key, default=None):
         return self._config.get(key, default)
+
+
+class ConfigHandler:
+    def __init__(self, config_file='config.ini', args=None, allowed_env_keys=None, env_prefix=None, section_pattern=None, defaults=None):
+        """
+        Initialize the ConfigHandler with a config file, command-line arguments, and environment variables.
+        Only environment variables specified in allowed_env_keys or with env_prefix are considered.
+        Additionally, environment variables corresponding to keys in args or config.ini are included.
+
+        Args:
+            config_file (str): Path to the configuration file.
+            args (Namespace, optional): Parsed command-line arguments.
+            allowed_env_keys (list, optional): List of environment variable keys to allow (case-insensitive).
+            env_prefix (str, optional): Prefix for environment variables to include (case-insensitive).
+            section_pattern : Regex for find a section name
+            defaults (dict, optional): Default values for configuration keys.
+
+        """
+        self.config = configparser.ConfigParser()
+        self.config_file = config_file
+        self.config.read(config_file)
+        self.args = {k.lower(): v for k, v in vars(args).items()} if args else {}
+        self.allowed_env_keys = [k.lower() for k in allowed_env_keys] if allowed_env_keys else []
+        self.env_prefix = env_prefix.lower() if env_prefix else None
+        self.section_pattern = section_pattern
+        self.defaults = defaults or {}
+
+
+        if self.config.has_section('default'):
+            self.config_keys = set(k.lower() for k in self.config['default'])
+        else:
+            self.config_keys = set()
+
+        self.args_keys = set(self.args.keys())
+        self.combined_keys = self.args_keys.union(self.config_keys)
+        self.env = self._filter_env(os.environ)
+        self.original_keys = {}
+        self._populate_original_keys()
+
+        # Initialize source history
+        self.source_history = defaultdict(list)
+        self._initialize_source_history()
+
+    def _populate_original_keys(self):
+        """
+        Store the original key names for consistent output in visualizations.
+        Priority for original keys:
+        1. Args
+        2. Env
+        3. Config.ini
+        """
+        # Original keys from args
+        for key in self.args:
+            if key not in self.original_keys:
+                self.original_keys[key] = key
+
+        # Original keys from environment variables
+        for key in self.env:
+            if key not in self.original_keys:
+                # Retrieve original case from os.environ
+                original_key = next((k for k in os.environ if k.lower() == key), key)
+                self.original_keys[key] = original_key
+
+        # Original keys from config.ini
+        if self.config.has_section('default'):
+            for key in self.config['default']:
+                key_lower = key.lower()
+                if key_lower not in self.original_keys:
+                    self.original_keys[key_lower] = key
+    #     """
+    #     Initialize the source history for each key based on the current sources.
+    #     """
+    #     for key_lower in self.combined_keys:
+    #         if key_lower in self.args and self.args[key_lower] is not None:
+    #             self.source_history[key_lower].append('args')
+    #         elif key_lower in self.env:
+    #             self.source_history[key_lower].append('env')
+    #         elif self.config.has_option('default', key_lower):
+    #             self.source_history[key_lower].append(f"{self.config_file}")
+    #         else:
+    #             self.source_history[key_lower].append('default')
+
+    def _initialize_source_history(self):
+        """
+        Initialize the source history for each key based on the current sources.
+        """
+        for key_lower in self.combined_keys:
+            if key_lower in self.args and self.args[key_lower] is not None:
+                self.source_history[key_lower].append('args')
+            elif key_lower in self.env:
+                self.source_history[key_lower].append('env')
+            elif self.config.has_option('default', key_lower):
+                self.source_history[key_lower].append('config.ini')
+            else:
+                # 기본값이 있을 경우 'default'
+                if key_lower in self.defaults:
+                    self.source_history[key_lower].append('default')
+                else:
+                    self.source_history[key_lower].append('undefined')
+
+    def _filter_env(self, env):
+        """
+        Filters environment variables by allowed keys or prefix.
+        Additionally, includes environment variables that correspond to keys in args or config.ini.
+
+        Args:
+            env (dict): Dictionary of environment variables.
+
+        Returns:
+            dict: Filtered environment variables with lowercase keys.
+        """
+        filtered_env = {}
+
+        for k, v in env.items():
+            key_lower = k.lower()
+
+            # Check if the key corresponds to a key in args or config.ini
+            if key_lower in self.combined_keys:
+                filtered_env[key_lower] = v
+                continue
+
+            # Check if the key is in allowed_env_keys
+            if self.allowed_env_keys and key_lower in self.allowed_env_keys:
+                filtered_env[key_lower] = v
+                continue
+
+            # Check if the key starts with env_prefix
+            if self.env_prefix and key_lower.startswith(self.env_prefix):
+                stripped_key = key_lower[len(self.env_prefix):]
+                if stripped_key:
+                    filtered_env[stripped_key] = v
+                continue
+
+            # If none of the above, ignore the environment variable
+
+        return filtered_env
+
+    @staticmethod
+    def _convert_value(value):
+        """
+        Attempts to convert a value to int, float, or bool if possible.
+
+        Args:
+            value (str): The value to convert.
+
+        Returns:
+            int/float/bool/str: Converted value.
+        """
+        if isinstance(value, bool) or value is None:
+            return value
+        if isinstance(value, str):
+            value_lower = value.lower()
+            if value_lower in ('true', 'yes', 'on'):
+                return True
+            if value_lower in ('false', 'no', 'off'):
+                return False
+            try:
+                if '.' in value:
+                    return float(value)
+                return int(value)
+            except ValueError:
+                return value
+        return value
+
+    # def get(self, key, default=None):
+    #     """
+    #     Get a value with the following priority:
+    #     1. Command-line arguments (args)
+    #     2. Environment variables (env)
+    #     3. Config file (config.ini)
+    #     4. Default value
+    #
+    #     Args:
+    #         key (str): The configuration key to retrieve.
+    #         default: The default value if the key is not found.
+    #
+    #     Returns:
+    #         The value associated with the key.
+    #     """
+    #     key_lower = key.lower()
+    #     if key_lower in self.args and self.args[key_lower] is not None:
+    #         return self.args[key_lower]
+    #     if key_lower in self.env:
+    #         return self._convert_value(self.env.get(key_lower))
+    #     if self.config.has_option('default', key_lower):
+    #         return self._convert_value(self.config.get('default', key_lower))
+    #     return self._convert_value(default)
+
+    def get(self, key, default=None):
+        """
+        Get a value with the following priority:
+        1. Command-line arguments (args)
+        2. Environment variables (env)
+        3. Config file (config.ini)
+        4. Code defaults
+
+        Args:
+            key (str): The configuration key to retrieve.
+            default: The default value if the key is not found.
+
+        Returns:
+            The value associated with the key.
+        """
+        key_lower = key.lower()
+        if key_lower in self.args and self.args[key_lower] is not None:
+            return self.args[key_lower]
+        if key_lower in self.env:
+            return self._convert_value(self.env.get(key_lower))
+        if self.config.has_option('default', key_lower):
+            return self._convert_value(self.config.get('default', key_lower))
+        if key_lower in self.defaults:
+            return self.defaults[key_lower]
+        return self._convert_value(default)
+
+    def as_dict(self):
+        """
+        Returns the final merged configuration as a dictionary with all keys in lowercase.
+        Priority: args > env > config.ini > code defaults
+
+        Returns:
+            dict: Merged configuration with lowercase keys.
+        """
+        merged = {}
+        # Add config.ini values
+        if self.config.has_section('default'):
+            for key, value in self.config.items('default'):
+                key_lower = key.lower()
+                merged[key_lower] = self._convert_value(value)
+
+        # Add environment variables, overwriting config.ini
+        for key, value in self.env.items():
+            merged[key] = self._convert_value(value)
+
+        # Add args, overwriting env and config.ini
+        for key, value in self.args.items():
+            if value is not None:
+                merged[key] = value
+
+        # Add code defaults, overwriting only if not set by args/env/config.ini
+        for key, value in self.defaults.items():
+            key_lower = key.lower()
+            if key_lower not in merged:
+                merged[key_lower] = self._convert_value(value)
+
+        return merged
+
+    def as_namespace(self):
+        """
+        Returns the final merged configuration as a Namespace object.
+
+        Returns:
+            Namespace: Merged configuration.
+        """
+        return NestedNamespace(**self.as_dict())
+
+    def get_source_chain(self, key):
+        """
+        Returns the source chain of the value (e.g., 'config.ini -> args (updated)').
+
+        Args:
+            key (str): The configuration key.
+
+        Returns:
+            str: Source chain of the value.
+        """
+        key_lower = key.lower()
+        return self.source_history[key_lower]
+
+    def get_source(self, key):
+        """
+        Returns the latest source of the value (args, env, config.ini, or default).
+
+        Args:
+            key (str): The configuration key.
+
+        Returns:
+            str: Latest source of the value.
+        """
+        key_lower = key.lower()
+        if key_lower in self.args and self.args[key_lower] is not None:
+            return 'args'
+        if key_lower in self.env:
+            return 'env'
+        if self.config.has_option('default', key_lower):
+            return 'config.ini'
+        if key_lower in self.defaults:
+            return 'default'
+        return 'undefined'
+
+    def update(self, updates: dict):
+        """
+        Update multiple configuration values. These updates are treated as command-line arguments
+        and have the highest priority.
+
+        Args:
+            updates (dict): A dictionary of key-value pairs to update.
+        """
+        for key, value in updates.items():
+            key_lower = key.lower()
+            self.args[key_lower] = value
+
+            # Update original_keys with the provided casing
+            self.original_keys[key_lower] = key
+
+            # Determine if the key is being added or updated
+            if len(self.source_history[key_lower]) == 0:
+                # New key added
+                self.source_history[key_lower].append('args (added)')
+            else:
+                # Existing key updated
+                self.source_history[key_lower].append('args (updated)')
+
+    def set(self, key: str, value):
+        """
+        Update a single configuration value. This update is treated as a command-line argument
+        and has the highest priority.
+
+        Args:
+            key (str): The configuration key to update.
+            value: The new value to set.
+        """
+        self.update({key: value})
+
+    def get_section(self, section_name):
+        """
+        Returns all key-value pairs for a given section as a dictionary.
+        """
+        if self.config.has_section(section_name):
+            return {key: self._convert_value(value) for key, value in self.config.items(section_name)}
+        return {}
+
+    # def get_all_sections(self):
+    #     """
+    #     Returns all sections and their key-value pairs as a dictionary of dictionaries.
+    #
+    #     Returns:
+    #         dict: A dictionary where keys are section names and values are dictionaries of key-value pairs.
+    #     """
+    #     all_sections = {}
+    #     for section in self.config.sections():
+    #         all_sections[section] = {key: self._convert_value(value) for key, value in self.config.items(section)}
+    #     return all_sections
+
+    def get_all_sections(self, pattern=None):
+        """
+        Returns sections and their key-value pairs as a dictionary of dictionaries based on a regex pattern.
+
+        Args:
+            pattern (str, optional): Regex pattern to match section names. If None, returns an empty dictionary.
+
+        Returns:
+            dict: A dictionary where keys are section names and values are dictionaries of key-value pairs.
+        """
+        _pattern = pattern or self.section_pattern
+
+        regex = re.compile(_pattern, re.IGNORECASE) if _pattern else None  # Compile regex with case-insensitive flag
+
+        all_sections = {}
+
+        for section in self.config.sections():
+            if regex is None  or re.compile(_pattern, re.IGNORECASE).search(section):  # Match section names using regex
+                all_sections[section] = {
+                    key: self._convert_value(value)
+                    for key, value in self.config.items(section)
+                }
+        return all_sections
+
+    def print_config(self):
+        """
+        Prints a table showing the key, value, and source (args, env, config.ini, default).
+        Each row is colored based on the latest source for easy distinction.
+        The source column displays the history of sources in the format "config.ini -> args (updated)".
+        """
+        console = Console()
+        table = Table(title="Configuration Overview")
+        table.add_column("Key", justify="left", style="bold")
+        table.add_column("Value", justify="left")
+        table.add_column("Source", justify="left")
+
+        # Define color mapping based on latest source
+        source_colors = {
+            'args': 'green',
+            'args (updated)': 'bright_green',
+            'env': 'blue',
+            'env (updated)': 'bright_blue',
+            self.config_file: 'yellow',
+            f'{self.config_file} (updated)': 'bright_yellow',
+            'default': 'white',
+            'args (added)': 'bright_green',
+            'env (added)': 'bright_blue',
+            f'{self.config_file} (added)': 'bright_yellow',
+            'undefined': 'dim',
+        }
+
+        # Collect unique keys from config, env, args
+        keys = set()
+        if self.config.has_section('default'):
+            keys.update([k.lower() for k in self.config['default']])
+        keys.update(self.env.keys())
+        keys.update(self.args.keys())
+        keys.update([k.lower() for k in self.defaults.keys()])
+
+        # for key_lower in sorted(keys):
+        #     original_key = self.original_keys.get(key_lower, key_lower)
+        #     value = self.get(key_lower)
+        #     source_chain = self.get_source_chain(key_lower)
+        #
+        #     latest_source = self.source_history[key_lower][-1] if self.source_history[key_lower] else 'default'
+        #     color = source_colors.get(latest_source, 'white')
+        #
+        #     source_display = " -> ".join(self.source_history[key_lower])
+        #
+        #     table.add_row(
+        #         original_key,
+        #         str(value),
+        #         source_display,
+        #         style=color  # Set the entire row's color
+        #     )
+
+        for key_lower in sorted(keys):
+            original_key = self.original_keys.get(key_lower, key_lower)
+            value = self.get(key_lower)
+            source_chain = self.get_source_chain(key_lower)
+
+            latest_source = self.source_history[key_lower][-1] if self.source_history[key_lower] else 'undefined'
+            color = source_colors.get(latest_source, 'white')
+
+            source_display = " -> ".join(self.source_history[key_lower])
+
+            table.add_row(
+                original_key,
+                str(value),
+                source_display,
+                style=color  # Set the entire row's color
+            )
+
+
+        console.print(table)
+
+    def print_all_sections_tree(self, pattern=None):
+        """
+        Prints all sections and their key-value pairs in a hierarchical tree format.
+        """
+        _pattern = pattern or self.section_pattern
+        all_sections = self.get_all_sections(pattern=_pattern)
+        pattern_text = f"([dim]pattern=\"{_pattern}\"[/dim])" if _pattern else ""
+
+        console = Console()
+        from rich.tree import Tree
+        tree = Tree(f"[bold cyan]All Configuration Sections[/bold cyan] {pattern_text}")
+
+        for section in sorted(all_sections.keys()):
+            section_node = tree.add(f"[bold green]{section}[/bold green]")
+            settings = all_sections[section]
+            sorted_keys = sorted(settings.keys())
+
+            for key in sorted_keys:
+                original_key = self.original_keys.get(key.lower(), key)
+                value = settings[key]
+                source_chain = self.config_file
+                section_node.add(f"[bold]{original_key}[/bold]: {value} \t[dim]{source_chain}[/dim]")
+
+        console.print(tree)
+
+    def print_all_sections_panels(self, pattern=None):
+        """
+        Prints each section and their key-value pairs in separate panels.
+        """
+        _pattern = pattern or self.section_pattern
+        all_sections = self.get_all_sections(pattern=_pattern)
+        pattern_text = f"([dim]pattern=\"{_pattern}\"[/dim])" if _pattern else ""
+
+        console = Console()
+        from rich import box
+        from rich.panel import Panel
+
+        console.rule(f"[bold cyan]All Configuration Sections[/bold cyan] {pattern_text}")
+        for section in sorted(all_sections.keys()):
+            settings = all_sections[section]
+            sorted_keys = sorted(settings.keys())
+            table = Table(show_header=True, header_style="bold magenta", box=box.MINIMAL)
+            table.add_column("Key", style="bold", no_wrap=True, width=20)
+            table.add_column("Value", style="magenta", no_wrap=False, width=50)
+            table.add_column("Source", style="green", no_wrap=False, width=40)
+
+            for key in sorted_keys:
+                original_key = self.original_keys.get(key.lower(), key)
+                value = settings[key]
+                source_chain = self.config_file
+                table.add_row(
+                    str(original_key),
+                    str(value),
+                    str(source_chain)
+                )
+
+            panel = Panel(table, title=f"[bold green]{section}[/bold green]", border_style="white")
+            console.print(panel)
 
 
 class NestedNamespace(SimpleNamespace):
@@ -463,6 +964,7 @@ class PawnlibConfig(metaclass=Singleton):
                             self.console.log(f"[yellow]\[WARN] Similar keys exist in config.ini - \[{config_category}] {conf_key}={conf_value}")
             except Exception as e:
                 self.console.log(f"[bold red]Error occurred while loading config.ini - {e}")
+                sys.exit(-1)
 
     def get_path(self, path: str = "") -> Path:
         """Get Path from the directory where the configure.json file is.
@@ -477,6 +979,19 @@ class PawnlibConfig(metaclass=Singleton):
         else:
             root_path = Path(os.path.join(os.getcwd()))
         return root_path.joinpath(path)
+
+    @staticmethod
+    def get_app_path():
+        """Get Path from the directory where the app file.
+
+        :param path: file_name or path
+
+        :return:
+
+        """
+        caller_frame = inspect_stack()[1]
+        caller_file = caller_frame.filename
+        return os.path.abspath(os.path.dirname(caller_file))
 
     @staticmethod
     def pawnlib_path():
