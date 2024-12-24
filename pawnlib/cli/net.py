@@ -2,12 +2,13 @@
 import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
-from pawnlib.config import pawnlib_config as pawn, pconf
+from pawnlib.config import pawnlib_config as pawn, pconf, setup_app_logger
 from pawnlib.utils import disable_ssl_warnings
 from pawnlib.resource import net, wait_for_port_open
 from pawnlib.typing import is_valid_ipv4, sys_exit
-
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
+
+logger = setup_app_logger()
 
 NONE_STRING = "__NOT_DEFINED_VALUE__"
 __description__ = "This is a tool to measure your server's resources."
@@ -147,15 +148,22 @@ def format_range(range_tuple):
     return f"'{range_tuple[0]}' ⏩'{range_tuple[1]}'"
 
 
+def wait_for_host(args):
+    """
+    Wait for a specific host and port to become available and provide user feedback.
+    """
+    logger.info(f"🔄 Waiting for host: {args.host}, port: {args.port} to be available... (Timeout: {args.timeout}s)")
+    result = wait_for_port_open(args.host, args.port, timeout=args.timeout)
+    if result:
+        logger.info(f"✅ Host {args.host} on port {args.port} is available.")
+    else:
+        logger.error(f"❌ Failed to connect to {args.host} on port {args.port} within the timeout period ({args.timeout}s).")
+
+
 def main():
     args, parser = initialize_arguments()
-
     disable_ssl_warnings()
-    pawn.console.log(args)
-
-    # if not args.command:
-    #     parser.error("ssss")
-
+    logger.info(args)
     if not args.command:
         parser.print_help()
         parser.error("command not found")
@@ -164,7 +172,7 @@ def main():
         find_fastest_region(args)
 
     elif args.command == "wait":
-        wait_for_port_open(args.host, args.port, timeout=args.timeout)
+        wait_for_host(args)
 
     elif args.command == "scan":
         if not args.host_range and args.host:
@@ -172,7 +180,7 @@ def main():
 
         host_range = validate_host_range(args.host_range)
         port_range = validate_port_range(args.port_range)
-        pawn.console.log(f"🔎 Start scanning worker={args.worker}, view_type={args.view_type} 🔎\n Host range:{format_range(host_range)} , Port range:{format_range(port_range)} ")
+        logger.info(f"🔎 Start scanning worker={args.worker}, view_type={args.view_type} 🔎\n Host range:{format_range(host_range)} , Port range:{format_range(port_range)} ")
 
         scanner = net.AsyncPortScanner(
             ip_range=host_range,

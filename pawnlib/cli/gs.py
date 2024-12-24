@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pawnlib.config import pawn
-from pawnlib.output import color_print
+from pawnlib.output import color_print, print_grid, is_file, open_json
 
 try:
     import eth_keys
@@ -9,10 +9,8 @@ except Exception as e:
 
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
-
 from pawnlib.utils.genesis import GenesisGenerator, create_cid, genesis_generator, create_cid, validate_genesis_json
 from pawnlib.utils.in_memory_zip import read_genesis_dict_from_zip
-from pawnlib.output import is_file, print_json, open_json
 from pawnlib.typing import get_size, sys_exit, FlatDict, hex_to_number
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
 from pawnlib.typing.check import error_and_exit
@@ -95,16 +93,19 @@ def main():
         json_dict = open_json(genesis_file)
 
         validate_genesis_json(json_dict)
-        genesis_gen = GenesisGenerator(genesis_json_or_dict=json_dict, base_dir=args.base_dir, genesis_filename=args.output_file)
-        genesis_gen.initialize()
-        genesis_gen.log_initialization_info()
-        genesis_gen.parse_and_write_genesis_json()
-        file_info = genesis_gen.write_genesis_zip()
-        cid = genesis_gen.create_cid()
-        pawn.console.log(f"CID={cid}, NID={genesis_gen.nid}({hex_to_number(genesis_gen.nid)}), {genesis_gen.genesis_filename} {file_info}")
+        genesis_gen = GenesisGenerator(
+            genesis_json_or_dict=json_dict,
+            base_dir=args.base_dir,
+            genesis_filename=args.output_file
+        )
+        genesis_gen.run()
+        file_info = genesis_gen.genesis_zip_info
+        cid = genesis_gen.cid
 
-        # cid2 = genesis_generator(genesis_json_or_dict=json_dict, base_dir=args.base_dir, genesis_filename=args.output_file)
-        # pawn.console.log(f"CID = {cid2}")
+        pawn.console.log(f"CID={cid}, NID={genesis_gen.nid}({hex_to_number(genesis_gen.nid)}), "
+                         f"{genesis_gen.genesis_filename}")
+
+        print_grid(file_info, title="Genesis file info", key_ratio=3)
 
     elif args.command == "info":
         if not is_file(args.genesis_zip_file):

@@ -819,7 +819,6 @@ def guess_network(network_info):
         return {}
 
 
-
 main.__doc__ = (
     f"{__description__} \n"
     f"{__epilog__}"

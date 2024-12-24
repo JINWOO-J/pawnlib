@@ -539,61 +539,6 @@ class ProcessMonitor:
             return []
 
 
-    # def get_process_network_usage(self, pid: int) -> Union[Dict[str, Union[int, str, float]], None]:
-    #     """
-    #     Calculate the per-second network usage (RX and TX bytes) for a specific process.
-    #     :param pid: Process ID to monitor.
-    #     :return: Dictionary with process network usage data or None if unavailable.
-    #     """
-    #     net_file = f"/proc/{pid}/net/dev"
-    #     if not os.path.exists(net_file):
-    #         return None
-    #
-    #     tx_bytes = 0
-    #     rx_bytes = 0
-    #
-    #     try:
-    #         # Read the /proc/<pid>/net/dev file to get RX and TX bytes
-    #         with open(net_file, 'r') as f:
-    #             lines = f.readlines()
-    #             for line in lines[2:]:  # Skip header lines
-    #                 data = line.split()
-    #                 rx_bytes += int(data[1])  # Received bytes
-    #                 tx_bytes += int(data[9])  # Transmitted bytes
-    #
-    #         # Get current timestamp
-    #         current_time = time.time()
-    #
-    #         # Initialize or calculate per-second usage
-    #         if pid in self.previous_usage:
-    #             prev_rx, prev_tx, prev_time = self.previous_usage[pid]
-    #             time_diff = current_time - prev_time
-    #
-    #             # Avoid division by zero
-    #             if time_diff > 0:
-    #                 rx_rate = (rx_bytes - prev_rx) / time_diff  # Bytes per second
-    #                 tx_rate = (tx_bytes - prev_tx) / time_diff  # Bytes per second
-    #             else:
-    #                 rx_rate = tx_rate = 0
-    #         else:
-    #             # No previous data, initialize rates to 0
-    #             rx_rate = tx_rate = 0
-    #
-    #         # Update the previous usage for the next calculation
-    #         self.previous_usage[pid] = (rx_bytes, tx_bytes, current_time)
-    #
-    #         return {
-    #             'pid': pid,
-    #             'name': psutil.Process(pid).name(),
-    #             'rx_bytes': rx_bytes,
-    #             'tx_bytes': tx_bytes,
-    #             'rx_rate': rx_rate,  # RX bytes per second
-    #             'tx_rate': tx_rate   # TX bytes per second
-    #         }
-    #
-    #     except (FileNotFoundError, ProcessLookupError, PermissionError):
-    #         return None
-
     def create_resource_table(self, processes: List[Dict[str, Union[str, float]]], resource: str) -> Table:
         """
         리소스 데이터에 대한 리치 테이블 생성.
@@ -643,16 +588,9 @@ class ProcessMonitor:
                     format_network_traffic(proc.get('tcp_sent_rate', 0)),
                     format_network_traffic(proc.get('tcp_recv_rate', 0)),
                 ]
-                # for proto in self.proc_net_monitor.protocols:
-                #     sent_rate = format_network_traffic(proc.get(f'{proto}_sent_rate', 0), unit=self.proc_net_monitor.unit)
-                #     sent_avg_rate = format_network_traffic(proc.get(f'{proto}_avg_sent_rate', 0), unit=self.proc_net_monitor.unit, show_unit=False)
-                #     recv_rate = format_network_traffic(proc.get(f'{proto}_recv_rate', 0), unit=self.proc_net_monitor.unit)
-                #     recv_avg_rate = format_network_traffic(proc.get(f'{proto}_avg_recv_rate', 0), unit=self.proc_net_monitor.unit, show_unit=False)
-                #     row.append(f"{sent_rate} [dim]{sent_avg_rate}[/dim]")
-                #     row.append(f"{recv_rate} [dim]{recv_avg_rate}[/dim]")
                 table.add_row(*row)
-
         return table
+
 
     def create_dashboard(self) -> Layout:
         try:
@@ -662,15 +600,10 @@ class ProcessMonitor:
 
             # Fetch network data from ProcNetMonitor
             network_processes = self.get_network_usage_from_monitor()
-
-            # network_processes = self.get_top_processes(n=self.process_number, resource="network")
-
-
             memory_table = self.create_resource_table(memory_processes, resource="memory")
             cpu_table = self.create_resource_table(cpu_processes, resource="cpu")
             io_table = self.create_resource_table(io_processes, resource="io")
             network_table = self.create_resource_table(network_processes, resource="network")
-
 
             memory_panel = Panel(memory_table, title="[bold magenta]Memory Usage[/bold magenta]", border_style="magenta")
             cpu_panel = Panel(cpu_table, title="[bold cyan]CPU Usage[/bold cyan]", border_style="cyan")
@@ -696,16 +629,7 @@ class ProcessMonitor:
         except Exception as e:
             self.console.print(f"[red]Error in create_dashboard: {e}[/red]")
             return Layout()
-    #
-    # def run_live(self):
-    #     try:
-    #         with Live(console=self.console, refresh_per_second=1) as live:
-    #             while True:
-    #                 dashboard = self.create_dashboard()
-    #                 live.update(dashboard)
-    #                 time.sleep(1)
-    #     except Exception as e:
-    #         self.console.print(f"[red]An error occurred in run_live: {e}[/red]")
+
 
     def run_live(self):
         """
@@ -1617,6 +1541,71 @@ def aws_data_crawl(url, d, timeout):
                 d[l] = r.get('text')
 
 
+def get_kakao_metadata(meta_ip="169.254.169.254", timeout=2.0):
+    """
+    Retrieves metadata from Kakao Cloud instance.
+
+    Parameters:
+        meta_ip (str): IP address of the metadata service
+        timeout (float): Timeout for HTTP requests in seconds
+
+    Returns:
+        dict: Metadata from Kakao Cloud instance
+
+    Raises:
+        MetadataError: When metadata retrieval fails
+    """
+    base_url = f"http://{meta_ip}/latest"
+    headers = {'X-aws-ec2-metadata-token': 'required'}
+
+    try:
+        metadata = {
+            "dynamic": {},
+            "meta-data": {},
+            "user-data": {}
+        }
+
+        # Get meta-data
+        meta_data = metadata["meta-data"]
+        meta_data["ami-id"] = requests.get(f"{base_url}/meta-data/ami-id", headers=headers, timeout=timeout).text
+        meta_data["ami-launch-index"] = requests.get(f"{base_url}/meta-data/ami-launch-index", headers=headers, timeout=timeout).text
+        meta_data["ami-manifest-path"] = requests.get(f"{base_url}/meta-data/ami-manifest-path", headers=headers, timeout=timeout).text
+
+        # Get block-device-mapping
+        meta_data["block-device-mapping"] = {
+            "ami": requests.get(f"{base_url}/meta-data/block-device-mapping/ami", headers=headers, timeout=timeout).text,
+            "ebs0": requests.get(f"{base_url}/meta-data/block-device-mapping/ebs0", headers=headers, timeout=timeout).text,
+            "root": requests.get(f"{base_url}/meta-data/block-device-mapping/root", headers=headers, timeout=timeout).text
+        }
+
+        # Get instance information
+        meta_data["hostname"] = requests.get(f"{base_url}/meta-data/hostname", headers=headers, timeout=timeout).text
+        meta_data["instance-action"] = requests.get(f"{base_url}/meta-data/instance-action", headers=headers, timeout=timeout).text
+        meta_data["instance-id"] = requests.get(f"{base_url}/meta-data/instance-id", headers=headers, timeout=timeout).text
+        meta_data["instance-type"] = requests.get(f"{base_url}/meta-data/instance-type", headers=headers, timeout=timeout).text
+        meta_data["local-hostname"] = requests.get(f"{base_url}/meta-data/local-hostname", headers=headers, timeout=timeout).text
+        meta_data["local-ipv4"] = requests.get(f"{base_url}/meta-data/local-ipv4", headers=headers, timeout=timeout).text
+
+        # Get placement information
+        meta_data["placement"] = {
+            "availability-zone": requests.get(f"{base_url}/meta-data/placement/availability-zone", headers=headers, timeout=timeout).text
+        }
+
+        # Get network information
+        meta_data["public-hostname"] = requests.get(f"{base_url}/meta-data/public-hostname", headers=headers, timeout=timeout).text
+        meta_data["public-ipv4"] = requests.get(f"{base_url}/meta-data/public-ipv4", headers=headers, timeout=timeout).text
+
+        # Get security information
+        meta_data["public-keys"] = {"0=kakao": requests.get(f"{base_url}/meta-data/public-keys/0/openssh-key", headers=headers, timeout=timeout).text}
+        meta_data["reservation-id"] = requests.get(f"{base_url}/meta-data/reservation-id", headers=headers, timeout=timeout).text
+        meta_data["security-groups"] = requests.get(f"{base_url}/meta-data/security-groups", headers=headers, timeout=timeout).text
+
+        return metadata
+
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f"Failed to retrieve Kakao Cloud metadata: {str(e)}")
+
+
 def get_gcp_metadata(meta_ip="metadata.google.internal", timeout=2):
     meta_url = f'http://{meta_ip}/computeMetadata/v1/'
     headers = {'Metadata-Flavor': 'Google'}
@@ -1784,19 +1773,7 @@ class DiskUsage:
             raise NotImplementedError("Unsupported operating system")
         return mount_points
 
-    # @staticmethod
-    # def calculate_disk_usage(mount_point, factor, precision, unit):
-    #     """
-    #     Helper function to calculate disk usage for a given mount point.
-    #     """
-    #     total, used, free = shutil.disk_usage(mount_point)
-    #     return {
-    #         "total": round(total / factor, precision),
-    #         "used": round(used / factor, precision),
-    #         "free": round(free / factor, precision),
-    #         "percent": round(used / total * 100, precision) if total > 0 else 0,
-    #         "unit": unit
-    #     }
+
 
     def get_disk_usage(self, mount_point="/", unit="GB", precision=2):
         """
@@ -1831,34 +1808,62 @@ class DiskUsage:
 
         return disk_info
 
-    def calculate_disk_usage_with_auto_unit(self, mount_point, precision, unit):
+    # @staticmethod
+    # def calculate_disk_usage(mount_point, factor, precision, unit):
+    #     """
+    #     Helper function to calculate disk usage for a given mount point.
+    #     """
+    #     total, used, free = shutil.disk_usage(mount_point)
+    #     return {
+    #         "total": round(total / factor, precision),
+    #         "used": round(used / factor, precision),
+    #         "free": round(free / factor, precision),
+    #         "percent": round(used / total * 100, precision) if total > 0 else 0,
+    #         "unit": unit
+    #     }
+    #
+    # def calculate_disk_usage_with_auto_unit(self, mount_point, precision, unit):
+    #     """
+    #     Calculate disk usage with automatic unit selection if 'auto' is specified.
+    #     """
+    #     total, used, free = shutil.disk_usage(mount_point)
+    #
+    #     if unit == "auto":
+    #         if total >= self.unit_factors["PB"]:
+    #             factor = self.unit_factors["PB"]
+    #             unit = "PB"
+    #         elif total >= self.unit_factors["TB"]:
+    #             factor = self.unit_factors["TB"]
+    #             unit = "TB"
+    #         elif total >= self.unit_factors["GB"]:
+    #             factor = self.unit_factors["GB"]
+    #             unit = "GB"
+    #         elif total >= self.unit_factors["MB"]:
+    #             factor = self.unit_factors["MB"]
+    #             unit = "MB"
+    #         elif total >= self.unit_factors["KB"]:
+    #             factor = self.unit_factors["KB"]
+    #             unit = "KB"
+    #         else:
+    #             factor = self.unit_factors["B"]
+    #             unit = "B"
+    #     else:
+    #         factor = self.unit_factors[unit]
+    #
+    #     return {
+    #         "total": round(total / factor, precision),
+    #         "used": round(used / factor, precision),
+    #         "free": round(free / factor, precision),
+    #         "percent": round(used / total * 100, precision) if total > 0 else 0,
+    #         "unit": unit
+    #     }
+
+    @staticmethod
+    def calculate_disk_usage(mount_point, factor, precision, unit):
         """
-        Calculate disk usage with automatic unit selection if 'auto' is specified.
+        Helper function to calculate disk usage for a given mount point.
         """
         total, used, free = shutil.disk_usage(mount_point)
-
-        if unit == "auto":
-            if total >= self.unit_factors["PB"]:
-                factor = self.unit_factors["PB"]
-                unit = "PB"
-            elif total >= self.unit_factors["TB"]:
-                factor = self.unit_factors["TB"]
-                unit = "TB"
-            elif total >= self.unit_factors["GB"]:
-                factor = self.unit_factors["GB"]
-                unit = "GB"
-            elif total >= self.unit_factors["MB"]:
-                factor = self.unit_factors["MB"]
-                unit = "MB"
-            elif total >= self.unit_factors["KB"]:
-                factor = self.unit_factors["KB"]
-                unit = "KB"
-            else:
-                factor = self.unit_factors["B"]
-                unit = "B"
-        else:
-            factor = self.unit_factors[unit]
-
         return {
             "total": round(total / factor, precision),
             "used": round(used / factor, precision),
@@ -1866,6 +1871,25 @@ class DiskUsage:
             "percent": round(used / total * 100, precision) if total > 0 else 0,
             "unit": unit
         }
+
+    def calculate_disk_usage_with_auto_unit(self, mount_point, precision, unit):
+        """
+        Calculate disk usage with automatic unit selection if 'auto' is specified.
+        """
+        total, _, _ = shutil.disk_usage(mount_point)
+
+        if unit == "auto":
+            for unit_name in ["PB", "TB", "GB", "MB", "KB", "B"]:
+                if total >= self.unit_factors[unit_name]:
+                    unit = unit_name
+                    break
+
+        return self.calculate_disk_usage(
+            mount_point,
+            self.unit_factors[unit],
+            precision,
+            unit
+        )
 
 
 class DiskPerformanceTester:
@@ -2144,18 +2168,6 @@ class DiskPerformanceTester:
         with open("disk_performance_results.json", "w") as f:
             json.dump(results, f, indent=4)
         self.console.log("Results saved to disk_performance_results.json")
-
-    # def visualize_results(self):
-    #     plt.figure(figsize=(10, 5))
-    #     plt.plot(self.write_speeds, label='Write Speeds (MB/s)')
-    #     plt.plot(self.read_speeds, label='Read Speeds (MB/s)')
-    #     plt.xlabel('Iteration')
-    #     plt.ylabel('Speed (MB/s)')
-    #     plt.title('Disk Performance')
-    #     plt.legend()
-    #     plt.savefig("disk_performance_results.png")
-    #     plt.show()
-    #     self.console.log("Results visualized and saved to disk_performance_results.png")
 
 
 class FileSystemTester:

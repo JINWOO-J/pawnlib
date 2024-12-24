@@ -1340,63 +1340,6 @@ def ask_yes_no(
         emoji: bool = True
 ) -> bool:
     """
-    Asks a yes/no question using Rich, highlighting the default option or dimming both if no default.
-
-    Args:
-        question (str): The question to ask the user.
-        default (Optional[bool]): The default answer if the user just presses Enter.
-                                   If None, user must explicitly answer.
-        console (Console, optional): Rich Console object for printing.
-        yes_color (str, optional): Color for the "Yes" option. Defaults to "green".
-        no_color (str, optional): Color for the "No" option. Defaults to "red".
-        dim_color (str, optional): Color for dimmed text. Defaults to "dim white".
-        emoji (bool, optional): If True, includes emojis in the prompt.
-
-    Returns:
-        bool: True if the user answers yes, False otherwise.
-    """
-    console = console or Console()
-
-    # Define Yes/No options with emojis and colors
-    yes_option = f"{'✅ ' if emoji else ''}[bold {yes_color}]Yes[/bold {yes_color}]"
-    no_option = f"{'❌ ' if emoji else ''}[bold {no_color}]No[/bold {no_color}]"
-    dimmed_yes = f"{' ' if emoji else ''}[{dim_color}]Yes[/{dim_color}]"
-    dimmed_no = f"{' ' if emoji else ''}[{dim_color}]No[/{dim_color}]"
-
-    # Adjust prompt based on default value
-    if default is True:
-        prompt = f"{question} ({yes_option}/{dimmed_no}): "
-    elif default is False:
-        prompt = f"{question} ({dimmed_yes}/{no_option}): "
-    else:
-        prompt = f"{question} ({dimmed_yes}/{dimmed_no}): "
-
-    while True:
-        response = console.input(prompt).strip().lower()
-
-        if not response:  # User pressed Enter
-            if default is None:
-                console.print("❌ [bold red]You must explicitly answer 'yes' or 'no'.[/bold red]")
-                continue
-            return default
-        elif response in ['yes', 'y']:
-            return True
-        elif response in ['no', 'n']:
-            return False
-        else:
-            console.print("❌ [bold red]Invalid input.[/bold red] Please enter 'yes', 'no', or press Enter.")
-
-
-def ask_yes_no(
-        question: str,
-        default: Optional[bool] = None,
-        console: Console = None,
-        yes_color: str = "green",
-        no_color: str = "red",
-        dim_color: str = "dim white",
-        emoji: bool = True
-) -> bool:
-    """
     Asks a yes/no question using Rich, placing the default option first and highlighting it.
 
     Args:
