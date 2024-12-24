@@ -441,6 +441,8 @@ class NetworkConstants:
     IPV4_BROADCAST = "255.255.255.255"
     IPV6_BROADCAST = "ff02::1"
     MAC_ADDRESS_BROADCAST = "ff:ff:ff:ff:ff:ff"
+    METADATA_IP = "169.254.169.254"
+
 
 class AWSRegionConstants:
     REGIONS = {

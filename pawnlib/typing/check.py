@@ -63,8 +63,12 @@ def is_float(s) -> bool:
             # >> False
 
     """
+    if isinstance(s, bool):  # Exclude bool explicitly
+        return False
     if isinstance(s, float):
         return True
+    if isinstance(s, str):
+        s = s.strip()
     try:
         float_value = float(s)
         return '.' in str(s) or 'e' in str(s).lower()  # Check if it has a decimal point or scientific notation
@@ -98,11 +102,57 @@ def is_int(s) -> bool:
             # >> False
 
     """
+    if isinstance(s, bool):  # Exclude bool explicitly
+        return False
     if isinstance(s, int):
         return True
+    if isinstance(s, str):
+        s = s.strip()
     try:
         int_value = int(s)
         return str(int_value) == str(s)  # Ensure the string representation matches the original input
+    except (TypeError, ValueError):
+        return False
+
+
+def is_number(s) -> bool:
+    """
+    Check if a value is an int or a float (number).
+
+    :param s: A value to check if it is a number
+    :type s: Any
+    :return: True if the value is an int or float, False otherwise
+    :rtype: bool
+
+    Example:
+
+        .. code-block:: python
+
+            is_number(42)
+            # >> True
+
+            is_number(3.14)
+            # >> True
+
+            is_number("42")
+            # >> True
+
+            is_number("3.14")
+            # >> True
+
+            is_number("hello")
+            # >> False
+
+    """
+    if isinstance(s, bool):  # Exclude bool explicitly
+        return False
+    if isinstance(s, str):
+        s = s.strip()
+    if isinstance(s, (int, float)):  # Direct check for int or float
+        return True
+    try:
+        float(s)  # Try converting to a float
+        return True
     except (TypeError, ValueError):
         return False
 

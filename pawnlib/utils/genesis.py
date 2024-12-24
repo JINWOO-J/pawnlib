@@ -11,6 +11,7 @@ import zipfile
 import tempfile
 import re
 import copy
+from datetime import datetime
 
 
 class GenesisGenerator:
@@ -114,8 +115,10 @@ class GenesisGenerator:
         self.final_temp_dir = None
         self.cid = None
         self.nid = None
-        self.genesis_json = None
+        self.genesis_data = {}
         self.genesis_zip_info = {}
+        self.metadata = {}
+
 
     def make_temp_dir(self):
         """
@@ -132,14 +135,14 @@ class GenesisGenerator:
         :raises ValueError: If the genesis data is neither a valid dictionary nor a valid file path.
         """
         if isinstance(self.genesis_json_or_dict, dict):
-            self.genesis_json = copy.deepcopy(self.genesis_json_or_dict)
+            self.genesis_data = copy.deepcopy(self.genesis_json_or_dict)
         elif isinstance(self.genesis_json_or_dict, str) and is_file(self.genesis_json_or_dict):
-            self.genesis_json = open_json(self.genesis_json_or_dict)
+            self.genesis_data = open_json(self.genesis_json_or_dict)
         else:
-            raise ValueError(f"Invalid genesis_json_or_dict: {type(self.genesis_json)}")
+            raise ValueError(f"Invalid genesis_json_or_dict: {type(self.genesis_data)}")
         self.make_temp_dir()
 
-    def run(self, genesis_json_or_dict=None, base_dir=None, genesis_filename=None):
+    def run(self, genesis_json_or_dict=None, base_dir=None, genesis_filename=None, cleanup_after_run=True):
         """
         Main method to execute the genesis generation process. It initializes the data, logs relevant information,
         parses the genesis JSON, writes the zip file, and generates the CID.
@@ -149,6 +152,8 @@ class GenesisGenerator:
         :param genesis_filename: Optional name of the final genesis zip file.
         :return: CID (content identifier) of the generated genesis file.
         :rtype: str
+        :param cleanup_after_run: If True, cleanup temporary directories after run.
+        :rtype: bool
         """
         if genesis_json_or_dict:
             self.genesis_json_or_dict = genesis_json_or_dict
@@ -159,11 +164,66 @@ class GenesisGenerator:
 
         self.initialize()
         self.log_initialization_info()
-        self.parse_and_write_genesis_json()
-        self.write_genesis_zip()
+        self.process_content_id_and_write_genesis()
         self.create_cid()
+        self.validate_cid()
         pawn.console.debug(f"cid = {self.cid}")
+
+        self.write_metadata()
+        self.write_genesis_zip()
+
+        if cleanup_after_run:
+            self.cleanup()
         return self.cid
+
+    def cleanup(self):
+        """
+        Remove temporary directories to cleanup the environment.
+        """
+        if self.prepare_temp_dir and os.path.exists(self.prepare_temp_dir):
+            shutil.rmtree(self.prepare_temp_dir)
+            pawn.console.debug(f"Removed directory {self.prepare_temp_dir}")
+
+        if self.final_temp_dir and os.path.exists(self.final_temp_dir):
+            shutil.rmtree(self.final_temp_dir)
+            pawn.console.debug(f"Removed directory {self.final_temp_dir}")
+
+    def validate_cid(self):
+        """
+        Recalculate CID from the final genesis.json and compare with self.cid to ensure integrity.
+        Raises ValueError if CID does not match.
+        """
+        genesis_file = os.path.join(self.final_temp_dir, "genesis.json")
+        if not os.path.isfile(genesis_file):
+            raise ValueError("genesis.json file not found for CID validation.")
+
+        data = open_json(genesis_file)
+        serialized_data = make_params_serialized(data)
+        encoded_data = f"genesis_tx.{serialized_data}".encode()
+        new_cid_hash = sha3_256(encoded_data).digest().hex()
+        new_cid = format_hex(new_cid_hash[:6])
+
+        if new_cid != self.cid:
+            raise ValueError(f"CID validation failed: expected {self.cid}, got {new_cid}")
+        else:
+            pawn.console.debug("CID validation succeeded.")
+
+    def write_metadata(self):
+        """
+        Write metadata.json to final_temp_dir.
+        Include CID, NID, timestamp, and genesis_filename.
+        """
+        self.metadata = {
+            "cid": self.cid,
+            "nid": self.nid,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
+            "genesis_filename": self.genesis_filename
+        }
+
+        metadata_file = os.path.join(self.final_temp_dir, "metadata.json")
+        with open(metadata_file, "w") as f:
+            json.dump(self.metadata, f, indent=4)
+        pawn.console.debug(f"Metadata written to {metadata_file}")
 
     def log_initialization_info(self):
         """
@@ -181,28 +241,80 @@ class GenesisGenerator:
         :return: The CID generated from the serialized data.
         :rtype: str
         """
+
         if data:
-            self.genesis_json_or_dict = data
-        serialized_data = make_params_serialized(self.genesis_json_or_dict)
+            self.genesis_data = data
+            self.process_content_id_in_accounts()
+        serialized_data = make_params_serialized(self.genesis_data)
         encoded_data = f"genesis_tx.{serialized_data}".encode()
         pawn.console.debug(encoded_data)
         cid_hash = sha3_256(encoded_data).digest().hex()
         self.cid = format_hex(cid_hash[:6])
         return self.cid
 
-    def parse_and_write_genesis_json(self):
+    def process_content_id_and_write_genesis(self):
         """
-        Parse the `genesis_json` data and replace `contentId` fields with the result of `make_score_zip()`.
-        Then, write the updated genesis JSON to a temporary file.
+        Process accounts in `genesis_data` and write the resulting JSON to a temporary file.
+
+        Combines `update_content_id_in_accounts()` and `write_genesis_json()` functionality.
         """
-        for account in self.genesis_json.get('accounts', []):
+        self.update_content_id_in_accounts()
+        return self.write_genesis_json()
+
+    def update_content_id_in_accounts(self):
+        """
+        Process `genesis_data` accounts and replace `contentId` fields with processed results.
+
+        Updates `self.genesis_data` by transforming the `contentId` fields in accounts.
+
+        :raises ValueError: If `genesis_data` is not properly initialized.
+        """
+        if not self.genesis_data:
+            raise ValueError("No genesis data available to process.")
+
+        for account in self.genesis_data.get('accounts', []):
             if keys_exists(account, "score", "contentId"):
-                pawn.console.debug(account['score']['contentId'])
-                parsed_content_id = self.make_score_zip(account['score']['contentId'])
+                original_content_id = account['score']['contentId']
+                pawn.console.debug(original_content_id)
+
+                if self.is_already_hashed(original_content_id):
+                    parsed_content_id = original_content_id
+                else:
+                    parsed_content_id = self.make_score_zip(original_content_id)
                 pawn.console.debug(f"parsed_content_id={parsed_content_id}")
                 account['score']['contentId'] = parsed_content_id
-        self.nid = self.genesis_json.get('nid')
-        write_json(filename=f"{self.final_temp_dir}/genesis.json", data=self.genesis_json)
+        self.nid = self.genesis_data.get('nid')
+
+    def is_already_hashed(self, content_id: str) -> bool:
+        """
+        Check if the given content_id is already in a hashed form like:
+        hash:<64-hexdigits>.
+
+        :param content_id: The content ID string to check.
+        :return: True if it's already a processed hash form, False otherwise.
+        """
+        if content_id.startswith("hash:"):
+            possible_hash = content_id.split("hash:", 1)[1]
+
+            if len(possible_hash) == 64 and all(c in "0123456789abcdef" for c in possible_hash.lower()):
+                return True
+        return False
+
+    def write_genesis_json(self):
+        """
+        Write `genesis_data` to a JSON file in the final temporary directory.
+
+        This method assumes `parse_genesis_json()` has already processed `genesis_data`.
+
+        :raises ValueError: If `genesis_data` is not properly initialized.
+        """
+        if not self.genesis_data:
+            raise ValueError("No genesis data available to write.")
+
+        output_file = os.path.join(self.final_temp_dir, "genesis.json")
+        write_json(filename=output_file, data=self.genesis_data)
+        pawn.console.debug(f"Genesis JSON written to {output_file}")
+        return output_file
 
     def write_genesis_zip(self):
         """
@@ -211,10 +323,8 @@ class GenesisGenerator:
         :return: Information about the generated zip file, including its size and attributes.
         :rtype: dict
         """
-        # genesis_zip_file = f"{self.base_dir}/{self.genesis_filename}"
         genesis_zip_file = self.genesis_filename
         make_zip_without(self.final_temp_dir, genesis_zip_file, ['tests'])
-        # self.genesis_zip_info = get_size(genesis_zip_file, attr=True)
         self.genesis_zip_info = get_file_detail(genesis_zip_file)
         pawn.console.debug(f"Generated {genesis_zip_file} => {self.genesis_zip_info.get('size_pretty')}")
         return self.genesis_zip_info
@@ -235,6 +345,7 @@ class GenesisGenerator:
             return match.group(1), match.group(2), match.group(3)
         else:
             pawn.console.log(f"[red]Pattern not matched score.contentId:[/red] pattern={pattern} string={string}")
+            return None, None, None
 
     def make_score_zip(self, content_id):
         """
@@ -246,7 +357,11 @@ class GenesisGenerator:
         :raises ValueError: If the file or directory described by the content ID cannot be found.
         """
         template_key, template_type, template_dir = self.extract_content_pattern(content_id)
-        score_dir = f"{self.base_dir}/{template_dir}"
+
+        if not template_dir:
+            raise ValueError(f"Invalid content ID format: {content_id}")
+
+        score_dir = os.path.join(self.base_dir, template_dir)
         if template_type in ["ziphash", "hash"] and (is_directory(score_dir) or is_file(score_dir)):
             pawn.console.debug(f"{template_type} =>{score_dir}")
             pawn.console.debug(f"Found '{template_type}' directory -> {score_dir}")
@@ -295,6 +410,7 @@ def make_zip_without(src_dir, dst_file, exclude_dirs):
                     zip_info.date_time = (1980, 1, 1, 0, 0, 0)  # ZIP file format requires year >= 1980
                     with open(file_path, 'rb') as f:
                         zipf.writestr(zip_info, f.read())
+
 
 def calculate_hash(file_path):
     """

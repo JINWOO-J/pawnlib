@@ -2,6 +2,7 @@ from .check import (
     is_json,
     is_float,
     is_int,
+    is_number,
     is_hex,
     is_regex_keyword,
     is_regex_keywords,

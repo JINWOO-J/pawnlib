@@ -8,7 +8,6 @@ from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawnlib_config as pawn
 from pawnlib.output import write_json, syntax_highlight, PrintRichTable
 from pawnlib.typing.converter import FlatDict, FlatterDict, flatten_dict
-
 from pawnlib.resource import server
 
 __description__ = 'Get meta information from Cloud Providers (AWS, GCP, OCI).'
@@ -48,6 +47,11 @@ CLOUD_PROVIDERS = {
         'headers': {'Authorization': 'Bearer Oracle'},
         # OCI는 루트 URL로는 감지가 불가능하므로 특정 경로를 사용
         'detect_url': 'http://169.254.169.254/opc/v1/instance/id',
+    },
+    'KAKAO': {
+        'meta_url': 'http://169.254.169.254/latest/meta-data/',
+        'headers': {'X-aws-ec2-metadata-token': 'required'},
+        'detect_url': 'http://169.254.169.254/latest/meta-data/',
     }
 }
 
@@ -56,6 +60,7 @@ def get_parser():
     parser = argparse.ArgumentParser(description=__description__, epilog=__epilog__)
     parser = get_arguments(parser)
     return parser
+
 
 def get_arguments(parser):
     parser.add_argument(
@@ -85,16 +90,16 @@ def get_arguments(parser):
     )
     return parser
 
-def detect_cloud_provider(meta_ip, timeout):
+
+def detect_cloud_provider(timeout=2.0):
     """
-    클라우드 제공업체를 자동으로 감지합니다.
+    Automatically detects the cloud provider based on metadata service.
 
     Parameters:
-        meta_ip (str): 메타데이터 서비스의 IP 주소.
-        timeout (float): HTTP 요청의 타임아웃 (초).
+        timeout (float): Timeout for HTTP requests in seconds
 
     Returns:
-        str: 감지된 클라우드 제공업체의 이름(AWS, GCP, OCI). 감지되지 않으면 'Unknown'.
+        str: Name of the detected cloud provider (AWS, GCP, OCI, KAKAO)
     """
     for provider, info in CLOUD_PROVIDERS.items():
         try:
@@ -104,35 +109,60 @@ def detect_cloud_provider(meta_ip, timeout):
                 timeout=timeout
             )
             if response.status_code == 200:
+                # Distinguish between AWS and Kakao Cloud using server header
+                if provider in ['AWS', 'KAKAO']:
+                    server_header = response.headers.get('Server', '')
+                    detected_provider = 'AWS' if 'EC2ws' in server_header else 'KAKAO'
+                    pawn.console.log(f"Detected cloud provider: {detected_provider}")
+                    return detected_provider
+
                 pawn.console.log(f"Detected cloud provider: {provider}")
                 return provider
         except requests.exceptions.RequestException as e:
-            pawn.console.debug(f"Could not detect {provider}: {e}")
+            pawn.console.debug(f"Failed to detect {provider}: {e}")
             continue
+
     pawn.console.log("Could not detect cloud provider. Exiting.")
     sys.exit(1)
 
+
 def get_metadata(provider, meta_ip, timeout):
     """
-    클라우드 제공업체별로 메타데이터를 가져옵니다.
+    Retrieves metadata specific to the detected cloud provider.
 
     Parameters:
-        provider (str): 클라우드 제공업체의 이름.
-        meta_ip (str): 메타데이터 서비스의 IP 주소.
-        timeout (float): HTTP 요청의 타임아웃 (초).
+        provider (str): The name of the cloud provider.
+        meta_ip (str): The IP address of the metadata service.
+        timeout (float): Timeout for the HTTP request in seconds.
 
     Returns:
-        dict: 수집된 메타데이터.
+        dict: The collected metadata from the cloud provider.
+
+    Example:
+
+        .. code-block:: python
+
+            provider = "AWS"
+            meta_ip = "169.254.169.254"
+            timeout = 2.0
+
+            metadata = get_metadata(provider, meta_ip, timeout)
+            print(metadata)  # Output: Metadata dictionary for AWS, GCP, or OCI
     """
-    if provider == 'AWS':
-        return server.get_aws_metadata(meta_ip=meta_ip, timeout=timeout)
-    elif provider == 'GCP':
-        return server.get_gcp_metadata(meta_ip=meta_ip, timeout=timeout)
-    elif provider == 'OCI':
-        return server.get_oci_metadata(meta_ip=meta_ip, timeout=timeout)
-    else:
+    metadata_handlers = {
+        'AWS': server.get_aws_metadata,
+        'GCP': server.get_gcp_metadata,
+        'OCI': server.get_oci_metadata,
+        'KAKAO': server.get_kakao_metadata
+    }
+
+    handler = metadata_handlers.get(provider)
+    if not handler:
         pawn.console.log(f"Unsupported cloud provider. - {provider}")
         sys.exit(1)
+
+    return handler(meta_ip=meta_ip, timeout=timeout)
+
 
 def main():
     banner = generate_banner(
@@ -152,7 +182,7 @@ def main():
     if args.provider:
         provider = args.provider.upper()
     else:
-        provider = detect_cloud_provider(meta_ip=args.metadata_ip, timeout=args.timeout)
+        provider = detect_cloud_provider(timeout=args.timeout)
 
     res = get_metadata(provider=provider, meta_ip=args.metadata_ip, timeout=args.timeout)
 
