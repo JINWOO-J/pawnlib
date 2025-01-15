@@ -756,14 +756,16 @@ def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, 
 
 def classdump(obj):
     """
-    For debugging, Print the properties of the class are shown.
-    :param obj:
-    :return:
+    For debugging, print the properties of the class.
     """
     for attr in dir(obj):
-        if hasattr(obj, attr):
+        if not hasattr(obj, attr):
+            continue
+        try:
             value = getattr(obj, attr)
-            print(bcolors.OKGREEN + f"obj.{attr} = " + bcolors.WARNING + f"{value}" + bcolors.ENDC)
+            print(bcolors.OKGREEN + f"obj.{attr} = " + bcolors.WARNING + f"{repr(value)}" + bcolors.ENDC)
+        except Exception as e:
+            print(bcolors.FAIL + f"obj.{attr}"+ bcolors.ENDC +f" = <ERROR: {e}>")
 
 
 def kvPrint(key, value):
