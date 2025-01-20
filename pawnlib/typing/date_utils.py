@@ -264,13 +264,24 @@ def timestamp_to_string(unix_timestamp: int, str_format='%Y-%m-%d %H:%M:%S'):
 
 
     """
+    if isinstance(unix_timestamp, str):
+        unix_timestamp = unix_timestamp.strip()
+        if not unix_timestamp.isdigit():
+            raise ValueError(f"Invalid timestamp format: {unix_timestamp} ({type(unix_timestamp)})")
+
     ts_length = len(str(unix_timestamp))
-    if ts_length == const.SECONDS_DIGITS or ts_length == const.MICRO_SECONDS_DIGITS:
-        if ts_length == const.MICRO_SECONDS_DIGITS:
-            unix_timestamp = unix_timestamp / 1_000_000
-        if unix_timestamp:
-            return datetime.datetime.fromtimestamp(unix_timestamp).strftime(str_format)
-    raise ValueError('Invalid timestamp')
+
+    if ts_length == const.SECONDS_DIGITS:
+        timestamp_in_seconds = unix_timestamp
+    elif ts_length == const.MILLI_SECONDS_DIGITS:
+        timestamp_in_seconds = unix_timestamp / 1_000
+    elif ts_length == const.MICRO_SECONDS_DIGITS:
+        timestamp_in_seconds = unix_timestamp / 1_000_000
+    else:
+        raise ValueError(f'Invalid timestamp length - length={ts_length}, timestamp={unix_timestamp}')
+
+    return datetime.datetime.fromtimestamp(timestamp_in_seconds).strftime(str_format)
+
 
 
 def second_to_dayhhmm(seconds: int = 0):

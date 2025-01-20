@@ -460,7 +460,7 @@ class IconRpcTemplates:
                 _template.update(item)
         return _template
 
-    def get_rpc(self, category=None, method=None):
+    def get_rpc(self, category=None, method=None, params=None):
         if category:
             self._category = category
         if method:
@@ -480,10 +480,23 @@ class IconRpcTemplates:
                     self._params_hint = _arguments['params_hint']
                     del _arguments['params_hint']
 
+                if params and _arguments.get('params') and _arguments['params'].get('data'):
+                    try:
+                        _arguments['params']['data']['params'] = json.loads(params)
+                    except Exception as e:
+                        sys_exit(f"Params error {params} => {e}")
+
+
                 self.return_rpc = json_rpc(**_arguments)
             else:
                 self._method = _arguments.get('method', self._method)
-                self._params = _arguments.get('params', {})
+                if params:
+                    try:
+                        self._params = json.loads(params)
+                    except Exception as e:
+                        sys_exit(f"Params error {params} => {e}")
+                else:
+                    self._params = _arguments.get('params', {})
                 self.return_rpc = json_rpc(method=self._method, params=self._params)
 
             return self.return_rpc

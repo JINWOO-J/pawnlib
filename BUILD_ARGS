@@ -1,6 +1,6 @@
 
 --build-arg BASE_IMAGE=python:3.9.13-slim-buster  
---build-arg BUILD_DATE=2024-12-24T01:58:39UTC  
+--build-arg BUILD_DATE=2025-01-20T13:34:36UTC  
 --build-arg DOCKER_BUILD_OPTION=--no-cache --rm=true  
 --build-arg ECHO_OPTION=  
 --build-arg GIT_USER=JINWOO-J  

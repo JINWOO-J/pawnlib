@@ -39,6 +39,13 @@ else:
 AlignMethod = Literal["left", "center", "right"]
 VerticalAlignMethod = Literal["top", "middle", "bottom"]
 
+TRANSFORM_DICT = {
+    "time_stamp":         lambda x: f"{timestamp_to_string(int(x))}",
+    "timestamp":          lambda x: f"{timestamp_to_string(int(x))}",
+    "expireBlockHeight":  lambda x: f"{int(x,16):,}",
+}
+IGNORE_KEYS = ["Hash"]
+
 _ATTRIBUTES = dict(
     list(zip([
         'bold',
@@ -568,162 +575,117 @@ def get_colorful_object(v):
     return value
 
 
-def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _is_list=False, _last_key=None, is_compact=False):
+def _format_number_for_dump(n):
     """
-    Print a variable for debugging.
-
-    :param obj:
-    :param nested_level:
-    :param output:
-    :param hex_to_int:
-    :param debug:
-    :param _is_list:
-    :param _last_key:
-    :param is_compact:
-    :return:
+    Converts floating-point to int if the fractional part is zero,
+    otherwise returns the float as is.
     """
-    spacing = '   '
-    def_spacing = '   '
-    format_number = lambda n: n if n % 1 else int(n)
+    return n if (n % 1) else int(n)
 
-    ignore_keys = ["Hash"]
 
-    if type(obj) == dict:
-        if nested_level == 0 or _is_list:
-            print('%s{' % (def_spacing + (nested_level) * spacing))
-        else:
-            print("{")
+def _process_dump_value(value, key=None, debug=True, hex_to_int=False) -> str:
+    """
+    1) If 'key' is in TRANSFORM_DICT, apply the corresponding transformation.
+    2) If 'hex_to_int' is True and 'value' is a valid hex, apply TINT logic.
+    3) If 'debug' is True, append type and length info.
+    Returns a string representation of the final result.
+    """
+    v_str = get_colorful_object(value)
 
-        for k, v in obj.items():
-            if hasattr(v, '__iter__'):
-                print(bcolors.OKGREEN + '%s%s: ' % (def_spacing + (nested_level + 1) * spacing, k) + bcolors.ENDC, end="")
-                dump(v, nested_level + 1, output, hex_to_int, debug, _last_key=k, is_compact=is_compact)
-            else:
-                if debug:
-                    v = f"{get_colorful_object(v)} {bcolors.HEADER} {str(type(v)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(v))}{bcolors.ENDC}"
-                print(bcolors.OKGREEN + '%s%s:' % (def_spacing + (nested_level + 1) * spacing, k) + bcolors.WARNING + ' %s ' % v + bcolors.ENDC,
-                      file=output)
-        print('%s}' % (def_spacing + nested_level * spacing), file=output)
-    elif type(obj) == list:
-        if is_compact:
-            end = ' '
-        else:
-            end = '\n'
+    if key in TRANSFORM_DICT:
+        try:
+            transformed_val = TRANSFORM_DICT[key](value)
+            v_str = f"{v_str} {bcolors.LIGHT_GREY}(from {key} {transformed_val}{bcolors.ENDC})"
+        except Exception:
+            # In case of transform failure, keep the original
+            pass
 
-        print('%s[' % (def_spacing + (nested_level) * spacing), file=output, end=end)
-        for v in obj:
-            if hasattr(v, '__iter__'):
-                dump(v, nested_level + 1, output, hex_to_int, debug, _is_list=True, is_compact=is_compact)
-            else:
-                if is_compact:
-                    spacing = ""
-                    def_spacing = ''
-                    end = ', '
-                else:
-                    end = '\n'
-                # print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, get_colorful_object(v)) + bcolors.ENDC, file=output)
-                print(bcolors.WARNING + '%s%s' % (def_spacing + (nested_level + 1) * spacing, get_colorful_object(v)) + bcolors.ENDC, file=output,
-                      end=end)
-        print('%s]' % (def_spacing + (nested_level) * spacing), file=output)
-    else:
-        if debug:
-            converted_hex = ""
+    converted_hex = ""
+    if debug and hex_to_int and converter.is_hex(value):
+        if not is_include_list(key, IGNORE_KEYS, ignore_case=False):
+            try:
+                if key == "timestamp":
+                    timestamp_int = int(value, 16) / 1_000_000
+                    if timestamp_int > 10**10:
+                        timestamp_int //= 1000  # ms to sec
+                    dt_str = datetime.fromtimestamp(_format_number_for_dump(timestamp_int)).strftime('%Y-%m-%d %H:%M:%S')
+                    converted_hex = f"{dt_str} (from {key})"
 
-            if hex_to_int and converter.is_hex(obj) and not is_include_list(target=_last_key, include_list=ignore_keys, ignore_case=False):
-                if _last_key == "timestamp":
-                    t_value = round(int(obj, 16) / 1_000_000)
-                    converted_str = f"(from {_last_key})"
-                    converted_date = datetime.fromtimestamp(format_number(t_value)).strftime('%Y-%m-%d %H:%M:%S')
-                    converted_hex = f"{converted_date} {converted_str}"
-
-                elif isinstance(obj, str) and len(obj) >= 60:
+                elif isinstance(value, str) and len(value) >= 60:
                     pass
                 else:
-                    if len(obj) < 14:
-                        TINT = 1
-                        TINT_STR = ""
+                    if len(value) < 14:
+                        tint_val = 1
+                        tint_str = ""
                     else:
-                        TINT = const.TINT
-                        TINT_STR = f"(from TINT) {_last_key}"
+                        tint_val = const.TINT
+                        tint_str = f"(from TINT) {key if key else ''}"
 
-                    converted_float = format_number(round(int(obj, 16) / TINT, 4))
-                    converted_hex = f"{converted_float:,} {TINT_STR}"
+                    converted_float = _format_number_for_dump(round(int(value, 16) / tint_val, 4))
+                    converted_hex = f"{converted_float:,} {tint_str}"
+            except Exception as e:
+                pawn.console.print(f"[red]\\[WARN] {e}")
+    if converted_hex:
+        v_str += f" {bcolors.ITALIC}{bcolors.LIGHT_GREY}{converted_hex}{bcolors.ENDC}"
+    if debug:
+        v_str += f" {bcolors.HEADER}{str(type(value)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(value))}{bcolors.ENDC}"
+    return v_str
 
-            obj = f"{get_colorful_object(obj)}  " \
-                  f"{bcolors.ITALIC}{bcolors.LIGHT_GREY}{converted_hex}{bcolors.ENDC}" \
-                  f"{bcolors.HEADER} {str(type(obj)):>20}{bcolors.ENDC}" \
-                  f"{bcolors.DARK_GREY} len={len(str(obj))}{bcolors.ENDC}"
-        print(bcolors.WARNING + '%s%s' % (def_spacing + nested_level * spacing, obj) + bcolors.ENDC)
 
+def dump(obj, nested_level=0, output=sys.stdout, hex_to_int=False, debug=True, _is_list=False, _last_key=None, is_compact=False):
+    """
+    Prints a variable (obj) for debugging in a structured way.
+    - dict: recursively prints nested key/value pairs
+    - list: recursively prints elements
+    - scalar: prints with optional transforms (transform_dict, hex->int, etc.)
+    """
 
-# def dump(obj, nested_level=1, output=sys.stdout, hex_to_int=False, debug=True, _last_key=None, is_compact=False):
-#     """
-#     Print a variable for debugging.
-#
-#     :param obj:
-#     :param nested_level:
-#     :param output:
-#     :param hex_to_int:
-#     :param debug:
-#     :param _last_key:
-#     :param is_compact:
-#     :return:
-#     """
-#     if isinstance(obj, (dict, list)):
-#         _print_iterable(obj, nested_level, output, hex_to_int, debug, _last_key, is_compact)
-#     else:
-#         _print_value(obj, '   ' * nested_level, _last_key, hex_to_int, debug)
-#
-#
-# def _print_iterable(obj, nested_level, output, hex_to_int, debug, _last_key, is_compact):
-#     spacing = '   ' * nested_level
-#     print(f"{spacing}{'{' if isinstance(obj, dict) else '['}", end=("" if is_compact and isinstance(obj, list) else "\n"))
-#     for k, v in (obj.items() if isinstance(obj, dict) else enumerate(obj)):
-#         if isinstance(obj, dict):
-#             print(f"{spacing}   {bcolors.OKGREEN}{k}: {bcolors.ENDC}", end="")
-#         if isinstance(v, (dict, list)):
-#             dump(v, nested_level + 1, output, hex_to_int, debug, _last_key=(k if isinstance(obj, dict) else _last_key), is_compact=is_compact)
-#         else:
-#             _print_value(v, spacing + '   ', (k if isinstance(obj, dict) else _last_key), hex_to_int, debug)
-#         if is_compact and isinstance(obj, list):
-#             print(", ", end="")
-#     print(f"{' ' if is_compact and isinstance(obj, list) else spacing}{'}' if isinstance(obj, dict) else ']'}", end=("" if is_compact and isinstance(obj, list) else "\n"), file=output)
-#
-#
-# def _print_value(v, spacing, _last_key, hex_to_int, debug):
-#     output_value = _process_value(v, _last_key, hex_to_int)
-#     if debug:
-#         output_value += f" {bcolors.HEADER} {str(type(v)):>20}{bcolors.ENDC}{bcolors.DARK_GREY} len={len(str(v))}{bcolors.ENDC}"
-#     print(f"{bcolors.WARNING}{spacing}{output_value}{bcolors.ENDC}")
-#
-#
-# def _process_value(value, _last_key=None, hex_to_int=False):
-#     _convert_based_key_dict = {
-#         "time_stamp": timestamp_to_string
-#     }
-#
-#     if hex_to_int and is_hex(value) and _last_key is not None:
-#         return f"'{value}' {_process_hex(value, _last_key)}"
-#     elif _convert_based_key_dict.get(_last_key):
-#         _function = _convert_based_key_dict.get(_last_key)
-#         return f"{get_colorful_object(value)}\t{_function(value)} (from {_last_key})"
-#     else:
-#         return get_colorful_object(value)
-#
-#
-# def _process_hex(obj, _last_key):
-#     format_number = lambda n: n if n % 1 else int(n)
-#     if _last_key == "timestamp":
-#         t_value = round(int(obj, 16) / 1_000_000)
-#         converted_date = datetime.fromtimestamp(format_number(t_value)).strftime('%Y-%m-%d %H:%M:%S')
-#         return f" {bcolors.ITALIC}{bcolors.LIGHT_GREY}{converted_date} (from {_last_key}){bcolors.ENDC}"
-#     elif isinstance(obj, str) and len(obj) < 60:
-#         TINT = 1 if len(obj) < 14 else 10 ** 18
-#         TINT_STR = "" if len(obj) < 14 else f"(from TINT) {_last_key}"
-#         converted_float = format_number(round(int(obj, 16) / TINT, 4))
-#         return f" {bcolors.ITALIC}{bcolors.LIGHT_GREY}{converted_float:,} {TINT_STR}{bcolors.ENDC}"
-#     else:
-#         return ""
+    spacing = '   '
+    def_spacing = '   '
+
+    if isinstance(obj, dict):
+        if nested_level == 0 or _is_list:
+            print(f"{def_spacing + nested_level * spacing}{{", file=output)
+        else:
+            print("{", file=output)
+
+        for k, v in obj.items():
+            if hasattr(v, '__iter__') and not isinstance(v, str):
+                print( bcolors.OKGREEN + f"{def_spacing + (nested_level + 1) * spacing}{k}: " + bcolors.ENDC, end="", file=output)
+                dump(v, nested_level + 1, output, hex_to_int, debug, _last_key=k, is_compact=is_compact)
+            else:
+                v_str = _process_dump_value(value=v, key=k, debug=debug, hex_to_int=hex_to_int)
+                print( bcolors.OKGREEN+ f"{def_spacing + (nested_level + 1) * spacing}{k}:" + bcolors.WARNING
+                    + f" {v_str} "+ bcolors.ENDC,file=output)
+
+        print(f"{def_spacing + nested_level * spacing}}}", file=output)
+
+    elif isinstance(obj, list):
+        end_char = ' ' if is_compact else '\n'
+        print(f"{def_spacing + nested_level * spacing}[", file=output, end=end_char)
+
+        for v in obj:
+            if hasattr(v, '__iter__') and not isinstance(v, str):
+                dump(v, nested_level + 1, output, hex_to_int, debug, _is_list=True,is_compact=is_compact)
+            else:
+                if is_compact:
+                    local_spacing = ""
+                    local_def_spacing = ""
+                    local_end = ', '
+                else:
+                    local_spacing = spacing
+                    local_def_spacing = def_spacing
+                    local_end = '\n'
+
+                v_str = _process_dump_value(value=v, key=None, debug=debug, hex_to_int=hex_to_int)
+                print(bcolors.WARNING + f"{local_def_spacing + (nested_level + 1) * local_spacing}{v_str}" + bcolors.ENDC,
+                    file=output,end=local_end)
+        print(f"{def_spacing + nested_level * spacing}]", file=output)
+
+    else:
+        v_str = _process_dump_value(value=obj, key=_last_key,  debug=debug, hex_to_int=hex_to_int)
+        print(bcolors.WARNING + f"{def_spacing + nested_level * spacing}{v_str}"+ bcolors.ENDC,
+            file=output)
 
 
 def debug_print(text, color="green", on_color=None, attrs=None, view_time=True, **kwargs):

@@ -247,7 +247,7 @@ class RpcCommand:
             # args=pconf().data.args
         ).fuzzy()
 
-        self._payload = self.icon_tpl.get_rpc(category=category, method=self.args.method)
+        self._payload = self.icon_tpl.get_rpc(category=category, method=self.args.method, params=self.args.params)
 
         if self.icon_tpl.get_params_hint():
             pawn.console.log(f"Type Hints for '{self.args.method}'")
@@ -264,12 +264,13 @@ class RpcCommand:
 
         self.load_wallet_and_prepare_for_sign()
 
-        self._payload = PromptWithArgument(
-            type="input",
-            message="Edit transaction: ",
-            default="\n"+json.dumps(self._payload, indent=4),
-            long_instruction="\nedit the transaction",
-        ).prompt()
+        if not self.args.params:
+            self._payload = PromptWithArgument(
+                type="input",
+                message="Edit transaction: ",
+                default="\n"+json.dumps(self._payload, indent=4),
+                long_instruction="\nedit the transaction",
+            ).prompt()
 
         if self.icon_tpl.is_required_sign():
             self._payload = self.icon_rpc.sign_tx(payload=self._payload)
