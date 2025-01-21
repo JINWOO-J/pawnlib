@@ -3192,9 +3192,11 @@ class AsyncCallWebsocket(LoggerMixin):
 
                 if message and isinstance(message, str):
                     if self.is_connected and self._ws and not self._ws.closed:
-                        self.logger.debug(f"Sending message to WebSocket at {self.ws_url}")
+                        if self.verbose >2:
+                            self.logger.debug(f"Sending message to WebSocket at {self.ws_url}")
                         await self._ws.send_str(message)
-                        self.logger.debug(f"Message sent: {message}")
+                        if self.verbose >2:
+                            self.logger.debug(f"Message sent: {message}")
                     else:
                         self.logger.error("WebSocket is closed or not connected, cannot send message.")
                         await self.reconnect()
@@ -3206,7 +3208,8 @@ class AsyncCallWebsocket(LoggerMixin):
                 msg = await self._ws.receive()
 
                 if msg.type == aiohttp.WSMsgType.TEXT:
-                    self.logger.debug(f"Received: {str(msg.data).strip()}")
+                    if self.verbose >2:
+                        self.logger.debug(f"Received: {str(msg.data).strip()}")
                     if self.on_receive:
                         await self.on_receive(msg.data)
 
@@ -3417,18 +3420,34 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         if os.path.exists(self.BLOCKHEIGHT_FILE):
             try:
                 with open(self.BLOCKHEIGHT_FILE, "r") as file:
-                    return int(file.read().strip(), 16)  # Assuming block height is stored in hex
+                    blockheight = int(file.read().strip())
+                    self.logger.info(f"🫡 Read last processed blockheight : {blockheight}")
+                    return blockheight  # Assuming block height is stored in hex
             except (ValueError, IOError) as e:
                 self.logger.error(f"Error reading block height file: {e}")
+        else:
+            self.logger.info(f"Block recorded file not found - {self.BLOCKHEIGHT_FILE}")
         return None
 
     def write_last_processed_blockheight(self, blockheight):
         """Write the last successfully processed block height to a file."""
         try:
+            file_exists = os.path.exists(self.BLOCKHEIGHT_FILE)
+
             with open(self.BLOCKHEIGHT_FILE, "w") as file:
-                file.write(hex(blockheight))
+                file.write(f"{blockheight}")
+
+            if not file_exists:
+                self.logger.info(f"Block height file '{self.BLOCKHEIGHT_FILE}' not found. Creating new file.")
+
+            self.logger.debug(f"Successfully processed block {blockheight}. Block height recorded on '{self.BLOCKHEIGHT_FILE}'.")
+
         except IOError as e:
             self.logger.error(f"Error writing block height to file: {e}")
+
+        except Exception as e:
+            self.logger.error(f"Unexpected error occurred while writing block height: {e}")
+
 
     async def run_from_blockheight(self, blockheight=None, api_path: str = "/api/v3/icon_dex/block"):
         """
@@ -3512,9 +3531,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             # raise ValueError(f"Failed to retrieve the block height. blockheight: {self.blockheight}, response: {await self.get_response_content()}")
             raise ValueError(f"Failed to retrieve the block height. blockheight: {self.blockheight}, response: ")
 
-        self.logger.info(f"Requesting block height: {self.blockheight}")
-        # await self.fetch_and_store_preps_info()
-
+        self.logger.info(f"🚀 Requesting block height: {self.blockheight}")
         send_data = {
             "height": hex(self.blockheight)
         }
@@ -3613,6 +3630,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
 
             confirmed_transactions = block_data.get('confirmed_transaction_list', [])
             confirmed_transactions_length = len(confirmed_transactions)
+            self.write_last_processed_blockheight(block_height)
 
             if self.blockheight_now:
                 # self.logger.info(f"Block height parsed: {hex_to_number(self.blockheight_now, debug=True)}, TX: {confirmed_transactions_length}, Validator={validator_info}, "
@@ -3629,9 +3647,9 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
                 if self.verbose > 4:
                     self.logger.debug(f"block_data={block_data}")
                 tasks = [self.process_transaction_callback(tx, block_height) for tx in confirmed_transactions]
+                # await asyncio.gather(*tasks, return_exceptions=True)
                 await asyncio.gather(*tasks)
-                self.write_last_processed_blockheight(block_height)
-                # self.logger.info(f"Successfully processed block {block_height}. Block height recorded.")
+
             else:
                 if isinstance(confirmed_transactions, list) and len(confirmed_transactions) == 0:
                     return
