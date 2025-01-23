@@ -83,7 +83,8 @@ full = [
     "aiodocker~=0.21.0",
     "boto3>=1.28.3",
     "redis~=4.5.1",
-    "aioboto3~=11.3.1"
+    "aioboto3~=11.3.1",
+    "bcc-python~=0.0.2",
 ]
 
 [project.scripts]

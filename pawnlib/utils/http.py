@@ -3084,6 +3084,7 @@ class AsyncCallWebsocket(LoggerMixin):
 
         self.enable_status_console = enable_status_console
         self.status_console = None  # For rich console status
+        self.status_info = {}
 
         self.on_last_status = ""
 
@@ -3129,7 +3130,7 @@ class AsyncCallWebsocket(LoggerMixin):
             try:
                 await self._connect(api_path)
                 if self.is_connected:
-                    self.logger.info("Reconnection successful")
+                    self.logger.info(f"Reconnection successful. status={self.status_info}")
                     await self.run_tasks()
                     return
             except Exception as e:
@@ -3378,12 +3379,11 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
 
         # self.logger = setup_logger(logger, "pawnlib.http.AsyncGoloopWebsocket", verbose)
         self.logger = logger or self.get_logger()
-
         self.logger.info("Start AsyncGoloopWebsocket")
-
         self.preps_refresh_interval = preps_refresh_interval
         self.use_shorten_tx_hash = use_shorten_tx_hash
-        # self.logger = ConsoleLoggerAdapter(logger, "AsyncGoloopWebsocket", self.verbose)
+
+        self.status_info = {}
 
         self.address_filter = address_filter or []
         if self.address_filter:
@@ -3602,7 +3602,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
                     logger=self.logger
                 )
             except (TimeoutError, ConnectionError) as e:
-                self.logger.error(f"Network-related error while fetching block data: {e}")
+                self.logger.error(f"Network-related error while fetching block data on {readable_block_height}: {e}")
             except Exception as e:
                 self.logger.error(f"Failed to parse transaction after {self.max_transaction_attempts} attempts for tx hash {tx_hash}: {e}")
 
@@ -3631,6 +3631,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             confirmed_transactions = block_data.get('confirmed_transaction_list', [])
             confirmed_transactions_length = len(confirmed_transactions)
             self.write_last_processed_blockheight(block_height)
+            self.status_info['block_height'] = block_height
 
             if self.blockheight_now:
                 # self.logger.info(f"Block height parsed: {hex_to_number(self.blockheight_now, debug=True)}, TX: {confirmed_transactions_length}, Validator={validator_info}, "
