@@ -10,10 +10,10 @@ import math
 import base64
 from .check import is_int, is_hex
 from deprecated import deprecated
-from typing import Union, Any, Type
+from typing import Union, Any, Type, Dict
 from pawnlib.config.globalconfig import pawnlib_config as pawn
 from collections.abc import MutableMapping
-from collections import OrderedDict
+from collections import OrderedDict, UserDict
 from pawnlib import logger
 from pawnlib.typing.constants import const
 from pawnlib.config.__fix_import import Null
@@ -31,6 +31,232 @@ except ImportError:
 NO_DEFAULT = object()
 
 decimal.getcontext().prec = 30
+
+class HexConverter(UserDict):
+    """
+    A dictionary-like class for converting hexadecimal strings to numerical values in nested data structures.
+
+    Supports conversion of hex strings (starting with '0x') to integers or scaled floats (tint). Provides options
+    for formatting numbers with prefixes, suffixes, and thousands separators. Handles nested dictionaries and lists
+    recursively.
+
+    :param data: Input data structure containing hex values (dict/list/str)
+    :type data: Union[dict, list, str]
+    :param convert_type: Conversion type - 'int' for integer, 'tint' for scaled float (default: 'int')
+    :type convert_type: str
+    :param decimal_places: Number of decimal places for rounding (applies to 'tint' conversion)
+    :type decimal_places: int
+    :param prefix: String prefix to add to converted values
+    :type prefix: str
+    :param suffix: String suffix to add to converted values
+    :type suffix: str
+
+    .. code-block:: python
+
+        # Example usage
+        from hexconverter import HexConverter
+
+        data = {
+            'network': '0x1a',
+            'values': ['0x3e8', '0x1f4'],
+            'nested': {'threshold': '0x3b9aca00'}
+        }
+
+        # Basic conversion
+        converter = HexConverter(data)
+        print(converter)
+        # Output:
+        # {'network': 26, 'values': [1000, 500], 'nested': {'threshold': 1000000000}}
+
+        # Formatted output with currency
+        formatted = converter.pretty_format(
+            prefix='$',
+            thousands_separator=',',
+            decimal_places=2
+        )
+        print(formatted['nested']['threshold'])
+        # Output: '$1,000,000,000.00'
+
+        # Debug information
+        debug_data = converter.debug_info()
+        print(debug_data['values'][0])
+        # Output:
+        # {'original': '0x3e8', 'converted': 1000, 'type': 'int'}
+
+    """
+    def __init__(
+            self,
+            data: Union[dict, list, str],
+            convert_type: str = 'int',
+            decimal_places: int = 0,
+            prefix: str = '',
+            suffix: str = ''
+    ):
+        """
+        Initialize HexConverter with configuration parameters.
+        """
+        if convert_type not in ('int', 'tint'):
+            raise ValueError("convert_type must be 'int' or 'tint'")
+
+        self.original_data = data
+        self.convert_type = convert_type
+        self.decimal_places = decimal_places
+        self.prefix = prefix
+        self.suffix = suffix
+        self._convert()
+        super().__init__(self.converted_data)
+
+    def _is_hex(self, value: str) -> bool:
+        """
+        Check if a given string is a hexadecimal value.
+
+        :param value: The string to check.
+        :type value: str
+        :return: True if the string is a hexadecimal value, False otherwise.
+        :rtype: bool
+        """
+        return isinstance(value, str) and value.startswith('0x')
+
+    def _hex_to_number(self, hex_str: str) -> Union[int, float]:
+        """
+        Convert a hexadecimal string to a number (int or scaled float).
+
+        :param hex_str: The hexadecimal string to convert.
+        :type hex_str: str
+        :return: The converted number or the original string if conversion fails.
+        :rtype: Union[int, float]
+        """
+        try:
+            num = int(hex_str, 16)
+            if self.convert_type == 'tint':
+                num = num / const.TINT
+                if self.decimal_places == 0:
+                    return int(num) if num.is_integer() else num
+                else:
+                    rounded = round(num, self.decimal_places)
+                    return int(rounded) if rounded.is_integer() else rounded
+            return num
+        except ValueError:
+            return hex_str
+
+    def _convert_element(self, element: Any) -> Any:
+        """
+        Recursively convert elements in the data structure.
+
+        :param element: The element to convert (can be dict, list, or individual value).
+        :type element: Any
+        :return: The converted element.
+        :rtype: Any
+        """
+        if isinstance(element, dict):
+            return {k: self._convert_element(v) for k, v in element.items()}
+        if isinstance(element, list):
+            return [self._convert_element(e) for e in element]
+        if self._is_hex(element):
+            converted = self._hex_to_number(element)
+            if self.prefix or self.suffix:
+                return f"{self.prefix}{converted}{self.suffix}"
+            return converted
+        return element
+
+    def _convert(self):
+        """
+        Perform the conversion on the original data and store it as `converted_data`.
+        """
+        self.converted_data = self._convert_element(self.original_data)
+
+    def pretty_format(
+            self,
+            decimal_places: Optional[int] = 3,
+            prefix: str = '',
+            suffix: str = '',
+            thousands_separator: str = ',',
+    ) -> Dict:
+        """
+        Format the converted data with specified formatting options.
+
+        :param decimal_places: Number of decimal places for formatting (default is 3).
+        :type decimal_places: Optional[int]
+        :param prefix: String prefix to add to formatted values.
+        :type prefix: str
+        :param suffix: String suffix to add to formatted values.
+        :type suffix: str
+        :param thousands_separator: Character to use as the thousands separator (default is ',').
+        :type thousands_separator: str
+        :return: A dictionary with formatted values.
+        :rtype: Dict
+
+        .. code-block:: python
+
+            # Example usage of pretty_format
+            formatted = converter.pretty_format(
+                decimal_places=2,
+                prefix='$',
+                thousands_separator=','
+            )
+            print(formatted['values'])
+            # Output:
+            # ['$1,000.00', '$500.00']
+        """
+        decimal_places = decimal_places or self.decimal_places
+
+        def _format_number(num: Union[int, float]) -> str:
+            if isinstance(num, (int, float)):
+                formatted = f"{num:,}".replace(',', thousands_separator)
+            else:
+                int_part, dec_part = f"{num:.{decimal_places}f}".split('.')
+                formatted = f"{int(int_part):,}".replace(',', thousands_separator)
+                if decimal_places > 0:
+                    formatted += f".{dec_part}"
+            return f"{prefix}{formatted}{suffix}"
+
+        def _format_element(element: Any) -> Any:
+            if isinstance(element, dict):
+                return {k: _format_element(v) for k, v in element.items()}
+            if isinstance(element, list):
+                return [_format_element(e) for e in element]
+            if isinstance(element, (int, float)):
+                return _format_number(element)
+            return element
+        return _format_element(self.converted_data)
+
+    def debug_info(self) -> Dict:
+        """
+        Provide detailed debug information about the conversion process.
+
+        Includes the original hex value, its converted numerical value,
+        and the type of the converted value.
+
+        :return: A dictionary containing debug information.
+        :rtype: Dict
+
+        .. code-block:: python
+
+            # Example usage of debug_info
+            debug_data = converter.debug_info()
+            print(debug_data['network'])
+            # Output:
+            # {'original': '0x1a', 'converted': 26, 'type': 'int'}
+
+         """
+        def _add_debug_info(element: Any) -> Any:
+            if isinstance(element, dict):
+                return {k: _add_debug_info(v) for k, v in element.items()}
+            if isinstance(element, list):
+                return [_add_debug_info(e) for e in element]
+            if self._is_hex(element):
+                return {
+                    'original': element,
+                    'converted': self._hex_to_number(element),
+                    'type': type(self._hex_to_number(element)).__name__
+                }
+            return element
+
+        return _add_debug_info(self.original_data)
+
+    def get_original(self) -> dict:
+        return self.original_data
+
 
 class StackList:
     """
