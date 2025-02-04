@@ -18,7 +18,7 @@ ENV IS_DOCKER=true \
     NAME=${NAME} \
     VERSION=${VERSION} \
     REMOVE_BUILD_PACKAGE=${REMOVE_BUILD_PACKAGE:-"true"} \
-    LIB_PACKAGE="libcurl4-openssl-dev jq telnet bpfcc-tools libbpfcc-dev " \
+    LIB_PACKAGE="libcurl4-openssl-dev jq telnet" \
     BUILD_PACKAGE="" \
     COLUMNS=100
 #    PYCURL_SSL_LIBRARY=openssl \
@@ -27,7 +27,7 @@ COPY . /pawnlib/
 WORKDIR /pawnlib
 
 RUN ARCH="$(dpkg --print-architecture)" ; \
-    apt update && apt install -y ${BUILD_PACKAGE} ${LIB_PACKAGE} && \
+    apt update && apt install -y ${BUILD_PACKAGE} ${LIB_PACKAGE}  && \
     if [ "${ARCH}" = 'aarch64' ]; then apt install -y gcc make pkg-config tzdata; fi && \
     if [ "${ARCH}" = 'arm64' ]; then apt install -y gcc make pkg-config tzdata; fi && \
     ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \

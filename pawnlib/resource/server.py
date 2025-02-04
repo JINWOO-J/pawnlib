@@ -23,7 +23,12 @@ import statistics
 from concurrent.futures import ThreadPoolExecutor
 from rich.progress import Progress, TaskID, TextColumn, BarColumn, TimeRemainingColumn, TimeElapsedColumn
 import json
-import psutil
+
+try:
+    import psutil
+except Exception as e:
+    pawn.console.log(f"[red]{e}")
+
 import signal
 import sys
 
