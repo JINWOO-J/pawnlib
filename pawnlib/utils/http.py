@@ -19,7 +19,11 @@ from pawnlib.output import (
     print_json)
 from pawnlib.resource import net
 from pawnlib.typing import date_utils
-from pawnlib.typing.converter import append_suffix, append_prefix, hex_to_number, FlatDict, Flattener, FlatterDict, flatten, shorten_text, StackList, replace_path_with_suffix, format_text, format_link, remove_ascii_and_tags, list_to_dict_by_key
+from pawnlib.typing.converter import (
+    append_suffix, append_prefix, hex_to_number, FlatDict, Flattener, FlatterDict, flatten, shorten_text, StackList,
+    replace_path_with_suffix, format_text, format_link, remove_ascii_and_tags, list_to_dict_by_key,
+    HexConverter
+)
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
 from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit, is_hex, is_valid_tx_hash, check_key_and_type
@@ -2041,6 +2045,22 @@ def append_http(url):
     return url
 
 
+def append_s3(url):
+    """
+
+    Add http:// if it doesn't exist in the URL
+
+    :param url:
+    :return:
+    """
+    if not url:
+        return url
+
+    if not url.startswith("s3://"):
+        url = f"s3://{url}"
+    return url
+
+
 def append_ws(url):
     """
 
@@ -3084,7 +3104,11 @@ class AsyncCallWebsocket(LoggerMixin):
 
         self.enable_status_console = enable_status_console
         self.status_console = None  # For rich console status
-        self.status_info = {}
+        self.status_info = {
+            "blockheight": 0,
+            "skip_start_block": 0,  # The block height where skipping started
+            "current_skipped_block": 0,  # The block height currently being skipped
+        }
 
         self.on_last_status = ""
 
@@ -3325,6 +3349,7 @@ class AsyncCallWebsocket(LoggerMixin):
 
 class AsyncGoloopWebsocket(AsyncCallWebsocket):
     BLOCKHEIGHT_FILE = "last_blockheight.txt"
+    SLACK_BLOCKHEIGHT_FILE = "last_slack_blockheight.txt"
 
     def __init__(
             self,
@@ -3350,6 +3375,8 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             session = None,
             preps_refresh_interval: int = 600,
             use_shorten_tx_hash: bool = True,
+            bps_interval: int = 0,
+            skip_until: int = 0,
     ):
         self.url = url
         self.verbose = verbose
@@ -3382,8 +3409,16 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         self.logger.info("Start AsyncGoloopWebsocket")
         self.preps_refresh_interval = preps_refresh_interval
         self.use_shorten_tx_hash = use_shorten_tx_hash
+        self.bps_interval = bps_interval
+        self.skip_until = skip_until
 
         self.status_info = {}
+
+        self.metrics_start_time = 0
+        self.tps_tx_count = 0
+        self.bps_block_count = 0
+        self.start_block_height = 0
+        self.last_logged_time = 0
 
         self.address_filter = address_filter or []
         if self.address_filter:
@@ -3415,38 +3450,40 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             additional_tasks=[self.periodic_preps_update],
         )
 
-    def read_last_processed_blockheight(self):
+    def read_last_processed_blockheight(self, filename, skip_log=False):
         """Read the last processed block height from a file."""
-        if os.path.exists(self.BLOCKHEIGHT_FILE):
+        if os.path.exists(filename):
             try:
-                with open(self.BLOCKHEIGHT_FILE, "r") as file:
+                with open(filename, "r") as file:
                     blockheight = int(file.read().strip())
-                    self.logger.info(f"🫡 Read last processed blockheight : {blockheight}")
+                    if not skip_log:
+                        self.logger.info(f"🫡 Read last processed blockheight : {blockheight} on {filename}")
                     return blockheight  # Assuming block height is stored in hex
             except (ValueError, IOError) as e:
-                self.logger.error(f"Error reading block height file: {e}")
+                self.logger.error(f"Error reading block height file: {e} on {filename}")
         else:
-            self.logger.info(f"Block recorded file not found - {self.BLOCKHEIGHT_FILE}")
+            if not skip_log:
+                self.logger.info(f"Block recorded file not found - {filename}")
         return None
 
-    def write_last_processed_blockheight(self, blockheight):
+    def write_last_processed_blockheight(self, filename, blockheight):
         """Write the last successfully processed block height to a file."""
         try:
-            file_exists = os.path.exists(self.BLOCKHEIGHT_FILE)
+            file_exists = os.path.exists(filename)
 
-            with open(self.BLOCKHEIGHT_FILE, "w") as file:
+            with open(filename, "w") as file:
                 file.write(f"{blockheight}")
 
             if not file_exists:
-                self.logger.info(f"Block height file '{self.BLOCKHEIGHT_FILE}' not found. Creating new file.")
+                self.logger.info(f"Block height file '{filename}' not found. Creating new file.")
 
-            self.logger.debug(f"Successfully processed block {blockheight}. Block height recorded on '{self.BLOCKHEIGHT_FILE}'.")
+            self.logger.debug(f"Successfully processed block {blockheight}. Block height recorded on '{filename}'.")
 
         except IOError as e:
-            self.logger.error(f"Error writing block height to file: {e}")
+            self.logger.error(f"Error writing block height to file: {e} on {filename}")
 
         except Exception as e:
-            self.logger.error(f"Unexpected error occurred while writing block height: {e}")
+            self.logger.error(f"Unexpected error occurred while writing block height: {e} on {filename}")
 
 
     async def run_from_blockheight(self, blockheight=None, api_path: str = "/api/v3/icon_dex/block"):
@@ -3484,7 +3521,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             self.blockheight = latest_blockheight
             self.logger.info(f"Starting from the most recent block height: {self.blockheight}")
         else:
-            self.blockheight = self.read_last_processed_blockheight()
+            self.blockheight = self.read_last_processed_blockheight(self.BLOCKHEIGHT_FILE)
 
             if not isinstance(self.blockheight, int) or self.blockheight > latest_blockheight:
                 self.logger.warning(
@@ -3574,6 +3611,57 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         except Exception as e:
             self.logger.error(f"Failed to parse block height after {self.max_transaction_attempts} attempts: {e}")
 
+    async def calculate_tps_bps(self, block_height, tx_count):
+        """ 10초 단위로 TPS 및 BPS 계산 """
+        current_time = time.time()
+
+        if self.metrics_start_time == 0:
+            self.metrics_start_time = current_time  # 10초 측정 시작 시간
+            self.tps_tx_count = 0  # 10초 동안 처리된 TX 개수
+            self.bps_block_count = 0  # 10초 동안 수신된 블록 개수
+            self.start_block_height = block_height  # 10초 동안의 시작 블록
+            self.last_logged_time = current_time
+
+        self.tps_tx_count += tx_count
+        self.bps_block_count += 1
+
+        if current_time - self.metrics_start_time >= self.bps_interval:
+            elapsed_time = current_time - self.metrics_start_time
+            end_block_height = block_height  # 마지막 블록 높이
+
+            tps = self.tps_tx_count / elapsed_time if elapsed_time > 0 else 0
+            bps = self.bps_block_count / elapsed_time if elapsed_time > 0 else 0
+
+            # self.logger.info(
+            #     f"📊 [{self.bps_interval}s Stats] TPS: {tps:.2f} TX/s | BPS: {bps:.2f} Blocks/s | "
+            #     f"TXs: {self.tps_tx_count} | Blocks: {self.bps_block_count} | "
+            #     f"Block Range: {self.start_block_height} → {end_block_height} | "
+            #     f"Elapsed: {elapsed_time:.2f}s"
+            # )
+
+            self.logger.info(
+                f"📊 [{self.bps_interval}s Stats] BPS: {bps:.2f} Blocks/s | "
+                f"Blocks: {self.bps_block_count} | "
+                f"Block Range: {self.start_block_height} → {end_block_height} | "
+                f"Elapsed: {elapsed_time:.2f}s"
+            )
+
+            # # Slack 알림 전송
+            # if self.bps_block_count > 0 or self.tps_tx_count > 0:
+            #     slack_message = (
+            #         f"🚀 [10s Network Update]\n"
+            #         f"🔹 TPS: {tps:.2f} TX/s\n"
+            #         f"🔹 BPS: {bps:.2f} Blocks/s\n"
+            #         f"📈 TXs: {self.tps_tx_count} | Blocks: {self.bps_block_count}\n"
+            #         f"🔄 Block Range: {self.start_block_height} → {end_block_height} | Elapsed: {elapsed_time:.2f}s"
+            #     )
+            #     await self.send_slack_notification(slack_message)
+
+            self.metrics_start_time = current_time
+            self.tps_tx_count = 0
+            self.bps_block_count = 0
+            self.start_block_height = block_height  # 새로운 10초 구간의 시작 블록
+
     async def handle_confirmed_transaction_list(self, response):
         try:
             response_json = json.loads(response)
@@ -3585,7 +3673,29 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         self.blockheight_now = response_json.get("height")
         readable_block_height = hex_to_number(self.blockheight_now, debug=True)
 
+        if self.bps_interval > 0:
+            await self.calculate_tps_bps(block_height, 0)
+
+        if self.skip_until:
+           last_slack_blockheight = self.skip_until
+        else:
+            last_slack_blockheight = self.read_last_processed_blockheight(self.SLACK_BLOCKHEIGHT_FILE, skip_log=True)
+
+        if block_height and last_slack_blockheight and block_height <  last_slack_blockheight:
+            if not self.status_info.get('skip_start_block'):
+                self.logger.info(f"⏩ [Skipping Started] Block {block_height}  👉 {last_slack_blockheight} - Preventing duplicate processing.")
+                self.status_info['skip_start_block'] = block_height
+
+            self.write_last_processed_blockheight(self.BLOCKHEIGHT_FILE, block_height)
+            self.logger.debug(f"⏩ Block {block_height} skipped to prevent duplicate processing")
+            return  # Slack 전송 스킵
+
         if tx_hash:
+            if self.status_info.get('skip_start_block'):
+                self.status_info['skip_start_block'] = 0
+                self.status_info['current_start_block'] = block_height
+                self.logger.info(f"✅ [Skipping Stopped] Resuming at Block {block_height} - {self.status_info}")
+
             def is_success(result):
                 if not result:
                     return False
@@ -3630,7 +3740,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
 
             confirmed_transactions = block_data.get('confirmed_transaction_list', [])
             confirmed_transactions_length = len(confirmed_transactions)
-            self.write_last_processed_blockheight(block_height)
+            self.write_last_processed_blockheight(self.BLOCKHEIGHT_FILE, block_height)
             self.status_info['block_height'] = block_height
 
             if self.blockheight_now:
@@ -3923,7 +4033,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
                 self.logger.error(f"Error sending Slack message: {e}")
 
 
-class AsyncIconRpcHelper:
+class AsyncIconRpcHelper(LoggerMixin):
     """
     A helper class for making asynchronous RPC calls to the ICON network.
     Provides methods to interact with the ICON blockchain, such as fetching blocks,
@@ -3937,6 +4047,7 @@ class AsyncIconRpcHelper:
         timeout (int): Request timeout in seconds.
         retries (int): Number of retry attempts for failed requests.
         return_with_time (bool): Whether to return elapsed time with responses.
+        max_concurrency (int) : Number of max concurrency
 
     Methods:
         initialize(): Initializes the aiohttp session if not already initialized.
@@ -3982,15 +4093,64 @@ class AsyncIconRpcHelper:
             verbose=True,
             timeout=10,
             retries=3,
-            return_with_time: bool = False
+            return_with_time: bool = False,
+            max_concurrency: int = 20,
+            **kwargs
     ):
         self.url = url
         # self.logger = logger
         self.timeout = timeout
         self.logger = setup_logger(logger, "pawnlib.http.AsyncIconRpcHelper", verbose=verbose)
+        # self.logger = self.get_logger()
         self.retries = retries
         self.return_with_time = return_with_time
         self.session = session
+        self.max_concurrency = max_concurrency
+        self.semaphore = asyncio.Semaphore(max_concurrency)
+
+        self.connector = aiohttp.TCPConnector(
+            limit=max_concurrency,
+            ssl=kwargs.get('ssl', False)
+        )
+
+        self.logger.debug("START")
+
+    async def adjust_concurrency(self, new_max: int):
+        """
+        Dynamically adjusts the maximum concurrency limit for asynchronous requests.
+
+        Updates both the semaphore and TCP connector limits while migrating existing
+        tasks to the new concurrency configuration.
+
+        Args:
+            new_max (int): New maximum number of concurrent connections (must be ≥1)
+
+        Raises:
+            ValueError: If new_max is less than 1
+        """
+        self.max_concurrency = new_max
+        self.connector._limit = new_max
+        old_sem = self.semaphore
+        self.semaphore = asyncio.Semaphore(new_max)
+        for _ in range(min(new_max, old_sem._value)):
+            self.semaphore.release()
+
+    @property
+    def concurrency_usage(self):
+        """
+        Monitors current concurrency utilization.
+
+        Returns:
+            dict: Dictionary containing concurrency metrics:
+                - active (int): Number of currently used connections
+                - available (int): Number of available connections
+                - max (int): Maximum allowed concurrent connections
+        """
+        return {
+            "active": self.max_concurrency - self.semaphore._value,
+            "available": self.semaphore._value,
+            "max": self.max_concurrency
+        }
 
     async def __aenter__(self):
         await self.initialize()
@@ -4000,18 +4160,49 @@ class AsyncIconRpcHelper:
         await self.close()
 
     async def close(self):
-        """
-        Close the aiohttp session.
-        """
-        if self.session and not self.session.closed:
-            await self.session.close()
+        if hasattr(self, 'session') and self.session:
+            if not self.session.closed:
+                await self.session.close()
+                self.logger.debug("Session explicitly closed")
+            self.session = None
+
+    def __del__(self):
+        if hasattr(self, 'session') and self.session and not self.session.closed:
+            self.logger.warning("Unclosed session detected. Use async context manager or call close() explicitly.")
+
+    # async def initialize(self):
+    #     if not self.session or self.session.closed:
+    #         self.session = aiohttp.ClientSession(
+    #             connector=self.connector,
+    #             timeout=aiohttp.ClientTimeout(total=self.timeout)
+    #         )
+    #         self.logger.debug("New aiohttp session created")
+    #     elif self.session._connector is None:
+    #         await self.session.close()
+    #         self.session = aiohttp.ClientSession()
+    #     return self
 
     async def initialize(self):
-        if not self.session:
-            self.session = aiohttp.ClientSession()
+        if not hasattr(self, 'connector'):
+            self.connector = aiohttp.TCPConnector(ssl=False)
+
+        if not self.session or self.session.closed:
+            self.session = aiohttp.ClientSession(
+                connector=self.connector,
+                timeout=aiohttp.ClientTimeout(total=self.timeout)
+            )
+            self.logger.debug("New session created with active connector")
+        else:
+            if self.connector.closed:
+                await self.session.close()
+                self.session = aiohttp.ClientSession(
+                    connector=self.connector,
+                    timeout=aiohttp.ClientTimeout(total=self.timeout)
+                )
+                self.logger.warning("Recreated session due to closed connector")
+        return self
 
     def _check_session(self):
-        """세션이 유효한지 확인합니다."""
         if not self.session or self.session.closed:
             error_message = "AIOHTTP session is closed or not initialized."
             self.logger.error(error_message)
@@ -4021,6 +4212,8 @@ class AsyncIconRpcHelper:
         """
         Execute an RPC call to the ICON network.
         """
+        await self.initialize()
+
         if url:
             _url = url
         else:
@@ -4201,7 +4394,8 @@ class AsyncIconRpcHelper:
             finally:
                 if attempt < retries:
                     sleep_time = backoff_factor * (2 ** (attempt - 1))
-                    self.logger.debug(f"Retrying after {sleep_time:.2f} seconds..., URL: {endpoint}")
+                    if sleep_time > 1:
+                        self.logger.debug(f"Retrying after {sleep_time:.2f} seconds..., URL: {endpoint}, data: {data}")
                     await asyncio.sleep(sleep_time)
 
         # Final fallback in case all retries fail
@@ -4223,7 +4417,6 @@ class AsyncIconRpcHelper:
         hash_info = {}
         try:
             hash_info = await self.execute_rpc_call(url=target_url, method='icx_getBlockByHash', params={"hash": tx_hash}, return_key="result")
-            # print(f"hash_info={hash_info}")
         except Exception as e:
             self.logger.error(f"Error during operation get_block_hash(): {str(e)}", exc_info=False)
         return hash_info
@@ -4244,6 +4437,18 @@ class AsyncIconRpcHelper:
 
         if return_dict_key:
             return list_to_dict_by_key(result, return_dict_key)
+        return result
+
+    async def get_balance(self, address="", url: Optional[str] = None):
+        target_url = url or self.url
+        result = await self.execute_rpc_call(
+            url=target_url,
+            method='icx_getBalance',
+            params={
+                "address": address
+            },
+            return_key="result"
+        )
         return result
 
     async def get_node_name_by_address(self):
@@ -4272,7 +4477,6 @@ class AsyncIconRpcHelper:
         # Create a new dictionary with nodeAddress as the key and name as the value
         result = {address: info['name'] for address, info in preps_info.items()}
         return result
-
 
     async def get_validator_info(self, url: Optional[str] = None):
         target_url = url or self.url

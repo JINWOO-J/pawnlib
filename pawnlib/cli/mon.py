@@ -177,6 +177,24 @@ def get_arguments(parser=None):
         default=None,
         help='Specify the block height to start from (default: None).'
     )
+
+    wallet_parser.add_argument(
+        '--bps-interval', '-i',
+        type=int,
+        help='Set the interval (in seconds) for calculating Blocks Per Second (BPS) and Transactions Per Second (TPS). '
+             'Use a value greater than 0 to enable calculations. Set to 0 to disable BPS/TPS calculations.',
+        default=0,
+    )
+
+    wallet_parser.add_argument(
+        '--skip-until', '-su',
+        type=int,
+        help='Specify a block height up to which all blocks should be skipped. '
+             'Any block with a height less than or equal to this value will be ignored. '
+             'Set to 0 to disable block skipping.',
+        default=0,
+    )
+
     wallet_parser.add_argument('-n', '--network-name', type=str,  help='network name', default="")
     add_common_arguments(wallet_parser)
 
@@ -248,6 +266,8 @@ def load_environment_settings(args) -> dict:
         'max_transaction_attempts': get_setting('max_transaction_attempts', 'MAX_TRANSACTION_ATTEMPTS', default=10, value_type=int),
         'verbose': get_setting('verbose', 'VERBOSE', default=1, value_type=int),
         'network_name': get_setting('network_name', 'NETWORK_NAME', default="", value_type=str),
+        'bps_interval': get_setting('bps_interval', 'BPS_INTERVAL', default=0, value_type=int),
+        'skip_until': get_setting('skip_until', 'SKIP_UNTIL', default=0, value_type=int),
     }
     return settings
 
@@ -389,7 +409,10 @@ def run_wallet_client(args, logger):
                 logger=logger,
                 session=session,
                 network_info=network_info,
-                max_retries=settings['max_retries']
+                max_retries=settings['max_retries'],
+                bps_interval=settings['bps_interval'],
+                skip_until=settings['skip_until'],
+
             )
             await websocket_client.initialize()
             await websocket_client.run_from_blockheight(blockheight=args.blockheight)

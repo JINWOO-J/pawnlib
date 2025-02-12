@@ -12,6 +12,7 @@ from botocore.exceptions import ClientError
 from pawnlib.config import pawn, setup_app_logger, LoggerMixin
 from pawnlib.typing import sys_exit, extract_values_in_list, mask_string, convert_bytes
 from botocore.client import Config
+from botocore.exceptions import ClientError as BotoClientError
 from rich.table import Table
 from rich.panel import Panel
 from rich.tree import Tree
@@ -32,6 +33,12 @@ def get_transfer_config(file_size):
     if file_size == 0:
         return None
     elif file_size >= 100 * 1024 * 1024:  # 예: 100MB 이상
+        # boto3.setup_default_session(
+        #     config=BotoSessionConfig(
+        #         max_pool_connections=20,
+        #         retries={'max_attempts': 3}
+        #     )
+        # )
         return TransferConfig(
             use_threads=True,
             max_concurrency=20,
@@ -233,6 +240,7 @@ class S3ClientBase(LoggerMixin):
 
         config = Config(
             signature_version='s3v4',
+            max_pool_connections=20,
             retries={
                 'max_attempts': 10,
                 'mode': 'standard'
@@ -288,10 +296,20 @@ class S3ClientBase(LoggerMixin):
         config_tree.add(f"Overwrite: [green]{self.overwrite}[/green]")
         # config_tree.add(f"Info File: [yellow]{self.info_file}[/yellow]")
 
+
+        # adapter = self.s3_client._endpoint.http_session.adapters.get('https://')
+
+        pool_manager = self.s3_client._endpoint.http_session._manager
+
+
         s3_config = config_tree.add("S3 Client Configuration")
         s3_config.add(f"Region Name: [magenta]{self.s3_client.meta.region_name}[/magenta]")
         s3_config.add(f"Endpoint URL: [blue]{self.s3_client._endpoint.host}[/blue]")
         s3_config.add(f"Signature Version: [cyan]{self.s3_client._client_config.signature_version}[/cyan]")
+        # from pawnlib.output import classdump, print_var
+        # classdump(pool_manager)
+        # print_var(pool_manager.pools._maxsize)
+        s3_config.add(f"Pool: [cyan]{pool_manager.pools._maxsize}[/cyan]")
 
         creds = self.session.get_credentials()
         if creds:
@@ -730,6 +748,20 @@ class Downloader(S3ClientBase):
         self.logger = self.get_logger()
         super().__init__(bucket_name, profile_name, access_key, secret_key, endpoint_url, overwrite, dry_run=dry_run)
 
+    def is_s3_file(self,  key):
+        try:
+            self.s3_client.head_object(Bucket=self.bucket_name, Key=key)
+            return True
+        except BotoClientError as e:
+            if e.response['Error']['Code'] == '404':
+                return False
+            else:
+                raise
+
+    def is_s3_directory(self, prefix):
+        response = self.s3_client.list_objects_v2(Bucket=self.bucket_name, Prefix=prefix, MaxKeys=1)
+        return 'Contents' in response
+
     def get_object_size(self, s3_key=""):
         """
         Get the size of an S3 object in bytes.
@@ -781,7 +813,9 @@ class Downloader(S3ClientBase):
             print(f"Skipping {local_path}, already exists.")
             return
 
-        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        extract_directory = os.path.dirname(local_path)
+        if extract_directory:
+            os.makedirs(extract_directory, exist_ok=True)
         file_size = self.get_object_size(s3_key)
 
         with Progress(

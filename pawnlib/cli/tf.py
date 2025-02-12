@@ -35,7 +35,30 @@ def get_arguments(parser):
     )
     parser.add_argument("--cwd", "-c", type=str, help="Directory to run terraform command.", default=os.getcwd())
     parser.add_argument("--output-file", "-o", type=str, help="Output file path.", default="")
+    parser.add_argument("--ansible", "-a",
+                        action='store_true', default=False,
+                        help='Enable Ansible hosts file generation [default: False]')
     return parser
+
+
+def generate_ansible_hosts(data):
+    """
+    Generate Ansible hosts inventory from processed data
+    :param data: Processed Terraform output data
+    :return: Formatted Ansible hosts content
+    """
+    hosts_content = []
+    for tag, instances in data.items():
+        hosts_content.append(f"[{tag}]")
+        for instance in instances:
+            if isinstance(instance, dict) and instance.get("IPADDR"):
+                ipaddress = instance.get("IPADDR")
+            else:
+                ipaddress = instance
+
+            hosts_content.append(ipaddress)
+        hosts_content.append("")
+    return '\n'.join(hosts_content)
 
 
 def run_terraform_command(cwd):
@@ -174,14 +197,19 @@ def main():
     processed_data = remove_unnecessary_keys(augmented_data, ['instance_info', 'private_ips', 'lb_ips'])
     final_data = restructure_data(processed_data, ['zones', 'tags'])
 
-    # Print and optionally save the output
-    yaml_output = convert_to_yaml_format(final_data)
-    logger.info(yaml_output)
+    if args.ansible:
+        output_content = generate_ansible_hosts(final_data)
+        output_type_prefix_msg = "🔧 Ansible Hosts \n"
+    else:
+        output_content = convert_to_yaml_format(final_data)
+        output_type_prefix_msg = "📄 YAML Output \n"
 
-    if args.output_file:
+    logger.info(f"{output_type_prefix_msg}{output_content}".replace('[', '\['))
+
+    if args.output_file and output_content:
         with open(args.output_file, 'w') as file:
-            file.write(yaml_output)
-        logger.info(f"Output saved to {args.output_file}")
+            file.write(output_content)
+        logger.info(f"🎯Output saved to {args.output_file}")
 
 
 main.__doc__ = (

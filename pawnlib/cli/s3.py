@@ -17,6 +17,7 @@ from pawnlib.utils.aws import Uploader, Downloader, S3Lister
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter
 from pawnlib.typing.defines import load_env_with_defaults
 from pawnlib.output import file
+from pawnlib.utils.http import append_s3
 
 logger = setup_app_logger(simple_format="detailed", propagate_scope="pawnlib")
 logger.info("Start")
@@ -159,9 +160,11 @@ def main():
         source_bucket, source_key = parse_s3_path(args.source)
         dest_bucket, dest_key = parse_s3_path(args.destination)
 
+        if dest_key == ".":
+            dest_key = os.path.basename(source_key)
+
         pawn.console.log(f"source_bucket={source_bucket}, source_key={source_key}")
         pawn.console.log(f"dest_bucket={dest_bucket}, dest_key={dest_key}")
-
 
         # Determine operation type
         if source_bucket and not dest_bucket:
@@ -204,14 +207,19 @@ def main():
             )
             downloader.print_config()
 
-            downloader.download_directory(s3_directory=source_key, local_path=args.destination, overwrite=args.overwrite)
+            if downloader.is_s3_file(source_key):
+                pawn.console.rule("Object is File")
+                downloader.download_file(s3_key=source_key, local_path=dest_key, overwrite=args.overwrite)
+            else:
+                pawn.console.rule("Object is Directory")
+                downloader.download_directory(s3_directory=source_key, local_path=args.destination, overwrite=args.overwrite)
 
     elif args.command == 'ls':
         if args.path:
             bucket, prefix = parse_s3_path(args.path)
             if not bucket:
                 sys_exit("Please provide a valid S3 path to list.")
-            pawn.console.rulef("[bold green]Bucket Contents: {bucket}[/bold green]")
+            pawn.console.rule("[bold green]Bucket Contents: {bucket}[/bold green]")
             s3_lister = S3Lister(profile_name=args.profile, bucket_name=bucket)
             s3_lister.print_config()
             s3_lister.ls(prefix=prefix, recursive=args.recursive)
