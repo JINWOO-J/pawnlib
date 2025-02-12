@@ -133,8 +133,11 @@ docker: make_build_args clean
 #		@echo "==========================================================================="
 #		@docker images | grep  $(REPO_HUB)/$(NAME) | grep $(VERSION) || true
 
-push_hub: print_version
+latest:
 	docker tag $(REPO_HUB)/$(NAME):$(VERSION) $(REPO_HUB)/$(NAME):latest
+
+
+push_hub: print_version latest
 	docker push $(REPO_HUB)/$(NAME):$(VERSION)
 	docker push $(REPO_HUB)/$(NAME):latest
 
