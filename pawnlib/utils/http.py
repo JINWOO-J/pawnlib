@@ -3555,9 +3555,9 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         while True:
             try:
                 await self.fetch_and_store_preps_info()
-                self.logger.info("P-Reps information updated.")
+                self.logger.info(f"P-Reps information updated. blockheight={self.status_info.get('block_height')}")
             except Exception as e:
-                self.logger.error(f"Failed to update P-Reps information: {e}")
+                self.logger.error(f"Failed to update P-Reps information: {e}. blockheight={self.status_info.get('block_height')}")
             await asyncio.sleep(self.preps_refresh_interval)
 
     async def request_blockheight_callback(self):
