@@ -3377,6 +3377,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             use_shorten_tx_hash: bool = True,
             bps_interval: int = 0,
             skip_until: int = 0,
+            base_dir: str = "./",
     ):
         self.url = url
         self.verbose = verbose
@@ -3411,6 +3412,10 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         self.use_shorten_tx_hash = use_shorten_tx_hash
         self.bps_interval = bps_interval
         self.skip_until = skip_until
+        self.base_dir = base_dir
+
+        if self.base_dir and not self.base_dir.endswith("/"):
+            self.base_dir += "/"
 
         self.status_info = {}
 
@@ -3452,22 +3457,24 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
 
     def read_last_processed_blockheight(self, filename, skip_log=False):
         """Read the last processed block height from a file."""
+        filename = f"{self.base_dir}{filename}"
         if os.path.exists(filename):
             try:
                 with open(filename, "r") as file:
                     blockheight = int(file.read().strip())
                     if not skip_log:
-                        self.logger.info(f"🫡 Read last processed blockheight : {blockheight} on {filename}")
+                        self.logger.info(f"🫡 Read last processed blockheight : {blockheight} on '{filename}'")
                     return blockheight  # Assuming block height is stored in hex
             except (ValueError, IOError) as e:
-                self.logger.error(f"Error reading block height file: {e} on {filename}")
+                self.logger.error(f"Error reading block height file: {e} on '{filename}'")
         else:
             if not skip_log:
-                self.logger.info(f"Block recorded file not found - {filename}")
+                self.logger.info(f"Block recorded file not found - '{filename}'")
         return None
 
     def write_last_processed_blockheight(self, filename, blockheight):
         """Write the last successfully processed block height to a file."""
+        filename = f"{self.base_dir}{filename}"
         try:
             file_exists = os.path.exists(filename)
 
@@ -3480,10 +3487,10 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             self.logger.debug(f"Successfully processed block {blockheight}. Block height recorded on '{filename}'.")
 
         except IOError as e:
-            self.logger.error(f"Error writing block height to file: {e} on {filename}")
+            self.logger.error(f"Error writing block height to file: {e} on '{filename}'")
 
         except Exception as e:
-            self.logger.error(f"Unexpected error occurred while writing block height: {e} on {filename}")
+            self.logger.error(f"Unexpected error occurred while writing block height: {e} on '{filename}'")
 
 
     async def run_from_blockheight(self, blockheight=None, api_path: str = "/api/v3/icon_dex/block"):

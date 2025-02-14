@@ -108,6 +108,13 @@ def add_common_arguments(parser):
         help='Specify whether to prioritize environment variables ("env") or command-line arguments ("args"). Default is "args".'
     )
 
+    parser.add_argument(
+        '-b', '--base-dir',
+        metavar='base_dir',
+        help='Base directory for the application',
+        default="."
+    )
+
     return parser
 
 
@@ -124,12 +131,12 @@ def get_arguments(parser=None):
         nargs='+',
         default=[SSHLogPathResolver().get_path()]
     )
-    ssh_parser.add_argument(
-        '-b', '--base-dir',
-        metavar='base_dir',
-        help='Base directory for the application',
-        default="."
-    )
+    # ssh_parser.add_argument(
+    #     '-b', '--base-dir',
+    #     metavar='base_dir',
+    #     help='Base directory for the application',
+    #     default="."
+    # )
     add_common_arguments(ssh_parser)
 
     wallet_parser = subparsers.add_parser('wallet', help='Run the Async Goloop Websocket Client')
@@ -268,6 +275,7 @@ def load_environment_settings(args) -> dict:
         'network_name': get_setting('network_name', 'NETWORK_NAME', default="", value_type=str),
         'bps_interval': get_setting('bps_interval', 'BPS_INTERVAL', default=0, value_type=int),
         'skip_until': get_setting('skip_until', 'SKIP_UNTIL', default=0, value_type=int),
+        'base_dir': get_setting('base_dir', 'BASE_DIR', default="./", value_type=str),
     }
     return settings
 
@@ -412,6 +420,7 @@ def run_wallet_client(args, logger):
                 max_retries=settings['max_retries'],
                 bps_interval=settings['bps_interval'],
                 skip_until=settings['skip_until'],
+                base_dir=settings['base_dir'],
 
             )
             await websocket_client.initialize()
