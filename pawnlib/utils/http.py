@@ -3688,7 +3688,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         else:
             last_slack_blockheight = self.read_last_processed_blockheight(self.SLACK_BLOCKHEIGHT_FILE, skip_log=True)
 
-        if block_height and last_slack_blockheight and block_height <  last_slack_blockheight:
+        if block_height and last_slack_blockheight and block_height <  last_slack_blockheight + 1:
             if not self.status_info.get('skip_start_block'):
                 self.logger.info(f"⏩ [Skipping Started] Block {block_height}  👉 {last_slack_blockheight} - Preventing duplicate processing.")
                 self.status_info['skip_start_block'] = block_height
@@ -3832,6 +3832,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         """
         tx_data = {}
         self.on_last_status = f"Blockheight: {block_height}"
+        block_height_text = f"🧱{block_height:,}"
         try:
             tx_data = tx.get('data')
             data_type = tx.get('dataType', "send") if tx else None
@@ -3873,17 +3874,19 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             if method == "setStake":
                 stake_value = self.get_stake_value(tx_data)
                 await self.log_message(
-                    f"🔵 <Staking> {from_highlighted}{from_prep_label} has staked 💰 {stake_value}.",
+                    f"🔵 <Staking> {block_height_text} {from_highlighted}{from_prep_label} has staked 💰 {stake_value}.",
                     slack_additional_message=full_tx_hash,
-                    level="info"
+                    level="info",
+                    block_height=block_height
                 )
 
             elif method == "unStake":
                 stake_value = self.get_stake_value(tx_data)
                 await self.log_message(
-                    f"🔵 <Staking> {from_highlighted}{from_prep_label} has unstaked 💰 {stake_value}.",
+                    f"🔵 <Staking> {block_height_text} {from_highlighted}{from_prep_label} has unstaked 💰 {stake_value}.",
                     slack_additional_message=full_tx_hash,
-                    level="info"
+                    level="info",
+                    block_height=block_height
                 )
 
             elif method == "Send":
@@ -3895,9 +3898,10 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
                     _data_type_text = f" {data_type}"
 
                 await self.log_message(
-                    f"💸 {shorten_tx_hash}<Send{_data_type_text}> {from_highlighted}{from_prep_label} 👉 {to_highlighted}{to_prep_label} 💰 {_value} ",
+                    f"{block_height_text} 💸 {shorten_tx_hash}<Send{_data_type_text}> {from_highlighted}{from_prep_label} 👉 {to_highlighted}{to_prep_label} 💰 {_value} ",
                     slack_additional_message=full_tx_hash,
-                    level="info"
+                    level="info",
+                    block_height=block_height
                 )
                 # await self.log_message(
                 #     f"💸TX ID: <{shorten_tx_hash}> <Send{_data_type_text}> \n"
@@ -3910,7 +3914,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             else:
 
                 await self.log_message(
-                    f"🔶 <{block_height}> <{method}> {from_highlighted} performed action with data: {tx_data}", level="info"
+                    f"🔶 <{block_height_text}> <{method}> {from_highlighted} performed action with data: {tx_data}", level="info", block_height=block_height
                 )
             if self.check_tx_result_enabled:
                 # tx_result = await self.ws_instance.get_tx_result(tx_hash)
@@ -3918,11 +3922,11 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
                 if tx_result == "OK":
                     await self.log_message(f"✅ {shorten_tx_hash} TX Result received: {tx_result}",
                                            slack_additional_message=full_tx_hash,
-                                           level="info")
+                                           level="info", block_height=block_height)
                 else:
                     await self.log_message(f"❌ {shorten_tx_hash} Failed to retrieve TX Result: {tx_result}",
                                            slack_additional_message=full_tx_hash,
-                                           level="error")
+                                           level="error", block_height=block_height)
         except Exception as e:
             await self.log_message(f"Error processing transaction: {e}", level="error")
 
@@ -3951,13 +3955,15 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         except (KeyError, TypeError, ValueError):
             return "N/A"
 
-    async def log_message(self, message, slack_additional_message="", level="info", stack_level=4):
+    async def log_message(self, message, slack_additional_message="", level="info", stack_level=4, block_height=None):
         """
         Logs a message using the specified level and optionally sends to Slack.
 
         :param message: The message to log.
         :param slack_additional_message: Additional message to send along with Slack (optional).
         :param level: The logging level (e.g., 'info', 'error', 'debug').
+        :param stack_level: stack level
+        :param block_height: block height
         """
         try:
             # Log to console using the specified log level
@@ -3971,6 +3977,9 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
 
             # Optionally send to Slack asynchronously
             if self.send_slack and level != "debug":
+                if block_height:
+                    self.write_last_processed_blockheight(self.SLACK_BLOCKHEIGHT_FILE, block_height)
+
                 asyncio.create_task(self.send_slack_notification(f"{message} {slack_additional_message}", level=level))
 
         except Exception as e:
