@@ -4,8 +4,9 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pawnlib"
-description = "pawnlib is a collection of libraries for IaC."
+description = "pawnlib: A versatile Python library for Infrastructure as Code (IaC), offering tools for SSH monitoring, WebSocket connections, and more."
 license = "MIT"
+keywords = ["Python IaC", "SSH monitoring Python", "pawnlib tools"]
 requires-python = ">=3.7"
 authors = [
     { name = "Jinwoo", email = "jinwoo@parametacorp.com" },
@@ -24,6 +25,8 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Monitoring",
 ]
 dependencies = [
     "asttokens>=2.0.5",

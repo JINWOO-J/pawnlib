@@ -1,5 +1,7 @@
 # ♟️ Pawnlib
 
+A versatile Python library for Infrastructure as Code (IaC). Monitor SSH logs, manage WebSocket connections, and automate tasks with ease.
+
 A collection of libraries that can be used like pawns on a chessboard.
 Pawnlib is a collection of libraries for IaC.
 
