@@ -3,6 +3,8 @@ import os
 import asyncio
 
 from aiohttp import ClientSession
+import aiofiles
+import json
 from dotenv import load_dotenv, find_dotenv
 from pawnlib.config import pawn, setup_logger, setup_app_logger as _setup_app_logger
 from pawnlib.builder.generator import generate_banner
@@ -51,6 +53,7 @@ class ComposeDefaultSettings:
     # DEFAULT_BASE_DIR = "."
     # DEFAULT_LOG_FILE = ""
     PRIORITY = "env"
+
 
 def parse_address_list(address_string):
     """Comma-separated string to list, removing whitespace."""
@@ -104,7 +107,7 @@ def add_common_arguments(parser):
     parser.add_argument(
         '--priority',
         choices=['env', 'args'],
-        default='args',
+        default='env' if IS_DOCKER else 'args',
         help='Specify whether to prioritize environment variables ("env") or command-line arguments ("args"). Default is "args".'
     )
 
@@ -205,6 +208,37 @@ def get_arguments(parser=None):
     wallet_parser.add_argument('-n', '--network-name', type=str,  help='network name', default="")
     add_common_arguments(wallet_parser)
 
+    wallet_multi_parser = subparsers.add_parser('wallet-multi', help='Run the Async Goloop Websocket Client')
+    wallet_multi_parser.add_argument(
+        '--url', '--endpoint-url',
+        metavar="endpoint_url",
+        dest='endpoint_url',
+        help='Endpoint URL',
+    )
+
+    wallet_multi_parser.add_argument(
+        '--address-filter',
+        help='Comma-separated list of addresses to filter',
+        type=parse_address_list,
+        default=None
+    )
+
+    wallet_multi_parser.add_argument(
+        '--check-interval',
+        type=int,
+        help='Monitoring interval in seconds',
+        default=10
+    )
+
+    wallet_multi_parser.add_argument(
+        '--ignore-decimal',
+        action='store_true',
+        help='Ignore decimal when monitor to wallet ',
+        default=False
+    )
+
+    add_common_arguments(wallet_multi_parser)
+
     compose_parser = subparsers.add_parser('compose', help='Generate docker-compose.yml file')
     compose_parser.add_argument('-d', '--directory', type=str,  help='Path to the directory to upload or download')
     compose_parser.add_argument('-f', '--compose-file', type=str,  help='docker-compose file name', default="docker-compose.yml")
@@ -276,6 +310,9 @@ def load_environment_settings(args) -> dict:
         'bps_interval': get_setting('bps_interval', 'BPS_INTERVAL', default=0, value_type=int),
         'skip_until': get_setting('skip_until', 'SKIP_UNTIL', default=0, value_type=int),
         'base_dir': get_setting('base_dir', 'BASE_DIR', default="./", value_type=str),
+        # 'state_cache_file': os.environ.get('STATE_CACHE_FILE', args.state_cache_file),
+        'check_interval': get_setting('check_interval', 'CHECK_INTERVAL', default=10, value_type=str),
+        'ignore_decimal': get_setting('ignore_decimal', 'IGNORE_DECIMAL', default=False, value_type=bool),
     }
     return settings
 
@@ -311,8 +348,8 @@ def setup_app_logger(log_type: str = 'console', verbose: int = 0, app_name: str 
     else:
         _logger = pawn.console  # Use pawn's built-in console logger
 
-
     return setup_logger(_logger, f"Monitoring {app_name}", verbose)
+
 
 def merge_environment_settings(args):
     """
@@ -381,7 +418,277 @@ def run_monitor_ssh(args, logger):
     except RuntimeError:
         asyncio.run(run_async_monitor())
 
-def run_wallet_client(args, logger):
+
+class WalletStateTracker:
+    def __init__(self, persist_file: str = None):
+        self._cache = {}
+        self.persist_file = persist_file or "/tmp/state_cache_file.json"
+        self.lock = asyncio.Lock()  # 비동기 안전성 추가
+        pawn.console.debug(f"state_cache_file = {self.persist_file}")
+
+    def get(self, address: str) -> dict:
+        """주소별 캐시 데이터 반환"""
+        return self._cache.get(address, {})
+
+    async def update(self, address: str, new_data: dict) -> bool:
+        """변경 감지 및 업데이트 수행"""
+        async with self.lock:
+            prev_data = self.get(address)
+            if prev_data != new_data:
+                self._cache[address] = new_data
+                if self.persist_file:
+                    await self._save_to_file()
+                return True
+            return False
+
+    async def _save_to_file(self):
+        """파일 기반 상태 지속화"""
+        async with aiofiles.open(self.persist_file, 'w') as f:
+            await f.write(json.dumps(self._cache))
+
+    @classmethod
+    async def load_from_file(cls, filename: str) -> 'WalletStateTracker':
+        """파일에서 상태 복구"""
+        instance = cls(persist_file=filename)
+        if os.path.exists(filename):
+            async with aiofiles.open(filename, 'r') as f:
+                contents = await f.read()
+                instance._cache = json.loads(contents)
+        return instance
+
+    def track_changes(self, old: dict, new: dict) -> dict:
+        """변경 필드 식별 로직 분리"""
+        return {
+            k: {"old": old[k], "new": new[k]}
+            for k in new if old.get(k) != new.get(k)
+        }
+
+
+# async def worker(rpc, address):
+#     import time
+#     async with rpc.semaphore:
+#         start = time.time()
+#         balance = await rpc.get_balance(address)
+#         stake = await rpc.get_stake(address)
+#         bond = await rpc.get_bond(address)
+#         delegation = await rpc.get_delegation(address)
+#         elapsed = time.time() - start
+#         result = {
+#             "balance": balance,
+#             "stake": stake,
+#             "bond": bond,
+#             "delegation": delegation
+#         }
+#         pawn.console.log(f"Task {address} => {result} completed in {elapsed:.2f}s | {rpc.concurrency_usage}")
+#         return balance
+
+import datetime
+from pawnlib.utils.http import AsyncIconRpcHelper
+from pawnlib.typing.converter import HexConverter
+async def worker(rpc, address: str) -> dict:
+    """지갑 전체 데이터 반환"""
+    async with rpc.semaphore:
+        return {
+            "balance": await rpc.get_balance(address, return_as_hex=False),
+            "stake": await rpc.get_stake(address, return_key="result.stake"),
+            "bond": await rpc.get_bond(address, return_key="result.totalBonded"),
+            "delegation": await rpc.get_delegation(address, return_key="result.totalDelegated"),
+            "last_updated": datetime.datetime.utcnow().isoformat()
+        }
+
+
+def deep_filter_ignored(data: Any, ignore_keys: List[str]) -> Any:
+    """중첩 구조에서 특정 키 재귀적으로 제거 (검색 결과 [3] 확장)"""
+    if isinstance(data, dict):
+        return {
+            k: deep_filter_ignored(v, ignore_keys)
+            for k, v in data.items()
+            if k not in ignore_keys
+        }
+    elif isinstance(data, list):
+        return [deep_filter_ignored(item, ignore_keys) for item in data]
+    return data
+
+
+def format_balance_change(
+        old_val: int,
+        new_val: int,
+        ignore_decimal: bool = False
+) -> str:
+    """
+    - ignore_decimal=True 이면,
+      소숫점 이하를 아예 무시(정수 변환).
+    - ignore_decimal=False 이면,
+      소숫점 4자리까지 반올림하되, 실질적으로 정수면 정수 형태로.
+    """
+    try:
+        if ignore_decimal:
+            old_val_proc = int(old_val)
+            new_val_proc = int(new_val)
+        else:
+            old_val_proc = float(old_val)
+            new_val_proc = float(new_val)
+
+        change = new_val_proc - old_val_proc
+        abs_change = abs(change)
+
+        if old_val_proc == 0:
+            pct_change = float('inf') if new_val_proc != 0 else 0.0
+        else:
+            pct_change = (change / old_val_proc) * 100
+
+        if ignore_decimal:
+            new_val_fmt = f"{new_val_proc:,} ICX"
+            change_fmt = f"{abs_change:+,} ICX"
+
+        else:
+            new_val_rounded = round(new_val_proc, 4)
+            change_rounded = round(change, 4)
+            abs_change_rounded = abs(change_rounded)
+
+            if new_val_rounded.is_integer():
+                new_val_fmt = f"{int(new_val_rounded):,} ICX"  # 정수
+            else:
+                new_val_fmt = f"{new_val_rounded:,.4f} ICX"    # 소숫점 4자리
+
+            if change_rounded.is_integer():
+                change_fmt = f"{change_rounded:+,} ICX"
+            else:
+                change_fmt = f"{change_rounded:+,.5f} ICX"
+
+        if pct_change == float('inf'):
+            pct_fmt = "(new balance)"
+        elif abs(pct_change) >= 1000:
+            pct_fmt = f"{pct_change:+.5e}%"
+        else:
+            pct_fmt = f"{pct_change:+.5f}%"
+
+        direction = "▲" if change > 0 else "▼" if change < 0 else ""
+        return f"{new_val_fmt} {direction} (Δ: {change_fmt}, {pct_fmt})"
+
+    except Exception as e:
+        return f"Error formatting: {old_val}→{new_val} ({str(e)})"
+
+
+def format_changes(changed_fields: dict) -> str:
+    """변경 사항을 여러 줄 문자열로 포매팅"""
+    lines = []
+    for field, values in changed_fields.items():
+        old_val = values.get('old')
+        new_val = values.get('new')
+        change_str = format_balance_change(old_val, new_val)
+        lines.append(f"  • {field}: {change_str}")
+    return "\n".join(lines)
+
+
+async def detect_changes(
+        tracker: WalletStateTracker,
+        address: str,
+        current_data: dict,
+        logger,
+        ignore_keys: Optional[List[str]] = None,
+        ignore_decimal_changes: bool = False,
+        is_send_slack: bool = False,
+) -> bool:
+    ignore_keys = ignore_keys or []
+    filtered_current = deep_filter_ignored(current_data, ignore_keys)
+    prev_data = tracker.get(address)
+    changed = await tracker.update(address, filtered_current)
+
+    if not prev_data:
+        logger.info(f"⨀ Initial state for {address}:\n{json.dumps(filtered_current, indent=2)}")
+        return True
+
+    filtered_prev = deep_filter_ignored(prev_data, ignore_keys)
+
+    if filtered_prev != filtered_current:
+        changed_fields = {}
+        for key in set(prev_data.keys()).union(current_data.keys()):
+
+            if key in ignore_keys:
+                continue
+
+            old_val = prev_data.get(key)
+            new_val = current_data.get(key)
+
+            if (
+                    ignore_decimal_changes
+                    and isinstance(old_val, (int, float))
+                    and isinstance(new_val, (int, float))
+            ):
+                if int(old_val) == int(new_val):
+                    # if old_val and new_val and old_val != new_val:
+                    #     pawn.console.debug(f"<{address}> {key} Ignore Changed {old_val} -> {new_val}")
+                    continue
+
+            if old_val != new_val:
+                changed_fields[key] = {"old": old_val, "new": new_val}
+
+        from pawnlib.typing.converter import shorten_text
+        address =  f"💰{shorten_text(address, width=7, placeholder='', truncate_side='right')}"
+
+        if changed_fields:
+            logger.info(
+                f"⨀ State changed for {address}:\n"
+                f"{format_changes(changed_fields)}"
+                # f"Full changes: {json.dumps(changed_fields, indent=2)}"
+            )
+            if is_send_slack:
+                await send_slack(
+                    title=f":rocket: State changed for {address}",
+                    msg_text=format_changes(changed_fields),
+                    status="info",
+                    msg_level="info",
+                    icon_emoji=":start-button:",
+                    async_mode=True
+                )
+
+        return True
+    return False
+
+
+async def run_continuous_monitoring(rpc, addresses: list, tracker: WalletStateTracker, interval: int,
+                                    logger, ignore_decimal_changes: bool=False, is_send_slack: bool=False):
+    while True:
+        tasks = [asyncio.create_task(worker(rpc, addr)) for addr in addresses]
+        results = await asyncio.gather(*tasks)
+
+        for addr, data in zip(addresses, results):
+            await detect_changes(tracker, addr, data, logger,
+                                 ignore_keys=['last_updated', 'unstakes'],
+                                 ignore_decimal_changes=ignore_decimal_changes,
+                                 is_send_slack=is_send_slack
+                                 )
+
+        await asyncio.sleep(interval)
+
+
+def run_multi_wallet_monitoring(args, logger):
+    settings = merge_environment_settings(args)
+
+    async def _main():
+        tracker = await WalletStateTracker.load_from_file(
+            os.path.join(settings['base_dir'], "wallet_states.json")
+        )
+
+        async with AsyncIconRpcHelper(
+                url=settings['endpoint_url'],
+                max_concurrency=5,
+                logger=logger
+        ) as rpc:
+            await run_continuous_monitoring(
+                rpc=rpc,
+                addresses=settings['address_filter'],
+                tracker=tracker,
+                interval=settings['check_interval'],
+                logger=logger,
+                ignore_decimal_changes=settings['ignore_decimal'],
+                is_send_slack=settings['send_slack'],
+            )
+    asyncio.run(_main())
+
+
+def run_wallet_client_with_websocket(args, logger):
     settings = merge_environment_settings(args)
     if not settings['endpoint_url']:
         sys_exit("[ERROR] Endpoint URL is required. Please provide it via '--url' or '--endpoint-url' argument or 'ENDPOINT_URL' environment variable.")
@@ -568,7 +875,11 @@ def main():
     pawn.console.log(f"Parsed arguments: {args}")
 
     settings = merge_environment_settings(args)
-    print_var(settings)
+
+    if IS_DOCKER:
+        pawn.console.rule("RUN IN DOCKER")
+
+    # print_var(settings)
 
     if settings.get('command'):
         logger = initialize_logger(settings)
@@ -615,7 +926,10 @@ def main():
             run_monitor_ssh(args, logger)
         elif args.command == "wallet":
             pawn.console.log("Starting Async Goloop Websocket Client")
-            run_wallet_client(args, logger)
+            run_wallet_client_with_websocket(args, logger)
+        elif args.command == "wallet-multi":
+            pawn.console.log("Starting Multiwallet monitoring")
+            run_multi_wallet_monitoring(args, logger)
         elif args.command == "compose":
             pawn.console.log("Generating docker-compose.yml file")
             run_compose_init(args, logger, parser)
