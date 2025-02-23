@@ -4455,17 +4455,83 @@ class AsyncIconRpcHelper(LoggerMixin):
             return list_to_dict_by_key(result, return_dict_key)
         return result
 
-    async def get_balance(self, address="", url: Optional[str] = None):
+    async def get_balance(self, address="", return_as_hex=True, return_key="result", use_hex_value=None, url: Optional[str] = None):
         target_url = url or self.url
-        result = await self.execute_rpc_call(
+        return_value = await self.execute_rpc_call(
             url=target_url,
             method='icx_getBalance',
             params={
                 "address": address
             },
-            return_key="result"
+            return_key=return_key
         )
-        return result
+
+        if use_hex_value:
+            return HexValueParser(return_value)
+
+        if return_as_hex:
+            return return_value
+        return hex_to_number(return_value, is_tint=True)
+
+    async def get_stake(self, address="", return_as_hex=False, return_key="result", use_hex_value=None, url: Optional[str] = None):
+        target_url = url or self.url
+        return_value = await self.execute_rpc_call(
+            url=target_url,
+            governance_address=const.CHAIN_SCORE_ADDRESS,
+            method='getStake',
+            params={
+                "address": address
+            },
+            return_key=return_key
+        )
+
+        # use_hex_value = use_hex_value or self.use_hex_value
+        if use_hex_value:
+            return HexValueParser(return_value)
+
+        if return_as_hex:
+            return return_value
+        return hex_to_number(return_value, is_tint=True)
+
+    async def get_delegation(self, address="", return_as_hex=False, return_key="result", use_hex_value=None,  url: Optional[str] = None):
+        target_url = url or self.url
+        return_value = await self.execute_rpc_call(
+            url=target_url,
+            governance_address=const.CHAIN_SCORE_ADDRESS,
+            method='getDelegation',
+            params={
+                "address": address
+            },
+            return_key=return_key
+        )
+        # use_hex_value = use_hex_value or self.use_hex_value
+        if use_hex_value:
+            return HexValueParser(return_value)
+
+        if return_as_hex:
+            return return_value
+        return hex_to_number(return_value, is_tint=True)
+
+
+    async def get_bond(self, address="",return_as_hex=False, return_key="result", use_hex_value=None,url: Optional[str] = None):
+        target_url = url or self.url
+        return_value = await self.execute_rpc_call(
+            url=target_url,
+            governance_address=const.CHAIN_SCORE_ADDRESS,
+            method='getBond',
+            params={
+                "address": address
+            },
+            return_key=return_key
+        )
+
+        # use_hex_value = use_hex_value or self.use_hex_value
+        if use_hex_value:
+            return HexValueParser(return_value)
+
+        if return_as_hex:
+            return return_value
+        return hex_to_number(return_value, is_tint=True)
 
     async def get_node_name_by_address(self):
         """
