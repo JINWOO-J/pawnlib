@@ -4149,10 +4149,7 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
         self.semaphore = asyncio.Semaphore(max_concurrency)
         # self.loop = loop or asyncio.get_running_loop()
         self._own_session = False
-
-        pawn.console.log(self.logger)
-
-        self.logger.info(f"----- Start AsyncIconRpcHelper with max_concurrency={self.max_concurrency}")
+        self.logger.info(f"Start AsyncIconRpcHelper with max_concurrency={self.max_concurrency}")
         self.logger.debug(f"Initial session: {session}, closed={session.closed if session else 'None'}")
 
 
@@ -4215,55 +4212,6 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
     def __del__(self):
         if hasattr(self, 'session') and self.session and not self.session.closed:
             self.logger.warning("Unclosed session detected. Use async context manager or call close() explicitly.")
-
-    # async def initialize(self):
-    #     if not self.session or self.session.closed:
-    #         self.session = aiohttp.ClientSession(
-    #             connector=self.connector,
-    #             timeout=aiohttp.ClientTimeout(total=self.timeout)
-    #         )
-    #         self.logger.debug("New aiohttp session created")
-    #     elif self.session._connector is None:
-    #         await self.session.close()
-    #         self.session = aiohttp.ClientSession()
-    #     return self
-
-    # async def initialize(self):
-    #     if not hasattr(self, 'connector'):
-    #         self.connector = aiohttp.TCPConnector(ssl=False, loop=self.loop, limit=self.max_concurrency)
-    #
-    #     if not self.session or self.session.closed:
-    #         self.session = aiohttp.ClientSession(
-    #             connector=self.connector,
-    #             timeout=aiohttp.ClientTimeout(total=self.timeout),
-    #             loop=self.loop,
-    #         )
-    #         self._own_session = True
-    #         self.logger.debug("New session created with active connector")
-    #     else:
-    #         if self.connector.closed:
-    #             await self.session.close()
-    #             self.session = aiohttp.ClientSession(
-    #                 connector=self.connector,
-    #                 timeout=aiohttp.ClientTimeout(total=self.timeout),
-    #                 loop=self.loop,
-    #             )
-    #             self.logger.warning("Recreated session due to closed connector")
-    #     return self
-
-    # async def initialize(self):
-    #     if not self.session or self.session.closed:
-    #         # 외부 세션이 없거나 닫힌 경우에만 새 세션 생성
-    #         self.session = aiohttp.ClientSession(
-    #             connector=self.connector,
-    #             timeout=aiohttp.ClientTimeout(total=self.timeout),
-    #             loop=self.loop  # 전달된 루프 사용
-    #         )
-    #         self._own_session = True
-    #         self.logger.debug("New session created with provided loop")
-    #     else:
-    #         self._own_session = False  # 외부 세션 사용 시 소유권 없음
-    #         self.logger.debug("Using existing session from parent")
 
     async def initialize(self):
         self.logger.debug(f"[INIT START] Session={self.session}, closed={self.session.closed if self.session else 'None'}")
