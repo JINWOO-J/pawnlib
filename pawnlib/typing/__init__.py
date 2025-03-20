@@ -87,6 +87,7 @@ from .converter import (
     snake_case,
     snake_case_to_title_case,
     shorten_text,
+    get_shortened_tx_hash,
     truncate_float,
     truncate_decimal,
     remove_zero,

@@ -1,4 +1,3 @@
-import sys
 import inspect
 import logging
 import os
@@ -9,11 +8,175 @@ from pawnlib.typing.constants import const
 from rich.console import Console
 from rich.traceback import Traceback
 from datetime import datetime
+from contextlib import contextmanager
 
 try:
-    from typing import Literal, Union
+    from typing import Literal, Union, Optional, Dict
 except ImportError:
-    from typing_extensions import Literal, Union
+    from typing_extensions import Literal, Union, Optional, Dict
+
+TRACE = 5
+NO_LOG = logging.CRITICAL + 1
+logging.addLevelName(TRACE, "TRACE")
+logging.addLevelName(NO_LOG, "NO_LOG")
+
+def trace(self, message, *args, **kwargs):
+    if self.isEnabledFor(TRACE):
+        self._log(TRACE, message, args, **kwargs)
+
+logging.Logger.trace = trace
+
+# def verbose_to_log_level(verbose: int, log_levels: dict = None) -> int:
+#     """
+#     Convert a verbose value to a corresponding log level.
+#
+#     :param verbose: Verbosity level (e.g., 0, 1, 2, 3). Negative values default to 0.
+#     :type verbose: int
+#     :param log_levels: Mapping of verbose levels to logging levels. If None, use default.
+#     :type log_levels: dict or None
+#     :return: Corresponding log level (e.g., logging.DEBUG).
+#     :rtype: int
+#     :raises ValueError: If log_levels is empty or invalid.
+#     """
+#     if log_levels is None:
+#         log_levels = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG, 3: TRACE}
+#
+#     if not log_levels or not isinstance(log_levels, dict):
+#         raise ValueError("log_levels must be a non-empty dictionary")
+#
+#     max_verbose = max(log_levels.keys())
+#     effective_verbose = max(0, min(verbose, max_verbose))
+#     return log_levels.get(effective_verbose)
+
+def verbose_to_log_level(
+        verbose: int,
+        log_levels: Optional[Dict[int, int]] = None,
+        clamp: bool = True
+) -> int:
+    """
+    Convert a numeric verbose value to a corresponding logging level.
+
+    By default:
+    - verbose < 0 => CRITICAL+1 (즉, 어떤 로그도 표시되지 않음)
+    - verbose=0 => WARNING
+    - verbose=1 => INFO
+    - verbose=2 => DEBUG
+    - verbose>=3 => TRACE (기본 정의된 커스텀 레벨, 5)
+
+    If `log_levels` is provided, it must be a dict mapping verbose -> logging level.
+    If `clamp=True`, out-of-range verbose values are clamped to min/max keys in `log_levels`.
+
+    :param verbose: Verbosity level (정수)
+    :type verbose: int
+    :param log_levels: (선택) 사용자 정의 맵핑 { verbose_value: logging_level }
+    :type log_levels: dict or None
+    :param clamp: True이면, verbose가 log_levels 범위를 벗어날 때 최소/최대 값에 맞춤
+    :type clamp: bool
+    :return: 로그 레벨 (ex: logging.DEBUG = 10)
+    :rtype: int
+    :raises ValueError: log_levels가 유효하지 않을 때
+    """
+    if log_levels is None:
+        # 기본 맵핑 (negative => CRITICAL+1, 0=>WARNING, 1=>INFO, 2=>DEBUG, 3=>TRACE, ...)
+        # 음수 키를 포함한 예시
+        log_levels = {
+            -1: logging.CRITICAL + 1,  # 어떤 로그도 찍히지 않게 하는 수준
+            0: logging.WARNING,
+            1: logging.INFO,
+            2: logging.DEBUG,
+            3: TRACE,
+        }
+
+    if not log_levels or not isinstance(log_levels, dict):
+        raise ValueError("log_levels must be a non-empty dictionary.")
+
+    # 모든 key를 정렬해서 min/max를 구함
+    sorted_keys = sorted(log_levels.keys())
+    min_key, max_key = sorted_keys[0], sorted_keys[-1]
+
+    # clamp=True면, verbose가 min_key보다 작으면 min_key로, max_key보다 크면 max_key로
+    if clamp:
+        if verbose < min_key:
+            verbose = min_key
+        elif verbose > max_key:
+            verbose = max_key
+
+    # 만약 clamp=False라면, 범위 밖인 verbose에 대한 처리 로직(디폴트값?)을 직접 정의하거나,
+    # 여기서 ValueError를 던질 수도 있음. 아래는 예시로 min_key, max_key로 clamp.
+    else:
+        if not (min_key <= verbose <= max_key):
+            raise ValueError(f"Verbose out of range [{min_key}, {max_key}]: {verbose}")
+
+    # 최종적으로 log_levels에서 매핑된 값을 얻어옴
+    # 혹시 verbose가 정확히 매핑되지 않았다면, 바로 이전/이후 key로 매핑하는 등의 추가 로직 가능
+    # 여기서는 단순히 dict.get() 사용
+    if verbose in log_levels:
+        return log_levels[verbose]
+    else:
+        # 만약 clamp 됐는데 exact key 매핑이 없으면, 가장 근접한 key를 찾는 로직을 추가해도 됨
+        # 여기서는 안전하게 min_key로 fallback
+        return log_levels[min_key]
+
+
+def verbose_to_log_level(
+        verbose: int,
+        log_levels: Optional[Dict[int, int]] = None,
+        clamp: bool = True
+) -> int:
+    """
+    Convert a numeric verbose value to a corresponding logging level.
+
+    기본 맵핑 (예시):
+      0 -> CRITICAL+1  (아무 로그도 출력되지 않게)
+      1 -> WARNING
+      2 -> INFO
+      3 -> DEBUG
+      4 -> TRACE
+    그 이상(>4)일 때도 4와 같은 취급 (clamp=True일 때)
+
+    :param verbose: Verbosity level (정수)
+    :param log_levels: 사용자 지정 맵핑 {verbose: logging_level}
+                       None이면 아래 default 사용.
+    :param clamp: 범위를 벗어난 verbose 값이 들어오면 min/max로 clamp할지 여부
+    :return: 대응되는 파이썬 로깅 레벨 수치
+    """
+    if log_levels is None:
+        # “0이면 로그를 전혀 남기지 않는다.” → CRITICAL+1
+        # log_levels = {
+        #     0: NO_LOG,  # effectively no logs
+        #     1: logging.WARNING,
+        #     2: logging.INFO,
+        #     3: logging.DEBUG,
+        #     4: TRACE,                # 커스텀 TRACE level
+        # }
+
+        log_levels = {
+            -1: NO_LOG,
+            0: logging.WARNING,
+            1: logging.INFO,
+            2: logging.DEBUG,
+            3: TRACE,
+        }
+
+    if not log_levels or not isinstance(log_levels, dict):
+        raise ValueError("log_levels must be a non-empty dictionary.")
+
+    sorted_keys = sorted(log_levels.keys())
+    min_key, max_key = sorted_keys[0], sorted_keys[-1]
+
+    # clamp=True → 범위 밖 verbose는 min_key, max_key로 보정
+    if clamp:
+        if verbose < min_key:
+            verbose = min_key
+        elif verbose > max_key:
+            verbose = max_key
+    else:
+        # clamp=False → 범위 벗어나면 예외 발생
+        if not (min_key <= verbose <= max_key):
+            raise ValueError(f"Verbose out of range [{min_key}, {max_key}]: {verbose}")
+
+    return log_levels.get(verbose, logging.CRITICAL + 1)  # fallback
+
 
 LOG_LEVEL_SHORT = {
     "DEBUG": "DBG",
@@ -21,6 +184,7 @@ LOG_LEVEL_SHORT = {
     "WARNING": "WRN",
     "ERROR": "ERR",
     "CRITICAL": "CRT",
+    "TRACE": "TRA",
 }
 
 VALID_RICH_TAGS = {
@@ -231,7 +395,8 @@ class ConsoleLoggerHandler(logging.Handler):
         return {
             0: logging.WARNING,
             1: logging.INFO,
-            2: logging.DEBUG
+            2: logging.DEBUG,
+            3: TRACE
         }.get(self.verbose, logging.DEBUG)
 
     def _get_code_info(self, record):
@@ -249,7 +414,8 @@ class ConsoleLoggerHandler(logging.Handler):
             return f"<{record.name.split('.')[-1]}:{record.lineno}> "
         elif self.simple_format == "advanced":
             file_name = os.path.basename(record.pathname) if record.name == "root" else record.name
-            return f"<{file_name}:{record.lineno} [dim]{record.funcName}()[/dim]> "
+            # return f"<{file_name}:{record.lineno} [dim]{record.funcName}()[/dim]> "
+            return f"<{file_name}[dim]{record.funcName}({record.lineno})[/dim]> "
         elif self.simple_format == "custom" and callable(self.simple_format):
             return self.simple_format(record)  # Expect a custom function
         else:
@@ -278,11 +444,15 @@ class ConsoleLoggerHandler(logging.Handler):
                 "WRN": "[bold orange3]WRN[/bold orange3]",
                 "INF": "[bold green]INF[/bold green]",
                 "DBG": "[bold yellow]DBG[/bold yellow]",
+                "TRA": "[bold cyan]TRA[/bold cyan]",
+
                 "critical": "[bold magenta]CRIT[/bold magenta]",
                 "error": "[bold red]ERROR[/bold red]",
                 "warning": "[bold orange3]WARN[/bold orange3]",
                 "info": "[bold green]INFO[/bold green]",
                 "debug": "[bold yellow]DEBUG[/bold yellow]",
+
+                "trace": "[bold cyan]trace[/bold cyan]",
             }
             code_info = self._get_code_info(record)
             message = f"{code_info}{message}"
@@ -298,6 +468,8 @@ class ConsoleLoggerHandler(logging.Handler):
                     self.console.log(f"{tag} {message}")
             elif level == "debug" and pawn.get('PAWN_DEBUG'):
                 self.console.debug(message)
+            elif level == "trace":
+                self.console.log(f"{tag} {message}")
             else:
                 self.console.log(f"{tag} {message}")
         except Exception:
@@ -372,7 +544,7 @@ class ConsoleLoggerAdapter:
         Determine log level based on verbosity.
         """
         # return logging.DEBUG if self.verbose > 1 else logging.INFO if self.verbose == 1 else logging.WARNING
-        return const.VERBOSE_LEVELS.get(self.verbose_int, logging.DEBUG)
+        return const.VERBOSE_LEVELS.get(self.verbose_int, TRACE)
 
     @classmethod
     def get_adapter_logger(cls, name: str) -> "ConsoleLoggerAdapter":
@@ -573,10 +745,10 @@ def escape_non_tag_brackets(message: str) -> str:
         if re.match(r'\[/?([a-zA-Z0-9 _-]+)\]', text):
             return text  # Valid tag
         else:
-            return text.replace('[', r'\[').replace(']', r'\]')
+            # return text.replace('[', r'\[').replace(']', r'\]')
+            return text.replace('[', r'\[')
 
     return re.sub(r'\[.*?\]', replace_bracket, message)
-
 
 
 class BaseFormatter(logging.Formatter):
@@ -866,13 +1038,14 @@ def setup_app_logger(
         date_format: str = None,
         log_level: Union[int, str, None] = None,
         log_level_short: bool = True,
-        simple_format: Union[str, bool] = "minimal",
+        simple_format: Union[str, bool] = "detailed",
         exc_info: bool = False,
         rotate_time: str = 'midnight',  # Log rotation time (e.g., 'midnight', 'H', etc.)
         rotate_interval: int = 1,      # Rotation interval (e.g., 1 day, 1 hour)
         backup_count: int = 7,          # Number of backup files to keep
         clear_existing_handlers: bool = False,
-        propagate: bool = True,
+        handle_propagate: bool = False,
+        propagate: bool = False,
         propagate_scope: str = 'all'  # Options: 'all', 'pawnlib', 'third_party'
 ):
     """
@@ -964,21 +1137,23 @@ def setup_app_logger(
     elif isinstance(log_level, int):
         effective_log_level = log_level
     elif log_level is None:
-        effective_log_level = const.VERBOSE_LEVELS.get(verbose, logging.DEBUG)
+        # effective_log_level = const.VERBOSE_LEVELS.get(verbose, logging.DEBUG)
+        effective_log_level = verbose_to_log_level(verbose)
     else:
         raise ValueError("`log_level` must be of type int or str.")
 
-    root_logger = logging.getLogger()
-    root_logger.setLevel(effective_log_level)
+    logger = logging.getLogger(app_name)
+    logger.setLevel(effective_log_level)
+    logger.propagate = propagate
 
+    if clear_existing_handlers:
+        logger.handlers.clear()
 
     if not log_format:
         log_format = '[%(asctime)s] %(levelname)s::%(filename)s/%(funcName)s(%(lineno)d) %(message)s'
 
-    if clear_existing_handlers:
-        root_logger.handlers.clear()
-
-    if log_type in ('console', 'both') and not any(isinstance(h, ConsoleLoggerHandler) for h in root_logger.handlers):
+    # ConsoleLoggerHandler 추가 (중복 방지)
+    if log_type in ('console', 'both') and not any(isinstance(h, ConsoleLoggerHandler) for h in logger.handlers):
         console_handler = ConsoleLoggerHandler(
             verbose=verbose,
             stdout=True,
@@ -993,9 +1168,10 @@ def setup_app_logger(
             precision=3,
         )
         console_handler.setFormatter(console_formatter)
-        root_logger.addHandler(console_handler)
+        logger.addHandler(console_handler)
 
-    if log_type in ('file', 'both') and not any(isinstance(h, TimedRotatingFileHandler) for h in root_logger.handlers):
+    # TimedRotatingFileHandler 추가 (중복 방지)
+    if log_type in ('file', 'both') and not any(isinstance(h, TimedRotatingFileHandler) for h in logger.handlers):
         file_formatter = CleanAndDetailTimeFormatter(
             fmt=log_format,
             datefmt=date_format,
@@ -1012,14 +1188,21 @@ def setup_app_logger(
             encoding='utf-8'
         )
         file_handler.setFormatter(file_formatter)
-        root_logger.addHandler(file_handler)
+        logger.addHandler(file_handler)
 
-    if not root_logger.handlers:
-        raise ValueError("No handlers were added to the root logger. Please check your `log_type` parameter.")
+    if not logger.handlers:
+        raise ValueError(f"No handlers were added to the logger '{app_name}'. Check `log_type` parameter.")
 
-    # Set propagate on loggers based on propagate and propagate_scope
-    change_propagate_setting(propagate=propagate, propagate_scope=propagate_scope)
-    return root_logger
+    # propagate 설정
+    # if propagate:
+    # change_propagate_setting(propagate=propagate, propagate_scope=propagate_scope, log_level=effective_log_level)
+    if handle_propagate:
+        change_propagate_setting(
+            propagate=propagate, propagate_scope=propagate_scope,
+            log_level=effective_log_level,  pawnlib_level=effective_log_level, third_party_level=effective_log_level
+        )
+    # change_propagate_setting(propagate=True, propagate_scope='all', pawnlib_level=5, third_party_level=logging.ERROR)
+    return logger
 
 
 def setup_logger(logger=None, name: str = "", verbose: Union[bool, int] = False):
@@ -1100,7 +1283,6 @@ class LoggerMixin:
             logger.addHandler(logging.NullHandler())
         return logger
 
-
 def change_log_level(new_level, logger=None):
     """
     Change the log level of the specified logger or the root logger.
@@ -1123,31 +1305,724 @@ def change_log_level(new_level, logger=None):
         raise ValueError("Log level must be a string or integer.")
 
 
-def change_propagate_setting(propagate: bool = True, propagate_scope: str = 'all'):
+class LoggerFactory:
     """
-    Change the propagate setting of loggers based on the specified scope.
+    A factory class for creating and managing loggers with console and file output.
 
-    :param propagate: Whether to enable or disable propagation.
+    Supports configuration of loggers with console and/or file handlers, customizable log formats,
+    and global settings for level and format. Handles propagation and temporary settings via context managers.
+
+    :param _loggers: Dictionary of logger instances, keyed by logger name
+    :type _loggers: dict
+    :param _global_log_level: Global logging level applied to all loggers if `use_global_level` is True
+    :type _global_log_level: int or None
+    :param _use_global_level: Flag to enforce global log level across all loggers
+    :type _use_global_level: bool
+    :param _global_simple_format: Default format style for console output ('detailed' or 'minimal')
+    :type _global_simple_format: str
+    :param _global_filters: List of filter functions applied to all loggers
+    :type _global_filters: list
+    :param _global_handler_configs: List of dictionaries containing handler type and configuration
+    :type _global_handler_configs: list
+    :param _propagate: Whether log messages propagate to parent loggers
+    :type _propagate: bool
+    :param _propagate_scope: Scope for applying propagation settings ('all' by default)
+    :type _propagate_scope: str
+
+    .. code-block:: python
+
+        # Example usage
+        import logging
+        from  import LoggerFactory
+
+        # Basic logger with both console and file output
+        logger = LoggerFactory.create_app_logger(
+            log_type='both',
+            verbose=2,
+            app_name='MyApp',
+            log_path='./logs'
+        )
+        logger.info("Application started")
+        logger.debug("Debug message")
+        # Console Output:
+        # [INF] <MyApp:XX> Application started
+        # [DBG] <MyApp:XX> Debug message
+        # File Output (./logs/MyApp.log):
+        # [2025-03-12 10:00:00,123] INF::main.py/main(XX) Application started
+        # [2025-03-12 10:00:00,124] DBG::main.py/main(XX) Debug message
+
+        # Sub-logger with inherited settings
+        sub_logger = LoggerFactory.get_logger('MyApp.sub', verbose=2)
+        sub_logger.info("Sub logger message")
+        # Console Output:
+        # [INF] <MyApp.sub:XX> Sub logger message
+
+        # Temporary settings with context manager
+        with LoggerFactory.temporary_settings(log_level=1, simple_format='minimal'):
+            temp_logger = LoggerFactory.get_logger('MyApp.temp')
+            temp_logger.info("Temporary info message")
+            temp_logger.debug("This debug won't appear")
+        # Console Output:
+        # [INF] Temporary info message
+
+        # Adjust logger level
+        LoggerFactory.adjust_logger_level('MyApp', verbose=1)
+        logger.debug("This debug won't appear after level change")
+    """
+    _loggers = {}
+    _global_log_level = None
+    _use_global_level = False
+    _global_simple_format = "detailed"
+    _global_filters = []
+    _global_handler_configs = [{"type": ConsoleLoggerHandler, "kwargs": {"stdout": True, "log_level_short": True}}]
+    _propagate = False
+    _propagate_scope = 'all'
+    _global_logging_enabled = False
+
+    @classmethod
+    def enable_global_logging(cls, enabled: bool = True):
+        cls._global_logging_enabled = enabled
+        # 전역 설정 변경 시 모든 로거 업데이트
+        for logger in cls._loggers.values():
+            if enabled and not logger.handlers:  # 핸들러가 없으면 추가
+                for handler in cls._create_handlers(verbose=0):
+                    logger.addHandler(handler)
+            elif not enabled:  # 비활성화 시 핸들러 제거
+                logger.handlers.clear()
+                logger.setLevel(NO_LOG)
+
+    @classmethod
+    def create_app_logger(
+            cls,
+            log_type: str = 'console',
+            verbose: int = 1,
+            log_path: str = "./logs",
+            app_name: str = "default",
+            log_format: str = None,
+            date_format: str = '%Y-%m-%d %H:%M:%S',
+            log_level: Union[int, str, None] = None,
+            log_level_short: bool = True,
+            simple_format: str = "detailed",
+            exc_info: bool = False,
+            rotate_time: str = 'midnight',
+            rotate_interval: int = 1,
+            backup_count: int = 7,
+            clear_existing_handlers: bool = True,
+            propagate: bool = None
+    ) -> logging.Logger:
+        """
+        Configure and return an application logger.
+
+        :param log_type: Type of logging ('console', 'file', or 'both')
+        :type log_type: str
+        :param verbose: Verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
+        :type verbose: int
+        :param log_path: Directory path for log files
+        :type log_path: str
+        :param app_name: Name of the logger
+        :type app_name: str
+        :param log_format: Custom log format string (default: detailed timestamp format)
+        :type log_format: str, optional
+        :param date_format: Date format for log timestamps
+        :type date_format: str
+        :param log_level: Logging level as int or str (e.g., 'INFO')
+        :type log_level: int or str, optional
+        :param log_level_short: Use short level names (e.g., INF)
+        :type log_level_short: bool
+        :param simple_format: Formatting code level ("none", "minimal", "detailed", "advanced", "custom"). Default is minimal.
+        :type simple_format: str
+        :param exc_info: Include exception info in logs
+        :type exc_info: bool
+        :param rotate_time: When to rotate logs (e.g., 'midnight')
+        :type rotate_time: str
+        :param rotate_interval: Interval for log rotation
+        :type rotate_interval: int
+        :param backup_count: Number of backup log files to keep
+        :type backup_count: int
+        :param clear_existing_handlers: Clear existing handlers before adding new ones
+        :type clear_existing_handlers: bool
+        :param propagate: Set propagation behavior (overrides class default if provided)
+        :type propagate: bool, optional
+        :return: Configured logger instance
+        :rtype: logging.Logger
+        :raises ValueError: If no handlers are added to the logger
+
+        Example:
+
+            .. code-block:: python
+
+                from pawnlib.config import create_app_logger
+
+                # Set up a console logger with DEBUG level
+                logger_console = create_app_logger(
+                    log_type='console',
+                    verbose=2,
+                    app_name='my_app',
+                    log_level='DEBUG'
+                )
+
+                logger_console.info("Start [bold red]Important[/bold red] process")
+
+                # Set up a file logger with INFO level and daily rotation
+                logger = create_app_logger(
+                    log_type='file',
+                    verbose=1,
+                    log_path='./logs',
+                    app_name='my_app',
+                    rotate_time='midnight',
+                    rotate_interval=1,
+                    backup_count=10
+                )
+
+                logger.info("This is an info message.")
+                logger.debug("This is a debug message.")
+
+        """
+
+        if log_type in ('file', 'both'):
+            if not os.path.isdir(log_path):
+                os.makedirs(log_path)
+
+        # 로깅 레벨 결정
+        if isinstance(log_level, str):
+            log_level = logging._nameToLevel.get(log_level.upper(), logging.INFO)
+        elif log_level is None:
+            log_level = verbose_to_log_level(verbose)
+
+        # 로거 생성 및 설정
+        logger = logging.getLogger(app_name)
+        logger.setLevel(log_level)
+        if propagate is not None:
+            cls._propagate = propagate
+
+        logger.propagate = cls._propagate
+        if clear_existing_handlers:
+            logger.handlers.clear()  # 기존 핸들러 제거로 중복 방지
+
+        # 기본 로그 포맷 설정
+        if not log_format:
+            log_format = '[%(asctime)s,%(msecs)03d] %(levelname)s::%(filename)s/%(funcName)s(%(lineno)d) %(message)s'
+
+        # # simple_format에 따른 콘솔 포맷 설정
+        # if simple_format == "detailed":
+        #     console_fmt = '[%(levelname)s] <%(name)s:%(lineno)d> %(message)s'
+        # elif simple_format == "minimal":
+        #     console_fmt = '[%(levelname)s] %(message)s'
+        # else:
+        #     console_fmt = log_format
+
+        # 포매터 생성
+        console_formatter = CleanAndDetailTimeFormatter(datefmt=date_format, log_level_short=log_level_short)
+        file_formatter = CleanAndDetailTimeFormatter(fmt=log_format, datefmt=date_format, log_level_short=log_level_short)
+
+        # _global_handler_configs 초기화 및 핸들러 설정
+        cls._global_handler_configs = []
+        if (verbose >= 0 or cls._global_logging_enabled) and log_type in ('console', 'both'):
+            console_handler = ConsoleLoggerHandler(
+                verbose=verbose,
+                stdout=True,
+                log_level_short=log_level_short,
+                simple_format=simple_format,
+                exc_info=exc_info
+            )
+            console_handler.setFormatter(console_formatter)
+            logger.addHandler(console_handler)
+            cls._global_handler_configs.append({
+                "type": ConsoleLoggerHandler,
+                "kwargs": {
+                    "verbose": verbose,
+                    "stdout": True,
+                    "log_level_short": log_level_short,
+                    "simple_format": simple_format,
+                    "exc_info": exc_info,
+                },
+            })
+
+        if (verbose >= 0 or cls._global_logging_enabled) and log_type in ('file', 'both'):
+            log_filename = os.path.join(log_path, f"{app_name}.log")
+            file_handler = TimedRotatingFileHandler(
+                filename=log_filename,
+                when=rotate_time,
+                interval=rotate_interval,
+                backupCount=backup_count,
+                encoding='utf-8'
+            )
+            file_handler.setFormatter(file_formatter)
+            logger.addHandler(file_handler)
+            cls._global_handler_configs.append({
+                "type": TimedRotatingFileHandler,
+                "kwargs": {
+                    "filename": log_filename,
+                    "when": rotate_time,
+                    "interval": rotate_interval,
+                    "backupCount": backup_count,
+                    "encoding": 'utf-8',
+                },
+                "formatter": file_formatter
+            })
+
+        if not logger.handlers and (verbose >= 0 or cls._global_logging_enabled):
+            raise ValueError(f"No handlers added for logger '{app_name}' despite enabled logging.")
+
+        cls._loggers[app_name] = logger
+        cls._global_simple_format = simple_format
+        if cls._use_global_level and cls._global_log_level is not None:
+            logger.setLevel(cls._global_log_level)
+            for handler in logger.handlers:
+                handler.setLevel(cls._global_log_level)
+
+        return logger
+        # if log_type in ('console', 'both'):
+        #     console_handler = ConsoleLoggerHandler(
+        #         verbose=verbose,
+        #         stdout=True,
+        #         log_level_short=log_level_short,
+        #         simple_format=simple_format,
+        #         exc_info=exc_info
+        #     )
+        #     console_handler.setFormatter(console_formatter)
+        #     logger.addHandler(console_handler)
+        #     cls._global_handler_configs.append({
+        #         "type": ConsoleLoggerHandler,
+        #         "kwargs": {
+        #             "verbose": verbose,
+        #             "stdout": True,
+        #             "log_level_short": log_level_short,
+        #             "simple_format": simple_format,
+        #             "exc_info": exc_info,
+        #         },
+        #         # "formatter": console_formatter  # 포매터 별도 저장
+        #     })
+        #
+        # if log_type in ('file', 'both'):
+        #     log_filename = os.path.join(log_path, f"{app_name}.log")
+        #     file_handler = TimedRotatingFileHandler(
+        #         filename=log_filename,
+        #         when=rotate_time,
+        #         interval=rotate_interval,
+        #         backupCount=backup_count,
+        #         encoding='utf-8'
+        #     )
+        #     file_handler.setFormatter(file_formatter)  # 파일 핸들러에 포매터 설정
+        #     logger.addHandler(file_handler)
+        #     cls._global_handler_configs.append({
+        #         "type": TimedRotatingFileHandler,
+        #         "kwargs": {
+        #             "filename": log_filename,
+        #             "when": rotate_time,
+        #             "interval": rotate_interval,
+        #             "backupCount": backup_count,
+        #             "encoding": 'utf-8',
+        #         },
+        #         "formatter": file_formatter  # 포매터 별도 저장
+        #     })
+        #
+        # if not logger.handlers:
+        #     raise ValueError(f"No handlers added for logger '{app_name}'.")
+        #
+        # cls._loggers[app_name] = logger
+        # cls._global_simple_format = simple_format
+        # if cls._use_global_level and cls._global_log_level is not None:
+        #     logger.setLevel(cls._global_log_level)
+        #     for handler in logger.handlers:
+        #         handler.setLevel(cls._global_log_level)
+        #
+        # return logger
+
+    @classmethod
+    def set_global_log_level(cls, verbose=0, use_global: bool = True):
+        """
+        Set global logging level and enforce it across all loggers.
+
+        :param verbose: Verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
+        :type verbose: int
+        :param use_global: Enforce global level on all loggers
+        :type use_global: bool
+        """
+        log_level = verbose_to_log_level(verbose)
+        cls._global_log_level = log_level
+        cls._use_global_level = use_global
+        for logger in cls._loggers.values():
+            logger.setLevel(log_level)
+            for handler in logger.handlers:
+                handler.setLevel(log_level)
+
+    @classmethod
+    def set_global_simple_format(cls, simple_format: str):
+        """
+        Set global simple format for console handlers.
+
+        :param simple_format: Format style ('detailed', 'minimal')
+        :type simple_format: str
+        """
+        cls._global_simple_format = simple_format
+        for logger in cls._loggers.values():
+            for handler in logger.handlers:
+                if isinstance(handler, ConsoleLoggerHandler):
+                    handler.simple_format = simple_format
+
+    @classmethod
+    def add_global_filter(cls, filter_func):
+        """
+        Add a global filter to all loggers.
+
+        :param filter_func: Filter function to apply to log records
+        :type filter_func: callable
+        """
+        cls._global_filters.append(filter_func)
+        for logger in cls._loggers.values():
+            for f in cls._global_filters:
+                logger.addFilter(f)
+
+    @classmethod
+    def add_global_handler(cls, handler_type, **kwargs):
+        """
+        Add a global handler to all loggers.
+
+        :param handler_type: Type of handler to add (e.g., ConsoleLoggerHandler)
+        :type handler_type: type
+        :param kwargs: Keyword arguments for handler initialization
+        """
+        cls._global_handler_configs.append({"type": handler_type, "kwargs": kwargs})
+        for logger in cls._loggers.values():
+            handler = handler_type(**kwargs)
+            logger.addHandler(handler)
+            handler.setLevel(cls._global_log_level or logging.WARNING)
+
+    @classmethod
+    def clear_unused_loggers(cls):
+        """
+        Remove unused loggers from the factory.
+        """
+        active_loggers = {}
+        for name, logger in cls._loggers.items():
+            if logger.manager.getLogger(name) is logger:
+                active_loggers[name] = logger
+        cls._loggers = active_loggers
+
+    @classmethod
+    def adjust_logger_level(cls, name: str, verbose: int):
+        """
+        Adjust the logging level for a specific logger.
+
+        :param name: Name of the logger to adjust
+        :type name: str
+        :param verbose: Verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
+        :type verbose: int
+        :raises ValueError: If the logger is not found
+        """
+        logger = cls._loggers.get(name)
+        if logger:
+            log_level = verbose_to_log_level(verbose)
+            logger.setLevel(log_level)
+            for handler in logger.handlers:
+                handler.setLevel(log_level)
+        else:
+            raise ValueError(f"Logger '{name}' not found.")
+
+    @classmethod
+    def get_global_settings(cls):
+        """
+        Get current global settings of the factory.
+
+        :return: Dictionary containing global settings
+        :rtype: dict
+        """
+        return {
+            "log_level": cls._global_log_level,
+            "use_global_level": cls._use_global_level,
+            "simple_format": cls._global_simple_format,
+            "logger_count": len(cls._loggers),
+            "filters": [f.__name__ for f in cls._global_filters],
+            "handlers": [config["type"].__name__ for config in cls._global_handler_configs],
+            "global_logging_enabled": cls._global_logging_enabled
+        }
+
+    @classmethod
+    @contextmanager
+    def temporary_settings(cls, log_level=None, simple_format=None):
+        """
+        Temporarily adjust global settings within a context.
+
+        :param log_level: Temporary log level
+        :type log_level: int, optional
+        :param simple_format: Temporary simple format
+        :type simple_format: str, optional
+        :yield: Context for temporary settings
+        :rtype: None
+        """
+        original_level = cls._global_log_level
+        original_format = cls._global_simple_format
+        original_use_global = cls._use_global_level
+
+        if log_level is not None:
+            cls.set_global_log_level(verbose_to_log_level(log_level), use_global=True)
+        if simple_format is not None:
+            cls.set_global_simple_format(simple_format)
+
+        try:
+            yield
+        finally:
+            cls._global_log_level = original_level
+            cls._global_simple_format = original_format
+            cls._use_global_level = original_use_global
+            for logger in cls._loggers.values():
+                # logger.setLevel(original_level or logging.WARNING)
+                logger.setLevel(original_level or NO_LOG)
+                for handler in logger.handlers:
+                    handler.setLevel(original_level or NO_LOG)
+                    if isinstance(handler, ConsoleLoggerHandler):
+                        handler.simple_format = original_format
+
+    @classmethod
+    def _create_handlers(cls, verbose=0, simple_format=None):
+        """
+        Create handlers based on global configurations.
+
+        :param verbose: Verbosity level for handlers
+        :type verbose: int
+        :param simple_format: Override simple format for console handlers
+        :type simple_format: str, optional
+        :return: List of configured handlers
+        :rtype: list
+        """
+        handlers = []
+        for config in cls._global_handler_configs:
+            handler_type = config["type"]
+            kwargs = config["kwargs"]
+            if handler_type == ConsoleLoggerHandler:
+                kwargs = kwargs.copy()
+                kwargs.update({
+                    "verbose": verbose,
+                    "simple_format": cls._global_simple_format if simple_format is None else simple_format
+                })
+            handler = handler_type(**kwargs)
+            if "formatter" in config:
+                handler.setFormatter(config["formatter"])  # 저장된 포매터 적용
+            for f in cls._global_filters:
+                handler.addFilter(f)
+            handlers.append(handler)
+        return handlers
+
+    # @classmethod
+    # def get_logger(cls, name, verbose=0, simple_format=None):
+    #     """
+    #     Get or create a logger with specified settings.
+    #
+    #     :param name: Name of the logger
+    #     :type name: str
+    #     :param verbose: Verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
+    #     :type verbose: int
+    #     :param simple_format: Override simple format for console handlers
+    #     :type simple_format: str, optional
+    #     :return: Configured logger instance
+    #     :rtype: logging.Logger
+    #     """
+    #     logger = cls._loggers.get(name)
+    #     if not logger:
+    #         logger = logging.getLogger(name)
+    #         logger.propagate = cls._propagate
+    #         # 기존 핸들러가 없으면 새 핸들러 추가
+    #         if not logger.handlers and verbose >= 0:
+    #             for handler in cls._create_handlers(verbose, simple_format):
+    #                 logger.addHandler(handler)
+    #         cls._loggers[name] = logger
+    #
+    #     log_level = cls._global_log_level if cls._use_global_level and cls._global_log_level is not None else verbose_to_log_level(verbose)
+    #     if logger.level != log_level:
+    #         logger.setLevel(log_level)
+    #         for handler in logger.handlers:
+    #             handler.setLevel(log_level)
+    #
+    #     return logger
+    @classmethod
+    def get_logger(cls, name, verbose=0, simple_format=None):
+        logger = cls._loggers.get(name)
+        if not logger:
+            logger = logging.getLogger(name)
+            logger.propagate = cls._propagate
+            # 변경: verbose >= 0 또는 전역 설정 활성화 시에만 핸들러 추가
+            if not logger.handlers and (verbose >= 0 or cls._global_logging_enabled):
+                for handler in cls._create_handlers(verbose, simple_format):
+                    logger.addHandler(handler)
+            cls._loggers[name] = logger
+
+        log_level = cls._global_log_level if cls._use_global_level and cls._global_log_level is not None else verbose_to_log_level(verbose)
+        if logger.level != log_level:
+            logger.setLevel(log_level)
+            for handler in logger.handlers:
+                handler.setLevel(log_level)
+
+        return logger
+
+    # 신규 추가: 특정 로거의 핸들러 제거 메서드
+    @classmethod
+    def clear_handlers(cls, name: str):
+        """특정 로거의 모든 핸들러를 제거하고 로깅 비활성화"""
+        logger = cls._loggers.get(name)
+        if logger:
+            logger.handlers.clear()
+            logger.setLevel(NO_LOG)
+        else:
+            raise ValueError(f"Logger '{name}' not found.")
+
+    # 신규 추가: 모든 로거의 핸들러 제거 메서드
+    @classmethod
+    def clear_all_handlers(cls):
+        """모든 로거의 핸들러를 제거하고 로깅 비활성화"""
+        for logger in cls._loggers.values():
+            logger.handlers.clear()
+            logger.setLevel(NO_LOG)
+
+
+class LoggerMixinVerbose:
+    """
+    A mixin class for initializing loggers in classes with customizable verbosity and format.
+
+    Provides a method to set up a logger either by inheriting an existing logger or creating a new one
+    using `LoggerFactory`. Ensures the logger is properly configured with handlers, levels, and propagation settings.
+
+    Example:
+
+        .. code-block:: python
+
+            # Example usage
+            from pawnlib.config import LoggerMixinVerbose, LoggerFactory
+
+            # Define a class using the mixin
+            class MyClass(LoggerMixinVerbose):
+                def __init__(self, verbose=1):
+                    self.init_logger(verbose=verbose)
+
+            # Basic usage with LoggerFactory
+            obj = MyClass(verbose=2)
+            obj.logger.info("Class initialized")
+            # Output:
+            # [INF] <__main__.MyClass:XX> Class initialized
+
+            # Using an existing logger
+            parent_logger = LoggerFactory.create_app_logger(log_type='console', verbose=1, app_name='Parent')
+            obj_with_parent = MyClass(verbose=0)
+            obj_with_parent.init_logger(logger=parent_logger)
+            obj_with_parent.logger.info("Using parent logger")
+            # Output:
+            # [INF] <Parent:XX> Using parent logger
+    """
+    def init_logger(self, logger: Optional[logging.Logger] = None, verbose: int = 0, simple_format: Optional[str] = None):
+        """
+        Initialize or update the logger for the class instance.
+
+        :param logger: Existing logger to inherit handlers and level from
+        :type logger: logging.Logger, optional
+        :param verbose: Verbosity level (0=WARNING, 1=INFO, 2=DEBUG)
+        :type verbose: int
+        :param simple_format: Override simple format for console handlers ('detailed', 'minimal')
+        :type simple_format: str, optional
+        """
+        log_level = verbose_to_log_level(verbose)
+
+        # if not hasattr(self, 'logger') or self.logger is None:
+        #     if logger and isinstance(logger, logging.Logger):
+        #         self.logger = logging.getLogger(f"{self.__module__}.{self.__class__.__name__}")
+        #         self.logger.handlers = logger.handlers
+        #         self.logger.setLevel(logger.level)
+        #         self.logger.propagate = False
+        #     elif logger and isinstance(logger, Console):
+        #         self.logger = ConsoleLoggerAdapter(logger, "name", verbose)
+        #     else:
+        #         self.logger = LoggerFactory.get_logger(f"{self.__module__}.{self.__class__.__name__}", verbose, simple_format)
+
+        if not hasattr(self, 'logger') or self.logger is None:
+            if logger and isinstance(logger, logging.Logger):
+                self.logger = logging.getLogger(f"{self.__module__}.{self.__class__.__name__}")
+                self.logger.handlers = logger.handlers
+                self.logger.setLevel(log_level)
+                self.logger.propagate = False
+
+            elif logger and isinstance(logger, Console):
+                self.logger = ConsoleLoggerAdapter(logger, "name", verbose)
+            else:
+                self.logger = LoggerFactory.get_logger(
+                    name=f"{self.__module__}.{self.__class__.__name__}",
+                    verbose=verbose,
+                    simple_format=simple_format
+                )
+        else:
+            self.logger.setLevel(log_level)
+            self.logger.propagate = False
+        for handler in self.logger.handlers:
+            handler.setLevel(log_level)
+
+
+
+def change_propagate_setting(propagate: bool = True, propagate_scope: str = 'all', log_level: int = None, pawnlib_level: int = None, third_party_level: int = None):
+    """
+    Change the propagation settings and log levels for all registered loggers.
+
+    Allows modification of propagation behavior and log levels across all loggers, with scoping options
+    to target all loggers, only `pawnlib` loggers, or third-party loggers.
+
+    :param propagate: Whether loggers should propagate messages to parent loggers
     :type propagate: bool
-    :param propagate_scope: The scope for applying the propagation setting ('all', 'pawnlib', 'third_party').
+    :param propagate_scope: Scope for applying propagation ('all', 'pawnlib', 'third_party')
     :type propagate_scope: str
+    :param log_level: Log level to apply when scope is 'all'
+    :type log_level: int, optional
+    :param pawnlib_level: Log level for `pawnlib` loggers when scope is 'pawnlib' or 'third_party'
+    :type pawnlib_level: int, optional
+    :param third_party_level: Log level for non-`pawnlib` loggers when scope is 'pawnlib' or 'third_party'
+    :type third_party_level: int, optional
+    :raises ValueError: If `propagate_scope` is not one of 'all', 'pawnlib', or 'third_party'
+
+    Example:
+
+        .. code-block:: python
+
+            # Example usage
+            from pawnlib.config import change_propagate_setting, LoggerFactory
+
+            # Create some loggers
+            app_logger = LoggerFactory.create_app_logger(log_type='console', verbose=1, app_name='MyApp')
+            pawn_logger = LoggerFactory.get_logger('pawnlib.utils', verbose=2)
+            third_logger = LoggerFactory.get_logger('external.lib', verbose=1)
+
+            # Change propagation for all loggers
+            change_propagate_setting(propagate=False, propagate_scope='all', log_level=20)
+            app_logger.info("No propagation")
+            # Output:
+            # [INF] <MyApp:XX> No propagation
+
+            # Change propagation for pawnlib loggers only
+            change_propagate_setting(propagate=True, propagate_scope='pawnlib', pawnlib_level=10, third_party_level=30)
+            pawn_logger.debug("Pawnlib debug with propagation")
+            third_logger.debug("Third-party debug suppressed")
+            # Output:
+            # [DBG] <pawnlib.utils:XX> Pawnlib debug with propagation
     """
     valid_scopes = ['all', 'pawnlib', 'third_party']
     if propagate_scope not in valid_scopes:
-        raise ValueError(f"Invalid propagate_scope: {propagate_scope}. Choose from 'all', 'pawnlib', 'third_party'.")
+        raise ValueError(f"Invalid propagate_scope: {propagate_scope}")
 
     for logger_name, logger_instance in logging.Logger.manager.loggerDict.items():
         if isinstance(logger_instance, logging.Logger):
+            # Propagate 설정
             if propagate_scope == 'all':
                 logger_instance.propagate = propagate
+                level = log_level
             elif propagate_scope == 'pawnlib':
-                if logger_name.startswith('pawnlib'):
-                    logger_instance.propagate = propagate
-                else:
-                    logger_instance.propagate = not propagate
+                logger_instance.propagate = propagate if logger_name.startswith('pawnlib') else not propagate
+                level = pawnlib_level if logger_name.startswith('pawnlib') else third_party_level
             elif propagate_scope == 'third_party':
-                if not logger_name.startswith('pawnlib'):
-                    logger_instance.propagate = propagate
-                else:
-                    logger_instance.propagate = not propagate
+                logger_instance.propagate = propagate if not logger_name.startswith('pawnlib') else not propagate
+                level = third_party_level if not logger_name.startswith('pawnlib') else pawnlib_level
 
+            if level is not None:
+                logger_instance.setLevel(level)
+                if logger_name.startswith('pawnlib'):
+                    pawn.console.log(f"logger_name={logger_instance}, level={level}")
+                for handler in logger_instance.handlers:
+                    handler.setLevel(level)
+
+
+create_app_logger = LoggerFactory.create_app_logger
+# setup_app_logger = LoggerFactory.create_app_logger

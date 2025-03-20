@@ -6,7 +6,7 @@ from aiohttp import ClientSession
 import aiofiles
 import json
 from dotenv import load_dotenv, find_dotenv
-from pawnlib.config import pawn, setup_logger, setup_app_logger as _setup_app_logger
+from pawnlib.config import pawn, setup_logger, setup_app_logger as _setup_app_logger, create_app_logger
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.resource.monitor import SSHMonitor
@@ -317,38 +317,38 @@ def load_environment_settings(args) -> dict:
     return settings
 
 
-def setup_app_logger(log_type: str = 'console', verbose: int = 0, app_name: str = ""):
-    """Sets up the logger based on the selected type (console or file)."""
-    log_time_format = '%Y-%m-%d %H:%M:%S.%f'
-
-    if log_type == 'file':
-        stdout_value =str2bool( not IS_DOCKER and (verbose > 1))
-        # pawn.console.log(f"stdout_value={stdout_value}")
-        pawn.set(
-            PAWN_LOGGER=dict(
-                log_level="INFO",
-                stdout_level="INFO",
-                # stdout=verbose > 1,
-                stdout=stdout_value,
-                log_format="[%(asctime)s] %(levelname)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s",
-                std_log_format="%(message)s",
-                use_hook_exception=True,
-                use_clean_text_filter=True,
-            ),
-            PAWN_TIME_FORMAT=log_time_format,
-            PAWN_CONSOLE=dict(
-                redirect=True,
-                record=True
-            ),
-            app_name=app_name,
-            data={}
-        )
-        pawn.console.log(pawn.to_dict())
-        _logger = pawn.app_logger
-    else:
-        _logger = pawn.console  # Use pawn's built-in console logger
-
-    return setup_logger(_logger, f"Monitoring {app_name}", verbose)
+# def setup_app_logger(log_type: str = 'console', verbose: int = 0, app_name: str = ""):
+#     """Sets up the logger based on the selected type (console or file)."""
+#     log_time_format = '%Y-%m-%d %H:%M:%S.%f'
+#
+#     if log_type == 'file':
+#         stdout_value =str2bool( not IS_DOCKER and (verbose > 1))
+#         # pawn.console.log(f"stdout_value={stdout_value}")
+#         pawn.set(
+#             PAWN_LOGGER=dict(
+#                 log_level="INFO",
+#                 stdout_level="INFO",
+#                 # stdout=verbose > 1,
+#                 stdout=stdout_value,
+#                 log_format="[%(asctime)s] %(levelname)s::" "%(filename)s/%(funcName)s(%(lineno)d) %(message)s",
+#                 std_log_format="%(message)s",
+#                 use_hook_exception=True,
+#                 use_clean_text_filter=True,
+#             ),
+#             PAWN_TIME_FORMAT=log_time_format,
+#             PAWN_CONSOLE=dict(
+#                 redirect=True,
+#                 record=True
+#             ),
+#             app_name=app_name,
+#             data={}
+#         )
+#         pawn.console.log(pawn.to_dict())
+#         _logger = pawn.app_logger
+#     else:
+#         _logger = pawn.console  # Use pawn's built-in console logger
+#
+#     return setup_logger(_logger, f"Monitoring {app_name}", verbose)
 
 
 def merge_environment_settings(args):
@@ -462,25 +462,6 @@ class WalletStateTracker:
             k: {"old": old[k], "new": new[k]}
             for k in new if old.get(k) != new.get(k)
         }
-
-
-# async def worker(rpc, address):
-#     import time
-#     async with rpc.semaphore:
-#         start = time.time()
-#         balance = await rpc.get_balance(address)
-#         stake = await rpc.get_stake(address)
-#         bond = await rpc.get_bond(address)
-#         delegation = await rpc.get_delegation(address)
-#         elapsed = time.time() - start
-#         result = {
-#             "balance": balance,
-#             "stake": stake,
-#             "bond": bond,
-#             "delegation": delegation
-#         }
-#         pawn.console.log(f"Task {address} => {result} completed in {elapsed:.2f}s | {rpc.concurrency_usage}")
-#         return balance
 
 import datetime
 from pawnlib.utils.http import AsyncIconRpcHelper
@@ -714,14 +695,14 @@ def run_wallet_client_with_websocket(args, logger):
         async with ClientSession() as session:
             websocket_client = AsyncGoloopWebsocket(
                 url=settings['endpoint_url'],
-                verbose=int(settings['verbose']),
+                verbose=int(settings['verbose']) > 2,
                 ignore_data_types=settings['ignore_data_types'],
                 check_tx_result_enabled=settings['check_tx_result_enabled'],
                 address_filter=settings['address_filter'],
                 send_slack=settings['send_slack'],
                 max_transaction_attempts=int(settings['max_transaction_attempts']),
                 slack_webhook_url=settings['slack_webhook_url'],
-                logger=logger,
+                # logger=logger,
                 session=session,
                 network_info=network_info,
                 max_retries=settings['max_retries'],
@@ -849,14 +830,15 @@ def run_compose_init(args, logger, parser):
     logger.info("Docker Compose file saved successfully.")
 
 
-def initialize_logger(settings):
-    """Set up the logger based on the command and its log type."""
-    app_name = f"{settings.get('command')}_watcher"
-    pawn.console.log(app_name)
-    # return setup_app_logger(log_type=settings.get('log_type'), verbose=settings.get('verbose'), app_name=app_name)
-    _setup_app_logger(log_type=settings.get('log_type'), verbose=settings.get('verbose'), app_name=app_name)
-
-    return logging.getLogger(__name__)
+# def initialize_logger(settings):
+#     """Set up the logger based on the command and its log type."""
+#     app_name = f"{settings.get('command')}_watcher"
+#     return create_app_logger(
+#         app_name=f"{settings.get('command')}_watcher",
+#         log_type=settings.get('log_type'),
+#         verbose=settings.get('verbose'),
+#         propagate=False,
+#     )
 
 
 def main():
@@ -882,7 +864,22 @@ def main():
     # print_var(settings)
 
     if settings.get('command'):
-        logger = initialize_logger(settings)
+        # logger = initialize_logger(settings)
+        logger = create_app_logger(
+            app_name=f"{settings.get('command')}_watcher",
+            log_type=settings.get('log_type'),
+            verbose=settings.get('verbose'),
+            propagate=False,
+        )
+
+        # logger = LoggerFactory.setup_app_logger(
+        #     log_type='both',
+        #     verbose=2,
+        #     app_name='my_app',
+        #     log_path='./logs'
+        # )
+        logger.info(f"Running command: '{settings['command']}'")
+
     else:
         logger = None
 
@@ -907,6 +904,7 @@ def main():
             icon_emoji=":start-button:",
             # async_mode=False
         )
+
     # # 예외 발생 시 슬랙으로 에러 알림을 전송하는 부분
     # tb_str = "".join(traceback.format_exception(type(e), e, e.__traceback__))
     # send_slack(
@@ -919,7 +917,6 @@ def main():
     #     msg_level="error",
     #     icon_emoji=":alert:"
     # )
-
     try:
         if args.command == "ssh":
             pawn.console.log(f"Starting SSH monitoring with files: {args.file}")

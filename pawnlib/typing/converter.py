@@ -3302,6 +3302,55 @@ def shorten_text(
         # Default behavior: shorten from the right
         return f"{_origin_text[:max_length]}{placeholder}"
 
+def get_shortened_tx_hash(input_data=None, width=14, placeholder="..", shorten_middle=True):
+    """
+    Extracts and shortens a transaction hash from a dictionary or shortens a provided string.
+
+    Args:
+        input_data (dict or str, optional): Input data containing a txHash (dict) or a string to shorten.
+        width (int): Maximum length of the shortened text (default: 14).
+        placeholder (str): String to insert in the shortened text (default: "..").
+        shorten_middle (bool): Whether to shorten the middle of the text (default: True).
+
+    Returns:
+        str: Shortened transaction hash in the format "<shortened_text>" or None if invalid input.
+
+
+    Example:
+
+        .. code-block:: python
+
+            from pawnlib.typing.converter import get_shortened_tx_hash
+
+            # Example usage
+            payload = {"params": {"txHash": "0x1234567890abcdef1234567890abcdef12345678"}}
+            print(get_shortened_tx_hash(payload))  # Output: <0x1234..5678>
+
+            # Test with string
+            tx_string = "0xabcdef1234567890abcdef1234567890abcdef12"
+            print(get_shortened_tx_hash(tx_string))  # Output: <0xabc..ef12>
+
+            # Test with invalid input
+            print(get_shortened_tx_hash(None))  # Output: None
+
+
+    """
+    if isinstance(input_data, dict):
+        if not input_data.get("params"):
+            return None
+        tx_hash = input_data["params"].get("txHash")
+        if not tx_hash:
+            return None
+
+    elif isinstance(input_data, str):
+        tx_hash = input_data
+
+    else:
+        return None
+
+    shortened = shorten_text(tx_hash, width=width, placeholder=placeholder, shorten_middle=shorten_middle)
+    return f"<{shortened}>"
+
 
 def remove_ascii_and_tags(text: str = "", case_sensitive: Literal["lower", "upper", "both"] = "lower"):
     text = remove_ascii_color_codes(text)

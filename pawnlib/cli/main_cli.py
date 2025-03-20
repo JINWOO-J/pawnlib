@@ -161,7 +161,8 @@ def main():
         pawn.console.debug(f"===== command={command}")
         cleanup_args()
     except Exception as e:
-        pawn.console.debug(f"[red]Exception while parsing an argument = {e}")
+        pawn.console.log(f"[red]Exception while parsing an argument = {e}")
+        pawn.console.print_exception(show_locals=pawn.get("PAWN_DEBUG", False), width=160)
     pawn.console.debug(f"command={command}, parser={parser}, args={args}")
 
     if command:

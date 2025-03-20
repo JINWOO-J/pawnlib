@@ -542,7 +542,7 @@ class LoggingConstants:
         0: logging.WARNING,
         1: logging.INFO,
         2: logging.DEBUG,
-        # 3: 15
+        3: 5
     }
 
     VERBOSE_LEVEL_STRINGS = {
@@ -551,7 +551,7 @@ class LoggingConstants:
         0: "WARNING",
         1: "INFO",
         2: "DEBUG",
-        # 3: "TRACE",
+        3: "TRACE",
     }
 
     LOG_LEVELS = {
@@ -560,7 +560,7 @@ class LoggingConstants:
         "WARNING": logging.WARNING,
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
-        # "TRACE": 15,
+        "TRACE": 5,
     }
 
     LEVEL_NAMES = {v: k for k, v in LOG_LEVELS.items()}
@@ -698,6 +698,71 @@ class OperatorConstants:
         return operator in cls.ALLOW_OPERATOR
 
 
+class SecretPatternConstants:
+    """Constants for detecting secret keys and tokens in text."""
+    SECRET_PATTERNS = {
+        "slack_token": r"xox[bp]-[0-9]{10,}-[a-zA-Z0-9]{20,}",
+        "aws_access_key": r"AKIA[0-9A-Z]{16}",
+        "aws_secret_key": r"\b[A-Za-z0-9+/]{40}\b",
+        "generic_key": r"(?:key|token|secret)\s*=\s*['\"]?[a-zA-Z0-9\-]{20,}['\"]?",
+        "github_pat": r"ghp_[0-9A-Za-z]{36}",
+        "google_api_key": r"AIza[0-9A-Za-z-_]{35}",
+        "stripe_api_key": r"(sk|pk|rk)_[live|test]_[0-9A-Za-z]{24}",
+        "jwt_token": r"eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+",
+        "ssh_private_key": r"-----BEGIN (RSA|OPENSSH|EC) PRIVATE KEY-----[\s\S]+-----END (RSA|OPENSSH|EC) PRIVATE KEY-----",
+        "db_connection_string": r"(mysql|postgres|mongodb|redis)://[a-zA-Z0-9_]+:[a-zA-Z0-9_]+@[a-zA-Z0-9\-.]+:\d+(/[a-zA-Z0-9_]+)?",
+        "discord_bot_token": r"[A-Za-z0-9]{24}\.[A-Za-z0-9]{6}\.[A-Za-z0-9-_]{27}",
+        "twilio_api_key": r"SK[0-9a-f]{32}",
+        # "general_api_key": r"[A-Za-z0-9]{32,64}",
+        "general_api_key": r"(?!hx|cx)[A-Za-z0-9]{32,64}",
+        "env_style_key": r"[A-Z_]+_KEY=[A-Za-z0-9\-]{20,}"
+    }
+
+    SECRET_DESCRIPTIONS = {
+        "slack_token": "Slack API Token (Bot or User)",
+        "aws_access_key": "AWS Access Key ID",
+        "aws_secret_key": "AWS Secret Access Key",
+        "generic_key": "Generic key, token, or secret pattern",
+
+        "github_pat": "GitHub Personal Access Token",
+        "google_api_key": "Google API Key",
+        "stripe_api_key": "Stripe API Key (Secret, Publishable, or Restricted)",
+        "jwt_token": "JSON Web Token (JWT)",
+        "ssh_private_key": "SSH Private Key (RSA, OpenSSH, or EC)",
+        "db_connection_string": "Database Connection String (MySQL, PostgreSQL, MongoDB, Redis)",
+        "discord_bot_token": "Discord Bot Token",
+        "twilio_api_key": "Twilio API Secret Key",
+        "general_api_key": "General-purpose API Key (32-64 characters)",
+        "env_style_key": "Environment Variable Style Key (e.g., API_KEY=xxx)"
+    }
+
+    @classmethod
+    def get_pattern(cls, secret_type: str) -> str:
+        """
+        Retrieve the regex pattern for the specified secret type.
+        :param secret_type: Type of secret (e.g., 'slack_token').
+        :return: Regex pattern string.
+        """
+        return cls.SECRET_PATTERNS.get(secret_type, "")
+
+    @classmethod
+    def get_description(cls, secret_type: str) -> str:
+        """
+        Retrieve the description for the specified secret type.
+        :param secret_type: Type of secret (e.g., 'slack_token').
+        :return: Description string.
+        """
+        return cls.SECRET_DESCRIPTIONS.get(secret_type, "Unknown secret type")
+
+    @classmethod
+    def list_patterns(cls) -> dict:
+        """
+        Return all secret patterns and their descriptions.
+        :return: Dictionary of patterns and descriptions.
+        """
+        return {key: {"pattern": cls.SECRET_PATTERNS[key], "description": cls.SECRET_DESCRIPTIONS[key]}
+                for key in cls.SECRET_PATTERNS}
+
 class AllConstants(
     ICONPRepStatus,
     ICONJailFlags,
@@ -724,7 +789,8 @@ class AllConstants(
     YesNoConstants,
     LoggingConstants,
     HTTPMethodConstants,
-    OperatorConstants
+    OperatorConstants,
+    SecretPatternConstants,
 ):
     __slots__ = ()
 
