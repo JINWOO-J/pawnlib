@@ -1,8 +1,10 @@
 import redis
 import json
-from pawnlib.config import ConsoleLoggerAdapter
+from pawnlib.config.logging_config import  ConsoleLoggerAdapter, LoggerMixinVerbose
+from pawnlib.output import print_var
 
-class RedisHelper:
+
+class RedisHelper(LoggerMixinVerbose):
     def __init__(self, host='localhost', port=6379, db=0, logger=None, verbose=False):
         """
         Initialize RedisHelper with Redis connection details.
@@ -12,7 +14,10 @@ class RedisHelper:
         :param logger: Custom logger instance (optional). If None, a default logger will be created.
         :param verbose: If True, enables verbose logging.
         """
-        self.logger = ConsoleLoggerAdapter(logger, "RedisHelper", verbose > 0)
+        self.init_logger(logger, verbose)
+        self.logger.info("Connecting to Redis server %s:%d" % (host, port))
+        # self.logger = ConsoleLoggerAdapter(logger, "RedisHelper", verbose > 0)
+        # self.logger = self.get_logger() if logger is None else logger
 
         try:
             self.client = redis.StrictRedis(host=host, port=port, db=db)

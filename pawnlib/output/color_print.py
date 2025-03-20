@@ -12,6 +12,7 @@ from pawnlib.typing import (
     converter, date_utils, list_to_oneline_string, const, is_include_list, remove_tags,
     remove_ascii_color_codes, timestamp_to_string, is_hex, is_json
 )
+from pawnlib.models.response import json_default_serializer
 from pawnlib.config import pawnlib_config as pawn, global_verbose
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -812,6 +813,8 @@ def pretty_json(obj, syntax=True, rich_syntax=False, style="one-dark", line_inde
     if syntax and isinstance(kwargs, dict):
         kwargs.setdefault("indent", 4)
         line_indent = " " * 4 if not line_indent else line_indent
+
+    kwargs.setdefault("default", json_default_serializer)
 
     def json_to_string(_obj):
         if isinstance(_obj, str):

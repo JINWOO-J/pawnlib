@@ -42,7 +42,7 @@ __epilog__ = (
     "  - Use the --help flag for a full list of options and their descriptions.\n\n"
 )
 
-VALID_COMMANDS = ["sync", "cp", "ls", "rm"]
+VALID_COMMANDS = ["sync", "cp", "ls", "rm", "info"]
 
 
 def get_parser():
@@ -93,6 +93,9 @@ def get_arguments(parser):
     rm_parser.add_argument('--recursive', action='store_true', help='Remove recursively')
     rm_parser.add_argument('--dry-run', action='store_true', help='Dry run mode')
     rm_parser.add_argument('--pattern', type=str, help='Pattern to match objects')
+
+    # Info command
+    info_parser = subparsers.add_parser('info', help='Show S3 bucket info')
 
     return parser
 
@@ -220,13 +223,13 @@ def main():
             if not bucket:
                 sys_exit("Please provide a valid S3 path to list.")
             pawn.console.rule("[bold green]Bucket Contents: {bucket}[/bold green]")
-            s3_lister = S3Lister(profile_name=args.profile, bucket_name=bucket)
+            s3_lister = S3Lister(profile_name=args.profile, bucket_name=bucket, verbose=args.verbose)
             s3_lister.print_config()
             s3_lister.ls(prefix=prefix, recursive=args.recursive)
         else:
             from rich.table import Table
             pawn.console.rule("[bold cyan]Available Buckets[/bold cyan]")
-            buckets = S3Lister(args.profile).list_buckets()
+            buckets = S3Lister(profile_name=args.profile, verbose=args.verbose).list_buckets()
 
             # Create a Rich table to display bucket names
             table = Table(show_header=True, header_style="bold magenta")
@@ -251,6 +254,10 @@ def main():
         )
         uploader.print_config()
         uploader.delete_objects(pattern=args.pattern, max_workers=args.max_workers)
+
+    elif args.command == 'info':
+        s3_lister = S3Lister(profile_name=args.profile, verbose=args.verbose)
+        s3_lister.debug_info()        # s3_lister.info()
 
     else:
         parser.print_help()

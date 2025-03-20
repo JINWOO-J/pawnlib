@@ -9,7 +9,7 @@ from datetime import datetime
 from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn, TimeRemainingColumn,  DownloadColumn
 from boto3.s3.transfer import TransferConfig
 from botocore.exceptions import ClientError
-from pawnlib.config import pawn, setup_app_logger, LoggerMixin
+from pawnlib.config import pawn, setup_app_logger, LoggerMixin, LoggerMixinVerbose
 from pawnlib.typing import sys_exit, extract_values_in_list, mask_string, convert_bytes
 from botocore.client import Config
 from botocore.exceptions import ClientError as BotoClientError
@@ -200,7 +200,7 @@ class ProgressCallback:
             self.last_update_time = current_time
 
 
-class S3ClientBase(LoggerMixin):
+class S3ClientBase(LoggerMixinVerbose):
     def __init__(self,
                  bucket_name="",
                  profile_name=None,
@@ -210,7 +210,10 @@ class S3ClientBase(LoggerMixin):
                  overwrite=False,
                  dry_run=False,
                  use_dynamic_config=False,
+                 verbose=0,
+                 logger=None,
                  ):
+        self.init_logger(verbose=verbose, logger=logger)
         self.access_key = access_key or os.environ.get('AWS_ACCESS_KEY_ID')
         self.secret_key = secret_key or os.environ.get('AWS_SECRET_ACCESS_KEY')
         self.endpoint_url = endpoint_url or os.environ.get('AWS_ENDPOINT_URL') or os.environ.get('S3_ENDPOINT_URL')
@@ -278,7 +281,6 @@ class S3ClientBase(LoggerMixin):
         #     multipart_chunksize=1024# 8MB
         # )
 
-
     def bucket_exists(self):
         """Check if the bucket exists."""
         try:
@@ -287,7 +289,6 @@ class S3ClientBase(LoggerMixin):
         except Exception as e:
             logger.error(f"[bold red]Bucket {self.bucket_name} does not exist: {e}[/bold red]")
             return False
-
 
     def print_config(self):
         config_tree = Tree("Uploader Configuration")

@@ -1,5 +1,6 @@
 import struct
 from decimal import Decimal, InvalidOperation, getcontext, ROUND_DOWN
+from datetime import datetime, date
 from pawnlib.typing.constants import const
 from pawnlib.config import pawn
 import re
@@ -128,7 +129,7 @@ class HexValue:
             else:
                 raise ValueError("Invalid input: must be a valid hex string, int, or float.")
             # Convert numeric value to "tint" based on a constant conversion factor
-            if self.numeric > 0:
+            if self.numeric != 0:
                 self.tint = self.numeric / const.ICX_IN_LOOP
             else:
                 self.tint = 0
@@ -272,7 +273,7 @@ class HexValue:
             return text
 
     def get_tag_if_balance(self, value="", color="gold3"):
-        if self.decimal > 0:
+        if self.decimal != 0:
             return f"[{color}]{value}[/{color}]"
         else:
             return self.decimal
@@ -948,3 +949,35 @@ class CriticalText:
             new_limits (dict): New limits dictionary.
         """
         self.limits.update(new_limits)
+
+
+def json_default_serializer(obj):
+    """
+    A default JSON serializer function to handle non-serializable objects.
+
+    Example usage:
+        json.dumps(data, default=json_default_serializer)
+
+    1) HexValue objects: use `.output()`.
+    2) Date/time objects: use `isoformat()`.
+    3) If an object has `__json__()` or `to_dict()`, call it.
+    4) Otherwise, return str(obj) (or raise TypeError if you want strict handling).
+    """
+
+    # 1) Handle HexValue
+    if isinstance(obj, HexValue):
+        return obj.output()
+
+    # 2) Handle date/datetime
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+
+    # 3) Check for other serialization methods
+    if hasattr(obj, "__json__") and callable(obj.__json__):
+        return obj.__json__()
+    if hasattr(obj, "to_dict") and callable(obj.to_dict):
+        return obj.to_dict()
+
+    # 4) Fallback for unknown types
+    #    (You could raise TypeError instead if you want stricter behavior)
+    return str(obj)

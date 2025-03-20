@@ -11,7 +11,7 @@ from datetime import datetime
 from pawnlib.exceptions.notifier import notify_exception
 
 from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose, pconf, SimpleNamespace, Null
-from pawnlib.config.logging_config import ConsoleLoggerAdapter, setup_logger, LoggerMixin
+from pawnlib.config.logging_config import ConsoleLoggerAdapter, setup_logger, LoggerMixin, LoggerMixinVerbose
 from pawnlib.output import (
     NoTraceBackException,
     dump, syntax_highlight, kvPrint, debug_logging,
@@ -22,7 +22,8 @@ from pawnlib.typing import date_utils
 from pawnlib.typing.converter import (
     append_suffix, append_prefix, hex_to_number, FlatDict, Flattener, FlatterDict, flatten, shorten_text, StackList,
     replace_path_with_suffix, format_text, format_link, remove_ascii_and_tags, list_to_dict_by_key,
-    HexConverter
+    get_shortened_tx_hash,
+    HexConverter,
 )
 from pawnlib.typing.constants import const
 from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
@@ -513,7 +514,7 @@ class IconRpcTemplates:
         return self._params_hint
 
 
-class IconRpcHelper(LoggerMixin):
+class IconRpcHelper(LoggerMixinVerbose):
     def __init__(self, url="", wallet=None, network_info: NetworkInfo = None, raise_on_failure=True, debug=False,
                  required_sign_methods=None, wait_sleep=1, tx_method="icx_getTransactionResult", logger=None,
                  margin_steps=0, verbose=0, use_hex_value=False, **kwargs):
@@ -528,7 +529,13 @@ class IconRpcHelper(LoggerMixin):
         self.tx_method = tx_method
 
         # self.logger = setup_logger(logger, "IconRpcHelper", verbose)
-        self.logger = self.get_logger()
+        # self.logger = self.get_logger()
+
+        # super().__init__()
+
+        self.init_logger(logger=logger, verbose=verbose)
+
+        # print_var(self.logger)
 
         self.margin_steps = margin_steps
         self.use_hex_value = use_hex_value
@@ -1288,7 +1295,7 @@ class IconRpcHelper(LoggerMixin):
 
             # Check if max_attempts is reached
             if max_attempts is not None and count >= max_attempts:
-                error_message = f"Reached maximum attempts ({max_attempts}) for transaction {shorten_text(tx_hash)}"
+                error_message = f"Reached maximum attempts ({max_attempts}) for transaction {get_shortened_tx_hash(tx_hash)}"
 
                 detailed_message = (
                     f"{error_message}.\n"
@@ -1688,7 +1695,7 @@ class IconRpcHelper(LoggerMixin):
         else:
             pawn.console.log(f"[WARNING] Remaining balance is more than expected: {remaining_balance_icx:.18f} ICX ({remaining_balance_loop} LOOP)")
 
-    def send_all_icx(self, to_address, fee=None, step_limit=None, min_balance=0, margin_steps=0, max_attempts=None):
+    def send_all_icx(self, to_address, fee=None, step_limit=None, min_balance=0, margin_steps=0, max_attempts=None, dry_run=False):
         """
         Transfer all available ICX from the wallet to the specified address, accounting for transaction fees.
         This version uses float instead of Decimal for comparison and calculations.
@@ -1729,13 +1736,8 @@ class IconRpcHelper(LoggerMixin):
 
         from_address = self.get_wallet_address()
         self.logger.info(f"Starting ICX transfer from [bold]{from_address}[/bold] to [bold]{to_address}[/bold]")
-
-        # Fetch balance in LOOP (smallest ICX unit)
-        balance_hex = self.get_balance(return_as_hex=True)
-        balance_loop = int(balance_hex, 16)
-        balance_icx = balance_loop / const.ICX_IN_LOOP  # Convert to ICX using float
-        self.logger.info(f"Sender Address: {from_address}")
-        self.logger.info(f"Current Balance: {balance_icx} ICX ({balance_loop} LOOP)")
+        balance_hex = self.get_balance(return_as_hex=True, use_hex_value=True)
+        self.logger.info(f"{from_address}'s Balance: {balance_hex}")
 
         # Prepare transaction payload
         payload = json_rpc(
@@ -1745,28 +1747,31 @@ class IconRpcHelper(LoggerMixin):
                 "to": to_address,
             }
         )
-        estimated_fee_icx = self.preview_transaction_fee(payload, margin_steps=margin_steps, use_decimal=False)
-        transaction_fee_icx = fee if fee is not None else estimated_fee_icx
-        transaction_fee_loop = int(transaction_fee_icx * const.ICX_IN_LOOP)
-        self.logger.info(f"Transaction Fee: {transaction_fee_icx} ICX ({transaction_fee_loop} LOOP)")
+        estimated_fee = self.preview_transaction_fee(payload, margin_steps=margin_steps, use_decimal=False, use_hex_value=True)
+        transaction_fee = fee if fee is not None else estimated_fee
 
-        min_balance_loop = int(min_balance * const.ICX_IN_LOOP)
-        total_required_loop = transaction_fee_loop + min_balance_loop
-        total_required_icx = transaction_fee_icx + min_balance
+        self.logger.info(f"Transaction Fee: {transaction_fee} ")
 
-        self.logger.debug(f"Minimum Balance to Keep: {min_balance} ICX ({min_balance_loop} LOOP)")
-        self.logger.debug(f"Total Required (Fee + Min Balance): {total_required_icx} ICX ({total_required_loop} LOOP)")
+        min_balance = HexValue(min_balance * const.ICX_IN_LOOP)
+        total_required = transaction_fee + min_balance
+
+        self.logger.info(f"Minimum Balance to Keep: {min_balance} ")
+        self.logger.info(f"Total Required (Fee + Min Balance): {total_required}")
 
         # Calculate the transfer amount
-        transfer_amount_loop = balance_loop - total_required_loop
-        transfer_amount_icx = transfer_amount_loop / const.ICX_IN_LOOP  # Convert to ICX using float
+        transfer_amount = balance_hex  - total_required
+        self.logger.info(f"Transfer amount = {transfer_amount}")
 
-        if transfer_amount_loop <= 0:
+        if transfer_amount <= 0:
             raise ValueError(f"Insufficient balance to cover transaction fee and minimum balance. "
-                             f"Available: {balance_icx} ICX, Required: {total_required_icx} ICX")
-        self.logger.info(f"Transfer Amount: {transfer_amount_icx} ICX ({transfer_amount_loop} LOOP)")
-        payload['params']['value'] = hex(transfer_amount_loop)
-        self.logger.debug(f"Final Payload for Transaction: {payload}")
+                             f"Available: {transfer_amount.tint} ICX, Required: {total_required.tint} ICX")
+
+        payload['params']['value'] = transfer_amount.hex
+        self.logger.info(f"Final Payload for Transaction: {payload}")
+
+        if dry_run:
+            pawn.console.rule("---- DRY-RUN----")
+            return
 
         try:
             self.sign_tx(payload=payload, step_limit=step_limit)
@@ -1776,16 +1781,13 @@ class IconRpcHelper(LoggerMixin):
             self.logger.error(f"Transaction failed: {e}")
             raise
 
-        remaining_balance_hex = self.get_balance(return_as_hex=True)
-        remaining_balance_loop = int(remaining_balance_hex, 16)
-        remaining_balance_icx = remaining_balance_loop / const.ICX_IN_LOOP  # Convert to ICX using float
-        self.logger.info(f"Remaining Balance: {remaining_balance_icx} ICX ({remaining_balance_loop} LOOP)")
+        remaining_balance = self.get_balance(return_as_hex=True, use_hex_value=True)
+        self.logger.info(f"Remaining Balance: {remaining_balance}")
 
-        # Verify if the remaining balance is within the acceptable range
-        if remaining_balance_loop <= min_balance_loop:
+        if remaining_balance <= min_balance:
             self.logger.info(f"Remaining balance is within acceptable range.")
         else:
-            self.logger.warn(f"Remaining balance is more than expected: {remaining_balance_icx} ICX ({remaining_balance_loop} LOOP)")
+            self.logger.warn(f"Remaining balance is more than expected: {remaining_balance}")
 
     def set_stake(self, url=None, step_limit=None, is_wait=True, value="",  return_key="result"):
         if not is_hex(value):
@@ -1861,7 +1863,7 @@ class IconRpcHelper(LoggerMixin):
         pawn.console.log(f"Diff : {delegated_difference_tint:,} ICX")
 
         delegation_target_address = ""
-        delegation_target_value = ""
+        delegation_target_value = "0x0"
         print_var(delegation_info)
         if delegation_raw and isinstance(delegation_raw, list):
             delegation_target_address = delegation_raw[0].get('address')
@@ -1886,7 +1888,7 @@ class IconRpcHelper(LoggerMixin):
             delegated_difference_hex = hex(int(delegated_difference_decimal))
             pawn.console.log(f"{delegated_difference_tint:,} ICX, {delegated_difference_decimal}, {delegated_difference_hex}")
 
-    def stake_all_icx(self, fee=None, step_limit=None, min_balance=0, margin_steps=0):
+    def stake_all_icx(self, fee=None, step_limit=None, min_balance=0, margin_steps=0, dry_run=False):
         """
         Stake all available ICX, accounting for transaction fees, using float for calculations.
 
@@ -1966,9 +1968,14 @@ class IconRpcHelper(LoggerMixin):
         pawn.console.log(f"Available Staking Amount :  {available_staking_amount.output()}")
         pawn.console.log(f"Final Staking Amount:  {final_staking_amount.output()}")
 
+        if dry_run:
+            pawn.console.rule("---- DRY-RUN----")
+            return
+
         # If the staking amount is less than or equal to zero, raise an error
-        if final_staking_amount <= 0:
-            raise ValueError("Insufficient balance to cover transaction fee and minimum balance for staking.")
+        if available_staking_amount <= 0:
+            raise ValueError(f"Insufficient balance to cover transaction fee and minimum balance for staking. Balance: {current_balance.tint} ICX,"
+                             f" Available Staking Amount: {available_staking_amount.tint} ICX")
 
         # Update the payload with the final staking amount
         payload['params']['data']['params']['value'] = final_staking_amount.hex  # Convert ICX to LOOP
@@ -3066,7 +3073,7 @@ class GoloopWebsocket(CallWebsocket):
             return resp
 
 
-class AsyncCallWebsocket(LoggerMixin):
+class AsyncCallWebsocket(LoggerMixinVerbose):
     def __init__(
             self,
             url: str,
@@ -3114,7 +3121,9 @@ class AsyncCallWebsocket(LoggerMixin):
 
         # self.logger = ConsoleLoggerAdapter(logger, "AsyncCallWebsocket", verbose > 0)
         # self.logger = setup_logger(logger, "pawnlib.http.AsyncCallWebsocket", verbose)
-        self.logger = logger or self.get_logger()
+        # self.logger = logger or self.get_logger()
+
+        self.init_logger(logger, verbose)
 
         if ssl_options is None:
             self.ssl_options = ssl.create_default_context()
@@ -3405,9 +3414,9 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         self.max_transaction_attempts = max_transaction_attempts
         self.check_tx_result_enabled = check_tx_result_enabled
 
-        # self.logger = setup_logger(logger, "pawnlib.http.AsyncGoloopWebsocket", verbose)
-        self.logger = logger or self.get_logger()
+        self.init_logger(logger, verbose)
         self.logger.info("Start AsyncGoloopWebsocket")
+
         self.preps_refresh_interval = preps_refresh_interval
         self.use_shorten_tx_hash = use_shorten_tx_hash
         self.bps_interval = bps_interval
@@ -3527,6 +3536,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
         elif blockheight == 0:
             self.blockheight = latest_blockheight
             self.logger.info(f"Starting from the most recent block height: {self.blockheight}")
+            self.write_last_processed_blockheight(self.SLACK_BLOCKHEIGHT_FILE, latest_blockheight)
         else:
             self.blockheight = self.read_last_processed_blockheight(self.BLOCKHEIGHT_FILE)
 
@@ -3539,6 +3549,18 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
 
             elif self.blockheight:
                 self.logger.info(f"Resuming from last processed block height: {self.blockheight}")
+
+                if isinstance(latest_blockheight, int) and isinstance(self.blockheight, int):
+                    difference = abs(latest_blockheight - self.blockheight)
+                    threshold = 100
+                    if difference > threshold:
+                        self.logger.warning(f"⚠️⚠️ Latest blockheight = {latest_blockheight} ⛓️, "
+                                            f"Current blockheight = {self.blockheight} ⛓️, "
+                                            f"Difference = {difference} 🚨 exceeds threshold {threshold} 📉")
+                    else:
+                        self.logger.info(f"✅ Latest blockheight = {latest_blockheight} ⛓️, "
+                                         f"Current blockheight = {self.blockheight} ⛓️, "
+                                         f"Difference = {difference} 😊")
             else:
                 self.blockheight = latest_blockheight
                 self.logger.info(f"No previous block height found. Starting from the latest block: {self.blockheight}")
@@ -3694,7 +3716,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
                 self.status_info['skip_start_block'] = block_height
 
             self.write_last_processed_blockheight(self.BLOCKHEIGHT_FILE, block_height)
-            self.logger.debug(f"⏩ Block {block_height} skipped to prevent duplicate processing")
+            self.logger.debug(f"⏩ Block {block_height} skipped to prevent duplicate processing, until last_slack_blockheight={last_slack_blockheight}")
             return  # Slack 전송 스킵
 
         if tx_hash:
@@ -3859,7 +3881,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             tx_hash = tx.get('txHash', "")
 
             if self.use_shorten_tx_hash:
-                shorten_tx_hash = f"<{shorten_text(tx_hash, width=6, placeholder='', truncate_side='left')}>"
+                shorten_tx_hash = get_shortened_tx_hash(tx_hash)
             else:
                 shorten_tx_hash = ""
 
@@ -4049,7 +4071,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
                 self.logger.error(f"Error sending Slack message: {e}")
 
 
-class AsyncIconRpcHelper(LoggerMixin):
+class AsyncIconRpcHelper(LoggerMixinVerbose):
     """
     A helper class for making asynchronous RPC calls to the ICON network.
     Provides methods to interact with the ICON blockchain, such as fetching blocks,
@@ -4105,31 +4127,39 @@ class AsyncIconRpcHelper(LoggerMixin):
             self,
             url: str = "",
             logger: Optional[Union[logging.Logger, Console, ConsoleLoggerAdapter, Null]] = None,
-            session=None,
+            session=aiohttp.ClientSession,
             verbose=True,
             timeout=10,
             retries=3,
             return_with_time: bool = False,
             max_concurrency: int = 20,
+            # loop=None,
             **kwargs
     ):
         self.url = url
         # self.logger = logger
         self.timeout = timeout
-        self.logger = setup_logger(logger, "pawnlib.http.AsyncIconRpcHelper", verbose=verbose)
+        # self.logger = setup_logger(logger, "pawnlib.http.AsyncIconRpcHelper", verbose=verbose)
+        self.init_logger(logger, verbose)
         # self.logger = self.get_logger()
         self.retries = retries
         self.return_with_time = return_with_time
         self.session = session
         self.max_concurrency = max_concurrency
         self.semaphore = asyncio.Semaphore(max_concurrency)
+        # self.loop = loop or asyncio.get_running_loop()
+        self._own_session = False
+
+        pawn.console.log(self.logger)
+
+        self.logger.info(f"----- Start AsyncIconRpcHelper with max_concurrency={self.max_concurrency}")
+        self.logger.debug(f"Initial session: {session}, closed={session.closed if session else 'None'}")
+
 
         self.connector = aiohttp.TCPConnector(
             limit=max_concurrency,
             ssl=kwargs.get('ssl', False)
         )
-
-        self.logger.debug("START")
 
     async def adjust_concurrency(self, new_max: int):
         """
@@ -4176,7 +4206,7 @@ class AsyncIconRpcHelper(LoggerMixin):
         await self.close()
 
     async def close(self):
-        if hasattr(self, 'session') and self.session:
+        if self._own_session and hasattr(self, 'session') and self.session:
             if not self.session.closed:
                 await self.session.close()
                 self.logger.debug("Session explicitly closed")
@@ -4198,25 +4228,56 @@ class AsyncIconRpcHelper(LoggerMixin):
     #         self.session = aiohttp.ClientSession()
     #     return self
 
-    async def initialize(self):
-        if not hasattr(self, 'connector'):
-            self.connector = aiohttp.TCPConnector(ssl=False)
+    # async def initialize(self):
+    #     if not hasattr(self, 'connector'):
+    #         self.connector = aiohttp.TCPConnector(ssl=False, loop=self.loop, limit=self.max_concurrency)
+    #
+    #     if not self.session or self.session.closed:
+    #         self.session = aiohttp.ClientSession(
+    #             connector=self.connector,
+    #             timeout=aiohttp.ClientTimeout(total=self.timeout),
+    #             loop=self.loop,
+    #         )
+    #         self._own_session = True
+    #         self.logger.debug("New session created with active connector")
+    #     else:
+    #         if self.connector.closed:
+    #             await self.session.close()
+    #             self.session = aiohttp.ClientSession(
+    #                 connector=self.connector,
+    #                 timeout=aiohttp.ClientTimeout(total=self.timeout),
+    #                 loop=self.loop,
+    #             )
+    #             self.logger.warning("Recreated session due to closed connector")
+    #     return self
 
+    # async def initialize(self):
+    #     if not self.session or self.session.closed:
+    #         # 외부 세션이 없거나 닫힌 경우에만 새 세션 생성
+    #         self.session = aiohttp.ClientSession(
+    #             connector=self.connector,
+    #             timeout=aiohttp.ClientTimeout(total=self.timeout),
+    #             loop=self.loop  # 전달된 루프 사용
+    #         )
+    #         self._own_session = True
+    #         self.logger.debug("New session created with provided loop")
+    #     else:
+    #         self._own_session = False  # 외부 세션 사용 시 소유권 없음
+    #         self.logger.debug("Using existing session from parent")
+
+    async def initialize(self):
+        self.logger.debug(f"[INIT START] Session={self.session}, closed={self.session.closed if self.session else 'None'}")
         if not self.session or self.session.closed:
             self.session = aiohttp.ClientSession(
                 connector=self.connector,
-                timeout=aiohttp.ClientTimeout(total=self.timeout)
+                timeout=aiohttp.ClientTimeout(total=self.timeout),
             )
-            self.logger.debug("New session created with active connector")
+            self._own_session = True
+            self.logger.debug(f"[INIT] Created new session")
         else:
-            if self.connector.closed:
-                await self.session.close()
-                self.session = aiohttp.ClientSession(
-                    connector=self.connector,
-                    timeout=aiohttp.ClientTimeout(total=self.timeout)
-                )
-                self.logger.warning("Recreated session due to closed connector")
-        return self
+            self._own_session = False
+            self.logger.debug("[INIT] Using existing session from parent")
+        self.logger.debug(f"[INIT END] Session={self.session}, own_session={self._own_session}")
 
     def _check_session(self):
         if not self.session or self.session.closed:
@@ -4236,7 +4297,7 @@ class AsyncIconRpcHelper(LoggerMixin):
             _url = self.url
         endpoint = append_api_v3(_url)
         if governance_address:
-            request_data = json.dumps({
+            request_data = {
                 "jsonrpc": "2.0",
                 "method": "icx_call",
                 "params": {
@@ -4248,14 +4309,14 @@ class AsyncIconRpcHelper(LoggerMixin):
                     }
                 },
                 "id": 1
-            })
+            }
         else:
-            request_data = json.dumps({
+            request_data = {
                 "jsonrpc": "2.0",
                 "method": method,
                 "params": params,
                 "id": 1
-            })
+            }
         return await self._make_request(
             http_method="post",
             endpoint=endpoint,
@@ -4266,10 +4327,12 @@ class AsyncIconRpcHelper(LoggerMixin):
         )
 
     async def fetch(self, path="", data="", http_method="get", url="", headers=None, return_key=None, return_on_error=True, return_first=False, list_index=None, retries=None):
+    # async with self.semaphore:
         if url:
             endpoint = append_http(url)
         else:
             endpoint = f"{remove_path_from_url(self.url)}{path}"
+        self.logger.debug(f"[FETCH START] {endpoint}, Session={self.session}")
 
         if not retries:
             retries = self.retries
@@ -4380,6 +4443,18 @@ class AsyncIconRpcHelper(LoggerMixin):
                     except json.JSONDecodeError:
                         self.logger.error(f"Failed to decode JSON response: {response_text}")
                         return (response_text, elapsed_time) if return_with_time else response_text if return_on_error else {}
+                elif resp.status == 400:
+                    try:
+                        response_json = await resp.json()
+                        processed_response = self.handle_response_with_key(response_json, return_key="error.message")
+
+                        if isinstance(processed_response, str):
+                            processed_response = processed_response.replace("Executing: ", "")
+
+                        self.logger.info(f" ▶️ {get_shortened_tx_hash(data)} status={resp.status}, response={processed_response}")
+                    except json.JSONDecodeError:
+                        self.logger.error(f"▶️ Failed to decode JSON response: {response_text}")
+
                 else:
                     self.logger.warning(f"Request failed with status {resp.status}: {response_text}")
                     if return_on_error:

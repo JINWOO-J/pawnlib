@@ -493,7 +493,7 @@ class TightLevelRichHandler(RichHandler):
         return level_text
 
 
-def print_logger_configurations(min_level="DEBUG"):
+def print_logger_configurations(min_level="TRACE"):
     from rich.console import Console
     from rich.table import Table
     from pawnlib.typing.constants import const

@@ -19,5 +19,8 @@ from .logging_config import (
     get_logger,
     LoggerMixin,
     change_log_level,
-    change_propagate_setting
+    change_propagate_setting,
+    LoggerMixinVerbose,
+    LoggerFactory,
+    create_app_logger
 )
