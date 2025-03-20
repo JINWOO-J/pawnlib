@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /en/legacy/
+Allow: /en/latest/
+Sitemap: https://pawnlib.readthedocs.io/en/latest/sitemap-index.xml
