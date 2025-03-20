@@ -163,4 +163,5 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-
+BUILD_ARGS
+DEBUG_ARGS

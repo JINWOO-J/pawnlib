@@ -180,8 +180,8 @@ def main():
                 confirm_upload=False,
                 keep_path=False,
                 use_dynamic_config=False,
-                dry_run=args.dry_run
-
+                dry_run=args.dry_run,
+                verbose=args.verbose
             )
             uploader.print_config()
 
