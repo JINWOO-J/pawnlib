@@ -109,19 +109,22 @@ def get_sys_argv():
 
 def load_cli_module(commands=None, module_name=""):
     pawn.console.debug(f"Add parser => '{module_name}'")
-    module = importlib.import_module(f"pawnlib.cli.{module_name}")
-    description = getattr(module, "__description__", f"{module_name} module")
-    epilog = getattr(module, "__epilog__", "")
-    if isinstance(epilog, tuple):
-        epilog = "\n".join(epilog)
-    _parser = commands.add_parser(
-        module_name,
-        help=f'{description}',
-        epilog=epilog,
-        formatter_class=ColoredHelpFormatter,
-        description=description.upper(),
-    )
-    module.get_arguments(_parser)
+    try:
+        module = importlib.import_module(f"pawnlib.cli.{module_name}")
+        description = getattr(module, "__description__", f"{module_name} module")
+        epilog = getattr(module, "__epilog__", "")
+        if isinstance(epilog, tuple):
+            epilog = "\n".join(epilog)
+        _parser = commands.add_parser(
+            module_name,
+            help=f'{description}',
+            epilog=epilog,
+            formatter_class=ColoredHelpFormatter,
+            description=description.upper(),
+        )
+        module.get_arguments(_parser)
+    except ImportError as e:
+        pawn.console.log(f"[red]Failed to load module {module_name}: {e}[/red]")
 
 
 def get_args():
@@ -131,10 +134,15 @@ def get_args():
         formatter_class=ColoredHelpFormatter,
     )
     commands = parser.add_subparsers(title='sub-module')
-    pawn.console.debug(f"sys_argv={get_sys_argv()}, modules={get_submodule_names()}")
-    if get_sys_argv() and  get_sys_argv() in get_submodule_names():
-        load_cli_module(commands, get_sys_argv())
+    
+    # 사용자가 입력한 명령어를 가져옵니다.
+    command = get_sys_argv()
+    
+    # 명령어가 하위 모듈 이름과 일치하는지 확인합니다.
+    if command and command in get_submodule_names():
+        load_cli_module(commands, command)
     else:
+        # 하위 모듈을 로드하지 않고, 사용자가 입력한 명령어가 유효한지 확인합니다.
         for module_name in get_submodule_names():
             try:
                 load_cli_module(commands, module_name)

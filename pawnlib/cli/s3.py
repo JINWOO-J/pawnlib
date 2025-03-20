@@ -20,7 +20,6 @@ from pawnlib.output import file
 from pawnlib.utils.http import append_s3
 
 logger = setup_app_logger(simple_format="detailed", propagate_scope="pawnlib")
-logger.info("Start")
 
 __description__ = 'Upload or download directories to/from AWS S3.'
 
