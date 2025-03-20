@@ -99,16 +99,11 @@ def get_arguments(parser):
 
     return parser
 
-
 def parse_s3_path(path):
     if path.startswith('s3://'):
-        bucket_and_key = path[5:]
-        parts = bucket_and_key.split('/', 1)
-        bucket = parts[0]
-        key = parts[1] if len(parts) > 1 else ''
-        return bucket, key
-    else:
-        return None, path
+        bucket, key = path[5:].split('/', 1) if '/' in path[5:] else (path[5:], '')
+        return bucket, key.lstrip('/')  # Remove leading slash from key
+    return None, path.lstrip('/')  # Remove leading slash from local path
 
 
 def load_config(config_file="config.ini"):

@@ -40,6 +40,8 @@ pip3 install pawnlib[wallet]
 
 ```
 
+
+
 ## Global Config
 -  **Global Config**
 
@@ -112,7 +114,7 @@ optional arguments:
 sub-module:
   {icon,server,proxy,net,top,docker,aws,rpc,http,gs,init,info,banner,websocket,wallet}
     icon                icon module
-    server              This command is used to check and verify the server’s resources.
+    server              This command is used to check and verify the server's resources.
     proxy               A Proxy Reflector Tool
     net                 This is a tool to measure your server's resources.
     top                 This is a tool to measure your server's resources.
@@ -358,3 +360,109 @@ Officially supports Python 3.9+.
 ### Documentation
 
 Documentation and tutorials are available at https://pawnlib.readthedocs.io
+
+### Using `run_pawnlib.sh`
+
+This script is designed to run a Docker container for the Pawnlib project. Below are the options and usage instructions.
+
+#### Usage
+
+```bash
+./run_pawnlib.sh [options]
+```
+
+#### Options
+
+- `-d` : Run the container in background mode (detached).
+- `-l` : Enable logging to a file located at `/tmp/pawnlib_docker.log`.
+- `-h` : Show this help message.
+
+#### Description
+
+1. **Basic Setup**: The script sets up the container name, image name, log file location, and mount directories.
+2. **Color Settings**: It defines color codes for log messages.
+3. **Logging Functions**: The script includes functions for logging informational and error messages.
+4. **Help Message**: The `usage` function provides a description of how to use the script and its options.
+5. **Pre-checks**: It checks if Docker is installed and if the log directory is writable.
+6. **Option Parsing**: The script processes command-line options using `getopts`.
+7. **Log Directory Creation**: If logging is enabled, it creates the necessary log directory.
+8. **Pulling Docker Image**: The script pulls the latest Docker image specified by `IMAGE_NAME`.
+9. **Container Execution**: It runs the Docker container either in interactive mode or in the background based on the provided options.
+
+#### Example Commands
+
+- To run the container interactively:
+  ```bash
+  ./run_pawnlib.sh
+  ```
+
+- To run the container in detached mode:
+  ```bash
+  ./run_pawnlib.sh -d
+  ```
+
+- To enable logging to a file:
+  ```bash
+  ./run_pawnlib.sh -l
+  ```
+
+- To display the help message:
+  ```bash
+  ./run_pawnlib.sh -h
+  ```
+
+#### Using `run_pawnlib.sh` with `curl`
+
+You can download and execute the `run_pawnlib.sh` script directly using `curl`. Below are the instructions for doing so.
+
+1. **Download the Script**: Use `curl` to download the script from the repository. 
+
+   ```bash
+   curl -O https://raw.githubusercontent.com/JINWOO-J/pawnlib/master/run_pawnlib.sh
+   ```
+
+2. **Make the Script Executable**: After downloading, you need to make the script executable.
+
+   ```bash
+   chmod +x run_pawnlib.sh
+   ```
+
+3. **Run the Script**: Now you can run the script with the desired options.
+
+   ```bash
+   ./run_pawnlib.sh [options]
+   ```
+
+#### Running the Script Directly with `curl`
+
+You can also execute the script directly without downloading it by using the following command:
+
+```bash
+curl -sL https://raw.githubusercontent.com/JINWOO-J/pawnlib/master/run_pawnlib.sh | bash
+```
+
+This command downloads the script and pipes it directly to `bash`, executing it immediately.
+
+#### Example Commands
+
+- To run the container interactively:
+  ```bash
+  ./run_pawnlib.sh
+  ```
+
+- To run the container in detached mode:
+  ```bash
+  ./run_pawnlib.sh -d
+  ```
+
+- To enable logging to a file:
+  ```bash
+  ./run_pawnlib.sh -l
+  ```
+
+- To display the help message:
+  ```bash
+  ./run_pawnlib.sh -h
+  ```
+
+Make sure to have Docker installed and running before executing the script.
