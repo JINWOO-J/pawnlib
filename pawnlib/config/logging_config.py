@@ -26,27 +26,6 @@ def trace(self, message, *args, **kwargs):
 
 logging.Logger.trace = trace
 
-# def verbose_to_log_level(verbose: int, log_levels: dict = None) -> int:
-#     """
-#     Convert a verbose value to a corresponding log level.
-#
-#     :param verbose: Verbosity level (e.g., 0, 1, 2, 3). Negative values default to 0.
-#     :type verbose: int
-#     :param log_levels: Mapping of verbose levels to logging levels. If None, use default.
-#     :type log_levels: dict or None
-#     :return: Corresponding log level (e.g., logging.DEBUG).
-#     :rtype: int
-#     :raises ValueError: If log_levels is empty or invalid.
-#     """
-#     if log_levels is None:
-#         log_levels = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG, 3: TRACE}
-#
-#     if not log_levels or not isinstance(log_levels, dict):
-#         raise ValueError("log_levels must be a non-empty dictionary")
-#
-#     max_verbose = max(log_levels.keys())
-#     effective_verbose = max(0, min(verbose, max_verbose))
-#     return log_levels.get(effective_verbose)
 
 def verbose_to_log_level(
         verbose: int,
