@@ -1,6 +1,6 @@
 
--e BASE_IMAGE=python:3.9.13-slim-buster  
--e BUILD_DATE=2023-11-07T02:00:57UTC  
+-e BASE_IMAGE=python:3.9.21-slim-bookworm  
+-e BUILD_DATE=2025-03-20T05:25:38UTC  
 -e DOCKER_BUILD_OPTION=--no-cache --rm=true  
 -e ECHO_OPTION=""  
 -e GIT_USER=JINWOO-J  
@@ -11,4 +11,4 @@
 -e REPO_HUB=jinwoo  
 -e SED_OPTION=  
 -e UNAME_S=Darwin  
--e VERSION=latest  
+-e VERSION=2.1.9  

@@ -358,8 +358,11 @@ class S3ClientBase(LoggerMixinVerbose):
 
 class Uploader(S3ClientBase):
     def __init__(self, bucket_name, profile_name=None, access_key=None, secret_key=None,
-                 endpoint_url=None, overwrite=False, info_file="", confirm_upload=False, keep_path=False, use_dynamic_config=False, dry_run=False):
-        super().__init__(bucket_name, profile_name, access_key, secret_key, endpoint_url, overwrite, use_dynamic_config=use_dynamic_config)
+                 endpoint_url=None, overwrite=False, info_file="", confirm_upload=False, keep_path=False, 
+                 use_dynamic_config=False, dry_run=False, verbose=0):
+        super().__init__(bucket_name, profile_name, access_key, secret_key, endpoint_url, overwrite, 
+                         use_dynamic_config=use_dynamic_config, verbose=verbose)
+        
 
         self.uploaded_files_info = []
         self.directory = ""
@@ -370,8 +373,6 @@ class Uploader(S3ClientBase):
         self.keep_path = keep_path
 
         self.dry_run = dry_run
-
-        # Initialize a lock for thread-safe operations
         self.lock = threading.Lock()
         self.pbar_lock = threading.Lock()
 
@@ -437,6 +438,8 @@ class Uploader(S3ClientBase):
     def upload_file(self, file_path, s3_prefix="", s3_key="", file_pbar=None, append_suffix="", confirm_upload=None, keep_path=None):
         if not s3_key:
             s3_key = os.path.join(s3_prefix, file_path).replace("\\", "/")
+                
+        s3_key = s3_key.lstrip("/")
 
         if self.dry_run:
             pawn.console.log(f"<Dry-Run> Uploading {file_path} to s3://{self.bucket_name}/{s3_key}")
