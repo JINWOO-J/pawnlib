@@ -357,8 +357,7 @@ class SlackNotifier(LoggerMixinVerbose):
     ) -> Dict[str, Any]:
         """Create message payload."""
         
-        emoji = self._get_status_emoji(status) if status else ""
-        print(f"emoji -> {emoji}")
+        emoji = self._get_status_emoji(status) if status else ""        
         color = self._get_level_color(msg_level)
         title_text = f"{emoji} {title}" if emoji and title else title
 
