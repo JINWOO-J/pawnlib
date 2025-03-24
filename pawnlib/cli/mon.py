@@ -6,7 +6,7 @@ from aiohttp import ClientSession
 import aiofiles
 import json
 from dotenv import load_dotenv, find_dotenv
-from pawnlib.config import pawn, setup_logger, setup_app_logger as _setup_app_logger, create_app_logger
+from pawnlib.config import pawn, pconf, setup_logger, setup_app_logger as _setup_app_logger, create_app_logger
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.resource.monitor import SSHMonitor
@@ -24,7 +24,7 @@ from pawnlib.docker.compose import DockerComposeBuilder
 from InquirerPy import inquirer
 from rich.prompt import Prompt
 from pawnlib.resource import SSHLogPathResolver
-from pawnlib.utils.notify import send_slack, send_slack_notification
+from pawnlib.utils.notify import send_slack, send_slack_notification, SlackNotifier
 from pawnlib.exceptions.notifier import notify_exception
 import traceback
 from pawnlib.input import get_default_arguments
@@ -554,7 +554,7 @@ def format_changes(changed_fields: dict) -> str:
         old_val = values.get('old')
         new_val = values.get('new')
         change_str = format_balance_change(old_val, new_val)
-        lines.append(f"  • {field}: {change_str}")
+        lines.append(f"• {field}: {change_str}")
     return "\n".join(lines)
 
 
@@ -602,8 +602,8 @@ async def detect_changes(
                 changed_fields[key] = {"old": old_val, "new": new_val}
 
         from pawnlib.typing.converter import shorten_text
-        address =  f"💰{shorten_text(address, width=7, placeholder='', truncate_side='right')}"
-
+        short_address =  f"💰{shorten_text(address, width=12, placeholder='..', truncate_side='middle')}"
+        address_with_link = f"<https://tracker.icon.community/address/{address}|{short_address}>"
         if changed_fields:
             logger.info(
                 f"⨀ State changed for {address}:\n"
@@ -611,13 +611,12 @@ async def detect_changes(
                 # f"Full changes: {json.dumps(changed_fields, indent=2)}"
             )
             if is_send_slack:                                
-                await send_slack_notification(
-                    title=f":rocket: State changed for {address}",
-                    msg_text=format_changes(changed_fields),                    
-                    level="info",
-                    icon_emoji=":start-button:",
-                    footer="Wallet State Tracker"
-                    # async_mode=True
+                await pconf().slack.send_async(
+                    title=f"State changed for {address_with_link}",
+                    message=format_changes(changed_fields),                    
+                    msg_level="info",
+                    status="changed",                    
+                    footer="Wallet State Tracker"                    
                 )
 
         return True
@@ -867,13 +866,6 @@ def main():
             verbose=settings.get('verbose'),
             propagate=False,
         )
-
-        # logger = LoggerFactory.setup_app_logger(
-        #     log_type='both',
-        #     verbose=2,
-        #     app_name='my_app',
-        #     log_path='./logs'
-        # )
         logger.info(f"Running command: '{settings['command']}'")
 
     else:
@@ -884,53 +876,29 @@ def main():
     if local_ip_list:
         local_ip_list = ", ".join(local_ip_list)
 
+    
+    text = f"The `{args.command.upper()}` service has been successfully launched"
+    
     msg_text = {
-            "Info": f"The `{args.command.upper()}` service has been successfully launched on the following IP addresses: {local_ip_list}",
-    }
+        # "info": f"The `{args.command.upper()}` service has been successfully launched on the following IP addresses: {local_ip_list}",
+        "IP addresses": local_ip_list,
+    }    
 
-    if args.command == "wallet":
+    if args.command == "wallet" or args.command == "wallet-multi":
         msg_text['URL'] = settings['endpoint_url']
 
-    # send_slack(
-    #         title=f":rocket: Monitoring Service Started",
-    #         msg_text="sdsd",
-    #         status="info",
-    #         msg_level="info",
-    #         icon_emoji=":start-button:",
-    #         # async_mode=False
-    #     )
-        
-    # asyncio.run(send_slack_notification(
-    #     title="title",
-    #     msg_text="sss",
-    #     level="info"
-    # ))
-
-    
-    # exit()
+    pawn.set(slack=SlackNotifier())
 
     if settings.get('send_slack'):
-        send_slack(
+        pconf().slack.send(
             title=f":rocket: {args.command.upper()} Monitoring Service Started",
-            msg_text=msg_text,
+            text=text,
+            message=msg_text,
             status="info",
-            msg_level="info",
-            icon_emoji=":start-button:",
-            # async_mode=False
-        )
+            msg_level="info",            
+            footer=f"{args.command.title()}"
 
-    # # 예외 발생 시 슬랙으로 에러 알림을 전송하는 부분
-    # tb_str = "".join(traceback.format_exception(type(e), e, e.__traceback__))
-    # send_slack(
-    #     title=":warning: **Error Occurred**",
-    #     msg_text={
-    #         "Error Message": f"```{str(e)}```",
-    #         "Traceback": f"```{tb_str}```"
-    #     },
-    #     status="error",
-    #     msg_level="error",
-    #     icon_emoji=":alert:"
-    # )
+        )
     try:
         if args.command == "ssh":
             pawn.console.log(f"Starting SSH monitoring with files: {args.file}")
@@ -948,11 +916,12 @@ def main():
             parser.print_help()
     except Exception as e:
         tb_str = "".join(traceback.format_exception(type(e), e, e.__traceback__))
-        send_slack(
-            msg_text=f"An error occurred: {str(e)}\n\nTraceback:\n{tb_str}",
-            status="error",
+        pconf().slack.send(
+            title="Error Occurred",
+            message=f"An error occurred: {str(e)}\n\nTraceback:\n{tb_str}",
+            status="critical",
             msg_level="error",
-            icon_emoji=":alert:"
+            footer=f"{args.command.title()}"
         )
         raise e
 

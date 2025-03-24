@@ -2,7 +2,7 @@ import os
 import re
 import requests
 from pawnlib.config.globalconfig import pawnlib_config as pawn
-from pawnlib.config import setup_logger, get_logger
+from pawnlib.config import setup_logger, get_logger, LoggerMixinVerbose
 from pawnlib.output import color_print
 from pawnlib.resource import net
 from pawnlib.typing import date_utils, shorten_text, escape_markdown, escape_non_markdown
@@ -14,10 +14,11 @@ import aiohttp
 import asyncio
 import time
 from pawnlib.typing.constants import StatusType
-from typing import Union, Awaitable, TypeVar
+from typing import Union, Awaitable, TypeVar, Dict, List, Optional, Any
 import logging
 
 SlackReturnType = TypeVar('SlackReturnType', bool, Awaitable[bool])
+SlackResponseType = TypeVar('SlackResponseType', bool, Dict[str, Any])
 
 class TelegramBot:
     """
@@ -263,14 +264,385 @@ class TelegramBot:
         return bool(re.search(f'[{re.escape(markdown_special_chars)}]', message))
 
 
-def get_level_color(c_level):
-    default_color = "5be312"
-    return dict(
-        info="5be312",
-        warn="f2c744",
-        warning="f2c744",
-        error="f70202",
-    ).get(c_level, default_color)
+class SlackNotifier(LoggerMixinVerbose):
+    """
+    Class for sending Slack messages. Provides both synchronous and asynchronous methods.
+    
+    :param webhook_url: Slack webhook URL. If not provided, it will be fetched from the environment variable 'SLACK_WEBHOOK_URL'.
+    :param username: Username to display in Slack.
+    :param icon_emoji: Emoji to use as the icon for the message.
+    :param retries: Number of retry attempts in case of failure.
+    :param retry_delay: Time to wait between retries (in seconds).
+    """
+    
+    def __init__(
+        self, 
+        webhook_url: str = None, 
+        username: str = "PawnBot", 
+        icon_emoji: str = ":robot_face:", 
+        retries: int = 3,
+        retry_delay: int = 2,
+        verbose: int = 1,
+        logger: logging.Logger = None,
+    ):
+        self.webhook_url = webhook_url or os.getenv('SLACK_WEBHOOK_URL', '')
+        self.username = username
+        self.icon_emoji = icon_emoji
+        self.retries = retries
+        self.retry_delay = retry_delay
+        self.init_logger(logger, verbose)
+        
+        if not self.webhook_url:
+            self.logger.error("Slack webhook URL is not set. Please set the 'webhook_url' parameter or the 'SLACK_WEBHOOK_URL' environment variable.")
+    
+    def _get_level_color(self, level: str = "") -> str:
+        """Return color code according to the message level."""
+        color_mapping = {
+            "info": "5be312",
+            "warn": "f2c744",
+            "warning": "f2c744",
+            "error": "ff0000",    
+            "trace": "1e90ff",    
+            "critical": "ff00ff", 
+            "debug": "a9a9a9",    
+            "success": "5be312",
+            "failed": "ff0000",
+            "in_progress": "f2c744",
+            "complete": "5be312",
+            "paused": "f2c744",
+            "running": "f2c744",
+        }
+        
+        level = level.lower() if level else ""
+        return color_mapping.get(level, "5be312")
+    
+    def _get_status_emoji(self, status: Union[str, StatusType]) -> str:
+        """Return emoji according to the status."""
+        status_emojis = {
+            'success': '✅',  # 성공
+            'failed': '🚨',  # 실패
+            'warning': '⚠️',  # 경고
+            'info': 'ℹ️',  # 정보
+            'critical': '❗',  # 중대한 문제
+            'in_progress': '⏳',  # 진행 중
+            'complete': '🏁',  # 완료
+            'paused': '⏸️',  # 일시 중지
+            'running': '🏃',  # 실행 
+            'error': '🔴',  # 에러
+            'retrying': '🔄',  # 재시도 중
+            'changed': '♻️',  # 변경
+            'stopped': '🛑',  # 중단
+            'queued': '⌛',  # 대기 중
+            'canceled': '❌',  # 작업 취소
+            'approved': '👍',  # 승인
+            'rejected': '👎',  # 거절
+            'scheduled': '🗓️',  # 스케줄된 작업
+            'maintenance': '🛠️',  # 유지보수
+            'update': '⬆️',  # 업데이트
+            'unknown': '❓'
+        }
+        return status_emojis.get(str(status).lower(), '')
+    
+    def create_message_payload(
+        self,
+        message: Union[str, Dict, List],
+        title: str = "",
+        text: str = "",
+        msg_level: str = "info",
+        status: Union[str, StatusType] = None,
+        simple_mode: bool = False,
+        footer: str = "",
+        timestamp_format: str = None,
+        max_text_length: int = 1000
+    ) -> Dict[str, Any]:
+        """Create message payload."""
+        
+        emoji = self._get_status_emoji(status) if status else ""
+        print(f"emoji -> {emoji}")
+        color = self._get_level_color(msg_level)
+        title_text = f"{emoji} {title}" if emoji and title else title
+
+        pawn.console.log(f"title_text -> {title_text}")
+        
+        # Date/time formatting
+        current_timestamp = int(time.time())
+        formatted_time = ""
+        if timestamp_format:
+            from datetime import datetime
+            formatted_time = datetime.now().strftime(timestamp_format)
+        
+        # Set default payload
+        payload = {
+            "username": self.username,
+            "icon_emoji": self.icon_emoji,
+        }
+        
+        # Simple mode
+        if simple_mode:
+            msg_content = message if isinstance(message, str) else json.dumps(message, indent=2)
+            if len(msg_content) > max_text_length:
+                msg_content = f"{msg_content[:max_text_length]}..."
+            
+            payload["text"] = f"{title_text}\n{msg_content}"
+            return payload
+        
+        # Normal mode
+        attachments = [{
+            "color": f"#{color}",
+            "title": title_text,
+            "ts": current_timestamp,
+            "text": text or "",            
+        }]
+        
+        # Process message content
+        if isinstance(message, dict):
+            fields = []
+            for key, value in message.items():
+                fields.append({
+                    "title": str(key),
+                    "value": str(value) if value is not None else "N/A",
+                    "short": True
+                })
+            attachments[0]["fields"] = fields
+        elif isinstance(message, list):
+            # if text:
+            #     attachments[0]["fallback"] = text
+            # else:
+            text_content = "\n".join([str(item) for item in message])
+            attachments[0]["text"] = text_content
+        else:
+            attachments[0]["text"] = str(message)
+        
+        # Add timestamp format
+        if formatted_time:
+            attachments[0]["footer"] = f"{footer} | {formatted_time}" if footer else formatted_time
+        elif footer:
+            attachments[0]["footer"] = f"{footer} | sent from {net.get_hostname()}"
+        
+        payload["attachments"] = attachments
+        return payload
+    
+    def send(
+        self,
+        message: Union[str, Dict, List],
+        title: str = "",
+        msg_level: str = "info",
+        status: Union[str, StatusType] = None,
+        simple_mode: bool = False,
+        footer: str = "",
+        timestamp_format: str = None,
+        text: str = "",
+    ) -> bool:
+        """
+        Synchronously send a Slack message.
+        
+        :param message: The message to send (string, dictionary, list)
+        :param title: Message title
+        :param msg_level: Message severity level (info, warn, error, critical, etc.)
+        :param status: Status type or string for dynamic emoji and message formatting.
+        :param simple_mode: If True, send a simplified message without additional info.
+        :param footer: Footer text to display at the bottom of the message.
+        :param timestamp_format: Time display format (e.g. "%Y-%m-%d %H:%M:%S")
+        :return: Boolean indicating success or failure.
+        """
+        if not self.webhook_url:
+            self.logger.error("SlackNotifier: Webhook URL is not set.")
+            return False
+        
+        payload = self.create_message_payload(
+            message=message,
+            title=title,
+            msg_level=msg_level,
+            status=status,
+            simple_mode=simple_mode,
+            footer=footer,
+            timestamp_format=timestamp_format,
+            text=text,
+        )
+        
+        # Retry logic
+        for attempt in range(self.retries):
+            try:
+                response = requests.post(self.webhook_url, json=payload, timeout=10)
+                if response.status_code == 200 and response.text == "ok":
+                    pawn.app_logger.info("SlackNotifier: Message sent successfully")
+                    return True
+                else:
+                    pawn.error_logger.error(f"SlackNotifier: Response error. Status code: {response.status_code}, response: {response.text}")
+            except Exception as e:
+                pawn.error_logger.error(f"SlackNotifier: Exception occurred: {str(e)}")
+            
+            # If not the last attempt, wait and retry
+            if attempt < self.retries - 1:
+                self.logger.info(f"SlackNotifier: Retrying... ({attempt + 1}/{self.retries})")
+                time.sleep(self.retry_delay)
+        
+        return False
+    
+    async def send_async(
+        self,
+        message: Union[str, Dict, List],
+        title: str = "",
+        msg_level: str = "info",
+        status: Union[str, StatusType] = None,
+        simple_mode: bool = False,
+        footer: str = "",
+        timestamp_format: str = None,
+        text: str = "",
+    ) -> bool:
+        """
+        Asynchronously send a Slack message.
+        
+        :param message: The message to send (string, dictionary, list)
+        :param title: Message title
+        :param msg_level: Message severity level (info, warn, error, critical, etc.)
+        :param status: Status type or string for dynamic emoji and message formatting.
+        :param simple_mode: If True, send a simplified message without additional info.
+        :param footer: Footer text to display at the bottom of the message.
+        :param timestamp_format: Time display format (e.g. "%Y-%m-%d %H:%:M:%S")
+        :return: Boolean indicating success or failure.
+        """
+        if not self.webhook_url:
+            pawn.error_logger.error("SlackNotifier: Webhook URL is not set.")
+            return False
+        
+        payload = self.create_message_payload(
+            message=message,
+            title=title,
+            msg_level=msg_level,
+            status=status,
+            simple_mode=simple_mode,
+            footer=footer,
+            timestamp_format=timestamp_format,
+            text=text,
+        )
+        
+        # Asynchronous retry logic
+        for attempt in range(self.retries):
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(self.webhook_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                        if response.status == 200:
+                            response_text = await response.text()
+                            if response_text == "ok":
+                                pawn.app_logger.info("SlackNotifier: Asynchronous message sent successfully")
+                                return True
+                        pawn.error_logger.error(f"SlackNotifier: Response error. Status code: {response.status}, response: {await response.text()}")
+            except Exception as e:
+                pawn.error_logger.error(f"SlackNotifier: Exception occurred during asynchronous send: {str(e)}")
+            
+            # If not the last attempt, wait and retry
+            if attempt < self.retries - 1:
+                pawn.app_logger.info(f"SlackNotifier: Retrying... ({attempt + 1}/{self.retries})")
+                await asyncio.sleep(self.retry_delay)
+        
+        return False
+    
+    def send_batch(self, messages: List[Dict]) -> List[bool]:
+        """
+        Send multiple messages in batch (synchronous)
+        
+        :param messages: List of messages to send [{"message": "content", "title": "title", ...}, ...]
+        :return: List of results for each message
+        """
+        results = []
+        for msg_data in messages:
+            result = self.send(**msg_data)
+            results.append(result)
+        return results
+    
+    async def send_batch_async(self, messages: List[Dict]) -> List[bool]:
+        """
+        Send multiple messages in batch (asynchronous)
+        
+        :param messages: List of messages to send [{"message": "content", "title": "title", ...}, ...]
+        :return: List of results for each message
+        """
+        tasks = [self.send_async(**msg_data) for msg_data in messages]
+        return await asyncio.gather(*tasks)
+    
+    def send_error(self, error: Exception, additional_info: Dict = None, title: str = "Error occurred"):
+        """
+        Send error information
+        
+        :param error: The exception object that occurred
+        :param additional_info: Additional information dictionary
+        :param title: Message title
+        :return: Boolean indicating success or failure
+        """
+        import traceback
+        error_type = type(error).__name__
+        error_message = str(error)
+        error_traceback = traceback.format_exc()
+        
+        message = {
+            "Error Type": error_type,
+            "Error Message": error_message,
+            "Stack Trace": f"```{error_traceback[:800]}```" if len(error_traceback) > 800 else f"```{error_traceback}```"
+        }
+        
+        if additional_info:
+            for key, value in additional_info.items():
+                message[key] = value
+        
+        return self.send(
+            message=message,
+            title=title,
+            msg_level="error",
+            status="failed"
+        )
+    
+    async def send_error_async(self, error: Exception, additional_info: Dict = None, title: str = "Error occurred"):
+        """
+        Send error information asynchronously
+        
+        :param error: The exception object that occurred
+        :param additional_info: Additional information dictionary
+        :param title: Message title
+        :return: Boolean indicating success or failure
+        """
+        import traceback
+        error_type = type(error).__name__
+        error_message = str(error)
+        error_traceback = traceback.format_exc()
+        
+        message = {
+            "Error Type": error_type,
+            "Error Message": error_message,
+            "Stack Trace": f"```{error_traceback[:800]}```" if len(error_traceback) > 800 else f"```{error_traceback}```"
+        }
+        
+        if additional_info:
+            for key, value in additional_info.items():
+                message[key] = value
+        
+        return await self.send_async(
+            message=message,
+            title=title,
+            msg_level="error",
+            status="failed"
+        )
+    
+
+def get_level_color(c_level: str = "") -> str:
+    color_mapping = {
+        "info": "5be312",
+        "warn": "f2c744",
+        "warning": "f2c744",
+        "error": "ff0000",    
+        "trace": "1e90ff",    
+        "critical": "ff00ff", 
+        "debug": "a9a9a9",    
+        "success": "5be312",
+        "failed": "ff0000",
+        "in_progress": "f2c744",
+        "complete": "5be312",
+        "paused": "f2c744",
+        "running": "f2c744",
+    }
+    
+    c_level = c_level.lower() if c_level else ""
+    return color_mapping.get(c_level, "5be312")  # 기본 색상
 
 
 def get_status_emoji(status: Union[str, StatusType]) -> str:
@@ -304,7 +676,7 @@ def get_status_emoji(status: Union[str, StatusType]) -> str:
         'in_progress': '⏳',  # 진행 중
         'complete': '🏁',  # 완료
         'paused': '⏸️',  # 일시 중지
-        'running': '🏃',  # 실행 중
+        'running': '🏃',  # 실행 
         'error': '🔴',  # 에러
         'retrying': '🔄',  # 재시도 중
         'stopped': '🛑',  # 중단
@@ -329,6 +701,8 @@ def create_slack_payload(
         simple_mode: bool,
         icon_emoji: str = "",
         max_value_length: int = 100,
+        footer: str = "",
+        text: str = ""
 ) -> dict:
     """
     Create the payload for sending a message to Slack.
@@ -349,7 +723,10 @@ def create_slack_payload(
     :type icon_emoji: str
     :param max_value_length: Maximum length for any single value.
     :type max_value_length: int
-
+    :param footer: Footer text to display at the bottom of the message.
+    :type footer: str
+    :param text: Optional text to display in Slack
+    :type text: str
     :return: Dictionary containing the Slack message payload.
     :rtype: dict
     """
@@ -360,8 +737,7 @@ def create_slack_payload(
 
     emoji = get_status_emoji(status)
     msg_title = title if title else shorten_text(msg_text, width=50)
-    p_color = get_level_color(msg_level.lower())
-
+    p_color = get_level_color(msg_level)
     _msg_title = f"{emoji} {msg_title}" if status else msg_title
 
     category_emoji = "▪️"
@@ -378,9 +754,24 @@ def create_slack_payload(
                 {"type": "section", "text": {"type": "mrkdwn", "text": f'{category_emoji}{"*Date*":^12s} : {date_utils.todaydate("log")}'}}]
         }]
     }
-    if simple_mode:
-        return {"username": send_user_name, "text": f"{msg_title}\n{msg_text}", "attachments": []}
 
+    if footer:
+        formatted_message = format_slack_message(
+            title=f"{emoji} {title}" if emoji else title,
+            msg_text=msg_text,
+            msg_level=msg_level,
+            status=status,                        
+            icon_emoji=":rocket:",
+            footer="Additional info",
+            text=text
+        )
+        from pawnlib.output import print_var
+        print_var(formatted_message)
+        return formatted_message    
+        
+    elif simple_mode:
+        return {"username": send_user_name, "text": f"{msg_title}\n{msg_text}", "attachments": []}
+            
     def _make_attachment(key=None, value=None):
         if key == "Info":
             text = f'{category_emoji}{"Info":^12s} : {truncate_text(value, max_value_length)}'
@@ -486,6 +877,7 @@ def send_slack(
         url: str = "",
         msg_text: Union[str, dict, list] = None,
         title: str = "",
+        text: str = "",
         send_user_name: str = "CtxBot",
         msg_level: str = 'info',
         retries: int = 1,
@@ -493,6 +885,7 @@ def send_slack(
         simple_mode: bool = False,
         async_mode: bool = False,
         icon_emoji: str = "",
+        footer: str = ""
 ) -> SlackReturnType:
     """
     Send a message to Slack with optional retry logic and dynamic emoji based on status.
@@ -503,6 +896,8 @@ def send_slack(
     :type msg_text: Union[str, dict, list]
     :param title: Optional title for the message
     :type title: str
+    :param text: Optional text to display in Slack
+    :type text: str
     :param send_user_name: Username to display in Slack
     :type send_user_name: str
     :param msg_level: Message severity level (info, warning, error, critical)
@@ -517,7 +912,8 @@ def send_slack(
     :type async_mode: bool
     :param icon_emoji: Optional emoji to display as the icon for the message.
     :type icon_emoji: str
-
+    :param footer: Footer text to display at the bottom of the message.
+    :type footer: str
     :return: Boolean indicating success or failure
     :rtype: bool
 
@@ -573,7 +969,9 @@ def send_slack(
         msg_level=msg_level,
         status=status,
         simple_mode=simple_mode,
-        icon_emoji=icon_emoji
+        icon_emoji=icon_emoji,
+        footer=footer,
+        text=text
     )
 
     if async_mode:
@@ -674,18 +1072,32 @@ def send_slack_token(title=None, message=None, token=None, channel_name=None, se
         return False
 
 
+def format_slack_message(title: str="", msg_text: str="", msg_level: str="info", 
+                         status: str="", icon_emoji: str="", footer: str="", text: str="") -> dict:
+    p_color = get_level_color(msg_level)    
+    if isinstance(msg_text, dict):
+        fields = []
+        for key, value in msg_text.items():
+            fields.append({
+                "title": key,
+                "value": str(value) if value is not None else "N/A",
+                "short": True
+            })
+    else:
+        fields = []  # msg_text가 string일 때 fields는 필요 없음
+        msg_text = str(msg_text)
 
-def format_slack_message(title: str, msg_text: str, status: str, icon_emoji: str, footer: str) -> dict:
     return {
         "attachments": [
             {
                 "fallback": title,
-                "color": "good" if status == "info" else "danger",
+                "color": f"#{p_color}",
                 "title": title,
-                "text": msg_text,
+                "text": text or msg_text,
                 "footer": f"{footer} run and sent from {net.get_hostname()}",
                 "ts": int(time.time()),
                 "icon_emoji": icon_emoji,
+                "fields": fields
             }
         ]
     }
