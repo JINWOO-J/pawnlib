@@ -4556,6 +4556,27 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
             return return_value
         return hex_to_number(return_value, is_tint=True)
 
+    async def get_iscore(self, address="",return_as_hex=False, return_key="result", use_hex_value=None,url: Optional[str] = None):
+        target_url = url or self.url
+        return_value = await self.execute_rpc_call(
+            url=target_url,
+            governance_address=const.CHAIN_SCORE_ADDRESS,
+            method='queryIScore',
+            params={
+                "address": address
+            },
+            return_key=return_key
+        )
+
+        # use_hex_value = use_hex_value or self.use_hex_value
+        if use_hex_value:
+            return HexValueParser(return_value)
+
+        if return_as_hex:
+            return return_value
+        return hex_to_number(return_value, is_tint=True)
+    
+
     async def get_node_name_by_address(self):
         """
         Retrieves a dictionary mapping node addresses to their corresponding names.

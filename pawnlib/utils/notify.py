@@ -673,3 +673,33 @@ def send_slack_token(title=None, message=None, token=None, channel_name=None, se
         pawn.error_logger.error(f"[ERROR][Slack] Got errors -> {e}")
         return False
 
+
+
+def format_slack_message(title: str, msg_text: str, status: str, icon_emoji: str, footer: str) -> dict:
+    return {
+        "attachments": [
+            {
+                "fallback": title,
+                "color": "good" if status == "info" else "danger",
+                "title": title,
+                "text": msg_text,
+                "footer": f"{footer} run and sent from {net.get_hostname()}",
+                "ts": int(time.time()),
+                "icon_emoji": icon_emoji,
+            }
+        ]
+    }
+
+async def send_slack_notification(title: str, msg_text: str, level="info", icon_emoji="", footer="Pawnlib"):
+    formatted_message = format_slack_message(
+        title=title,
+        msg_text=msg_text,
+        status=level,
+        icon_emoji=icon_emoji or ":rocket:",
+        footer=footer
+    )
+    slack_webhook_url = os.getenv('SLACK_WEBHOOK_URL', "")
+    async with aiohttp.ClientSession() as session:
+        async with session.post(slack_webhook_url, json=formatted_message) as response:
+            if response.status != 200:
+                pawn.console.log(f"[red]Failed to send Slack notification: {response.status}[/red]")

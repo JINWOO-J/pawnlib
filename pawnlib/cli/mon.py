@@ -24,7 +24,7 @@ from pawnlib.docker.compose import DockerComposeBuilder
 from InquirerPy import inquirer
 from rich.prompt import Prompt
 from pawnlib.resource import SSHLogPathResolver
-from pawnlib.utils.notify import send_slack
+from pawnlib.utils.notify import send_slack, send_slack_notification
 from pawnlib.exceptions.notifier import notify_exception
 import traceback
 from pawnlib.input import get_default_arguments
@@ -82,7 +82,7 @@ def add_common_arguments(parser):
     )
     parser.add_argument(
         '--log-file',
-        help='Log file path if using file logger (required if --log-type=file)',
+        help='Log file path if using file logger (required if --log-file=file)',
         default=None
     )
     parser.add_argument(
@@ -134,12 +134,7 @@ def get_arguments(parser=None):
         nargs='+',
         default=[SSHLogPathResolver().get_path()]
     )
-    # ssh_parser.add_argument(
-    #     '-b', '--base-dir',
-    #     metavar='base_dir',
-    #     help='Base directory for the application',
-    #     default="."
-    # )
+    
     add_common_arguments(ssh_parser)
 
     wallet_parser = subparsers.add_parser('wallet', help='Run the Async Goloop Websocket Client')
@@ -474,6 +469,7 @@ async def worker(rpc, address: str) -> dict:
             "stake": await rpc.get_stake(address, return_key="result.stake"),
             "bond": await rpc.get_bond(address, return_key="result.totalBonded"),
             "delegation": await rpc.get_delegation(address, return_key="result.totalDelegated"),
+            "reward": await rpc.get_iscore(address, return_key="result.estimatedICX"),
             "last_updated": datetime.datetime.utcnow().isoformat()
         }
 
@@ -544,8 +540,8 @@ def format_balance_change(
         else:
             pct_fmt = f"{pct_change:+.5f}%"
 
-        direction = "▲" if change > 0 else "▼" if change < 0 else ""
-        return f"{new_val_fmt} {direction} (Δ: {change_fmt}, {pct_fmt})"
+        direction = "▲" if change > 0 else "▽" if change < 0 else ""
+        return f"{new_val_fmt} {direction} ({change_fmt}, {pct_fmt})"
 
     except Exception as e:
         return f"Error formatting: {old_val}→{new_val} ({str(e)})"
@@ -614,14 +610,14 @@ async def detect_changes(
                 f"{format_changes(changed_fields)}"
                 # f"Full changes: {json.dumps(changed_fields, indent=2)}"
             )
-            if is_send_slack:
-                await send_slack(
+            if is_send_slack:                                
+                await send_slack_notification(
                     title=f":rocket: State changed for {address}",
-                    msg_text=format_changes(changed_fields),
-                    status="info",
-                    msg_level="info",
+                    msg_text=format_changes(changed_fields),                    
+                    level="info",
                     icon_emoji=":start-button:",
-                    async_mode=True
+                    footer="Wallet State Tracker"
+                    # async_mode=True
                 )
 
         return True
@@ -861,7 +857,7 @@ def main():
     if IS_DOCKER:
         pawn.console.rule("RUN IN DOCKER")
 
-    # print_var(settings)
+    print_var(settings)
 
     if settings.get('command'):
         # logger = initialize_logger(settings)
@@ -894,6 +890,24 @@ def main():
 
     if args.command == "wallet":
         msg_text['URL'] = settings['endpoint_url']
+
+    # send_slack(
+    #         title=f":rocket: Monitoring Service Started",
+    #         msg_text="sdsd",
+    #         status="info",
+    #         msg_level="info",
+    #         icon_emoji=":start-button:",
+    #         # async_mode=False
+    #     )
+        
+    # asyncio.run(send_slack_notification(
+    #     title="title",
+    #     msg_text="sss",
+    #     level="info"
+    # ))
+
+    
+    # exit()
 
     if settings.get('send_slack'):
         send_slack(
