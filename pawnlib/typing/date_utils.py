@@ -1,108 +1,144 @@
 import datetime
 import time
+import sys
+import math
 try:
-    from typing import Literal
+    from typing import Literal, Optional, Union
 except ImportError:
-    from typing_extensions import Literal
+    from typing_extensions import Literal, Optional, Union
 from pawnlib.typing.converter import append_zero
 from pawnlib.typing.constants import const
+from functools import lru_cache
+
+if sys.version_info >= (3, 9):
+    from zoneinfo import ZoneInfo
+    USE_ZONEINFO = True
+else:
+    USE_ZONEINFO = False
+    try:
+        import pytz
+    except ImportError:
+        pytz = None
 
 
 class TimeCalculator:
     """
-    A class that converts seconds to a string format.
+    A class to convert seconds into various human-readable string formats.
 
-    :param seconds: The number of seconds to be converted.
+    :param seconds: The time in seconds to be converted (integer or float).
 
     Example:
 
         .. code-block:: python
 
-            from pawnlib.typing import date_utils
-            date_utils.TimeCalculator(1224411)
-
-            # >>  "14 days, 04:06:51"
-
+            tc = TimeCalculator(1224411.5)
+            print(tc.to_strings())  # "14 days, 04:06:51"
+            print(tc.to_strings(include_ms=True))  # "14 days, 04:06:51.500"
+            print(tc.to_minutes())  # 20406
     """
-    def __init__(self, seconds=0):
-        self.seconds = seconds
+
+    def __init__(self, seconds: Union[int, float] = 0):
+        self._seconds = 0.0
         self._days = 0
         self._hours = 0
         self._minutes = 0
-        self._seconds = 0
+        self._remaining_seconds = 0.0
         self.hhmmss = ""
+        self.set_seconds(seconds)
 
+    def set_seconds(self, seconds: Union[int, float]) -> None:
+        """
+        Set the seconds value and recalculate the time components.
+
+        :param seconds: The time in seconds (integer or float).
+        :raises TypeError: If seconds is not an int or float.
+        """
+        if not isinstance(seconds, (int, float)):
+            raise TypeError(f"seconds must be an int or float, got {type(seconds).__name__}")
+        self._seconds = float(seconds)  # Convert to float to handle decimals
         self.calculate()
 
-    def calculate(self):
+    def calculate(self) -> None:
         """
-        Calculate the number of days, hours, minutes, and seconds from the given seconds.
+        Calculate the days, hours, minutes, and remaining seconds from the given seconds.
+        """
+        seconds = self._seconds
+        self._days = math.floor(seconds / const.DAY_IN_SECONDS)
+        seconds -= self._days * const.DAY_IN_SECONDS
+        self._hours = math.floor(seconds / const.HOUR_IN_SECONDS)
+        seconds -= self._hours * const.HOUR_IN_SECONDS
+        self._minutes = math.floor(seconds / const.MINUTE_IN_SECONDS)
+        self._remaining_seconds = seconds - self._minutes * const.MINUTE_IN_SECONDS
+        self.hhmmss = self._format_hhmmss()
 
-        :return: A string representing the number of days, hours, minutes, and seconds.
+    def _format_hhmmss(self, include_ms: bool = False) -> str:
         """
-        seconds = self.seconds
-        self._days = int(seconds // const.DAY_IN_SECONDS)
-        seconds = int(seconds % const.DAY_IN_SECONDS)
-        self._hours = seconds // const.HOUR_IN_SECONDS
-        seconds %= const.HOUR_IN_SECONDS
-        self._minutes = seconds // const.MINUTE_IN_SECONDS
-        seconds %= const.MINUTE_IN_SECONDS
-        self._seconds = seconds
-        self.hhmmss = "%02i:%02i:%02i" % (self._hours, self._minutes, self._seconds)
+        Format the time components into a string.
+
+        :param include_ms: Whether to include milliseconds in the output.
+        :return: The formatted time string.
+        """
+        if include_ms:
+            ms = int((self._remaining_seconds % 1) * 1000)
+            sec = int(self._remaining_seconds)
+            hhmmss = f"{self._hours:02d}:{self._minutes:02d}:{sec:02d}.{ms:03d}"
+        else:
+            hhmmss = f"{self._hours:02d}:{self._minutes:02d}:{int(self._remaining_seconds):02d}"
         if self._days:
-            day_unit = "days"
-            if self._days == 1:
-                day_unit = "day"
-            self.hhmmss = f"{self._days} {day_unit}, {self.hhmmss}"
-        return self.hhmmss
+            day_unit = "day" if self._days == 1 else "days"
+            return f"{self._days} {day_unit}, {hhmmss}"
+        return hhmmss
 
-    def __str__(self):
+    def to_strings(self, format_type: Literal["default", "detailed"] = "default", include_ms: bool = False) -> str:
         """
-        Return the string representation of the calculated time.
+        Return the calculated time as a string.
 
-        :return: A string representing the number of days, hours, minutes, and seconds.
+        :param format_type: "default" for "days HH:MM:SS", "detailed" for "X days Y hours Z minutes W seconds".
+        :param include_ms: Whether to include milliseconds.
+        :return: The formatted time string.
         """
-        return str(self.hhmmss)
+        if format_type == "detailed":
+            ms_part = f".{int((self._remaining_seconds % 1) * 1000):03d}" if include_ms else ""
+            return (f"{self._days} days {self._hours} hours {self._minutes} minutes "
+                    f"{int(self._remaining_seconds)}{ms_part} seconds")
+        return self._format_hhmmss(include_ms)
+    def to_seconds(self) -> int:
+        """Convert seconds to total seconds."""
+        return int(self._seconds)
 
-    def __repr__(self):
-        """
-        Return the string representation of the calculated time.
+    def to_minutes(self) -> int:
+        """Convert seconds to total minutes."""
+        return int(self._seconds // const.MINUTE_IN_SECONDS)
 
-        :return: A string representing the number of days, hours, minutes, and seconds.
-        """
-        return repr(self.hhmmss)
+    def to_hours(self) -> int:
+        """Convert seconds to total hours."""
+        return int(self._seconds // const.HOUR_IN_SECONDS)
 
-    def to_strings(self):
-        """
-        Return the string representation of the calculated time.
+    def to_days(self) -> int:
+        """Convert seconds to total days."""
+        return int(self._seconds // const.DAY_IN_SECONDS)
 
-        :return: A string representing the number of days, hours, minutes, and seconds.
-        """
-        return str(self.hhmmss)
+    def to_weeks(self) -> int:
+        """Convert seconds to total weeks."""
+        return int(self._seconds // (const.DAY_IN_SECONDS * 7))
 
-    def to_minutes(self):
+    @classmethod
+    def from_hhmmss(cls, hhmmss: str) -> 'TimeCalculator':
         """
-        Convert the given seconds to minutes.
+        Create a TimeCalculator object from an "HH:MM:SS" string.
 
-        :return: The number of minutes.
+        :param hhmmss: Time string in "HH:MM:SS" format.
+        :return: A TimeCalculator object.
         """
-        return self.seconds // const.MINUTE_IN_SECONDS
+        h, m, s = map(int, hhmmss.split(':'))
+        seconds = h * const.HOUR_IN_SECONDS + m * const.MINUTE_IN_SECONDS + s
+        return cls(seconds)
 
-    def to_hours(self):
-        """
-        Convert the given seconds to hours.
+    def __str__(self) -> str:
+        return self.to_strings()
 
-        :return: The number of hours.
-        """
-        return self.seconds // const.HOUR_IN_SECONDS
-
-    def to_days(self):
-        """
-        Convert the given seconds to days.
-
-        :return: The number of days.
-        """
-        return self.seconds // const.DAY_IN_SECONDS
+    def __repr__(self) -> str:
+        return f"TimeCalculator(seconds={self._seconds}, hhmmss='{self.hhmmss}')"   
 
 
 def convert_unix_timestamp(date_param):
@@ -169,47 +205,85 @@ def get_range_day_of_month(year: int, month: int, return_unix: bool = True):
     return first_day, last_day
 
 
-def todaydate(date_type: Literal["file", "md", "time", "time_sec", "hour", "ms", "log", "log_ms", "ms_text", "unix", "ms_unix"] = None) -> str:
+@lru_cache(maxsize=128)
+def get_timezone(timezone: str):
+    """Cache timezone objects for performance."""
+    if USE_ZONEINFO:
+        return ZoneInfo(timezone)
+    elif pytz:
+        try:
+            return pytz.timezone(timezone)
+        except pytz.exceptions.UnknownTimeZoneError:
+            raise ValueError(f"Unknown timezone: {timezone}")
+    return None
+
+
+def todaydate(
+    date_type: Optional[Literal[
+        "file", "md", "time", "time_sec", "hour", "ms", "log", 
+        "log_ms", "ms_text", "unix", "ms_unix"
+    ]] = None, 
+    target_datetime: datetime.datetime = None,
+    timezone: Optional[str] = None
+)-> str:
+    """
+    Returns today's date as a formatted string based on the specified type.
+
+    Args:
+        date_type: Optional format type. Options are:
+            - None: "YYYYMMDD" (default)
+            - "file": "YYYYMMDD_HHMM"
+            - "md": "MMDD"
+            - "time": "HH:MM:SS.sss"
+            - "time_sec": "HH:MM:SS"
+            - "hour": "HHMM"
+            - "ms" or "log" or "log_ms": "YYYY-MM-DD HH:MM:SS.sss"
+            - "ms_text": "YYYYMMDD-HHMMSSsss"
+            - "unix": Hexadecimal Unix timestamp (seconds)
+            - "ms_unix": Hexadecimal Unix timestamp (microseconds)
+
+        target_datetime: Optional datetime object. Defaults to current time if None.
+        timezone: Optional timezone name (e.g., "Asia/Seoul"). Uses system timezone if None or unsupported.
+
+    Returns:
+        str: Formatted date string.
+
+    Examples:
+        >>> todaydate("ms_unix")
+        '0x5e66be4a93496'
+        >>> todaydate("log")
+        '2025-03-25 12:34:56.789'
     """
 
-    This functions will be returned today date string.
+    tz = get_timezone(timezone) if timezone else None
+    now = target_datetime if target_datetime is not None else datetime.datetime.now(tz)
 
-    :param date_type: file, md, time, time_sec, hour, ms, ms_text, unix, ms_unix
-    :return:
+    formats = {
+        None: "%Y%m%d",
+        "md": "%m%d",
+        "file": "%Y%m%d_%H%M",
+        "time": "%H:%M:%S.%f",
+        "time_sec": "%H:%M:%S",
+        "hour": "%H%M",
+        "ms": "%Y-%m-%d %H:%M:%S.%f",
+        "log": "%Y-%m-%d %H:%M:%S.%f",
+        "log_ms": "%Y-%m-%d %H:%M:%S.%f",
+        "ms_text": "%Y%m%d-%H%M%S%f",
+    }
 
-    Example:
+    if not isinstance(now, datetime.datetime):
+        raise TypeError(f"target_datetime must be a datetime object, got {type(now).__name__}")    
 
-        .. code-block:: python
+    if date_type in formats:
+        result = now.strftime(formats[date_type])
+        return result[:-3] if date_type in {"time", "ms", "log", "log_ms", "ms_text"} else result
 
-            from pawnlib.typing import date_utils
+    if date_type == "unix":
+        return hex(int(now.timestamp()))
+    if date_type == "ms_unix":
+        return hex(int(now.timestamp() * 1_000_000))
 
-            date_utils.todaydate("ms_unix")
-            # >> '0x5e66be4a93496'
-
-            date_utils.todaydate("log")
-            # >> '2022-08-17 17:46:47.281'
-
-    """
-    if date_type is None:
-        return '%s' % datetime.datetime.now().strftime("%Y%m%d")
-    elif date_type == "md":
-        return '%s' % datetime.datetime.now().strftime("%m%d")
-    elif date_type == "file":
-        return '%s' % datetime.datetime.now().strftime("%Y%m%d_%H%M")
-    elif date_type == "time":
-        return '%s' % datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
-    elif date_type == "time_sec":
-        return '%s' % datetime.datetime.now().strftime("%H:%M:%S")
-    elif date_type == "hour":
-        return '%s' % datetime.datetime.now().strftime("%H%M")
-    elif date_type == "ms" or date_type == "log" or date_type == "log_ms":
-        return '%s' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    elif date_type == "ms_text":
-        return '%s' % datetime.datetime.now().strftime("%Y%m%d-%H%M%S%f")[:-3]
-    elif date_type == "unix":
-        return '%s' % hex(int(datetime.datetime.now().timestamp()))
-    elif date_type == "ms_unix":
-        return '%s' % hex(int(datetime.datetime.now().timestamp() * 1_000_000))
+    raise ValueError(f"Unsupported date_type: {date_type}")
 
 
 def format_seconds_to_hhmmss(seconds: int = 0):
@@ -281,7 +355,6 @@ def timestamp_to_string(unix_timestamp: int, str_format='%Y-%m-%d %H:%M:%S'):
         raise ValueError(f'Invalid timestamp length - length={ts_length}, timestamp={unix_timestamp}')
 
     return datetime.datetime.fromtimestamp(timestamp_in_seconds).strftime(str_format)
-
 
 
 def second_to_dayhhmm(seconds: int = 0):
