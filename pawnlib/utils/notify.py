@@ -361,8 +361,6 @@ class SlackNotifier(LoggerMixinVerbose):
         color = self._get_level_color(msg_level)
         title_text = f"{emoji} {title}" if emoji and title else title
 
-        pawn.console.log(f"title_text -> {title_text}")
-        
         # Date/time formatting
         current_timestamp = int(time.time())
         formatted_time = ""

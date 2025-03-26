@@ -106,6 +106,7 @@ from .converter import (
     mask_string,
     format_hx_addresses_recursively,
     filter_by_key,
+    HexConverter,
 )
 
 from .constants import (

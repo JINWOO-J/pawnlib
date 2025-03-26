@@ -6,7 +6,7 @@ except:
     pass
 from parameterized import parameterized
 import datetime
-from pawnlib.typing.date_utils import convert_unix_timestamp, get_range_day_of_month, timestamp_to_string, TimeCalculator
+from pawnlib.typing.date_utils import convert_unix_timestamp, get_range_day_of_month, timestamp_to_string, TimeCalculator, todaydate
 from pawnlib.output import cprint
 
 
@@ -74,6 +74,28 @@ class TestMethodRequest(unittest.TestCase):
         self.assertEqual(time_calculator.to_days(), 14)
         self.assertEqual(time_calculator.to_hours(), 340)
         self.assertEqual(time_calculator.to_minutes(), 20406)
+
+    def test_todaydate(self):
+        fixed_now = datetime.datetime(2025, 3, 26, 13, 34, 12, 450000)                 
+        test_cases = [
+            ("file", fixed_now.strftime("%Y%m%d_%H%M")),
+            ("md", fixed_now.strftime("%m%d")),
+            ("time", fixed_now.strftime("%H:%M:%S.%f")[:-3]),
+            ("time_sec", fixed_now.strftime("%H:%M:%S")),
+            ("hour", fixed_now.strftime("%H%M")),
+            ("ms", fixed_now.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]),
+            ("log", fixed_now.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]),
+            ("log_ms", fixed_now.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]),
+            ("ms_text", fixed_now.strftime("%Y%m%d-%H%M%S%f")[:-3]),
+            ("unix", hex(int(fixed_now.timestamp()))),
+            ("ms_unix", hex(int(fixed_now.timestamp() * 1_000_000))),
+        ]
+
+        for date_type, expected in test_cases:
+            with self.subTest(date_type=date_type):
+                result = todaydate(date_type, fixed_now)                
+                cprint(f"todaydate({date_type}), result={result}")
+                self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":

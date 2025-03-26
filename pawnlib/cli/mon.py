@@ -17,9 +17,12 @@ from pawnlib.typing import (
     str2bool,
     sys_exit,
     is_valid_url,
+    shorten_text,
+    HexConverter,
+    todaydate
 )
 from pawnlib.output import print_var, get_script_path, is_file, get_parent_path
-from pawnlib.utils.http import AsyncGoloopWebsocket, NetworkInfo
+from pawnlib.utils.http import AsyncGoloopWebsocket, NetworkInfo, AsyncIconRpcHelper
 from pawnlib.docker.compose import DockerComposeBuilder
 from InquirerPy import inquirer
 from rich.prompt import Prompt
@@ -50,8 +53,6 @@ class ComposeDefaultSettings:
     LOG_FILE = "/pawnlib/logs"
     VERBOSE = 1
     LOG_TYPE = "file"
-    # DEFAULT_BASE_DIR = "."
-    # DEFAULT_LOG_FILE = ""
     PRIORITY = "env"
 
 
@@ -306,7 +307,7 @@ def load_environment_settings(args) -> dict:
         'skip_until': get_setting('skip_until', 'SKIP_UNTIL', default=0, value_type=int),
         'base_dir': get_setting('base_dir', 'BASE_DIR', default="./", value_type=str),
         # 'state_cache_file': os.environ.get('STATE_CACHE_FILE', args.state_cache_file),
-        'check_interval': get_setting('check_interval', 'CHECK_INTERVAL', default=10, value_type=str),
+        'check_interval': get_setting('check_interval', 'CHECK_INTERVAL', default=10, value_type=int),
         'ignore_decimal': get_setting('ignore_decimal', 'IGNORE_DECIMAL', default=False, value_type=bool),
     }
     return settings
@@ -458,9 +459,7 @@ class WalletStateTracker:
             for k in new if old.get(k) != new.get(k)
         }
 
-import datetime
-from pawnlib.utils.http import AsyncIconRpcHelper
-from pawnlib.typing.converter import HexConverter
+
 async def worker(rpc, address: str) -> dict:
     """지갑 전체 데이터 반환"""
     async with rpc.semaphore:
@@ -470,7 +469,7 @@ async def worker(rpc, address: str) -> dict:
             "bond": await rpc.get_bond(address, return_key="result.totalBonded"),
             "delegation": await rpc.get_delegation(address, return_key="result.totalDelegated"),
             "reward": await rpc.get_iscore(address, return_key="result.estimatedICX"),
-            "last_updated": datetime.datetime.utcnow().isoformat()
+            "last_updated": todaydate('ms')
         }
 
 
@@ -488,8 +487,8 @@ def deep_filter_ignored(data: Any, ignore_keys: List[str]) -> Any:
 
 
 def format_balance_change(
-        old_val: int,
-        new_val: int,
+        old_val: Any,
+        new_val: Any,
         ignore_decimal: bool = False
 ) -> str:
     """
@@ -499,6 +498,10 @@ def format_balance_change(
       소숫점 4자리까지 반올림하되, 실질적으로 정수면 정수 형태로.
     """
     try:
+        # 입력 값이 숫자인지 확인
+        if not isinstance(old_val, (int, float)) or not isinstance(new_val, (int, float)):
+            raise ValueError(f"Invalid input types: old_val={old_val}, new_val={new_val}")
+
         if ignore_decimal:
             old_val_proc = int(old_val)
             new_val_proc = int(new_val)
@@ -517,7 +520,6 @@ def format_balance_change(
         if ignore_decimal:
             new_val_fmt = f"{new_val_proc:,} ICX"
             change_fmt = f"{abs_change:+,} ICX"
-
         else:
             new_val_rounded = round(new_val_proc, 4)
             change_rounded = round(change, 4)
@@ -581,12 +583,16 @@ async def detect_changes(
     if filtered_prev != filtered_current:
         changed_fields = {}
         for key in set(prev_data.keys()).union(current_data.keys()):
-
             if key in ignore_keys:
                 continue
 
             old_val = prev_data.get(key)
             new_val = current_data.get(key)
+
+            # 숫자 값이 아닌 경우를 처리
+            if not isinstance(old_val, (int, float)) or not isinstance(new_val, (int, float)):
+                logger.warning(f"Skipping non-numeric change for {key}: old_val={old_val}, new_val={new_val}")
+                continue
 
             if (
                     ignore_decimal_changes
@@ -594,22 +600,16 @@ async def detect_changes(
                     and isinstance(new_val, (int, float))
             ):
                 if int(old_val) == int(new_val):
-                    # if old_val and new_val and old_val != new_val:
-                    #     pawn.console.debug(f"<{address}> {key} Ignore Changed {old_val} -> {new_val}")
                     continue
 
             if old_val != new_val:
                 changed_fields[key] = {"old": old_val, "new": new_val}
 
-        from pawnlib.typing.converter import shorten_text
+        
         short_address =  f"💰{shorten_text(address, width=12, placeholder='..', truncate_side='middle')}"
         address_with_link = f"<https://tracker.icon.community/address/{address}|{short_address}>"
         if changed_fields:
-            logger.info(
-                f"⨀ State changed for {address}:\n"
-                f"{format_changes(changed_fields)}"
-                # f"Full changes: {json.dumps(changed_fields, indent=2)}"
-            )
+            logger.info(f"⨀ State changed for {short_address}:\n{format_changes(changed_fields)}")
             if is_send_slack:                                
                 await pconf().slack.send_async(
                     title=f"State changed for {address_with_link}",
@@ -734,6 +734,7 @@ def select_service_name():
     options = [
         {"name": "Generate docker-compose.yml for SSH Monitoring", "value": "ssh", "description": "Generate docker-compose.yml for SSH log monitoring"},
         {"name": "Generate docker-compose.yml for Wallet Monitoring", "value": "wallet", "description": "Generate docker-compose.yml for Wallet WebSocket monitoring"},
+        {"name": "Generate docker-compose.yml for Wallet-Multi Monitoring", "value": "wallet-multi", "description": "Generate docker-compose.yml for Wallet-Multi WebSocket monitoring"},
     ]
     selected_option = inquirer.select(
         message="Select a service to generate docker-compose.yml for:",
