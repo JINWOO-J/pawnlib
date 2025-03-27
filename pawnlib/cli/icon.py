@@ -21,7 +21,7 @@ from pawnlib.utils.http import IconRpcHelper, json_rpc, icx_signer, NetworkInfo
 from pawnlib.utils.redis_helper import RedisHelper
 from redis import exceptions as redis_exceptions
 from pawnlib.typing.converter import hex_to_number
-from pawnlib.models.response import HexValue, HexTintValue, HexValueParser
+from pawnlib.models.response import HexValue, HexTintValue, HexValueParser, HexValueParser
 from rich.tree import Tree
 from rich.text import Text
 from rich.prompt import Confirm
@@ -30,18 +30,30 @@ from pawnlib.config.logging_config import LoggerMixin, LoggerMixinVerbose, Logge
 from pawnlib.utils.log import print_logger_configurations
 
 IS_DOCKER = str2bool(os.environ.get("IS_DOCKER"))
+ALLOWED_TASKS = ['balance', 'iscore', 'stake', 'bond', 'delegation']
 
 __description__ = "ICON Tool"
 __epilog__ = (
     "\nUsage examples:\n\n"
-    "1. Start monitoring SSH log files:\n"
-    "     `pawns mon ssh -f /var/log/secure /var/log/auth.log`\n\n"
-    "2. Start the wallet client:\n"
-    "     `pawns mon wallet --url https://example.com -vvv`\n\n"
+    "1. Interactively claim I-Score:\n"
+    "     `pawns icon claim`\n\n"
+    "2. Start monitoring ICON assets:\n"
+    "     `pawns icon monitor --task-list balance iscore`\n\n"
+    "3. Send the minimum fee to the asset wallet:\n"
+    "     `pawns icon send_fee`\n\n"
+    "4. Send all available assets to the safety wallet:\n"
+    "     `pawns icon send_all`\n\n"
+    "5. Stake all available ICX:\n"
+    "     `pawns icon stake_all`\n\n"
+    "6. Delegate all available ICX:\n"
+    "     `pawns icon delegate_all`\n\n"
+    "7. Fetch the current status of all assets:\n"
+    "     `pawns icon status`\n\n"
+    "8. Send assets to the safety wallet:\n"
+    "     `pawns icon send_to_safety_wallet`\n\n"
     "Note:\n"
-    "  You can monitor multiple log files by providing multiple `-f` arguments.\n"
+    "  Use `--help` with any command to get detailed options, e.g., `pawns icon monitor --help`.\n"
 )
-
 
 def get_parser():
     parser = CustomArgumentParser(
@@ -55,7 +67,7 @@ def get_parser():
 
 
 def add_common_arguments(parser):
-    """Add common arguments to both SSH and Wallet parsers."""
+    """Add common arguments to parsers."""
     parser.add_argument('--log-type', choices=['console', 'file', 'both'], default='console', help='Choose logger type: console or file (default: console)')
     parser.add_argument('--log-file', help='Log file path if using file logger (required if --log-type=file)', default=None)
     parser.add_argument('-v', '--verbose', action='count', default=1, help='Increase verbosity level. Use -v, -vv, -vvv, etc.')
@@ -71,6 +83,8 @@ def add_common_arguments(parser):
     parser.add_argument( '-fee', '--minimum-fee', type=float, default=0, help='')
     parser.add_argument('-mb', '--minimum-balance', type=float, default=0, help='')
     parser.add_argument('--dry-run', action='count', default=0)
+        
+    parser.add_argument('--task-list', nargs='+', help=f'Perform the following tasks: {", ".join(ALLOWED_TASKS)}', default=[])
 
     return parser
 
@@ -103,6 +117,7 @@ class SettingsConfig(BaseSettingsConfig):
 
     dry_run: SettingDefinition = SettingDefinition('DRY_RUN', default=0, value_type=int)
     force: SettingDefinition = SettingDefinition('FORCE', default=0, value_type=int)
+    task_list: SettingDefinition = SettingDefinition('TASK_LIST', default=[], value_type=str, is_list=True)
 
 
 def get_arguments(parser=None):
@@ -132,6 +147,7 @@ def get_arguments(parser=None):
 
 
 class MonitoringManager(LoggerMixinVerbose):
+    initialized = False
     def __init__(self, rpc_method: Callable, name: str, pk: str, wallet, icon_rpc_helper, hook: Callable = None, params: dict = {}, logger=None, verbose=1):
         self.rpc_method = rpc_method
         self.name = name
@@ -144,8 +160,10 @@ class MonitoringManager(LoggerMixinVerbose):
         # self.logger = setup_logger(logger, "MonitoringManager", verbose)
         # self.logger = self.get_logger()
         self.init_logger(logger=logger, verbose=verbose)
-
-        self.logger.info(f"Initializing monitoring system {self.logger}")
+        
+        if not MonitoringManager.initialized:  # 클래스 변수 사용
+            self.logger.info(f"Initializing monitoring system {self.logger}")
+            MonitoringManager.initialized = True  # 클래스 변수 업데이트        
 
         self.address = self.icon_rpc_helper.get_wallet_address(self.pk)
         self.previous_value = None
@@ -178,19 +196,24 @@ class MonitoringManager(LoggerMixinVerbose):
         """Run the monitoring loop to check for changes in wallet metrics."""
         while True:
             try:
-                res = self.rpc_method(address=self.address, return_as_hex=True, **self.params)
+                current_value = self.rpc_method(address=self.address, return_as_hex=True, **self.params)
                 redis_key = f"monitoring_wallet:{self.address}:{self.name}"
                 previous_value = self.redis_helper.get(redis_key, as_json=True)
                 _shorten_address = shorten_text(self.address, width=15, placeholder="..", shorten_middle=True)
-                self.logger.info(f"[{self.name}][{_shorten_address}] Previous value: {previous_value} == {res}")
 
-                if previous_value != res:
-                    differences = self._find_value_difference(previous_value, res)
+                previous_value_hex = HexValue(previous_value)
+                current_value_hex = HexValue(current_value)
+                
+                self.logger.debug(f"[{self.name}][{_shorten_address}] {self.name:>15}: {previous_value_hex.output(use_simple=True)} == {current_value_hex.output(use_simple=True)}")
+                # self.logger.debug(f"[{self.name}][{_shorten_address}] {self.name:>15}: {previous_value} == {current_value}")
+
+                if previous_value != current_value:
+                    differences = self._find_value_difference(previous_value, current_value)
                     if differences:
                         self.logger.info(f"[{self.name}][{_shorten_address}] Value changed: {differences}")
-                        self.redis_helper.set(redis_key, res, as_json=True)
+                        self.redis_helper.set(redis_key, current_value, as_json=True)
                         if self.hook:
-                            await self._trigger_hooks(res)
+                            await self._trigger_hooks(current_value, previous_value)
                 await asyncio.sleep(5)
 
             except ConnectionError as e:
@@ -206,12 +229,12 @@ class MonitoringManager(LoggerMixinVerbose):
                 self.logger.error(f"Unexpected error during monitoring: {e}")
                 await asyncio.sleep(10)
 
-    async def _trigger_hooks(self, result):
+    async def _trigger_hooks(self, current_value, previous_value):
         if isinstance(self.hook, list):
             for _hook in self.hook:
-                await _hook(self.name, self.address, result)
+                await _hook(name=self.name, address=self.address, current_value=current_value, previous_value=previous_value)
         else:
-            await self.hook(self.name, self.address, result)
+            await self.hook(name=self.name, address=self.address, current_value=current_value, previous_value=previous_value)
 
 
 class MonitoringSystem:
@@ -422,27 +445,56 @@ class IconTools:
         icon_rpc_helper = IconRpcHelper(network_info=network_info, wallet=self.asset_wallet, raise_on_failure=False)
         pks = [asset_wallet_pk]
         monitor_tasks = [
-            # { 'name': 'balance',  'rpc_method': icon_rpc_helper.get_balance, 'event_hooks': [changed_balance, slack_notification]},
-            { 'name': 'I-Score', 'rpc_method': icon_rpc_helper.get_iscore, 'event_hooks': [self.claim_iscore_and_send_to_safety_wallet, self.slack_notification]},
+            { 'name': 'balance',  'rpc_method': icon_rpc_helper.get_balance, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
+            { 'name': 'iscore', 'rpc_method': icon_rpc_helper.get_iscore, 'event_hooks': [self.claim_iscore_and_send_to_safety_wallet, self.slack_notification]},
+            { 'name': 'stake',  'rpc_method': icon_rpc_helper.get_stake, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
+            { 'name': 'bond',  'rpc_method': icon_rpc_helper.get_bond, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
+            { 'name': 'get_delegation',  'rpc_method': icon_rpc_helper.get_delegation, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
+
+            
             # {'rpc_method': icon_rpc_helper.get_stake, 'name': 'stake'},
             # {'rpc_method': icon_rpc_helper.get_bond, 'name': 'bond'},
             # {'rpc_method': icon_rpc_helper.get_delegation, 'name': 'delegation'}
         ]
+
+        if hasattr(self.config, 'task_list'):
+            task_names = self.config.task_list
+            
+            if not all(task in ALLOWED_TASKS for task in task_names):
+                self.logger.error(f"Invalid task name: {task_names}")
+                sys_exit(f"Invalid task name: {task_names}")
+
+            monitor_tasks = [task for task in monitor_tasks if task['name'] in task_names]
+
+        task_names = ", ".join(task.get('name') for task in monitor_tasks)
+        self.logger.info(f"Starting monitoring for tasks: {task_names}")
+
+
         monitoring_system = MonitoringSystem(
             icon_rpc_helper=icon_rpc_helper, pks=pks, monitor_tasks=monitor_tasks, logger=self.logger, verbose=self.config.verbose,
         )
         # Run all monitors
         asyncio.run(monitoring_system.run_all())
 
-    async def claim_iscore_and_send_to_safety_wallet(self, name, address, result):
-        if result == "0x0":
+    async def claim_iscore_and_send_to_safety_wallet(self, **kwargs):
+        name = kwargs.get('name')
+        address = kwargs.get('address')
+        current_value = kwargs.get('current_value')
+        previous_value = kwargs.get('previous_value')
+
+        if current_value == "0x0":
             return
-        self.logger.info(f"Changed I-SCore:  {name}, {address}, {hex_to_number(result, debug=True, is_tint=True)}")
+        
+        # pawn.console.log(f"HexTintValue(current_value)={HexTintValue(current_value)}")
+        # pawn.console.log(f"HexValue(current_value)={HexValue(current_value)}")
+        
+
+        self.logger.info(f"Changed I-SCore:  {name}, {address}, {hex_to_number(current_value, debug=True, is_tint=True)}")
         self.ensure_minimum_fee()
         self.rpc_helper.claim_iscore(is_wait=True)
         self.logger.info(f"🚨 Transferring all available assets ({self.minimum_fee} ICX) from the validator `{self.asset_address}` "
                          f"to the safety wallet: `{self.safety_wallet_address}` minimum_balance={self.minimum_balance}")
-        self.send_to_safety_wallet(result)
+        self.send_to_safety_wallet(current_value)
 
     def send_to_safety_wallet(self, result=None, dry_run=False):
         if self.safety_wallet_address:
@@ -450,11 +502,14 @@ class IconTools:
         else:
             self.logger.info(f"SAFETY_WALLET_ADDRESS is not defined. Keep  the {hex_to_number(result, debug=True, is_tint=True)} ICX")
 
-    async def slack_notification(self, name, address, result):
-        print(f"Slack notification: [{name}] Address: {address}, Result: {result}")
+    async def slack_notification(self, **kwargs):
+        self.logger.info(f"✨✨✨✨ Slack notification: [{kwargs.get('name')}] Address: {kwargs.get('address')}, Result: {kwargs.get('current_value')  }")
 
     async def changed_balance(self, name, address, result):
         print(f"Changed Balanced {name}, {address}, {result}")
+
+    async def print_changed_hook(self, **kwargs ):
+        self.logger.info(f"✨✨✨✨ Changed Hook: {kwargs.get('name')}, {kwargs.get('address')}, {kwargs.get('current_value')}, {kwargs.get('previous_value')}")        
 
 
 def main():

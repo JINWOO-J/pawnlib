@@ -84,6 +84,10 @@ class HexValue:
             print(result_div)
             # > HexValue(hex=0xf, decimal=15, numeric=15, tint=0.000000000015000000)
     """
+    default_max_unit = "M"
+    default_decimal_places = 3
+    default_use_tint = True
+    default_symbol = ""
 
     def __init__(self, value=None, debug_info=None):
         """
@@ -138,27 +142,117 @@ class HexValue:
             self.decimal = None
             self.tint = None
             self.numeric = None
+        
+        if value is None:
+            self.readable_number = None
+        else:
+            self.readable_number = self.format_readable()
+            
 
-        self.readable_number = self.format_readable()
-
-    def format_readable(self):
+    @classmethod
+    def set_default_max_unit(cls, max_unit):
         """
-        Generate a readable representation of the numeric or decimal value.
+        Set the default max_unit for all HexValue instances.
 
-        :return: A human-friendly string representation of the number.
+        :param max_unit: The maximum unit to use for formatting (e.g., 'K', 'M', 'B', 'T', 'Q').
+        :type max_unit: str | None
+        """
+        cls.default_max_unit = max_unit.upper() if max_unit else None
+
+    @classmethod
+    def set_default_decimal_places(cls, decimal_places):
+        """
+        Set the default decimal places for all HexValue instances.
+        :param decimal_places: The number of decimal places to display for values less than 1.
+        :type decimal_places: int
+        :return: None
+
+        """
+        cls.default_decimal_places = decimal_places
+
+    @classmethod
+    def set_default_use_tint(cls, use_tint):
+        """
+        Set the default use_tint for all HexValue instances.
+        :param use_tint: If True, use the tint value for formatting. If False, use the numeric value.
+        :type use_tint: bool
+        :return: None
+        """        
+        cls.default_use_tint = use_tint    
+    
+    @classmethod
+    def set_default_symbol(cls, symbol):
+        """
+        Set the default symbol for all HexValue instances.
+        """
+        cls.default_symbol = symbol
+        
+    def format_readable(self, max_unit=None, use_tint=None, decimal_places=None, symbol=None):
+        """
+        Convert the numeric value to a human-readable string, flooring the value and using the specified or default max_unit.
+        For values less than 1, display with decimal places.
+
+        :param max_unit: The maximum unit to use for formatting (e.g., 'K', 'M', 'B', 'T', 'Q'). If None, uses the class default.
+        :type max_unit: str | None
+        :param use_tint: If True, use the tint value for formatting. If False, use the numeric value.
+        :type use_tint: bool
+        :param decimal_places: The number of decimal places to display for values less than 1.
+        :type decimal_places: int
+        :return: A human-readable string representation of the number.
         :rtype: str
+        :param symbol: The symbol to use for the value.
+        :type symbol: str
         """
         value = self.numeric
 
-        # Example conversion to K, M, B, etc.
-        if value >= 1e9:
-            return f"{value / 1e9:.2f}B"
-        elif value >= 1e6:
-            return f"{value / 1e6:.2f}M"
-        elif value >= 1e3:
-            return f"{value / 1e3:.2f}K"
+        use_tint = use_tint if use_tint is not None else self.__class__.default_use_tint
+        decimal_places = decimal_places if decimal_places is not None else self.__class__.default_decimal_places
+        symbol = symbol if symbol is not None else self.__class__.default_symbol
+
+        if value == 0:
+            return "0"
+
+        sign = '-' if value < 0 else ''
+        value = abs(value)
+
+        if use_tint or value > const.ICX_IN_LOOP:
+            value = value / const.ICX_IN_LOOP
+        
+        units = [
+            (1e15, 'Q'), (1e12, 'T'), (1e9, 'B'), (1e6, 'M'), (1e3, 'K'), (1, '')
+        ]
+
+        effective_max_unit = (max_unit.upper() if max_unit else self.__class__.default_max_unit) if max_unit or self.__class__.default_max_unit else None
+
+        if effective_max_unit:
+            unit_order = [unit[1] for unit in units]  # ['Q', 'T', 'B', 'M', 'K', '']
+            if effective_max_unit in unit_order:
+                max_index = unit_order.index(effective_max_unit)
+                filtered_units = units[max_index:]
+            else:
+                filtered_units = units  
         else:
-            return f"{value:.2f}"
+            filtered_units = units
+        
+        if value >= 1:
+            for divisor, unit in filtered_units:
+                if value >= divisor:
+                    floored_value = int(value / divisor)
+                    formatted_value = f"{floored_value:,}"
+                    return f"{sign}{formatted_value}{unit} {symbol}"
+            formatted_value = f"{int(value):,}"
+        else:            
+            if decimal_places is None:
+                formatted_value = f"{value:.18f}".rstrip('0').rstrip('.')
+            else:
+                formatted_value = f"{value:.{decimal_places}f}"
+                # Check if it's "0.000..." (handle as a string without converting to float)
+                if formatted_value.startswith("0.") and all(c == '0' for c in formatted_value[2:]):
+                    formatted_value = f"{value:.18f}".rstrip('0').rstrip('.')
+                else:
+                    formatted_value = formatted_value.rstrip('0').rstrip('.')
+        
+        return f"{sign}{formatted_value} {symbol}"        
 
     @staticmethod
     def hex_to_number(hex_val):
@@ -258,8 +352,11 @@ class HexValue:
         return (f"HexValue(hex={self.hex}, "
                 f"decimal={self.decimal}, "
                 f"numeric={self.numeric}, "
-                f"readable_number={self.readable_number}, "  # Include readable_number here
-                f"tint={tint_str}"
+                f"readable_number={self.readable_number}, "
+                f"tint={tint_str}, "
+                f"default_max_unit={HexValue.default_max_unit}, "
+                f"default_decimal_places={HexValue.default_decimal_places}, "
+                f"default_use_tint={HexValue.default_use_tint}"
                 f"{debug_info_str})")
 
     def __str__(self):
@@ -606,6 +703,11 @@ class HexValue:
 
 
 class HexTintValue(HexValue):
+    default_max_unit = "K"
+    default_decimal_places = 3
+    default_use_tint = True
+    default_symbol = "ICX"
+
     def __init__(self, value=None, debug_info=None):
         """
         Initialize a HexTintValue instance. If the numeric value is less than 10**18,
@@ -616,9 +718,27 @@ class HexTintValue(HexValue):
         :param debug_info: Optional debug information for logging purposes.
         :type debug_info: Any
         """
-        scale_factor = const.ICX_IN_LOOP
-        if value and value < scale_factor:
-            value = int(value *  scale_factor)
+        if value is None:
+            raise ValueError("Value cannot be None")        
+
+        scale_factor = const.ICX_IN_LOOP        
+
+        if isinstance(value, str):
+            if value.startswith("0x"):
+                try:
+                    value = int(value, 16) / scale_factor
+                except ValueError:
+                    raise ValueError(f"Invalid hex string: {value}")
+            else:
+                raise ValueError(f"String value must be a hex string starting with '0x', got: {value}")
+        elif not isinstance(value, (int, float)):
+            raise ValueError(f"Value must be str, int, or float, got: {type(value)}")
+
+        
+
+        if isinstance(value, (int, float)) and value < scale_factor:
+            value = int(value * scale_factor)
+
         super().__init__(value, debug_info)  # Initialize as HexValue
 
     def __repr__(self):
@@ -628,7 +748,11 @@ class HexTintValue(HexValue):
                 f"decimal={self.decimal}, "
                 f"numeric={self.numeric}, "
                 f"readable_number={self.readable_number}, "
-                f"tint={tint_str}"
+                f"tint={tint_str}, "
+                f"default_max_unit={HexTintValue.default_max_unit}, "
+                f"default_decimal_places={HexTintValue.default_decimal_places}, "
+                f"default_use_tint={HexTintValue.default_use_tint}, "
+                f"default_symbol={HexTintValue.default_symbol}"
                 f"{debug_info_str})")
 
 
