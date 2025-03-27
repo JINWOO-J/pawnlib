@@ -3,7 +3,7 @@ import common
 from pawnlib.typing import const, constants
 from pawnlib.config import pawn
 from pawnlib.typing import hex_to_number
-from pawnlib.models.response import HexValue
+from pawnlib.models.response import HexValue, HexTintValue
 
 a = HexValue("0x2323")
 b = HexValue("0x2321")
@@ -100,6 +100,30 @@ def test_hex_operations():
     # Reverse exponentiation with hex string
     result_rpow = "0x2" ** hex_value
     print(result_rpow)  # Expected: HexValue with numeric = 65536
+
+    
+    HexValue.set_default_max_unit('M')
+
+    readable = HexValue("0x295bcc94a74a601db62c206").format_readable()
+    pawn.console.log(f"========== {readable}")
+
+    pawn.console.log(repr(HexValue("0x295bcc94a74a601db62c206")))
+    pawn.console.log(repr(HexValue("0x38d7ea4c68000")))
+    
+    
+
+    pawn.console.log(repr(HexTintValue("0x295bcc94a74a601db62c206")))
+    pawn.console.log(repr(HexTintValue("0x38d7ea4c68000")))
+    pawn.console.log(repr(HexTintValue(0.00122222222222)))
+    pawn.console.log(repr(HexTintValue(0.0000000133343)))
+    
+
+    
+
+
+
+
+
 
 
 # 실행
