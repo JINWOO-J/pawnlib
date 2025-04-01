@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pawnlib"
 description = "pawnlib: A versatile Python library for Infrastructure as Code (IaC), offering tools for SSH monitoring, WebSocket connections, and more."
-license = "MIT"
+license = { text = "MIT License" }
 keywords = ["Python IaC", "SSH monitoring Python", "pawnlib tools"]
 requires-python = ">=3.7"
 authors = [
