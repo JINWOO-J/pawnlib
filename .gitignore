@@ -10,7 +10,8 @@ examples/logging/logs/*
 *examples/logging/logs/*
 examples/color_print/logs/*
 default_app.py
-
+.python-version
+.history/
 .idea/
 *.iml
 *.iws
