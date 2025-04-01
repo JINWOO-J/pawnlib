@@ -84,10 +84,11 @@ class HexValue:
             print(result_div)
             # > HexValue(hex=0xf, decimal=15, numeric=15, tint=0.000000000015000000)
     """
-    default_max_unit = "M"
+    default_max_unit = None
     default_decimal_places = 3
     default_use_tint = True
     default_symbol = ""
+    default_format_type = None
 
     def __init__(self, value=None, debug_info=None):
         """
@@ -158,6 +159,13 @@ class HexValue:
         :type max_unit: str | None
         """
         cls.default_max_unit = max_unit.upper() if max_unit else None
+
+    @classmethod
+    def set_default_format_type(cls, format_type):
+        """
+        Set the default format type for all HexValue instances.
+        """
+        cls.default_format_type = format_type
 
     @classmethod
     def set_default_decimal_places(cls, decimal_places):
@@ -239,7 +247,8 @@ class HexValue:
                 if value >= divisor:
                     floored_value = int(value / divisor)
                     formatted_value = f"{floored_value:,}"
-                    return f"{sign}{formatted_value}{unit} {symbol}"
+                    return f"{sign}{formatted_value}{unit}{' ' + symbol if symbol else ''}"
+                
             formatted_value = f"{int(value):,}"
         else:            
             if decimal_places is None:
@@ -251,8 +260,8 @@ class HexValue:
                     formatted_value = f"{value:.18f}".rstrip('0').rstrip('.')
                 else:
                     formatted_value = formatted_value.rstrip('0').rstrip('.')
-        
-        return f"{sign}{formatted_value} {symbol}"        
+                
+        return f"{sign}{formatted_value}{' ' + symbol if symbol else ''}"
 
     @staticmethod
     def hex_to_number(hex_val):
@@ -417,6 +426,10 @@ class HexValue:
             _value = Decimal(0)
 
         formatted_value = f"{_value:,.18f}".rstrip('0').rstrip('.')
+
+        if self.__class__.default_format_type == "readable_number":            
+            return self.readable_number
+
         if use_simple:
             return formatted_value
 
@@ -758,31 +771,31 @@ class HexTintValue(HexValue):
 
 class HexValueParser:
     EXCLUDED_KEYS = {"logsBloom", "txHash", "data", "blockHash"}
-    def __new__(cls, data):
-        return cls.parse(data)
+    def __new__(cls, data, debug_info=None, attribute=None):        
+        return cls.parse(data, debug_info=debug_info, attribute=attribute)
 
     @staticmethod
-    def parse(data, debug_info=None):
+    def parse(data, debug_info=None, attribute=None):
         """Recursively convert lists or dicts to HexResponse instances if they are hex strings, except for excluded keys."""
         if data is None:
             return None
         elif isinstance(data, list):
             # Recursively parse each item in the list
-            return [HexValueParser.parse(item, debug_info) for item in data]
-        elif isinstance(data, dict):
-            # Parse each key-value pair in the dict, skipping excluded keys and their nested structures
+            return [HexValueParser.parse(item, debug_info=debug_info, attribute=attribute) for item in data]
+        elif isinstance(data, dict):            
             parsed_data = {}
             for key, value in data.items():
                 if key in HexValueParser.EXCLUDED_KEYS:
-                    parsed_data[key] = value  # Skip parsing for excluded keys
+                    parsed_data[key] = value
                 else:
-                    parsed_data[key] = HexValueParser.parse(value, debug_info)
-            return parsed_data
+                    parsed_data[key] = HexValueParser.parse(value, debug_info=debug_info, attribute=attribute)
+            return parsed_data        
         elif isinstance(data, str) and HexValue.is_hex(data):
-            # Only convert if it's a hex string and not in EXCLUDED_KEYS
-            return HexValue(data, debug_info)
-        else:
-            # Return the data as-is if it's not a hex string
+            hex_value = HexValue(data, debug_info)
+            if attribute and hasattr(hex_value, attribute):
+                return getattr(hex_value, attribute)
+            return hex_value
+        else:            
             return data
 
 

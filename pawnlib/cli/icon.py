@@ -21,7 +21,7 @@ from pawnlib.utils.http import IconRpcHelper, json_rpc, icx_signer, NetworkInfo
 from pawnlib.utils.redis_helper import RedisHelper
 from redis import exceptions as redis_exceptions
 from pawnlib.typing.converter import hex_to_number
-from pawnlib.models.response import HexValue, HexTintValue, HexValueParser, HexValueParser
+from pawnlib.models.response import HexValue, HexTintValue, HexValueParser
 from rich.tree import Tree
 from rich.text import Text
 from rich.prompt import Confirm
@@ -30,7 +30,7 @@ from pawnlib.config.logging_config import LoggerMixin, LoggerMixinVerbose, Logge
 from pawnlib.utils.log import print_logger_configurations
 
 IS_DOCKER = str2bool(os.environ.get("IS_DOCKER"))
-ALLOWED_TASKS = ['balance', 'iscore', 'stake', 'bond', 'delegation']
+ALLOWED_TASKS = ['balance', 'iscore', 'stake', 'bond', 'delegate']
 
 __description__ = "ICON Tool"
 __epilog__ = (
@@ -167,8 +167,8 @@ class MonitoringManager(LoggerMixinVerbose):
 
         self.address = self.icon_rpc_helper.get_wallet_address(self.pk)
         self.previous_value = None
-        self.redis_helper = RedisHelper( )
-        # self.redis_helper = RedisHelper()
+        self.redis_helper = RedisHelper()
+        
 
     def _find_value_difference(self, old_value, new_value):
         # Case 1: If both values are dicts, compare key-by-key
@@ -195,16 +195,25 @@ class MonitoringManager(LoggerMixinVerbose):
     async def run_monitoring(self):
         """Run the monitoring loop to check for changes in wallet metrics."""
         while True:
-            try:
-                current_value = self.rpc_method(address=self.address, return_as_hex=True, **self.params)
+            try:                
+                current_value = self.rpc_method(address=self.address, return_as_hex=True, **self.params)                
                 redis_key = f"monitoring_wallet:{self.address}:{self.name}"
                 previous_value = self.redis_helper.get(redis_key, as_json=True)
                 _shorten_address = shorten_text(self.address, width=15, placeholder="..", shorten_middle=True)
+                HexValue.set_default_max_unit("G")
+                HexValue.set_default_symbol("ICX")
+                HexValue.set_default_format_type("readable_number")
 
-                previous_value_hex = HexValue(previous_value)
-                current_value_hex = HexValue(current_value)
+                previous_value_hex = HexValueParser(previous_value)
+                current_value_hex = HexValueParser(current_value)
+
+                if isinstance(previous_value_hex, HexValue) and isinstance(current_value_hex, HexValue):
+                    difference_value = current_value_hex - previous_value_hex
+                else:
+                    difference_value = None
                 
-                self.logger.debug(f"[{self.name}][{_shorten_address}] {self.name:>15}: {previous_value_hex.output(use_simple=True)} == {current_value_hex.output(use_simple=True)}")
+                # self.logger.debug(f"[{self.name}][{_shorten_address}] {self.name:>15}: {previous_value_hex.readable_number} == {current_value_hex.readable_number}")  
+                self.logger.debug(f"[{self.name}][{_shorten_address}] {self.name:>15}: {previous_value_hex} == {current_value_hex}, difference: {difference_value}")
                 # self.logger.debug(f"[{self.name}][{_shorten_address}] {self.name:>15}: {previous_value} == {current_value}")
 
                 if previous_value != current_value:
@@ -445,11 +454,11 @@ class IconTools:
         icon_rpc_helper = IconRpcHelper(network_info=network_info, wallet=self.asset_wallet, raise_on_failure=False)
         pks = [asset_wallet_pk]
         monitor_tasks = [
-            { 'name': 'balance',  'rpc_method': icon_rpc_helper.get_balance, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
+            { 'name': 'balance', 'rpc_method': icon_rpc_helper.get_balance, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
             { 'name': 'iscore', 'rpc_method': icon_rpc_helper.get_iscore, 'event_hooks': [self.claim_iscore_and_send_to_safety_wallet, self.slack_notification]},
-            { 'name': 'stake',  'rpc_method': icon_rpc_helper.get_stake, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
-            { 'name': 'bond',  'rpc_method': icon_rpc_helper.get_bond, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
-            { 'name': 'get_delegation',  'rpc_method': icon_rpc_helper.get_delegation, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
+            { 'name': 'stake', 'rpc_method': icon_rpc_helper.get_stake, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
+            { 'name': 'bond', 'rpc_method': icon_rpc_helper.get_bond, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
+            { 'name': 'delegate', 'rpc_method': icon_rpc_helper.get_delegation, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
 
             
             # {'rpc_method': icon_rpc_helper.get_stake, 'name': 'stake'},
@@ -461,8 +470,8 @@ class IconTools:
             task_names = self.config.task_list
             
             if not all(task in ALLOWED_TASKS for task in task_names):
-                self.logger.error(f"Invalid task name: {task_names}")
-                sys_exit(f"Invalid task name: {task_names}")
+                self.logger.error(f"Invalid task name: {task_names}, allowed tasks: {ALLOWED_TASKS}")
+                sys_exit(f"Invalid task name: {task_names}, allowed tasks: {ALLOWED_TASKS}")
 
             monitor_tasks = [task for task in monitor_tasks if task['name'] in task_names]
 
@@ -485,10 +494,6 @@ class IconTools:
         if current_value == "0x0":
             return
         
-        # pawn.console.log(f"HexTintValue(current_value)={HexTintValue(current_value)}")
-        # pawn.console.log(f"HexValue(current_value)={HexValue(current_value)}")
-        
-
         self.logger.info(f"Changed I-SCore:  {name}, {address}, {hex_to_number(current_value, debug=True, is_tint=True)}")
         self.ensure_minimum_fee()
         self.rpc_helper.claim_iscore(is_wait=True)
