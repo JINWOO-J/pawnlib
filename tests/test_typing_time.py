@@ -8,6 +8,11 @@ from parameterized import parameterized
 import datetime
 from pawnlib.typing.date_utils import convert_unix_timestamp, get_range_day_of_month, timestamp_to_string, TimeCalculator, todaydate
 from pawnlib.output import cprint
+import time
+import os
+os.environ['TZ'] = 'Asia/Seoul'
+time.tzset()
+
 
 
 class TestMethodRequest(unittest.TestCase):

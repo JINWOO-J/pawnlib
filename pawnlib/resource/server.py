@@ -1470,46 +1470,83 @@ def convert_values_to_unit(data, convert_unit):
     return data
 
 
-def get_cpu_time():
+def get_cpu_time() -> Dict[str, Dict[str, float]]:
+    """
+    Reads /proc/stat to gather CPU time statistics for each CPU core.
+    Returns a dictionary with CPU IDs and their respective time metrics.
+    """
     cpu_infos = {}
-    if os.path.exists('/proc/stat'):
-        with open('/proc/stat', 'r') as file_stat:
-            cpu_lines = []
-            for lines in file_stat.readlines():
-                for line in lines.split('\n'):
-                    if line.startswith('cpu'):
-                        cpu_lines.append(line.split(' '))
-            for cpu_line in cpu_lines:
-                if '' in cpu_line:
-                    cpu_line.remove('')  # First row(cpu) exist '' and Remove ''
-                cpu_id = cpu_line[0]
-                cpu_line = [float(item) for item in cpu_line[1:]]
-                user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice = cpu_line
+    if not os.path.exists('/proc/stat'):
+        return cpu_infos  # Return empty dict if /proc/stat is unavailable
 
-                idle_time = idle + iowait
-                non_idle_time = user + nice + system + irq + softirq + steal
-                total = idle_time + non_idle_time
+    with open('/proc/stat', 'r') as file_stat:
+        for line in file_stat:
+            if not line.startswith('cpu'):
+                continue
+            fields = [field for field in line.split() if field]  # Remove empty strings
+            if len(fields) < 5:  # Basic validation for expected fields
+                continue
 
-                cpu_infos.update({cpu_id: {'total': total, 'idle': idle_time, 'iowait': iowait}})
+            cpu_id = fields[0]
+            times = [float(t) for t in fields[1:]]  # Convert to floats
+            user, nice, system, idle, iowait = times[:5]  # Core fields
+            # Optional fields (irq, softirq, etc.) may not always be present
+            irq = times[5] if len(times) > 5 else 0
+            softirq = times[6] if len(times) > 6 else 0
+            steal = times[7] if len(times) > 7 else 0
+
+            idle_time = idle + iowait
+            non_idle_time = user + nice + system + irq + softirq + steal
+            total_time = idle_time + non_idle_time
+
+            cpu_infos[cpu_id] = {
+                'total': total_time,
+                'idle': idle_time,
+                'iowait': iowait
+            }
     return cpu_infos
 
 
-def get_cpu_usage_percentage():
+def get_cpu_usage_percentage(interval: float = 1.0) -> Dict[str, float]:
+    """
+    Calculates CPU usage percentage over a given interval.
+    Returns a dictionary with CPU usage percentages per core, average, and iowait.
+    """
     start = get_cpu_time()
-    time.sleep(1)
+    if not start:
+        return {}
+
+    time.sleep(interval)
     end = get_cpu_time()
+    if not end:
+        return {}
+
     cpu_usages = {}
     iowait_usages = []
+
     for cpu in start:
-        diff_total = end[cpu]['total'] - start[cpu]['total']
-        diff_idle = end[cpu]['idle'] - start[cpu]['idle']
-        diff_iowait = end[cpu].get('iowait', 0) - start[cpu].get('iowait', 0)
-        iowait_usages.append(diff_iowait)
-        cpu_usage_percentage = (diff_total - diff_idle) / diff_total * 100
-        cpu_usages.update({cpu: round(cpu_usage_percentage, 2)})
+        if cpu not in end:
+            continue  # Skip if CPU data is missing in end snapshot
+        try:
+            diff_total = end[cpu]['total'] - start[cpu]['total']
+            diff_idle = end[cpu]['idle'] - start[cpu]['idle']
+            diff_iowait = end[cpu]['iowait'] - start[cpu]['iowait']
+
+            if diff_total <= 0:  # Avoid division by zero or negative time
+                cpu_usage_percentage = 0.0
+            else:
+                cpu_usage_percentage = (diff_total - diff_idle) / diff_total * 100
+
+            cpu_usages[cpu] = round(cpu_usage_percentage, 2)
+            iowait_usages.append(diff_iowait)
+        except KeyError as e:
+            print(f"Warning: Missing data for {cpu}: {e}")
+            continue
+
     if cpu_usages:
-        cpu_usages['avg'] = round(sum(cpu_usages.values()) / len(cpu_usages.values()), 2)
+        cpu_usages['avg'] = round(sum(cpu_usages.values()) / len(cpu_usages), 2)
         cpu_usages['iowait'] = round(sum(iowait_usages) / len(iowait_usages), 2)
+
     return cpu_usages
 
 

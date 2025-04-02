@@ -11,7 +11,7 @@ from pawnlib.typing.constants import const
 from functools import lru_cache
 
 if sys.version_info >= (3, 9):
-    from zoneinfo import ZoneInfo
+    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
     USE_ZONEINFO = True
 else:
     USE_ZONEINFO = False
@@ -317,26 +317,30 @@ def format_seconds_to_hhmmss(seconds: int = 0):
         return seconds
 
 
-def timestamp_to_string(unix_timestamp: int, str_format='%Y-%m-%d %H:%M:%S'):
+def timestamp_to_string(unix_timestamp: int, str_format: str = '%Y-%m-%d %H:%M:%S', tz: Optional[Union[str, datetime.tzinfo]] = None) -> str:
     """
+    Converts a Unix timestamp to a formatted string based on local timezone or specified timezone.
 
-    This functions will be returned unix timestamp to hh:mm:ss format
-
-    :param unix_timestamp: unix_timestamp
-    :param str_format: string format
-    :return:
+    :param unix_timestamp: Unix timestamp (seconds, milliseconds, or microseconds)
+    :param str_format: Output string format (default: '%Y-%m-%d %H:%M:%S')
+    :param tz: Timezone as string (e.g., 'UTC', 'Asia/Seoul') or tzinfo object (default: None, uses local timezone)
+    :return: Formatted datetime string
 
     Example:
-
         .. code-block:: python
-
             from pawnlib.typing import date_utils
 
+            # Local timezone (default)
             date_utils.timestamp_to_string(12323232323)
+            # >> '2360-07-05 09:05:23' (local timezone, e.g., KST)
 
-            # >> '2360-07-05 09:05:23'
+            # UTC timezone
+            date_utils.timestamp_to_string(12323232323, tz='UTC')
+            # >> '2360-07-05 00:05:23' (UTC)
 
-
+            # Asia/Seoul timezone
+            date_utils.timestamp_to_string(12323232323, tz='Asia/Seoul')
+            # >> '2360-07-05 09:05:23' (Asia/Seoul)
     """
     if isinstance(unix_timestamp, str):
         unix_timestamp = unix_timestamp.strip()
@@ -346,15 +350,25 @@ def timestamp_to_string(unix_timestamp: int, str_format='%Y-%m-%d %H:%M:%S'):
     ts_length = len(str(unix_timestamp))
 
     if ts_length == const.SECONDS_DIGITS:
-        timestamp_in_seconds = unix_timestamp
+        timestamp_in_seconds = int(unix_timestamp)
     elif ts_length == const.MILLI_SECONDS_DIGITS:
-        timestamp_in_seconds = unix_timestamp / 1_000
+        timestamp_in_seconds = int(unix_timestamp) / 1_000
     elif ts_length == const.MICRO_SECONDS_DIGITS:
-        timestamp_in_seconds = unix_timestamp / 1_000_000
+        timestamp_in_seconds = int(unix_timestamp) / 1_000_000
     else:
         raise ValueError(f'Invalid timestamp length - length={ts_length}, timestamp={unix_timestamp}')
 
-    return datetime.datetime.fromtimestamp(timestamp_in_seconds).strftime(str_format)
+    
+    if isinstance(tz, str):
+        try:
+            timezone = get_timezone(tz)
+        except ZoneInfoNotFoundError as e:
+            raise ValueError(f"Unsupported timezone: {tz} ({e})")
+    else:
+        timezone = tz
+
+    dt = datetime.datetime.fromtimestamp(timestamp_in_seconds, tz=timezone)
+    return dt.strftime(str_format)
 
 
 def second_to_dayhhmm(seconds: int = 0):
