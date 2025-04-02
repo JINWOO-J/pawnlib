@@ -1,54 +1,82 @@
-# This config was automatically generated from your source code
-# Stacks detected: cicd:github-actions:.github/workflows,deps:node:examples/genensis_test/governance,deps:python:.,file:setup.py:.
 version: 2.1
 orbs:
   python: circleci/python@2
 jobs:
-  test-python:
-    # Install dependencies and run tests
+  install-dependencies:
     docker:
       - image: cimg/python:3.9.20-node
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip-dist
+      - restore_cache:
+          keys:
+            - pip-cache-{{ checksum "requirements.dev.txt" }}
       - run:
-          name: Run tests
-          command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
+          name: Create and activate virtual environment
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip3 install -r requirements.dev.txt hatchling twine parameterized
+      - save_cache:
+          key: pip-cache-{{ checksum "requirements.dev.txt" }}
+          paths:
+            - ~/.cache/pip
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+            - venv/*
+  test-python:
+    docker:
+      - image: cimg/python:3.9.20-node
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Activate virtual environment and run tests
+          command: |
+            . venv/bin/activate
+            make test || ((($? == 5)) && echo 'Did not find any tests to run.')
       - store_test_results:
           path: junit.xml
   build-package:
-    # build python package
     docker:
       - image: cimg/python:3.9.20-node
     steps:
-      - checkout
+      - attach_workspace:
+          at: .
       - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      - python/dist
+          name: Build package with hatchling
+          command: |
+            . venv/bin/activate
+            python3 -m hatchling build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist/*
       - store_artifacts:
           path: dist
           destination: ~/artifacts
   deploy:
-    # This is an example deploy job, not actually used by the workflow
     docker:
-      - image: cimg/base:stable
+      - image: cimg/python:3.9.20-node
     steps:
-      # Replace this with steps to deploy to users
+      - attach_workspace:
+          at: .
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
-      - run:
-          name: found github actions config
-          command: ':'
+          name: Upload to PyPI
+          command: |
+            . venv/bin/activate
+            python3 -m twine upload dist/* --verbose -u "$PYPI_USERNAME" -p "$PYPI_PASSWORD"
 workflows:
   build-and-test:
     jobs:
-      - test-python
+      - install-dependencies
+      - test-python:
+          requires:
+            - install-dependencies
       - build-package:
           requires:
             - test-python
-    # - deploy:
-    #     requires:
-    #       - build-package
+      - deploy:
+          requires:
+            - build-package
