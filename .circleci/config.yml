@@ -58,7 +58,7 @@ jobs:
           destination: ~/artifacts
   deploy:
     docker:
-      - image: cimg/python:3.9.20-node
+      - image: cimg/python:3.10.16-node
     steps:
       - attach_workspace:
           at: .
