@@ -12,4 +12,5 @@ mf = MedianFinder()
 number_list = []
 
 for unixtime_stamp in [1646060400000000, 1646060400]:
-    pawn.console.log(timestamp_to_string(unixtime_stamp))
+    pawn.console.log(f"Local Time Zone: {timestamp_to_string(unixtime_stamp)}")
+    pawn.console.log(f"UTC Time Zone: {timestamp_to_string(unixtime_stamp, tz='UTC')}")
