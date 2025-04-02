@@ -1,0 +1,674 @@
+import os
+import json
+import boto3
+from datetime import datetime
+from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn, TimeRemainingColumn,  DownloadColumn
+from boto3.s3.transfer import TransferConfig
+from pawnlib.config import pawn
+from pawnlib.typing import sys_exit
+from botocore.client import Config
+from rich.table import Table
+from rich.panel import Panel
+from rich.tree import Tree
+from pawnlib.typing.converter import mask_string
+from rich.prompt import Confirm
+from rich.console import Group
+from rich.live import Live
+import time
+
+from rich.text import Text
+from pawnlib.typing.constants import UnitMultiplierConstants, const
+
+from rich.console import Console
+
+# Create a separate console for debugging
+debug_console = Console(stderr=True)
+
+
+def get_transfer_config(file_size):
+    if file_size == 0:
+        return None
+    # elif file_size <= 1024:
+    #     return TransferConfig(
+    #         use_threads=False,                      # 단일 스레드
+    #         multipart_threshold=1024,        # 1MB 이하로 설정 (멀티파트 사용 안 함)
+    #         multipart_chunksize=1024          # 1MB 이하로 설정
+    #     )
+
+    elif file_size >= 100 * 1024 * 1024:  # 예: 100MB 이상
+        return TransferConfig(
+            use_threads=True,
+            max_concurrency=20,
+            multipart_threshold=256 * 1024 * 1024,
+            multipart_chunksize=16 * 1024 * 1024,
+        )
+
+    elif file_size >= 5 * 1024 * 1024:  # 예: 5MB 이상
+        return TransferConfig(
+            use_threads=True,
+            max_concurrency=10,
+            multipart_threshold=5 * 1024 * 1024,    # 5MB
+            multipart_chunksize=5 * 1024 * 1024     # 5MB
+        )
+    else:
+        return TransferConfig(
+            use_threads=False,                      # 단일 스레드
+            multipart_threshold=1024 * 1024,        # 1MB 이하로 설정 (멀티파트 사용 안 함)
+            multipart_chunksize=1024 * 1024          # 1MB 이하로 설정
+        )
+
+
+class SpeedColumn(TextColumn):
+
+    def __init__(self, unit="B/s", **kwargs):
+        """
+        Custom column for displaying transfer speed based on true elapsed time.
+
+        Args:
+            unit (str): The unit for displaying speed, "B/s" or "Mbps".
+            **kwargs: Additional arguments for the TextColumn.
+        """
+        super().__init__("[progress.speed]{task.fields[speed]}", **kwargs)
+        self.unit = unit
+        self.multiplier = const.get_unit_multiplier(unit)
+
+    def render(self, task) -> Text:
+        """
+        Override the render method to calculate speed based on actual time elapsed.
+
+        Args:
+            task (Task): The Rich task instance being updated.
+
+        Returns:
+            Text: Rich text displaying the calculated speed.
+        """
+        if not hasattr(task, 'last_update_time'):
+            # Initialize task-specific attributes the first time render is called
+            task.total_bytes = 0
+            task.last_update_time = time.time()
+            task.start_time = task.last_update_time
+            task.last_bytes_transferred = 0
+            # task.fields["speed"] = "0.00 B/s"
+            task.fields["speed"] = f"0.00 {self.unit} (avg: 0.00 {self.unit})"
+
+
+        # Calculate actual time elapsed since last update
+        current_time = time.time()
+        time_elapsed = current_time - task.last_update_time
+        total_elapsed = current_time - task.start_time
+
+        # Calculate speed based on bytes transferred since last render
+        bytes_transferred = task.completed - task.last_bytes_transferred
+
+        if time_elapsed >= 1:  # Update speed every second
+            current_speed = self._calculate_speed(bytes_transferred, time_elapsed)
+            average_speed = self._calculate_speed(task.completed, total_elapsed)
+
+            task.fields["speed"] = f"{current_speed:.2f} {self.unit} (avg: {average_speed:.2f})"
+
+            # Update last recorded values
+            task.last_update_time = current_time
+            task.last_bytes_transferred = task.completed
+
+        return Text(task.fields["speed"])
+
+    # def _calculate_speed(self, bytes_transferred, time_elapsed):
+    #     """Calculate speed based on selected unit (B/s or Mbps)."""
+    #     if self.unit == "Mbps":
+    #         return (bytes_transferred * 8) / (1024 * 1024) / time_elapsed  # Convert to Mbps
+    #     return bytes_transferred / time_elapsed  # Default is B/s
+
+    def _calculate_speed(self, bytes_transferred, time_elapsed):
+        """Calculate speed based on the selected unit and elapsed time."""
+        return (bytes_transferred / self.multiplier) / time_elapsed
+
+class ProgressCallback:
+    def __init__(self, progress, task, total_bytes, unit="B/s"):
+        """
+        Initializes the ProgressCallback object.
+
+        Args:
+            progress (Progress): Rich Progress instance for updating UI.
+            task (TaskID): Task ID for tracking progress.
+            total_bytes (int): Total size of the file in bytes.
+            unit (str): Speed unit, either "B/s" or "Mbps".
+        """
+        self.progress = progress
+        self.task = task
+        self.total_bytes = total_bytes
+        self.unit = unit
+        self.multiplier = const.get_unit_multiplier(unit)
+        self.total_bytes_transferred = 0
+        self.bytes_since_last = 0
+        self.time_since_last = 0
+        self.start_time = time.time()
+        self.last_update_time = self.start_time
+
+
+
+        if self.total_bytes == 0:
+            # For zero-byte files, mark the task as complete immediately
+            self.progress.update(self.task, completed=1, total=1, speed=f"0 {self.unit}")
+            self.progress.refresh()
+
+    def update_unit(self, unit):
+        """Update the unit of speed and adjust the multiplier accordingly."""
+        self.unit = unit
+        self.multiplier = const.get_unit_multiplier(unit)
+
+    def _calculate_speed(self, bytes_transferred, time_elapsed):
+        """Calculate speed based on the selected unit and elapsed time."""
+        return (bytes_transferred / self.multiplier) / time_elapsed if time_elapsed > 0 else 0
+
+    def __call__(self, bytes_transferred):
+        """
+        Callable method to handle the progress update.
+
+        Args:
+            bytes_transferred (int): Bytes transferred in the last chunk.
+        """
+        current_time = time.time()
+        time_elapsed = current_time - self.last_update_time
+        total_elapsed = current_time - self.start_time
+        self.total_bytes_transferred += bytes_transferred
+        self.bytes_since_last += bytes_transferred
+        self.time_since_last += time_elapsed
+
+        # Update speed every second or upon completion
+        if self.time_since_last >= 1 or self.total_bytes_transferred == self.total_bytes:
+            # Calculate current speed
+            current_speed = self._calculate_speed(self.bytes_since_last, self.time_since_last)
+            # Calculate average speed
+            average_speed = self._calculate_speed(self.total_bytes_transferred, total_elapsed)
+            # Format the speed display with both current and average
+            speed_str = f"{current_speed:.2f} {self.unit} (avg: {average_speed:.2f} {self.unit})"
+
+            # Update the progress task with both current and average speeds
+            self.progress.update(self.task, completed=self.total_bytes_transferred, speed=speed_str)
+
+            # Reset counters for the next interval
+            self.bytes_since_last = 0
+            self.time_since_last = 0
+            self.last_update_time = current_time
+        else:
+            # Update only the total progress if it's not time to refresh speed
+            self.progress.update(self.task, completed=self.total_bytes_transferred)
+            self.last_update_time = current_time
+
+
+class S3ClientBase:
+    def __init__(self, bucket_name, profile_name=None, access_key=None, secret_key=None, endpoint_url=None, overwrite=False):
+        self.access_key = access_key or os.environ.get('AWS_ACCESS_KEY_ID')
+        self.secret_key = secret_key or os.environ.get('AWS_SECRET_ACCESS_KEY')
+        self.endpoint_url = endpoint_url or os.environ.get('AWS_ENDPOINT_URL') or os.environ.get('S3_ENDPOINT_URL')
+        self.bucket_name = bucket_name
+        self.overwrite = overwrite
+
+        if self.access_key and self.secret_key:
+            self.session = boto3.Session(
+                aws_access_key_id=self.access_key,
+                aws_secret_access_key=self.secret_key,
+            )
+        elif profile_name:
+            self.session = boto3.Session(profile_name=profile_name)
+        else:
+            self.session = boto3.Session()
+
+        self.is_cloudflare = len(self.access_key) == 32 if self.access_key else False
+
+        config = Config(
+            signature_version='s3v4',
+            retries={
+                'max_attempts': 10,
+                'mode': 'standard'
+            }
+        )
+
+        if self.is_cloudflare:
+            pawn.console.log("Using Cloudflare")
+            self.s3 = self.session.client(
+                's3',
+                endpoint_url=self.endpoint_url,
+                config=config,
+                region_name='auto',
+                # verify=False
+            )
+        else:
+            self.s3 = self.session.client(
+                's3',
+                # config=config,
+                endpoint_url=self.endpoint_url,
+            )
+
+        # TransferConfig 설정
+        self.config = TransferConfig(
+            use_threads=True,  # 멀티스레딩 활성화
+            max_concurrency=20,  # 멀티스레딩 동시 처리 수
+            multipart_threshold=256 * 1024 * 1024,  # 멀티파트 업로드를 시작하는 파일 크기 (256MB)
+            multipart_chunksize=16 * 1024 * 1024,  # 멀티파트 업로드를 위한 청크 크기 (16MB)
+        )
+
+        self.config = TransferConfig(
+            use_threads=True,
+            max_concurrency=10,
+            multipart_threshold=1024,  # 8MB
+            multipart_chunksize=1024# 8MB
+        )
+
+
+
+    def print_config(self):
+        config_tree = Tree("Uploader Configuration")
+        config_tree.add(f"Service: [bold]{'Cloudflare R2' if self.is_cloudflare else 'AWS S3'}[/bold]")
+        config_tree.add(f"Bucket Name: [cyan]{self.bucket_name}[/cyan]")
+        config_tree.add(f"Overwrite: [green]{self.overwrite}[/green]")
+        # config_tree.add(f"Info File: [yellow]{self.info_file}[/yellow]")
+
+        s3_config = config_tree.add("S3 Client Configuration")
+        s3_config.add(f"Region Name: [magenta]{self.s3.meta.region_name}[/magenta]")
+        s3_config.add(f"Endpoint URL: [blue]{self.s3._endpoint.host}[/blue]")
+        s3_config.add(f"Signature Version: [cyan]{self.s3._client_config.signature_version}[/cyan]")
+
+        creds = self.session.get_credentials()
+        if creds:
+            cred_info = config_tree.add("Credentials")
+            cred_info.add(f"Access Key ID: [red]{mask_string(creds.access_key)}[/red]")
+            cred_info.add(f"Secret Access Key: [red]{mask_string(creds.secret_key, show_last=3)}[/red]")
+            if creds.token:
+                cred_info.add("Session Token: [red][REDACTED][/red]")
+        else:
+            config_tree.add("[bold red]No credentials found.[/bold red]")
+
+        transfer_config = config_tree.add("TransferConfig")
+        transfer_config.add(f"Multipart Threshold: [cyan]{self.config.multipart_threshold}[/cyan] bytes")
+        transfer_config.add(f"Max Concurrency: [cyan]{self.config.max_concurrency}[/cyan]")
+        transfer_config.add(f"Multipart Chunksize: [cyan]{self.config.multipart_chunksize}[/cyan] bytes")
+        transfer_config.add(f"Use Threads: [green]{self.config.use_threads}[/green]")
+
+        pawn.console.print(Panel(config_tree, title="Uploader Configuration", expand=False))
+
+    def debug_info(self):
+        self.print_config()
+
+        try:
+            response = self.s3.list_buckets()
+            bucket_table = Table(title="Available Buckets")
+            bucket_table.add_column("Bucket Name", style="cyan")
+            for bucket in response['Buckets']:
+                bucket_table.add_row(bucket['Name'])
+            pawn.console.print(Panel(bucket_table, title="Successfully connected to S3/R2", expand=False))
+        except Exception as e:
+            pawn.console.print(Panel(f"[bold red]Error connecting to S3/R2:[/bold red] {str(e)}", title="Connection Error", expand=False))
+
+    def test_upload(self, test_file_path):
+        try:
+            print(f"Attempting to upload test file: {test_file_path}")
+            with open(test_file_path, 'rb') as file:
+                self.s3.put_object(Bucket=self.bucket_name, Key='test_upload.txt', Body=file)
+            print("Test upload successful")
+        except Exception as e:
+            print(f"Test upload failed: {str(e)}")
+
+
+class Uploader(S3ClientBase):
+    def __init__(self, bucket_name, profile_name=None, access_key=None, secret_key=None,
+                 endpoint_url=None, overwrite=False, info_file="", confirm_upload=False, keep_path=False):
+        super().__init__(bucket_name, profile_name, access_key, secret_key, endpoint_url, overwrite)
+
+        self.uploaded_files_info = []
+        self.directory = ""
+        self.append_suffix = ""
+        self.total_uploaded_size = 0
+        self.info_file = info_file
+        self.confirm_upload = confirm_upload
+        self.keep_path = keep_path
+
+    def upload_file(self, file_path, directory_path="", task=None, append_suffix="", confirm_upload=None, keep_path=None, unit="Mbps"):
+        if file_path.endswith('.sock'):
+            debug_console.log(f"Skipping socket file: {file_path}")
+            return
+
+        if confirm_upload is not None:
+            _confirm_upload = confirm_upload
+        else:
+            _confirm_upload = self.confirm_upload
+
+        if keep_path is not None:
+            _keep_path = keep_path
+        else:
+            _keep_path = self.keep_path
+
+        file_size = os.path.getsize(file_path)
+
+        if _keep_path:
+            s3_key = file_path.replace("\\", "/")
+            if s3_key.startswith("/"):
+                s3_key = s3_key[1:]  # Remove leading slash if present
+        else:
+            relative_path = os.path.relpath(file_path, directory_path) if directory_path else os.path.basename(file_path)
+            parts = directory_path.split(os.sep) if directory_path else []
+            if append_suffix and parts:
+                parts[0] += append_suffix
+            base_dir = os.path.join(*parts) if parts else ""
+            s3_key = os.path.join(base_dir, relative_path).replace("\\", "/")
+
+        debug_console.log(f"S3 key: {s3_key}, {file_size} bytes")
+
+        if _confirm_upload:
+            pawn.console.print(f"File to upload: [cyan]{file_path}[/cyan]")
+            pawn.console.print(f"File size: [yellow]{file_size:,}[/yellow] bytes")
+            pawn.console.print(f"S3 key: [green]{s3_key}[/green]")
+            if not Confirm.ask("Do you want to upload this file?"):
+                pawn.console.print("[red]Upload cancelled for this file.[/red]")
+                return
+
+        try:
+
+            if not self.overwrite:
+                try:
+                    self.s3.head_object(Bucket=self.bucket_name, Key=s3_key)
+                    debug_console.log(f"File already exists in S3: {s3_key}")
+                    if task and 'main_task' in task:
+                        task['main_progress'].update(task['main_task'], advance=1)
+                    return
+                except self.s3.exceptions.ClientError as e:
+                    debug_console.log(f"File does not exist in S3 or error occurred: {e}")
+
+
+            if task and 'file_progress' in task:
+                file_progress = task['file_progress']
+                file_task_id = file_progress.add_task(
+                    f"Uploading {os.path.basename(file_path)}",
+                    total=file_size if file_size > 0 else 1,
+                    completed=file_size if file_size > 0 else 1,
+                    speed="-",
+                )
+
+                config = get_transfer_config(file_size)
+                # config = TransferConfig(
+                #     use_threads=False,                      # 단일 스레드
+                #     multipart_threshold=1024 ,        # 1MB 이하로 설정 (멀티파트 사용 안 함)
+                #     multipart_chunksize=1024          # 1MB 이하로 설정
+                # )
+
+                # pawn.console.log(f"\n\n\n\nmultipart_chunksize={config.multipart_chunksize}\n\n\n\n\n\n\n\n")
+                if file_size == 0:
+                    self.s3.put_object(
+                        Bucket=self.bucket_name,
+                        Key=s3_key,
+                        Body=b'',
+                        # Config=config
+                    )
+                    file_progress = task['file_progress']
+                    file_task_id = file_progress.add_task(f"Uploading {os.path.basename(file_path)}", total=1, speed="-")
+                    file_progress.update(file_task_id, completed=1)
+                    file_progress.remove_task(file_task_id)
+                else:
+                    try:
+                        progress_callback = ProgressCallback(file_progress, file_task_id, file_size, unit)
+                        self.s3.upload_file(
+                            file_path, self.bucket_name, s3_key,
+                            Config=config,
+                            Callback=progress_callback
+                        )
+                    except Exception as e:
+                        debug_console.log(f"Error uploading {file_path}: {str(e)}", "\n\n\n\n\n\n")
+
+                # Remove the completed task
+                file_progress.remove_task(file_task_id)
+
+                task['main_progress'].update(task['main_task'], advance=1)
+                task['uploaded_files'].append(file_path)
+
+            else:
+                # No progress bars provided, create new ones
+                with Progress(
+                        TextColumn("[progress.description]{task.description}"),
+                        BarColumn(bar_width=None),
+                        "[progress.percentage]{task.percentage:>3.1f}%",
+                        "•",
+                        "[progress.filesize]{task.completed}/{task.total}",
+                        "•",
+                        TextColumn("{task.fields[speed]}"),
+                        TimeElapsedColumn(),
+                ) as progress:
+                    file_task_id = progress.add_task(
+                        f"Uploading {os.path.basename(file_path)}",
+                        total=file_size,
+                        speed="-",
+                    )
+                    progress_callback = ProgressCallback(progress, file_task_id, file_size, unit)
+
+                    # Perform the upload
+                    self.s3.upload_file(
+                        file_path, self.bucket_name, s3_key,
+                        Config=self.config,
+                        Callback=progress_callback
+                    )
+                    # Progress context will handle task removal
+
+            file_info = {
+                "file_name": s3_key,
+                "size": file_size,
+                "upload_time": datetime.now().isoformat()
+            }
+            self.total_uploaded_size += file_info["size"]
+            self.uploaded_files_info.append(file_info)
+
+        except Exception as e:
+            if task and 'main_task' in task:
+                task['main_progress'].update(task['main_task'], advance=1)
+            pawn.console.log(f"[red] Error uploading {file_path}: {str(e)}")
+
+
+    def upload_directory(self, directory_path, append_suffix="", info_file="", unit="Mbps"):
+        if not os.path.isdir(directory_path):
+            debug_console.log(f"Directory does not exist: {directory_path}")
+            raise ValueError(f"The directory {directory_path} does not exist or is not a directory.")
+
+        if info_file:
+            self.info_file = info_file
+
+        total_size = self.calculate_directory_size(directory_path)
+        file_list = self.get_file_list(directory_path)
+        total_files = len(file_list)
+
+        # Proceed with all files using Live context
+        main_progress = Progress(
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(bar_width=None),
+            "[{task.completed}/{task.total} files]",
+            TimeElapsedColumn(),
+            TimeRemainingColumn(),
+        )
+
+        file_progress = Progress(
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(bar_width=None),
+            "[progress.percentage]{task.percentage:>3.1f}%",
+            "•",
+            "[progress.filesize]{task.completed}/{task.total}",
+            "•",
+            TextColumn("{task.fields[speed]}"),
+            TimeElapsedColumn(),
+        )
+
+        overall_progress = Group(
+            Panel(main_progress),
+            Panel(file_progress)
+        )
+
+        with Live(overall_progress, refresh_per_second=20) as live:
+            main_task_id = main_progress.add_task(f"Uploading {directory_path}", total=total_files)
+            # placeholder_task_id = file_progress.add_task("Initializing...", total=1, speed="")
+            task = {
+                'main_progress': main_progress,
+                'file_progress': file_progress,
+                'main_task': main_task_id,
+                'uploaded_files': [],
+                # 'placeholder_task_id': placeholder_task_id,
+            }
+
+            for index, file_info in enumerate(file_list):
+                file_path = os.path.join(directory_path, file_info['name'])
+                self.upload_file(
+                    file_path,
+                    directory_path,
+                    task=task,
+                    append_suffix=append_suffix,
+                    confirm_upload=False,
+                    keep_path=False,
+                    unit=unit
+                )
+
+                # Force the Live context to refresh the display
+                live.refresh()
+
+                debug_console.log(f"Completed processing file: {file_path}")
+
+        if self.info_file:
+            self.upload_latest_info()
+
+
+    @staticmethod
+    def format_size(size):
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if size < 1024.0:
+                return f"{size:.2f} {unit}"
+            size /= 1024.0
+        return f"{size:.2f} PB"
+
+    def get_file_list(self, directory_path):
+        file_list = []
+        for root, dirs, files in os.walk(directory_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                file_list.append({
+                    'name': os.path.relpath(file_path, directory_path),
+                    'size': os.path.getsize(file_path)
+                })
+        return file_list
+
+    def calculate_directory_size(self, directory_path):
+        total_size = 0
+        for root, dirs, files in os.walk(directory_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                total_size += os.path.getsize(file_path)
+        return total_size
+
+    def upload_latest_info(self):
+        latest_info = {
+            "upload_date": datetime.now().isoformat(),
+            "files": self.uploaded_files_info,
+            "directory": self.directory,
+            "append_suffix": self.append_suffix,
+            "total_uploaded_size": self.total_uploaded_size
+        }
+        latest_info_json = json.dumps(latest_info, indent=4)
+
+        self.s3.put_object(
+            Bucket=self.bucket_name,
+            Key=self.info_file,
+            Body=latest_info_json,
+            ContentType="application/json"
+        )
+        print(f"Uploaded latest_info.json to s3://{self.bucket_name}/{self.info_file}")
+
+
+class Downloader(S3ClientBase):
+    def __init__(self, bucket_name, profile_name=None, access_key=None, secret_key=None, endpoint_url=None, overwrite=False):
+        super().__init__(bucket_name, profile_name, access_key, secret_key, endpoint_url, overwrite)
+
+
+# class Downloader:
+#     def __init__(self, profile_name=None, bucket_name=None, overwrite=False):
+#         if profile_name:
+#             self.session = boto3.Session(profile_name=profile_name)
+#         else:
+#             self.session = boto3.Session()
+
+        # self.s3 = self.session.client('s3')
+        # TransferConfig 설정
+
+    def download_file(self, s3_key, local_path, overwrite=False):
+        """Download a single file from S3."""
+        if not overwrite and os.path.exists(local_path):
+            print(f"Skipping {local_path}, already exists.")
+            return
+
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
+        # S3 객체의 파일 크기를 가져옵니다.
+        head_object = self.s3.head_object(Bucket=self.bucket_name, Key=s3_key)
+        file_size = head_object['ContentLength']
+
+        # print(f"Downloading {s3_key} to {local_path}...")
+
+        with Progress(
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                DownloadColumn(),
+                "[progress.percentage]{task.percentage:>3.1f}%",
+                TimeElapsedColumn(),
+                " • ",
+                "[progress.filesize]{task.completed}/{task.total}",
+        ) as progress:
+            task = progress.add_task(f"Downloading {s3_key}", total=file_size)
+
+            def progress_callback(bytes_transferred):
+                progress.update(task, advance=bytes_transferred)
+
+            self.s3.download_file(
+                self.bucket_name, s3_key, local_path,
+                Config=self.config,
+                Callback=progress_callback
+            )
+
+    def download_directory(self, s3_directory, local_path=None, overwrite=False):
+        """Download an entire directory from S3."""
+        if local_path is None:
+            local_path = s3_directory
+
+        paginator = self.s3.get_paginator('list_objects_v2')
+        for page in paginator.paginate(Bucket=self.bucket_name, Prefix=s3_directory):
+            for obj in page.get('Contents', []):
+                s3_key = obj['Key']
+                relative_path = os.path.relpath(s3_key, s3_directory)
+                local_file_path = os.path.join(local_path, relative_path)
+                self.download_file(s3_key, local_file_path, overwrite=overwrite)
+
+    def download_from_info(self, s3_info_key, local_path=None, overwrite=False):
+        """Download files as specified in the info.json file from S3."""
+        # 먼저 info.json 파일을 S3에서 다운로드하여 로컬에 저장합니다.
+        local_info_path = os.path.join("/tmp", os.path.basename(s3_info_key))
+        self.download_file(s3_info_key, local_info_path, overwrite=True)
+
+        # info.json 파일을 열어 디렉토리와 파일 목록을 가져옵니다.
+        with open(local_info_path, 'r') as f:
+            info = json.load(f)
+            pawn.console.log(info)
+
+        directory = info.get("directory")
+        files = info.get("files", [])
+
+        if not directory or not files:
+            sys_exit(f"Error: Invalid info.json file. 'directory' or 'files' field is missing.\n")
+
+        pawn.console.log(f"Starting download for directory {directory} based on info.json...")
+
+        # 로컬 디렉토리 설정
+        if local_path:
+            local_directory = os.path.join(local_path, directory)
+        else:
+            local_directory = directory
+
+        # info.json에 정의된 파일들을 다운로드합니다.
+        for file_info in files:
+            file_name = file_info.get("file_name")
+            if file_name:
+                # 로컬 경로 설정 (디렉토리 경로와 파일 이름을 합침)
+                file_local_path = os.path.join(local_directory, os.path.relpath(file_name, directory))
+                self.download_file(file_name, file_local_path, overwrite=overwrite)
+
+        pawn.console.log(f"Download completed for directory {directory}")

@@ -1,0 +1,9 @@
+{% extends "!layout.html" %}
+
+{% block extrahead %}
+    {{ super() }}
+    <meta name="description" content="pawnlib: Python library for IaC and automation tools">
+    <meta name="keywords" content="pawnlib, Python IaC, SSH monitoring, automation">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="gQ-nsPd2RZ--b4JI49mZArhfnnA7Mf1IGY1wu529wbA" />
+{% endblock %}
