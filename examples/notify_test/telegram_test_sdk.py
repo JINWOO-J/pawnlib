@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 from telegram import Bot
-from telegram.parsemode import ParseMode
+from telegram import constants
 import os
 
+ParseMode = constants.ParseMode
 # 봇 토큰과 채팅 ID (텔레그램에서 발급받은 토큰과 대화 상대방의 chat_id)
 TOKEN =os.getenv('TELEGRAM_BOT_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
@@ -26,9 +27,13 @@ Special characters must be escaped: \* \_ $begin:math:display$ $end:math:display
 
 """
 
-# 메시지 보내기
-bot.send_message(
-    chat_id=CHAT_ID,
-    text=message,
-    parse_mode=ParseMode.MARKDOWN_V2
-)
+import asyncio
+
+async def send_message_async():
+    await bot.send_message(
+        chat_id=CHAT_ID,
+        text=message,
+        parse_mode=ParseMode.MARKDOWN_V2
+    )
+
+asyncio.run(send_message_async())

@@ -16,6 +16,9 @@ import time
 from pawnlib.typing.constants import StatusType
 from typing import Union, Awaitable, TypeVar, Dict, List, Optional, Any
 import logging
+from rich.table import Table
+from datetime import datetime
+
 
 SlackReturnType = TypeVar('SlackReturnType', bool, Awaitable[bool])
 SlackResponseType = TypeVar('SlackResponseType', bool, Dict[str, Any])
@@ -213,6 +216,94 @@ class TelegramBot:
                 raise ValueError("No messages found in bot updates to retrieve chat_id.")
         else:
             raise ConnectionError(f"Failed to retrieve updates: {response.status_code} - {response.text}")
+
+    def display_all_chat_updates(self):
+        """Retrieve all unique chat_ids and their details by getting updates from the Telegram bot API"""
+
+        response = requests.get(f"{self.api_url}/getUpdates", verify=self.verify_ssl)
+        if response.status_code != 200:
+            raise ConnectionError(f"Failed to retrieve updates: {response.status_code} - {response.text}")
+
+        data = response.json()        
+        table = Table(title="Telegram Updates")
+
+        # 테이블 열 추가
+        table.add_column("Update ID", justify="center", style="cyan")
+        table.add_column("Chat ID", justify="center", style="magenta")
+        table.add_column("Chat Title", justify="center", style="magenta")
+        table.add_column("Type", justify="center", style="magenta")
+        table.add_column("From", justify="center", style="green")
+        table.add_column("Message", justify="left", style="white")
+        table.add_column("Date", justify="center", style="yellow")
+        table.add_column("Status", justify="center", style="blue")
+
+        if "result" in data:
+            # 날짜 기준으로 정렬
+            updates = []
+            for update in data["result"]:
+                timestamp = None
+                if "message" in update:
+                    timestamp = update["message"]["date"]
+                elif "my_chat_member" in update:
+                    timestamp = update["my_chat_member"]["date"]
+
+                if timestamp is not None:
+                    updates.append((update, timestamp))
+
+            # 날짜 기준으로 정렬 (내림차순)
+            updates.sort(key=lambda x: x[1], reverse=True)
+
+            for update, _ in updates:
+                chat_info = self.extract_chat_info(update)
+                if chat_info:
+                    table.add_row(*chat_info)
+
+        pawn.console.print(table)  # 테이블 출력            
+        # pawn.console.print(data)
+    
+
+    def extract_chat_info(self, update):
+        """Extract chat information from the update."""
+        
+        chat_id = None
+        chat_title = ""
+        chat_type = ""
+        from_user = ""
+        message_text = ""
+        timestamp = ""
+        status = ""
+
+        if "message" in update and "chat" in update["message"]:
+            chat_id = update["message"]["chat"]["id"]
+            chat_title = update["message"]["chat"].get("title", "N/A")
+            chat_type = update["message"]["chat"].get("type", "N/A")
+            from_user = f"{update['message']['from']['first_name']} {update['message']['from'].get('last_name', '')}"
+            message_text = update['message'].get('text', '')
+            timestamp = datetime.fromtimestamp(update['message']['date']).strftime('%Y-%m-%d %H:%M:%S')
+
+        elif "my_chat_member" in update:
+            chat_id = update['my_chat_member']['chat']['id']
+            chat_title = update["my_chat_member"]["chat"].get("title", "N/A")
+            chat_type = update["my_chat_member"]["chat"].get("type", "N/A")
+            from_user = f"{update['my_chat_member']['from']['first_name']} {update['my_chat_member']['from'].get('last_name', '')}"
+            status = update['my_chat_member']['new_chat_member']['status']
+            timestamp = datetime.fromtimestamp(update['my_chat_member']['date']).strftime('%Y-%m-%d %H:%M:%S')
+
+        if "group_chat_created" in update.get("message", {}):
+            status = "Group Chat Created"
+
+        if chat_id is not None:
+            return [
+                str(update.get('update_id', '')),
+                str(chat_id),
+                str(chat_title),
+                str(chat_type),
+                from_user.strip(),
+                message_text,
+                timestamp,
+                status if status else "N/A"
+            ]
+        return None
 
     def save_chat_id(self, chat_id_file="chat_id.txt"):
         with open(chat_id_file, "w") as file:
@@ -762,8 +853,8 @@ def create_slack_payload(
             footer="Additional info",
             text=text
         )
-        from pawnlib.output import print_var
-        print_var(formatted_message)
+        # from pawnlib.output import print_var
+        # print_var(formatted_message)
         return formatted_message    
         
     elif simple_mode:
