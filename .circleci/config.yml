@@ -4,7 +4,7 @@ orbs:
 jobs:
   install-dependencies:
     docker:
-      - image: cimg/python:3.9.20-node
+      - image: cimg/python:3.10.16-node
     steps:
       - checkout
       - restore_cache:
@@ -27,7 +27,7 @@ jobs:
             - venv/*
   test-python:
     docker:
-      - image: cimg/python:3.9.20-node
+      - image: cimg/python:3.10.16-node
     steps:
       - attach_workspace:
           at: .
@@ -40,7 +40,7 @@ jobs:
           path: junit.xml
   build-package:
     docker:
-      - image: cimg/python:3.9.20-node
+      - image: cimg/python:3.10.16-node
     steps:
       - attach_workspace:
           at: .
