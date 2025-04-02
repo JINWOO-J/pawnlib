@@ -5,7 +5,7 @@ import asyncio
 from pawnlib.utils.notify import TelegramBot
 from pawnlib.typing.converter import escape_markdown, escape_non_markdown
 from pawnlib.typing import const
-from telegram.parsemode import ParseMode
+# from telegram import ParseMode
 
 message_list = (
     "[HTML] Hello, <b>World</b>! This is a Telegram message with <i>HTML</i> formatting.",
