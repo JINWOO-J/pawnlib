@@ -7,7 +7,7 @@ import ssl
 import os
 from functools import partial
 from datetime import datetime
-# from pawnlib.asyncio.async_helper import shutdown_async_tasks
+import httpx
 from pawnlib.exceptions.notifier import notify_exception
 
 from pawnlib.config.globalconfig import pawnlib_config as pawn, global_verbose, pconf, SimpleNamespace, Null
@@ -16,20 +16,18 @@ from pawnlib.output import (
     NoTraceBackException,
     dump, syntax_highlight, kvPrint, debug_logging,
     PrintRichTable, get_debug_here_info, print_syntax,
-    print_json)
+    print_json,
+    pretty_json, align_text, get_file_extension, is_directory, is_file, print_var, print_var2, print_grid
+    )
 from pawnlib.resource import net
-from pawnlib.typing import date_utils
-from pawnlib.typing.converter import (
-    append_suffix, append_prefix, hex_to_number, FlatDict, Flattener, FlatterDict, flatten, shorten_text, StackList,
-    replace_path_with_suffix, format_text, format_link, remove_ascii_and_tags, list_to_dict_by_key,
-    get_shortened_tx_hash,
-    HexConverter,
+from pawnlib.typing import (
+    append_suffix, append_prefix, hex_to_number, FlatDict, Flattener, shorten_text, StackList,
+    replace_path_with_suffix, format_text, format_link, list_to_dict_by_key,
+    get_shortened_tx_hash, date_utils, HexConverter, json_rpc, random_token_address, generate_json_rpc,
+    keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit, is_hex, is_valid_tx_hash, check_key_and_type,
+    convert_bytes, const,
 )
-from pawnlib.typing.constants import const
-from pawnlib.typing.generator import json_rpc, random_token_address, generate_json_rpc
-from pawnlib.typing.check import keys_exists, is_int, is_float, list_depth, is_valid_token_address, sys_exit, is_hex, is_valid_tx_hash, check_key_and_type
 from pawnlib.utils.operate_handler import WaitStateLoop
-from pawnlib.output import pretty_json, align_text, get_file_extension, is_directory, is_file, print_var, print_var2
 from pawnlib.utils.in_memory_zip import gen_deploy_data_content
 from websocket import create_connection, WebSocket, enableTrace
 from websocket._exceptions import WebSocketConnectionClosedException
@@ -54,10 +52,21 @@ from dataclasses import dataclass, InitVar, field
 import requests
 from rich.prompt import Prompt, Confirm
 from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.syntax import Syntax
 import asyncio
 import aiohttp
 from urllib.parse import urlparse
 from decimal import Decimal
+import atexit
+import warnings
+from random import uniform
+from requests.auth import HTTPBasicAuth
+from requests.exceptions import SSLError, RequestException
+import dns.resolver
+import json
+
 
 ALLOWS_HTTP_METHOD = const.HTTPMethodConstants.get_http_methods(lowercase=True)
 ALLOW_OPERATOR = const.ALLOW_OPERATOR
@@ -68,7 +77,22 @@ requests.models.Response.error = ResponseWithElapsed.error
 requests.models.Response.success = ResponseWithElapsed.success
 requests.models.Response.as_dict = ResponseWithElapsed.as_dict
 requests.models.Response.as_simple_dict = ResponseWithElapsed.as_simple_dict
-# requests.models.Response = ResponseWithElapsed
+
+_ACTIVE_SESSIONS = set()
+def _force_close_sessions():
+    """Forcefully closes open sessions upon program exit."""
+    if not _ACTIVE_SESSIONS:
+        return
+    
+    # Handle quietly instead of printing warning messages
+    warnings.filterwarnings("ignore", category=ResourceWarning)
+    
+    for session in _ACTIVE_SESSIONS:
+        if hasattr(session, 'connector') and hasattr(session.connector, '_close'):
+            session.connector._close()
+    _ACTIVE_SESSIONS.clear()
+
+atexit.register(_force_close_sessions)
 
 
 class StrEnum(str, Enum):
@@ -2505,92 +2529,706 @@ class CallHttp:
         return False
 
 
-class CheckSSL:
+class HttpInspect:
+    def __init__(self, url, method='GET', headers=None, auth=None, timeout=10, max_redirects=5, 
+                 verify=True, data=None, max_response_length=700, output=None, dns_server=None, debug=False):
+        """Initialize the HttpInspect class for HTTP request inspection.
 
-    def __init__(self, host=None, timeout: float = 5.0, port: int = 443, raw_data=False):
-        self._host = host
-        self._timeout = timeout
-        self._port = port
-        self.ssl_info = None
-        self._now = datetime.now()
-        self._raw_data = raw_data
-        self.ssl_dateformat = r'%b %d %H:%M:%S %Y %Z'
-        self.get_ssl()
-        self.ssl_result = {}
+        This class provides functionality to inspect HTTP requests and responses,
+        including DNS resolution, timing analysis, and response handling.
 
-    def get_ssl(self):
-        context = ssl.create_default_context()
-        context.check_hostname = False
+        Args:
+            url (str): The target URL to inspect. Will be prefixed with 'http://' if no scheme is provided.
+            method (str, optional): HTTP method to use. Defaults to 'GET'.
+            headers (dict, optional): Custom HTTP headers. Defaults to None.
+            auth (tuple, optional): Authentication credentials. Defaults to None.
+            timeout (int, optional): Request timeout in seconds. Defaults to 10.
+            max_redirects (int, optional): Maximum number of redirects to follow. Defaults to 5.
+            verify (bool, optional): Whether to verify SSL certificates. Defaults to True.
+            data (dict, optional): Request body data. Defaults to None.
+            max_response_length (int, optional): Maximum length of response to display. Defaults to 700.
+            output (str, optional): Output format specification. Defaults to None.
+            dns_server (str, optional): DNS server to use. Defaults to None.
+            debug (bool, optional): Whether to enable debug mode. Defaults to False.
+        """
+        self.url = self._normalize_url(url)
+        self.method = method.upper()
+        self.headers = headers or {}
+        self._headers_provided = headers is not None
+        self.auth = auth
+        self.timeout = timeout
+        self.max_redirects = max_redirects
+        self.verify = verify
+        self.data = data
 
-        conn = context.wrap_socket(
-            socket.socket(socket.AF_INET),
-            server_hostname=self._host,
-        )
-        conn.settimeout(self._timeout)
-        conn.connect((self._host, self._port))
-        conn.do_handshake()
-        self.ssl_info = conn.getpeercert()
-        self._parse_ssl_info()
-        conn.close()
-        return self.ssl_info
+        self.output = output
+        self.console = Console()
+                    
+        parsed_url = urlparse(self.url)
+        self.domain = parsed_url.netloc or parsed_url.path
+        self.scheme = parsed_url.scheme
+        self.hostname = parsed_url.hostname
+        self.port = parsed_url.port or (443 if self.scheme == 'https' else 80)
 
-    def _parse_ssl_info(self):
-        expire_date = self.ssl_expiry_datetime()
-        diff = expire_date - datetime.now()
-        self._calculated_date = {
-            "expire_date": expire_date.strftime("%Y-%m-%d"),
-            "left_days": diff.days
+        self.ip = None
+        self.response = None
+        self.max_response_length = max_response_length
+        self.elapsed_time = None
+
+        self.total_time = 0
+
+        self.dns_records: Dict[str, List[str]] = {}
+        self.waterfall_timings: List[Dict[str, Any]] = []
+        self.dns_cache: Dict[str, str] = {}
+        self.dns_server = dns_server
+        
+        self.debug = debug
+                
+        self._log_init_settings()
+
+    def _normalize_url(self, url: str) -> str:
+        """Normalize the URL to ensure it is always in a valid format."""
+        if not url:
+            raise ValueError("URL cannot be empty")
+            
+        if not url.startswith(('http://', 'https://')):            
+            if ':443' in url:
+                return f'https://{url}'
+            return f'http://{url}'
+        return url
+
+    def _log_init_settings(self):
+        """Logs the initial settings to the log."""
+        if self.debug:
+            self.console.print(Panel(
+                f"[bold]URL:[/] {self.url}\n"
+                f"[bold]Method:[/] {self.method}\n"
+                f"[bold]Domain:[/] {self.domain}\n"
+                f"[bold]Timeout:[/] {self.timeout}s\n"
+                f"[bold]Max Redirects:[/] {self.max_redirects}\n"
+                f"[bold]DNS Server:[/] {self.dns_server or 'System Default'}",
+                title="HttpInspect Configuration", 
+                expand=False
+            ))
+
+    def get_ip_address(self, domain: str = "", url: str = "") -> Optional[str]:
+        """Get the IP address of the specified domain.
+        
+        Args:
+            domain (str, optional): The domain name to lookup. Defaults to the domain extracted from the current URL.
+            url (str, optional): The URL to include in timing information. Defaults to the current URL.
+            
+        Returns:
+            Optional[str]: The resolved IP address or None if lookup fails
+        """
+        if self.headers.get('Host'):
+            domain = self.headers.get('Host')
+        elif not domain:
+            domain = self.domain
+        
+        if not url:
+            url = self.url
+
+        ip_pattern = r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
+        if re.match(ip_pattern, domain):
+            self.dns_cache[domain] = domain
+            self.ip = domain
+            self._add_timing_info(url, dns_time=0, details=f'Using provided IP {domain}')
+            return domain
+
+        if domain in self.dns_cache:
+            return self.dns_cache[domain]
+
+        try:
+            start_time = time.time()
+            
+            if self.dns_server:                
+                resolver = dns.resolver.Resolver()
+                resolver.nameservers = [self.dns_server]
+                answers = resolver.resolve(domain, 'A')            
+                self.ip = str(answers[0].address)
+            else:
+                self.ip = socket.gethostbyname(domain)
+
+            dns_time = (time.time() - start_time) * 1000  # ms로 변환
+                        
+            self.dns_cache[domain] = self.ip
+            self._add_timing_info(url, dns_time=dns_time, details=f'Resolved {domain} to {self.ip}')
+            
+            self.console.log(f"DNS 조회: {domain} => {self.ip} ({dns_time:.2f}ms)")
+            return self.ip
+            
+        except (socket.gaierror, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
+            self.console.print(f"[bold red]Error:[/] Could not resolve IP for {domain}: {str(e)}")
+            return None
+        except Exception as e:
+            self.console.print(f"[bold red]Unexpected error during DNS resolution:[/] {str(e)}")
+            return None
+
+    def _add_timing_info(self, url: str, dns_time: float = 0, tcp_time: float = 0, 
+                         tls_time: float = 0, ttfb_time: float = 0, total_time: float = 0, 
+                         status: int = 0, http_version: str = '', details: str = '') -> None:
+        """Add waterfall timing information."""
+        self.waterfall_timings.append({
+            'url': url,
+            'dns_time': dns_time,
+            'tcp_time': tcp_time,
+            'tls_time': tls_time,
+            'ttfb_time': ttfb_time,
+            'total_time': total_time,
+            'status': status,
+            'http_version': http_version,
+            'details': details,
+            'real_url': ''  # 응답 수신 후 업데이트됨
+        })
+
+    def get_dns_records(self, domain: str, record_types: Optional[List[str]] = None) -> None:
+        """Get the DNS records for the specified domain.
+        
+        Args:
+            domain (str): The domain name to lookup.
+            record_types (List[str], optional): The list of record types to lookup. Defaults to A, AAAA, CNAME, MX, TXT, NS.
+        """
+        if record_types is None:
+            record_types = ["A", "AAAA", "CNAME", "MX", "TXT", "NS"]
+            
+        self.dns_records = {}
+        resolver = dns.resolver.Resolver()
+        
+        if self.dns_server:
+            resolver.nameservers = [self.dns_server]
+        
+        for rtype in record_types:
+            try:
+                answers = resolver.resolve(domain, rtype, lifetime=3)
+                self.dns_records[rtype] = [str(r.to_text()) for r in answers]
+                
+                # A 레코드인 경우 첫 번째 IP를 기본 IP로 설정
+                if rtype == "A" and not self.ip and answers:
+                    self.ip = str(answers[0].to_text())
+                    self.dns_cache[domain] = self.ip
+                    
+            except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.resolver.NoNameservers):
+                self.dns_records[rtype] = []
+            except Exception as e:
+                self.console.print(f"[bold red]Error getting {rtype} records for {domain}:[/] {str(e)}")
+                self.dns_records[rtype] = []
+
+    def make_http_request(self) -> bool:
+        """Perform an HTTP request and analyze the response.
+        
+        Returns:
+            bool: Whether the request was successful
+        """
+        try:
+            start_time = time.time()
+            
+            self.headers.setdefault("User-Agent", f"Pawnlib-HttpInspect/{pawn.version_number}")            
+            self.ip = self.get_ip_address(self.domain, self.url)
+            
+            if not self.ip:
+                raise ValueError("Could not get IP address")
+
+            parsed_url = httpx.URL(self.url)
+            
+            if self.dns_server:
+                connect_url = parsed_url.copy_with(scheme=parsed_url.scheme, host=self.ip, port=parsed_url.port)
+                self.headers['Host'] = parsed_url.host
+                self.console.log(f"[cyan]Connected URL: {connect_url}[/cyan]")
+            else:            
+                connect_url = self.url
+    
+            def on_request(request):
+                request.start_time = time.time()
+                parsed_request_url = httpx.URL(str(request.url))
+                request_domain = parsed_request_url.host
+
+                if request_domain == self.ip and self.domain:
+                    request.headers['Host'] = self.domain
+                
+                if self.debug:
+                    self.console.log(f"[cyan]Request URL: {request.url}[/cyan]")
+                    self.console.log(f"[cyan]Request Headers: {request.headers}[/cyan]")
+
+            def on_response(response):
+                response.read()
+                
+                parsed_response_url = httpx.URL(str(response.url))
+                if parsed_response_url.host == self.ip:
+                    domain_url = parsed_response_url.copy_with(host=self.domain)
+                else:
+                    domain_url = parsed_response_url
+                
+                total_time = (time.time() - response.request.start_time) * 1000  # ms
+                ttfb_time = response.elapsed.total_seconds() * 1000 if response.elapsed else 0
+                
+                connect_phase = total_time - ttfb_time
+                tcp_time = connect_phase * 0.6  # TCP connection is estimated to be 60% of the connection phase 
+                tls_time = connect_phase * 0.4 if str(response.url).startswith('https://') else 0  # HTTPS is 40% of the connection phase
+
+                match_found = False
+                for timing in self.waterfall_timings:
+                    if timing['url'] == str(domain_url) and timing['status'] == 0:
+                        timing.update({
+                            'status': response.status_code,
+                            'real_url': str(response.url),
+                            'http_version': response.http_version.replace('HTTP/', 'H'),
+                            'tcp_time': tcp_time,
+                            'tls_time': tls_time,
+                            'ttfb_time': ttfb_time,
+                            'total_time': total_time,
+                            'details': f'{response.request.method} {response.url} ({response.status_code})'
+                        })
+                        match_found = True
+                        self.total_time += total_time
+                        break
+                
+                if not match_found:
+                    self._add_timing_info(
+                        url=str(domain_url),
+                        dns_time=0,  # DNS is already completed
+                        tcp_time=tcp_time,
+                        tls_time=tls_time,
+                        ttfb_time=ttfb_time,
+                        total_time=total_time,
+                        status=response.status_code,
+                        http_version=response.http_version.replace('HTTP/', 'H'),
+                        details=f'{response.request.method} {response.url} ({response.status_code})'
+                        
+                    )
+                    self.total_time += total_time
+                    self.waterfall_timings[-1]['real_url'] = str(response.url)
+            
+            with httpx.Client(
+                follow_redirects=True,
+                timeout=self.timeout,
+                verify=self.verify,
+                headers=self.headers,
+                auth=self.auth,
+                max_redirects=self.max_redirects,
+                event_hooks={
+                    'request': [on_request],
+                    'response': [on_response]
+                }
+            ) as client:
+                if self.method == "GET":
+                    self.response = client.get(connect_url, params=self.data)
+                elif self.method == "POST":
+                    self.response = client.post(connect_url, json=self.data if isinstance(self.data, dict) else None, 
+                                               data=self.data if not isinstance(self.data, dict) else None)
+                elif self.method == "PUT":
+                    self.response = client.put(connect_url, json=self.data if isinstance(self.data, dict) else None,
+                                              data=self.data if not isinstance(self.data, dict) else None)
+                elif self.method == "DELETE":
+                    self.response = client.delete(connect_url, params=self.data)
+                elif self.method == "HEAD":
+                    self.response = client.head(connect_url)
+                elif self.method == "OPTIONS":
+                    self.response = client.options(connect_url)
+                elif self.method == "PATCH":
+                    self.response = client.patch(connect_url, json=self.data if isinstance(self.data, dict) else None,
+                                                data=self.data if not isinstance(self.data, dict) else None)
+                else:
+                    self.response = client.request(self.method, connect_url, data=self.data)
+                
+                self.response.encoding = 'utf-8'                
+                self.elapsed_time = (time.time() - start_time) * 1000  # ms
+                
+                return True
+
+        except httpx.RequestError as e:
+            self.console.print(Panel(f"[bold red]Request Error:[/] {str(e)}", title="Request Failed"))
+            return False
+        except ValueError as e:
+            self.console.print(Panel(f"[bold red]Value Error:[/] {str(e)}", title="Request Failed"))
+            return False
+        except Exception as e:
+            self.console.print(Panel(f"[bold red]Unexpected Error:[/] {str(e)}", title="Request Failed"))
+            return False
+        
+    def _status_emoji(self, code: int) -> str:
+        """상태 코드에 맞는 이모지를 반환합니다."""
+        if 100 <= code < 200:  # 정보
+            return "🕑"
+        if 200 <= code < 300:  # 성공
+            return "✅"
+        if 300 <= code < 400:  # 리다이렉션
+            return "↪️"
+        if 400 <= code < 500:  # 클라이언트 오류
+            return "⚠️"
+        if 500 <= code < 600:  # 서버 오류
+            return "💥"
+        return "❓"  # 알 수 없는 상태
+
+    def display_results(self):
+        """HTTP 요청 결과를 표시합니다."""
+        if self.response is None:
+            self.console.print(Panel("[bold red]Error: No response received", title="Request Failed"))
+            return
+    
+        status_code = self.response.status_code
+        if status_code < 400:
+            status_style = "bold green"
+        elif status_code < 500:
+            status_style = "bold yellow"
+        else:
+            status_style = "bold red"
+            
+        emoji = self._status_emoji(status_code)
+
+        self.console.print(Panel(
+            f"[bold green]HTTP {self.method} Request:[/] {self.url}\n"
+            f"[bold cyan]HTTP Version:[/] {self.response.http_version.upper()}\n"
+            f"[bold cyan]Server IP:[/] {self.ip}\n"
+            f"[{status_style}]Status Code:[/] {emoji} {status_code} {self.response.reason_phrase}\n"
+            f"[bold cyan]Final URL:[/] {self.response.url}\n"
+            # f"[bold cyan]Elapsed Time:[/] {self.elapsed_time:.2f} ms",
+            f"[bold cyan]Elapsed Time:[/] {self.total_time:.2f} ms",
+            title="Request Info"
+        ))
+        
+        waterfall = Table(title="Waterfall Timing", expand=True)
+        waterfall.add_column("#", justify="right", style="dim")
+        waterfall.add_column("Status", style="cyan")
+        waterfall.add_column("HTTP", style="cyan")
+        waterfall.add_column("DNS (ms)", justify="right", style="blue")
+        waterfall.add_column("TCP (ms)", justify="right", style="green")
+        waterfall.add_column("TLS (ms)", justify="right", style="yellow")
+        waterfall.add_column("TTFB (ms)", justify="right", style="magenta")
+        waterfall.add_column("Total (ms)", justify="right", style="red bold")
+        waterfall.add_column("URL", style="white", overflow="fold")
+
+        ordered_timings = []
+        
+        for resp in self.response.history + [self.response]:
+            for timing in self.waterfall_timings:
+                if timing.get('real_url') == str(resp.url) and timing.get('status') == resp.status_code:
+                    ordered_timings.append(timing)
+                    break
+
+        for idx, timing in enumerate(ordered_timings, 1):
+            status_emoji = self._status_emoji(timing['status'])
+            status_style = "green" if timing['status'] < 400 else "red"
+            
+            waterfall.add_row(
+                str(idx),
+                f"[{status_style}]{timing['status']} {status_emoji}[/{status_style}]",
+                timing['http_version'],
+                f"{timing['dns_time']:.1f}",
+                f"{timing['tcp_time']:.1f}",
+                f"{timing['tls_time']:.1f}",
+                f"{timing['ttfb_time']:.1f}",
+                f"{timing['total_time']:.1f}",
+                timing['url']
+            )
+
+        self.console.print(waterfall)
+
+        if self._headers_provided:
+            req_header_table = Table(title="Request Headers", expand=True)
+            req_header_table.add_column("Header", style="cyan", no_wrap=True)
+            req_header_table.add_column("Value", style="white", overflow="fold")
+            for k, v in self.headers.items():
+                req_header_table.add_row(k, str(v))
+            self.console.print(req_header_table)
+
+        res_header_table = Table(title="📦 Response Headers", expand=True)
+        res_header_table.add_column("Header", style="cyan", no_wrap=True)
+        res_header_table.add_column("Value", style="white", overflow="fold")
+        for k, v in self.response.headers.items():
+            res_header_table.add_row(k, v)
+
+        self.console.print(res_header_table)
+        self._display_response_body()
+        
+    def _display_response_body(self):
+        """Display the response body in the appropriate format."""
+        if self.response is None:
+            return
+            
+        should_skip = self.max_response_length is None or self.max_response_length < 0
+        if should_skip:
+            return
+            
+        content_type = self.response.headers.get("Content-Type", "")
+
+        response_size = len(self.response.text)
+        response_detail_str = f"Status: {self.response.status_code} | Reason: {self.response.reason_phrase} | Size: {convert_bytes(response_size)}"
+                
+        if "application/json" in content_type:
+            try:
+                json_data = self.response.json()
+                formatted = json.dumps(json_data, indent=2, ensure_ascii=False)
+                body = formatted if self.max_response_length == 0 else formatted[:self.max_response_length]
+                
+                if self.max_response_length > 0 and len(formatted) > self.max_response_length:
+                    body += "\n\n... (truncated)"
+
+                syntax = Syntax(body, "json", theme="monokai", line_numbers=True, word_wrap=True)
+                self.console.print(Panel(syntax, title=f"🧾 Response Body (JSON) {response_detail_str}", expand=True))
+                
+            except Exception as e:
+                self.console.print(f"[yellow]Warning: JSON parsing failed: {str(e)}[/yellow]")
+                self._display_text_response()
+        
+        elif any(x in content_type.lower() for x in ["text/html", "application/xml", "text/xml"]):
+            text = self.response.text if self.max_response_length == 0 else self.response.text[:self.max_response_length]
+            
+            if self.max_response_length > 0 and len(self.response.text) > self.max_response_length:
+                text += "\n\n... (truncated)"
+                
+            syntax = Syntax(text, "html", theme="monokai", line_numbers=True, word_wrap=True)
+            self.console.print(Panel(syntax, title=f"🧾 Response Body ({content_type.split(';')[0]}) {response_detail_str}", expand=True))
+        
+        else:
+            self._display_text_response()
+        
+
+        if self.output:
+            with open(self.output, 'w', encoding='utf-8') as f:
+                f.write(self.response.text)
+            self.console.print(f"[bold green]🧾 Response saved to {self.output}[/]")
+            
+    def _display_text_response(self):
+        """Display a plain text response."""
+        if self.response is None:
+            return
+            
+        text = self.response.text if self.max_response_length == 0 else self.response.text[:self.max_response_length]
+        
+        if self.max_response_length > 0 and len(self.response.text) > self.max_response_length:
+            text += "\n\n... (truncated)"
+            
+        content_type = self.response.headers.get("Content-Type", "text/plain").split(';')[0]
+        self.console.print(Panel(text, title=f"🧾 Response Body ({content_type})", expand=True))
+
+    def display_dns_records(self):
+        """Display the DNS records."""
+        if not self.dns_records:
+            self.get_dns_records(self.domain)
+            
+        self.console.line()
+        
+        dns_table = Table(title=f"DNS Records for '{self.domain}'", expand=True)
+        dns_table.add_column("Type", style="cyan", no_wrap=True)
+        dns_table.add_column("Value", style="white", overflow="fold")
+        
+        has_records = False
+        for rtype, records in self.dns_records.items():
+            if records:
+                has_records = True
+                dns_table.add_row(rtype, "\n".join(records))
+                
+        if has_records:
+            self.console.print(dns_table)
+        else:
+            self.console.print("[yellow]No DNS records found[/yellow]")
+
+    def export_results(self, format='json', filename=None):
+        """Export the results to a file.
+        
+        Args:
+            format (str): The format to export ('json', 'text')
+            filename (str, optional): The file name. Defaults to '{domain}_results.{format}'
+        """
+        if not self.response:
+            self.console.print("[yellow]Warning: No results to export[/yellow]")
+            return
+            
+        if not filename:
+            filename = f"{self.domain}_results.{format}"
+            
+        result_data = {
+            "url": self.url,
+            "method": self.method,
+            "domain": self.domain,
+            "ip": self.ip,
+            "status_code": self.response.status_code,
+            "elapsed_time_ms": self.elapsed_time,
+            "headers": dict(self.response.headers),
+            "dns_records": self.dns_records,
+            "waterfall_timings": self.waterfall_timings
         }
-        self.ssl_info.update(self._calculated_date)
-        if not self._raw_data:
-            _tmp_ssl_info = {}
-            _to_dict_keys = ["subject", "issuer"]
-            _to_list_keys = ["subjectAltName"]
+        
+        if format.lower() == 'json':
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(result_data, f, indent=2, ensure_ascii=False)
+        else:  # text
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(f"URL: {self.url}\n")
+                f.write(f"Method: {self.method}\n")
+                f.write(f"Domain: {self.domain}\n")
+                f.write(f"IP: {self.ip}\n")
+                f.write(f"Status Code: {self.response.status_code}\n")
+                f.write(f"Elapsed Time: {self.elapsed_time:.2f} ms\n\n")
+                
+                f.write("Headers:\n")
+                for k, v in self.response.headers.items():
+                    f.write(f"  {k}: {v}\n")
+                    
+                f.write("\nBody:\n")
+                f.write(self.response.text)
+                
+        self.console.print(f"[bold green]Results exported to {filename}[/]")
 
-            for key, value in self.ssl_info.items():
-                if key in _to_dict_keys:
-                    self.ssl_info[key] = self._tuple_to_dict(value)
-                elif key in _to_list_keys:
-                    print(f"key={key}, value={value}")
-                    self.ssl_info[key] = self._tuple_to_list(value)
+    def run(self):
+        """전체 검사 프로세스를 실행합니다."""
+        self.console.print(Panel(f"[bold]HTTP Inspection: {self.url}[/]", 
+                                style="bold blue", expand=False))
+        
+        self.ip = self.get_ip_address(self.domain, self.url)
+        if not self.ip:
+            self.console.print("[bold red]Aborting: Failed to resolve domain[/]")
+            return False
+                    
+        if not self.make_http_request():
+            self.console.print("[bold red]Aborting: HTTP request failed[/]")
+            return False
+            
+        self.get_dns_records(self.domain)
+        
+        self.display_results()
+        self.display_dns_records()           
+        return True
 
-    @staticmethod
-    def _tuple_to_dict(_tuple=None):
-        _tmp_dict = {}
-        if isinstance(_tuple, tuple):
-            for _data in _tuple:
-                _tmp_dict.update(_data)
-        return _tmp_dict
 
-    @staticmethod
-    def _tuple_to_list(_tuple=None):
-        _tmp_dict = {}
-        if isinstance(_tuple, tuple):
-            for _data in _tuple:
-                _key = _data[0]
-                _domain = _data[1]
-                pawn.console.log(f"[red] _tuple_to_list ={_key}, {_domain}")
-                if not _tmp_dict.get(_key):
-                    _tmp_dict[_key] = []
-                _tmp_dict[_key].append(_domain)
-        return _tmp_dict
+def parse_auth(auth_str):    
+    if ':' in auth_str:
+        # Basic Auth
+        username, password = auth_str.split(':', 1)
+        return HTTPBasicAuth(username, password)
+    else:
+        # OAuth 토큰 (Bearer)
+        return {'Authorization': f'Bearer {auth_str}'}
 
-    def ssl_expiry_datetime(self) -> datetime:
-        return datetime.strptime(self.ssl_info['notAfter'], self.ssl_dateformat)
+def parse_headers(headers_str):    
+    headers = {}
+    if isinstance(headers_str, dict):
+        for key, value in headers_str.items():
+            headers[key] = f"{value}".strip()
+    else:
+        for header in headers_str:
+            key, value = header.split(':', 1)
+            headers[key.strip()] = value.strip()
+    return headers
 
-    def analyze_ssl(self):
-        api_url = 'https://api.ssllabs.com/api/v3/'
-        _do_function = partial(jequest, f"{api_url}/analyze?host={self._host}")
-        WaitStateLoop(
-            loop_function=_do_function,
-            exit_function=self._check_ssl_result,
-        ).run()
 
-    def _check_ssl_result(self, result):
-        if result.get('json') and result['json'].get('status') == "READY":
-            self.ssl_result = result['json']
-            pawn.console.log(self.ssl_result)
-            return True
+class CheckSSL:
+    """SSL Certificate Checker.
+
+    This class is responsible for checking the SSL certificate of a given host.
+    It retrieves SSL certificate information, checks its expiry status, and displays
+    the relevant details in a formatted table.
+
+    Attributes:
+        host (str): The hostname of the server to check.
+        port (int): The port number to connect to (default is 443).
+        timeout (float): The timeout for the connection in seconds (default is 5.0).
+        sni_hostname (str): The hostname to use for the SNI (Server Name Indication) handshake.
+        ssl_info (dict): Stores the SSL certificate information.
+    """
+    
+    def __init__(self, host, port=443, timeout=5.0, sni_hostname: str = ""):
+        
+
+        proper_url = append_scheme(host, "https")
+        parsed_url = urlparse(proper_url)
+        self._host = parsed_url.hostname  # "httpbin.org"가 추출됨
+        self._port = port
+        self._timeout = timeout
+        self._sni_hostname = sni_hostname or self._host  
+        self.ssl_info = None
+
+        pawn.console.log(
+            f"[cyan]Checking SSL certificate for TCP {self._host}:{self._port} [/cyan]"
+            f"(SNI={self._sni_hostname})"
+        )
+
+    def get_ssl(self) -> dict: 
+        """Retrieve the SSL certificate for the specified host.
+
+        Returns:
+            dict: The SSL certificate information.
+
+        Raises:
+            SystemExit: If there is a connection error.
+        """
+        try:
+            context = ssl.create_default_context()
+            with socket.create_connection((self._host, self._port), timeout=self._timeout) as sock:
+                with context.wrap_socket(sock, server_hostname=self._sni_hostname) as conn:
+                    return conn.getpeercert()
+        except Exception as e:
+            pawn.console.log(f"[red]Connect SSL Error: '{self._host}' -> {e}[/red]")
+            # sys.exit(1)
+    
+    def _parse_date(self, date_str):
+        """Parse SSL date format.
+
+        Args:
+            date_str (str): The date string to parse.
+
+        Returns:
+            datetime: The parsed date.
+        """
+        return datetime.strptime(date_str, '%b %d %H:%M:%S %Y %Z')
+
+    def check_expiry(self):
+        """Check the expiry status of the SSL certificate.
+
+        Returns:
+            tuple: A status string and the number of days left until expiry.
+        """
+        not_after = self._parse_date(self.ssl_info.get('notAfter'))
+        now = datetime.now()
+        delta = not_after - now
+        days_left = delta.days
+        if days_left < 0:
+            return "Expired", days_left
+        elif days_left <= 15:
+            return "Expiring Soon", days_left
+        else:
+            return "Valid", days_left
+
+    def display(self):
+        """Display the SSL certificate information in a formatted table."""
+        if self.ssl_info is None:
+            self.ssl_info = self.get_ssl()
+
+        table = Table(title="SSL Certificate Information", expand=True)
+        table.add_column("Field", justify="left", style="cyan")
+        table.add_column("Value", justify="left")
+
+        def format_dn(dn_tuple):
+            return '\n '.join([f"{key}: {value}" for rdn in dn_tuple for (key, value) in rdn]) if dn_tuple else 'N/A'
+
+        subject = self.ssl_info.get('subject', ())
+        subject_str = format_dn(subject)
+        table.add_row("Subject", f"{subject_str}")
+
+        issuer = self.ssl_info.get('issuer', ())
+        issuer_str = format_dn(issuer)
+        table.add_row("Issuer", f"{issuer_str}")
+
+        not_before = self.ssl_info.get('notBefore', 'N/A')
+        not_after = self.ssl_info.get('notAfter', 'N/A')
+        table.add_row("Not Before", f"{not_before}")
+        table.add_row("Not After", f"{not_after}")
+
+        status, days_left = self.check_expiry()
+        if status == "Expired":
+            status_str = f"[red]{status} (Expired {-days_left} days ago)[/red]"
+        elif status == "Expiring Soon":
+            status_str = f"[red]{status} (Expires in {days_left} days)[/red]"
+        else:
+            status_str = f"[green]{status} (Expires in {days_left} days)[/green]"
+        table.add_row("Expiry Status", f"{status_str}")
+
+        san = self.ssl_info.get('subjectAltName', ())
+        san_str = ', '.join([f"{key}: {value}" for key, value in san]) if san else 'N/A'
+        table.add_row("Subject Alt Names", f"{san_str}")
+
+        pawn.console.print(table)
 
 
 class CallWebsocket:
@@ -4127,7 +4765,7 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
             self,
             url: str = "",
             logger: Optional[Union[logging.Logger, Console, ConsoleLoggerAdapter, Null]] = None,
-            session=aiohttp.ClientSession,
+            session=None,
             verbose=True,
             timeout=10,
             retries=3,
@@ -4146,17 +4784,27 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
         self.return_with_time = return_with_time
         self.session = session
         self.max_concurrency = max_concurrency
+        self.last_response = None
         self.semaphore = asyncio.Semaphore(max_concurrency)
         # self.loop = loop or asyncio.get_running_loop()
         self._own_session = False
+        
+        if session is None:
+            self.session = None
+        elif session == aiohttp.ClientSession:
+            self.session = None
+        else:            
+            self.session = session
+            self._own_session = False
+            
         self.logger.info(f"Start AsyncIconRpcHelper with max_concurrency={self.max_concurrency}")
-        self.logger.debug(f"Initial session: {session}, closed={session.closed if session else 'None'}")
-
-
+        
         self.connector = aiohttp.TCPConnector(
             limit=max_concurrency,
-            ssl=kwargs.get('ssl', False)
-        )
+            ssl=kwargs.get('ssl', False),
+            force_close=kwargs.get('force_close', True),
+            ttl_dns_cache=kwargs.get('ttl_dns_cache', 300)
+        )    
 
     async def adjust_concurrency(self, new_max: int):
         """
@@ -4207,11 +4855,13 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
             if not self.session.closed:
                 await self.session.close()
                 self.logger.debug("Session explicitly closed")
+            if self.session in _ACTIVE_SESSIONS:
+                _ACTIVE_SESSIONS.remove(self.session)  # 추적 목록에서 제거
             self.session = None
 
     def __del__(self):
-        if hasattr(self, 'session') and self.session and not self.session.closed:
-            self.logger.warning("Unclosed session detected. Use async context manager or call close() explicitly.")
+        if hasattr(self, 'session') and self.session and not self.session.closed:            
+            self.logger.debug("Unclosed session will be handled at program exit")
 
     async def initialize(self):
         self.logger.debug(f"[INIT START] Session={self.session}, closed={self.session.closed if self.session else 'None'}")
@@ -4220,18 +4870,28 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
                 connector=self.connector,
                 timeout=aiohttp.ClientTimeout(total=self.timeout),
             )
+            _ACTIVE_SESSIONS.add(self.session)  # 전역 목록에 세션 추가
             self._own_session = True
             self.logger.debug(f"[INIT] Created new session")
         else:
+            if self.session not in _ACTIVE_SESSIONS:
+                _ACTIVE_SESSIONS.add(self.session)  # 기존 세션도 추적
             self._own_session = False
             self.logger.debug("[INIT] Using existing session from parent")
         self.logger.debug(f"[INIT END] Session={self.session}, own_session={self._own_session}")
-
+        return self
+        
     def _check_session(self):
         if not self.session or self.session.closed:
+            self.last_response = {
+                "data": None,
+                "status": 0,
+                "error": "AIOHTTP session is closed or not initialized.",
+                "elapsed_time_ms": 0
+            }            
             error_message = "AIOHTTP session is closed or not initialized."
-            self.logger.error(error_message)
-            raise RuntimeError(error_message)
+            self.logger.error(self.last_response["error"])
+            raise RuntimeError(self.last_response["error"])
 
     async def execute_rpc_call(self, method=None, params: dict = {}, url=None, return_key=None, governance_address=None, return_on_error=True, keep_lists=True):
         """
@@ -4298,16 +4958,21 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
         )
 
     def check_aio_session(self, log_exception=True, return_on_error=False):
-        if not self.session or self.session.closed:
-            error_message = "AIOHTTP session is closed or not initialized."
+        if not self.session or self.session.closed:            
+            self.last_response = {
+                "data": None,
+                "status": 0,
+                "error": "AIOHTTP session is closed or not initialized.",
+                "elapsed_time_ms": 0
+            }            
             if log_exception:
-                self.logger.exception(error_message)
+                self.logger.exception(self.last_response["error"])
             else:
-                self.logger.error(error_message, exc_info=False)
+                self.logger.error(self.last_response["error"], exc_info=False)
             if return_on_error:
                 return {}
             else:
-                raise Exception(error_message)
+                raise Exception(self.last_response['error'])
 
     async def _make_request(
             self,
@@ -4358,13 +5023,16 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
 
         # Ensure session is valid
         self.check_aio_session(log_exception, return_on_error=False)
+        self.last_response = {}
 
         for attempt in range(1, retries + 1):
             start_time = time.time()  # Start timer for elapsed time
             try:
+                response_text = ""
+
                 timeout = aiohttp.ClientTimeout(total=self.timeout)
                 if http_method.upper() == 'GET':
-                    async with self.session.get(endpoint, params=data, headers=headers, timeout=timeout) as resp:
+                    async with self.session.get(endpoint, params=data, headers=headers, timeout=timeout) as resp:                        
                         response_text = await resp.text()
                 elif http_method.upper() == 'POST':
                     payload = json.dumps(data) if isinstance(data, dict) else data
@@ -4375,6 +5043,13 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
                     return ({}, 0.0) if return_with_time else {}
 
                 elapsed_time = int((time.time() - start_time) * 1000)
+
+                self.last_response = {
+                    "data": response_text,
+                    "status": resp.status,
+                    "error": None,
+                    "elapsed_time_ms": elapsed_time
+                }
 
                 # Handle successful response
                 if resp.status == 200:
@@ -4418,6 +5093,7 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
                 self.logger.warning(
                     f"Attempt {attempt}/{retries} failed: {e}. Method: {http_method.upper()}, URL: {endpoint}"
                 )
+                self.last_response['error'] = f"Attempt {attempt}/{retries} failed: {e}. Method: {http_method.upper()}, URL: {endpoint}"
                 if attempt == retries and return_with_time:
                     return ({}, elapsed_time)
             except Exception as e:
@@ -4432,7 +5108,9 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
                     raise
             finally:
                 if attempt < retries:
-                    sleep_time = backoff_factor * (2 ** (attempt - 1))
+                    # Adding jitter to introduce randomness in the backoff time, preventing thundering herd problem.
+                    jitter = uniform(0, 1)
+                    sleep_time = backoff_factor * (2 ** (attempt - 1)) + jitter
                     if sleep_time > 1:
                         self.logger.debug(f"Retrying after {sleep_time:.2f} seconds..., URL: {endpoint}, data: {data}")
                     await asyncio.sleep(sleep_time)
@@ -4440,6 +5118,184 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
         # Final fallback in case all retries fail
         self.logger.error(f"All {retries} attempts failed for {http_method.upper()} request to {endpoint}")
         return ({}, 0.0) if return_with_time else {}
+
+
+    async def _make_request(
+            self,
+            http_method: str,
+            endpoint: str,
+            data: Optional[Union[Dict, str]] = None,
+            headers: Optional[Dict[str, str]] = None,
+            return_key: Optional[str] = None,
+            return_on_error: bool = True,
+            return_first: bool = False,
+            list_index: Optional[int] = None,
+            retries: int = 3,
+            backoff_factor: float = 0.5,
+            keep_lists: bool = False,
+            log_exception: bool = False,
+            return_with_time: Optional[bool] = None
+    ) -> Any:
+        """
+        Helper method to make HTTP requests with retry and timeout support.
+        Stores response in last_response and maintains legacy return behavior.
+
+        Args:
+            http_method (str): HTTP method ('GET', 'POST', etc.).
+            endpoint (str): API endpoint or full URL.
+            data (dict or str, optional): Payload for POST requests or query parameters for GET.
+            headers (dict, optional): HTTP headers.
+            return_key (str, optional): Key to extract from the JSON response.
+            return_on_error (bool, optional): Whether to return data on error responses.
+            return_first (bool, optional): If True and response is a list, return the first item.
+            list_index (int, optional): If provided and response is a list, return the item at this index.
+            retries (int, optional): Number of retry attempts. Defaults to 3.
+            backoff_factor (float, optional): Backoff factor for exponential delay. Defaults to 0.5.
+            keep_lists (bool, optional): Whether to keep lists in flattened data.
+            log_exception (bool, optional): Whether to log exceptions.
+            return_with_time (bool, optional): If True, return response data along with the elapsed time.
+
+        Returns:
+            Any: Processed response data, or a tuple of response data and elapsed time.
+        """
+        if return_with_time is None:
+            return_with_time = self.return_with_time
+
+        if headers is None:
+            headers = {'Content-Type': 'application/json'}
+
+        self._check_session()
+        self.logger.debug(f"Making {http_method.upper()} request to {endpoint} with data: {data}")
+
+        for attempt in range(1, retries + 1):
+            start_time = time.time()
+            try:
+                response = await self._execute_http_request(http_method, endpoint, data, headers)
+                status = response["status"]
+                response_text = response["response_text"]
+                elapsed_time_ms = response["elapsed_time_ms"]
+
+                if status == 200:
+                    processed_response = self._process_success_response(response_text, return_key, keep_lists, return_first, list_index)
+                    self.last_response = {
+                        "data": processed_response,
+                        "status": status,
+                        "error": None,
+                        "elapsed_time_ms": elapsed_time_ms
+                    }
+                    return (processed_response, elapsed_time_ms) if return_with_time else processed_response
+                elif status == 400:
+                    error_message = self._process_error_response(response_text, return_on_error)
+                    self.last_response = {
+                        "data": error_message if return_on_error else {},
+                        "status": status,
+                        "error": error_message,
+                        "elapsed_time_ms": elapsed_time_ms
+                    }
+                    self.logger.info(f" ▶️ {get_shortened_tx_hash(data)} status={status}, error={error_message}")
+                    return (self.last_response["data"], elapsed_time_ms) if return_with_time else self.last_response["data"]
+                else:
+                    self.last_response = {
+                        "data": {} if return_on_error else {},
+                        "status": status,
+                        "error": f"Request failed with status {status}: {response_text}",
+                        "elapsed_time_ms": elapsed_time_ms
+                    }
+                    self.logger.warning(self.last_response["error"])
+                    processed_response = self._process_error_response(response_text, return_on_error, return_key, keep_lists)
+                    self.last_response["data"] = processed_response
+                    return (processed_response, elapsed_time_ms) if return_with_time else processed_response
+            except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+                elapsed_time_ms = int((time.time() - start_time) * 1000)
+                self.last_response = {
+                    "data": {} if return_on_error else {},
+                    "status": 0,
+                    "error": f"Attempt {attempt}/{retries} failed: {e}",
+                    "elapsed_time_ms": elapsed_time_ms
+                }
+                self.logger.warning(f"{self.last_response['error']}. Method: {http_method.upper()}, URL: {endpoint}")
+                if attempt == retries:
+                    return (self.last_response["data"], elapsed_time_ms) if return_with_time else self.last_response["data"]
+            except Exception as e:
+                elapsed_time_ms = int((time.time() - start_time) * 1000)
+                self.last_response = {
+                    "data": {} if return_on_error else {},
+                    "status": 0,
+                    "error": f"Unexpected error: {e}",
+                    "elapsed_time_ms": elapsed_time_ms
+                }
+                self.logger.error(f"{self.last_response['error']}. Method: {http_method.upper()}, URL: {endpoint}", exc_info=log_exception)
+                if attempt == retries:
+                    return (self.last_response["data"], elapsed_time_ms) if return_with_time else self.last_response["data"]
+            finally:
+                if attempt < retries:
+                    sleep_time = backoff_factor * (2 ** (attempt - 1))
+                    if sleep_time > 1:
+                        self.logger.debug(f"Retrying after {sleep_time:.2f} seconds..., URL: {endpoint}, data: {data}")
+                    await asyncio.sleep(sleep_time)
+
+        self.last_response = {
+            "data": {} if return_on_error else {},
+            "status": 0,
+            "error": f"All {retries} attempts failed for {http_method.upper()} request to {endpoint}",
+            "elapsed_time_ms": 0
+        }
+        self.logger.error(self.last_response["error"])
+        return (self.last_response["data"], 0.0) if return_with_time else self.last_response["data"]
+
+    async def _execute_http_request(self, http_method: str, endpoint: str, data: Optional[Union[Dict, str]], headers: Dict[str, str]) -> Dict[str, Any]:
+        """
+        Executes the HTTP request and returns response details.
+        """
+        start_time = time.time()
+        timeout = aiohttp.ClientTimeout(total=self.timeout)
+        if http_method.upper() == 'GET':
+            async with self.session.get(endpoint, params=data, headers=headers, timeout=timeout) as resp:
+                status = resp.status
+                response_text = await resp.text()
+        elif http_method.upper() == 'POST':
+            payload = json.dumps(data) if isinstance(data, dict) else data
+            async with self.session.post(endpoint, data=payload, headers=headers, timeout=timeout) as resp:
+                status = resp.status
+                response_text = await resp.text()
+        else:
+            raise ValueError(f"Unsupported HTTP method: {http_method}")
+        elapsed_time_ms = int((time.time() - start_time) * 1000)
+        return {
+            "status": status,
+            "response_text": response_text,
+            "elapsed_time_ms": elapsed_time_ms
+        }
+
+    def _process_success_response(self, response_text: str, return_key: Optional[str], keep_lists: bool, return_first: bool, list_index: Optional[int]) -> Any:
+        """
+        Processes successful (200) response.
+        """
+        try:
+            response_json = json.loads(response_text)
+            processed_response = self.handle_response_with_key(response_json, return_key=return_key, keep_lists=keep_lists)
+            if isinstance(processed_response, list):
+                if return_first:
+                    return processed_response[0] if processed_response else None
+                elif list_index is not None:
+                    return processed_response[list_index] if len(processed_response) > list_index else None
+            return processed_response
+        except json.JSONDecodeError:
+            self.logger.error(f"Failed to decode JSON response: {response_text}")
+            return response_text
+
+    def _process_error_response(self, response_text: str, return_on_error: bool, return_key: Optional[str] = None, keep_lists: bool = False) -> Any:
+        """
+        Processes error response.
+        """
+        try:
+            response_json = json.loads(response_text)
+            if return_key:
+                return self.handle_response_with_key(response_json, return_key=return_key, keep_lists=keep_lists)
+            return response_json if return_on_error else {}
+        except json.JSONDecodeError:
+            return response_text if return_on_error else {}
+        
 
     @staticmethod
     def handle_response_with_key(response=None, return_key=None, keep_lists=True):
@@ -4462,7 +5318,7 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
 
     async def get_last_blockheight(self, url: Optional[str] = None) -> int:
         target_url = url or self.url
-        response = await self.execute_rpc_call(url=target_url, method='icx_getLastBlock', return_key="result.height")
+        response = await self.execute_rpc_call(url=target_url, method='icx_getLastBlock', return_key="result.height")        
         return response if response else 0
 
     async def get_network_info(self, url: Optional[str] = None) -> int:

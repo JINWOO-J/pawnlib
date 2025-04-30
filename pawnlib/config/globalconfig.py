@@ -857,6 +857,7 @@ class PawnlibConfig(metaclass=Singleton):
         self.debug = debug
 
         self.version = f"{__title__}/{__version__}"
+        self.version_number = __version__
         self.env_prefix = "PAWN"
         self._environments = {}
         self.data = NestedNamespace()

@@ -226,18 +226,21 @@ class S3ClientBase(LoggerMixinVerbose):
         self.is_cloudflare = None
         self.session = None
         self.config = None
-        self.create_s3_client()
+        self.create_s3_client()        
 
     def create_s3_client(self):
-        if self.access_key and self.secret_key:
+        if self.profile_name:
+            self.logger.info(f"Using profile: {self.profile_name}")
+            self.session = boto3.Session(profile_name=self.profile_name)        
+            self.endpoint_url = None
+        elif self.access_key and self.secret_key:
+            self.logger.info(f"Using access key: {self.access_key}")
             self.session = boto3.Session(
                 aws_access_key_id=self.access_key,
                 aws_secret_access_key=self.secret_key,
             )
-        elif self.profile_name:
-            self.session = boto3.Session(profile_name=self.profile_name)
         else:
-            self.session = boto3.Session()
+            self.session = boto3.Session()  # IAM Role, env vars 등
 
         self.is_cloudflare = len(self.access_key) == 32 if self.access_key else False
 
@@ -260,6 +263,8 @@ class S3ClientBase(LoggerMixinVerbose):
                 # verify=False
             )
         else:
+            if os.environ.get('S3_ENDPOINT_URL') == self.endpoint_url:
+                self.endpoint_url = None
             self.s3_client = self.session.client(
                 's3',
                 # config=config,
@@ -334,7 +339,7 @@ class S3ClientBase(LoggerMixinVerbose):
         self.print_config()
 
         try:
-            response = self.s3_client.list_buckets()
+            response = self.s3_client.list_buckets()            
             bucket_table = Table(title="Available Buckets")
             bucket_table.add_column("Bucket Name", style="cyan")
             for bucket in response['Buckets']:
@@ -912,7 +917,19 @@ class S3Lister(S3ClientBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.loop = asyncio.get_event_loop()
-        self.aiosession = aioboto3.Session()
+
+        self.aiosession = self.create_aiosession()
+
+
+    def create_aiosession(self):
+        if self.profile_name:
+            return aioboto3.Session(profile_name=self.profile_name)
+        elif self.access_key and self.secret_key:
+            return aioboto3.Session(
+                aws_access_key_id=self.access_key,
+                aws_secret_access_key=self.secret_key,
+            )
+        return aioboto3.Session()
 
     async def get_bucket_region(self, s3_client, bucket_name):
         """
