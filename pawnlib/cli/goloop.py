@@ -71,6 +71,32 @@ __epilog__ = (
     "This tool offers in-depth analysis for monitoring blockchain nodes and network metrics.",
     "Run `--help` for more details or consult the documentation."
 )
+from aiohttp import ClientSession
+import atexit
+import asyncio
+
+_SESSION_POOL = None
+
+def get_session_pool():
+    global _SESSION_POOL
+    if _SESSION_POOL is None:
+        _SESSION_POOL = ClientSession(connector=aiohttp.TCPConnector(limit=20, force_close=True))
+    return _SESSION_POOL
+
+async def cleanup_session_pool():
+    global _SESSION_POOL
+    if _SESSION_POOL is not None and not _SESSION_POOL.closed:
+        await _SESSION_POOL.close()
+        _SESSION_POOL = None
+
+# 프로그램 종료 시 세션 풀 정리
+def cleanup_on_exit():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(cleanup_session_pool())
+    loop.close()
+
+atexit.register(cleanup_on_exit)
 
 
 def get_parser():
@@ -97,6 +123,9 @@ def get_arguments(parser):
     parser.add_argument('-u', '--url', type=str, help='printing type  %(default)s)', default="localhost:9000")
     parser.add_argument('-cu', '--compare-url', type=str, help='compare url  %(default)s)', default=None)
     parser.add_argument('-f', '--filter', type=str, help='Filtering key', default=None)
+    
+    parser.add_argument('--host', type=str, help='host (default: %(default)s)', default="localhost")
+    parser.add_argument('-p', '--ports', nargs='+', type=int, help='List of ports to connect to', default=None)
 
     parser.add_argument( '--log-type', choices=['console', 'file', 'both'], default='console', help='Choose logger type: console or file (default: console)')
     parser.add_argument('--max-concurrent', type=int, help='Maximum concurrent connections for P2P analysis (default: %(default)s)', default=5)
@@ -380,7 +409,7 @@ async def fetch_icon_data(url="", guessed_network_endpoint=""):
     }
 
 
-async def fetch_admin_chain(target_url="", external_url=""):
+async def fetch_admin_chain(target_url="", external_url="", helper=None):
     """
     Fetches data from the target and external ICON nodes.
 
@@ -391,40 +420,50 @@ async def fetch_admin_chain(target_url="", external_url=""):
     Returns:
         dict: A dictionary containing data from the target and external nodes with elapsed time.
     """
-    async with AsyncIconRpcHelper(logger=pawn.console, timeout=2, return_with_time=True, retries=1) as rpc_helper:
-        try:
-            # await check_network_api_availability(target_url)
-            target_node, target_node_time = await rpc_helper.fetch(
-                url=f"{target_url}/admin/chain", return_first=True
-            )
-            target_node = (
-                {"elapsed": target_node_time, **target_node}
-                if isinstance(target_node, dict)
-                else {"elapsed": target_node_time, "error": "Invalid target node response"}
-            )
-        except Exception as e:
-            target_node = {"elapsed": None, "error": f"Failed to fetch target node data: {str(e)}"}
-
-        if external_url:
+    # connector = aiohttp.TCPConnector(limit=20, ssl=False)
+    # session = aiohttp.ClientSession(connector=connector)
+    
+    try:
+        async with helper as rpc_helper:
             try:
-                # Fetch block height from the external node
-                external_node_blockheight, external_node_time = await rpc_helper.get_last_blockheight(url=external_url)
-                external_node = {
-                    "elapsed": external_node_time,
-                    "height": external_node_blockheight,
-                } if external_node_blockheight else {
-                    "elapsed": external_node_time,
-                    "error": "Failed to fetch external node block height"
-                }
-            except Exception as e:
-                external_node = {"elapsed": None, "error": f"Failed to fetch external node data: {str(e)}"}
-        else:
-            external_node = {"elapsed": None, "error": f"external url not provided: {external_url}"}
+                # await check_network_api_availability(target_url)
+                target_node, target_node_time = await rpc_helper.fetch(
+                    url=f"{target_url}/admin/chain", return_first=True
+                )                
 
-    return {
-        "target_node": target_node,
-        "external_node": external_node,
-    }
+                target_node = (
+                    {"elapsed": target_node_time, **target_node}
+                    if isinstance(target_node, dict)
+                    else {"elapsed": target_node_time, "error": "Invalid target node response"}
+                )
+            except Exception as e:
+                target_node = {"elapsed": None, "error": f"Failed to fetch target node data: {str(e)}"}
+
+            if external_url:
+                try:
+                    # Fetch block height from the external node
+                    external_node_blockheight, external_node_time = await rpc_helper.get_last_blockheight(url=external_url)                                
+                    external_node = {
+                        "elapsed": external_node_time,
+                        "height": external_node_blockheight,
+                    } if external_node_blockheight else {
+                        "elapsed": external_node_time,
+                        "error": "Failed to fetch external node block height"
+                    }
+                except Exception as e:
+                    external_node = {"elapsed": None, "error": f"Failed to fetch external node data: {str(e)}"}
+            else:
+                external_node = {"elapsed": None, "error": f"external url not provided: {external_url}"}
+
+            result = {
+                "target_node": target_node,
+                "external_node": external_node,
+            }
+            return result
+    finally:
+        # 세션을 명시적으로 닫기
+        if helper and getattr(helper, 'session', None) and not helper.session.closed:
+            await helper.close()
 
 
 async def is_port_open(host, port):
@@ -469,7 +508,11 @@ async def check_network_api_availability(network_api):
     return True
 
 
-def display_stats(network_api, compare_api=None, history_size=100, interval=2, log_interval=20):
+def display_stats(network_api, compare_api="", history_size=100, interval=2, log_interval=20):
+    """비동기 함수를 실행하는 래퍼"""
+    asyncio.run(display_stats_async(network_api, compare_api, history_size, interval, log_interval))
+    
+async def display_stats_async(network_api, compare_api="", history_size=100, interval=2, log_interval=20):
     """
     Fetches data from a network API, calculates TPS (Transactions Per Second), and logs the results.
 
@@ -511,19 +554,21 @@ def display_stats(network_api, compare_api=None, history_size=100, interval=2, l
     tps_calculator = TPSCalculator(history_size=history_size, variable_time=True)
     block_tracker = BlockDifferenceTracker(history_size=history_size)
     sync_speed_tracker = SyncSpeedTracker(history_size=history_size)
+    helper = AsyncIconRpcHelper(logger=pawn.console, timeout=2, return_with_time=True, retries=1)
+
 
     while True:
         try:
             start_time = time.time()
-
-            result = asyncio.run(fetch_admin_chain(target_url=network_api, external_url=compare_api))
+            result = await fetch_admin_chain(target_url=network_api, external_url=compare_api, helper=helper)         
 
             target_node = result.get('target_node', {})
             current_height = target_node.get('height')
             current_time = time.time()
 
             if current_height is None or not isinstance(current_height, int):
-                pawn.console.log(f"[red]Error:[/red] Invalid 'height' value received from {network_api}.")
+                pawn.console.log(f"[red]Error:[/red] Invalid 'height' value received from {network_api}. result={result}")
+                
                 time.sleep(2)
                 return
 
@@ -641,12 +686,15 @@ def calculate_tps(heights, times, sleep_duration=1):
     return recent_tps, avg_tps, recent_tx_count
 
 
-async def find_and_check_stat(sleep_duration=2):
+async def find_and_check_stat(sleep_duration=2, host="localhost", ports=None):
     refresh_interval = 30  # 포트 갱신 간격 (초)
     last_refresh_time = asyncio.get_event_loop().time()
 
     # 초기 포트 스캔
-    open_ports = await find_open_ports()
+    if ports:
+        open_ports = ports
+    else:
+        open_ports = await find_open_ports()
     if not open_ports:
         pawn.console.log("No open ports found. Exiting.")
         return
@@ -655,6 +703,8 @@ async def find_and_check_stat(sleep_duration=2):
     block_times = {port: deque(maxlen=60) for port in open_ports}
     consecutive_failures = {port: 0 for port in open_ports}
 
+    api_url = append_http(host)
+
     async with AsyncIconRpcHelper(logger=pawn.console, timeout=2, return_with_time=False, retries=1) as rpc_helper:
 
         while True:
@@ -662,7 +712,10 @@ async def find_and_check_stat(sleep_duration=2):
 
             # 주기적 포트 갱신 (초기 스캔 이후)
             if current_time - last_refresh_time >= refresh_interval:
-                new_open_ports = await find_open_ports()
+                if ports:
+                    new_open_ports = ports
+                else:
+                    new_open_ports = await find_open_ports()
                 last_refresh_time = current_time
 
                 # 새로운 포트 추가
@@ -683,23 +736,22 @@ async def find_and_check_stat(sleep_duration=2):
 
             # tasks = [fetch_chain(rpc_helper.session, port) for port in open_ports]
             # tasks = [rpc_helper.fetch(f":{port}/admin/chain", return_first=True) for port in open_ports]
-            tasks = [rpc_helper.fetch(url=f"http://localhost:{port}/admin/chain", return_first=True) for port in open_ports]
+
+            tasks = [rpc_helper.fetch(url=f"{api_url}:{port}/admin/chain", return_first=True) for port in open_ports]
             results = await asyncio.gather(*tasks)
 
             active_ports = 0
             total_ports = len(open_ports)
 
-            for port, result in zip(open_ports, results):
-                if result and result is not None and isinstance(result, dict):
-                    # pawn.console.log(result)
 
+            for port, result in zip(open_ports, results):
+                state = ""
+                if result and result is not None and isinstance(result, dict):                    
                     active_ports += 1
                     nid = result.get('nid')
                     height = result.get('height')
-                    state = result.get('state', "N/A")
-                    if state == "started":
-                        state = ""
-                    elif "reset" in state:
+                    state = result.get('state', "N/A")                    
+                    if "reset" in state:
                         _state = calculate_reset_percentage(state)
                         state = f"reset {_state.get('reset_percentage')}%"
                     elif "pruning" in state:
@@ -721,7 +773,7 @@ async def find_and_check_stat(sleep_duration=2):
                     else:
                         recent_tps = avg_tps = recent_tx_count = 0
                         status = 'initializing'
-                else:
+                else:                    
                     status = 'no result'
                     nid = 'N/A'
                     height = 'N/A'
@@ -742,9 +794,14 @@ async def find_and_check_stat(sleep_duration=2):
 
                 try:
                     if state:
+                        if state == "started":
+                            server_state = ""
+                        else:
+                            server_state = state
+
                         pawn.console.log(f'{status_color}Port {port}: Status={status:<3}, Height={height:,}, nid={nid}, '
                                          f'TPS(AVG)={avg_tps:5.2f}, [dim]TPS={recent_tps:5.2f}[/dim], '
-                                         f'TX Cnt={recent_tx_count:<3},{state}')
+                                         f'TX Cnt={recent_tx_count:<3},{server_state}')
                     else:
                         pawn.console.log(f'{status_color}Port {port}, result={result}')
 
@@ -946,59 +1003,59 @@ class P2PNetworkParser(LoggerMixinVerbose):
     async def collect_ips(self, current_url: str, depth: int = 0):
         """
         재귀적으로 P2P 노드(IP) 수집
-        """
-        async with self.semaphore:
-            self.logger.debug(f"[COLLECT_IPS] {current_url}, depth={depth}")
-            if current_url in self.visited or depth > self.max_depth:
-                return
-            self.visited.add(current_url)
+        """        
+        # async with self.semaphore:
+        self.logger.debug(f"[COLLECT_IPS] {current_url}, depth={depth}")
+        if current_url in self.visited or depth > self.max_depth:
+            return
+        self.visited.add(current_url)
 
-            ip, _ = self.extract_ip_and_port(current_url)
-            if not ip:
-                self.logger.warning(f"[FORMAT ERROR] Invalid URL: {current_url}")
-                return
+        ip, _ = self.extract_ip_and_port(current_url)
+        if not ip:
+            self.logger.warning(f"[FORMAT ERROR] Invalid URL: {current_url}")
+            return
 
-            query_url = f"http://{ip}:9000"
-            try:
-                # self.logger.info(f"Start ::: {query_url}")
+        query_url = f"http://{ip}:9000"
+        try:
+            # self.logger.info(f"Start ::: {query_url}")
 
-                if not self.preps_info:
-                    self.preps_info = await self.rpc_helper.get_preps(url=query_url, return_dict_key="nodeAddress")
+            if not self.preps_info:
+                self.preps_info = await self.rpc_helper.get_preps(url=query_url, return_dict_key="nodeAddress")
 
-                if not self.nid:
-                    chain_info = await self.rpc_helper.fetch(url=f"{query_url}/admin/chain", return_first=True)
-                    self.logger.debug(f"[IP RESPONSE] {query_url} - {chain_info}")
-                    if not chain_info or 'nid' not in chain_info:
-                        return
-                    nid = chain_info['nid']
-                    self.nid = nid
-                else:
-                    nid = self.nid
-
-                detailed_info = await self.rpc_helper.fetch(url=f"{query_url}/admin/chain/{nid}")
-                self.logger.debug(f"[IP DETAIL RESPONSE] {query_url} - {detailed_info}")
-                if not detailed_info or 'module' not in detailed_info:
+            if not self.nid:
+                chain_info = await self.rpc_helper.fetch(url=f"{query_url}/admin/chain", return_first=True)
+                self.logger.debug(f"[IP RESPONSE] {query_url} - {chain_info}")
+                if not chain_info or 'nid' not in chain_info:
                     return
+                nid = chain_info['nid']
+                self.nid = nid
+            else:
+                nid = self.nid
 
-                p2p_info = detailed_info['module']['network'].get('p2p', {})
-                self_info = p2p_info.get('self', {})
-                if self_info.get('addr'):
-                    self.ip_set.add(self_info['addr'])
+            detailed_info = await self.rpc_helper.fetch(url=f"{query_url}/admin/chain/{nid}")
+            self.logger.debug(f"[IP DETAIL RESPONSE] {query_url} - {detailed_info}")
+            if not detailed_info or 'module' not in detailed_info:
+                return
 
-                peers_to_explore = []
-                for peer_type in ['friends', 'children', 'nephews', 'orphanages']:
-                    for peer in p2p_info.get(peer_type, []):
-                        peer_ip = peer.get('addr', '')
-                        if peer_ip and peer_ip not in self.visited:
-                            self.ip_set.add(peer_ip)
-                            peers_to_explore.append(peer_ip)
+            p2p_info = detailed_info['module']['network'].get('p2p', {})
+            self_info = p2p_info.get('self', {})
+            if self_info.get('addr'):
+                self.ip_set.add(self_info['addr'])
 
-                # 재귀 호출
-                tasks = [self.collect_ips(peer_ip, depth + 1) for peer_ip in peers_to_explore]
-                await asyncio.gather(*tasks, return_exceptions=True)
+            peers_to_explore = []
+            for peer_type in ['friends', 'children', 'nephews', 'orphanages']:
+                for peer in p2p_info.get(peer_type, []):
+                    peer_ip = peer.get('addr', '')
+                    if peer_ip and peer_ip not in self.visited:
+                        self.ip_set.add(peer_ip)
+                        peers_to_explore.append(peer_ip)
 
-            except Exception as e:
-                self.logger.error(f"[IP ERROR] {query_url} - {e}")
+            # 재귀 호출                
+            tasks = [self.collect_ips(peer_ip, depth + 1) for peer_ip in peers_to_explore]
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+        except Exception as e:
+            self.logger.error(f"[IP ERROR] {query_url} - {e}")
 
     async def collect_hx(self, ip: str):
         """
@@ -1193,7 +1250,7 @@ def main():
         display_stats(network_api=network_info.network_api, compare_api=_compare_api, interval=args.interval)
 
     elif args.command == "check":
-        asyncio.run(find_and_check_stat(sleep_duration=args.interval))
+        asyncio.run(find_and_check_stat(sleep_duration=args.interval, host=args.host, ports=args.ports))
 
     elif args.command == "p2p":
         try:
@@ -1205,7 +1262,7 @@ def main():
             ip_to_hx_map = asyncio.run(parser.run())
 
             pawn.console.rule("[bold blue]P2P Network Analysis[/bold blue]")
-            total_peer_ip_count= len(ip_to_hx_map.get('ip_to_hx'))
+            total_peer_ip_count = len(ip_to_hx_map.get('ip_to_hx'))
             pawn.console.log(f"Total Peer Count = {total_peer_ip_count}")
 
             for hx_address, peer_info in ip_to_hx_map['hx_to_ip'].items():

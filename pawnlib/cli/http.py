@@ -4,7 +4,7 @@ from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf, one_time_run
 from pawnlib.typing import str2bool, StackList, ErrorCounter,  is_json, is_valid_url, sys_exit, Null, remove_tags, FlatDict
-from pawnlib.utils.http import CallHttp, disable_ssl_warnings, ALLOW_OPERATOR
+from pawnlib.utils.http import CallHttp, disable_ssl_warnings, ALLOW_OPERATOR, HttpInspect, CheckSSL, parse_auth, parse_headers
 from pawnlib.utils import ThreadPoolRunner, send_slack
 from pawnlib.output import bcolors, print_json, is_file
 from dataclasses import dataclass, field
@@ -514,22 +514,15 @@ def main():
         )
     print_banner()
 
-    if args.ignore_ssl:
+    if args.ignore_ssl:                
         disable_ssl_warnings()
     tasks = generate_task_from_config()
     pawn.set(tasks=tasks)
 
-    # if args.slack_url:
-    #     res = _send_slack(url=args.slack_url, title="Starting HTTPING", msg_text=tasks)
-    #     pawn.console.log(res)
-    # _send_slack(url=args.slack_url, title=f"Error HTTPING {args.url}", msg_text=args.__dict__)
-    # pawn.console.log(f"console_options={pawn.console_options}")
-    # exit()
     pawn.console.log(f"Start httping ... url_count={len(tasks)}")
     pawn.console.log("If you want to see more logs, use the [yellow]-v[/yellow] option")
     pawn.console.log(f"tasks={tasks}")
 
-    # pawn.console.log(tasks)
     if args.dry_run:
         for task in tasks:
             check_url_process(task)
@@ -542,12 +535,6 @@ def main():
             sleep=args.interval
         )
         runner.forever_run()
-
-        # try:
-        #     runner.forever_run()
-        # except KeyboardInterrupt:
-        #     runner.stop()
-        #     print("Runner stopped.")
 
 main.__doc__ = (
     f"{__description__} \n"

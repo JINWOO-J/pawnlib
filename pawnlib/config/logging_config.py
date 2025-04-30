@@ -120,7 +120,7 @@ def verbose_to_log_level(
     :return: 대응되는 파이썬 로깅 레벨 수치
     """
     if log_levels is None:
-        # “0이면 로그를 전혀 남기지 않는다.” → CRITICAL+1
+        # "0이면 로그를 전혀 남기지 않는다." → CRITICAL+1
         # log_levels = {
         #     0: NO_LOG,  # effectively no logs
         #     1: logging.WARNING,
@@ -1929,8 +1929,11 @@ class LoggerMixinVerbose:
         else:
             self.logger.setLevel(log_level)
             self.logger.propagate = False
-        for handler in self.logger.handlers:
-            handler.setLevel(log_level)
+        
+        if hasattr(self.logger, 'handlers') and self.logger.handlers:
+            for handler in self.logger.handlers:
+                if handler:
+                    handler.setLevel(log_level)
 
 
 

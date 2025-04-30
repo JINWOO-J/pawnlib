@@ -47,3 +47,4 @@ tqdm~=4.65.0
 toml~=0.10.2
 psutil~=5.9.8
 #bcc-python~=0.0.2
+dnspython~=2.7.0

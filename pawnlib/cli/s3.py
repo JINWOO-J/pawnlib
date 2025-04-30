@@ -85,7 +85,7 @@ def get_arguments(parser):
     ls_parser = subparsers.add_parser('ls', help='List S3 bucket or prefix')
     ls_parser.add_argument('path', type=str, help='S3 path to list', nargs='?')
     ls_parser.add_argument('--recursive', action='store_true', help='List recursively')
-
+    ls_parser.add_argument('--include-size', action='store_true', help='Include size in the output')
     # Remove command
     rm_parser = subparsers.add_parser('rm', help='Remove objects from S3')
     rm_parser.add_argument('path', type=str, help='S3 path to remove')
@@ -223,15 +223,23 @@ def main():
         else:
             from rich.table import Table
             pawn.console.rule("[bold cyan]Available Buckets[/bold cyan]")
-            buckets = S3Lister(profile_name=args.profile, verbose=args.verbose).list_buckets()
+            
+            s3_lister = S3Lister(profile_name=args.profile, verbose=args.verbose)
+            s3_lister.print_config()
 
-            # Create a Rich table to display bucket names
+            buckets = s3_lister.list_buckets(include_size=args.include_size)
             table = Table(show_header=True, header_style="bold magenta")
             table.add_column("Index", justify="right")
             table.add_column("Bucket Name")
+            if args.include_size:
+                table.add_column("Size")
 
             for idx, bucket in enumerate(buckets, start=1):
-                table.add_row(str(idx), bucket["Name"])
+                
+                if args.include_size:
+                    table.add_row(str(idx), bucket["Name"], convert_bytes(bucket["Size"]))
+                else:
+                    table.add_row(str(idx), bucket["Name"])
 
             pawn.console.print(table)
 
@@ -251,7 +259,7 @@ def main():
 
     elif args.command == 'info':
         s3_lister = S3Lister(profile_name=args.profile, verbose=args.verbose)
-        s3_lister.debug_info()        # s3_lister.info()
+        s3_lister.debug_info()
 
     else:
         parser.print_help()
