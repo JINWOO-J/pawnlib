@@ -1,0 +1,43 @@
+# Start of Selection
+asttokens>=2.0.5
+certifi>=2020.12.15
+charset-normalizer>=2.1.0
+devtools>=0.8.0
+executing>=0.8.3
+idna>=2.5
+parameterized>=0.8.1
+#pyaml==21.10.1
+#PyYAML>=6.0
+PyYAML>=5.3.1
+requests>=2.25.0
+six>=1.15.0
+termcolor>=1.1.0
+#urllib3>=1.26.10
+asyncio>=3.4.3
+aiometer>=0.3.0
+pyfiglet>=0.8.post1
+deprecated~=1.2.13
+argparse>=1.4.0
+Jinja2>=3.0.3
+rich>=12.0.1
+#pycurl==7.45.1 --install-option="--with-openssl"
+Pygments>=2.14.0
+inquirerpy==0.3.4
+eth_keyfile>=0.6.1
+coincurve~=18.0.0
+httpx~=0.24.0
+websocket-client~=0.59.0
+aiodocker~=0.21.0
+boto3>=1.28.3
+aiohttp>=3.8.6
+aiofiles>=22.1.0
+python-dotenv>=0.21.1
+tqdm~=4.65.0
+toml~=0.10.2
+psutil~=5.9.8
+bcc-python~=0.0.2
+redis~=4.5.1
+# aioboto3~=11.3.1
+aioboto3~=14.1.0
+xxhash~=3.5.0
+dnspython~=2.7.0
