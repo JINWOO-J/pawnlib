@@ -23,4 +23,3 @@ class CustomDepsHook(MetadataHookInterface):
         print(f"CustomDepsHook invoked. DEPENDENCY_MODE={dependency_mode}")
         print(f"optional_dependencies={optional_dependencies}")
         print(f"dependencies={metadata['dependencies']}")
-
