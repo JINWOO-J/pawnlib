@@ -2247,25 +2247,26 @@ class CallHttp:
         requests.exceptions.RequestException: "OOps: Something Else",
     }
 
-    def __init__(self,
-                 url=None,
-                 method: Literal["get", "post", "patch", "delete"] = "get",
-                 # method: Literal[AllowsHttpMethod.get] = "get",
-                 # method: AllowsHttpMethod = AllowsHttpMethod.get,
-                 # method: Literal[tuple(method for method in AllowsHttpMethod)],
-                 payload={},
-                 timeout=3000,
-                 ignore_ssl: bool = False,
-                 verify=False,
-                 verbose: int = 0,
-                 success_criteria: Union[dict, list, str, None] = "__DEFAULT__",
-                 success_operator: Literal["and", "or"] = "and",
-                 success_syntax: Literal["operator", "string", "auto"] = "auto",
-                 raise_on_failure: bool = False,
+    def __init__(
+            self,
+            url=None,
+            method: Literal["get", "post", "patch", "delete"] = "get",
+            # method: Literal[AllowsHttpMethod.get] = "get",
+            # method: AllowsHttpMethod = AllowsHttpMethod.get,
+            # method: Literal[tuple(method for method in AllowsHttpMethod)],
+            payload={},
+            timeout=3000,
+            ignore_ssl: bool = False,
+            verify=False,
+            verbose: int = 0,
+            success_criteria: Union[dict, list, str, None] = "__DEFAULT__",
+            success_operator: Literal["and", "or"] = "and",
+            success_syntax: Literal["operator", "string", "auto"] = "auto",
+            raise_on_failure: bool = False,
 
-                 auto_run: bool = True,
-                 **kwargs
-                 ):
+            auto_run: bool = True,
+            **kwargs
+        ):
 
         self.url = url
         self.method = method.lower()
