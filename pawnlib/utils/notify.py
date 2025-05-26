@@ -224,7 +224,7 @@ class TelegramBot:
         if response.status_code != 200:
             raise ConnectionError(f"Failed to retrieve updates: {response.status_code} - {response.text}")
 
-        data = response.json()        
+        data = response.json()
         table = Table(title="Telegram Updates")
 
         # 테이블 열 추가
@@ -258,13 +258,13 @@ class TelegramBot:
                 if chat_info:
                     table.add_row(*chat_info)
 
-        pawn.console.print(table)  # 테이블 출력            
+        pawn.console.print(table)  # 테이블 출력
         # pawn.console.print(data)
-    
+
 
     def extract_chat_info(self, update):
         """Extract chat information from the update."""
-        
+
         chat_id = None
         chat_title = ""
         chat_type = ""
@@ -358,19 +358,19 @@ class TelegramBot:
 class SlackNotifier(LoggerMixinVerbose):
     """
     Class for sending Slack messages. Provides both synchronous and asynchronous methods.
-    
+
     :param webhook_url: Slack webhook URL. If not provided, it will be fetched from the environment variable 'SLACK_WEBHOOK_URL'.
     :param username: Username to display in Slack.
     :param icon_emoji: Emoji to use as the icon for the message.
     :param retries: Number of retry attempts in case of failure.
     :param retry_delay: Time to wait between retries (in seconds).
     """
-    
+
     def __init__(
-        self, 
-        webhook_url: str = None, 
-        username: str = "PawnBot", 
-        icon_emoji: str = ":robot_face:", 
+        self,
+        webhook_url: str = None,
+        username: str = "PawnBot",
+        icon_emoji: str = ":robot_face:",
         retries: int = 3,
         retry_delay: int = 2,
         verbose: int = 1,
@@ -382,20 +382,20 @@ class SlackNotifier(LoggerMixinVerbose):
         self.retries = retries
         self.retry_delay = retry_delay
         self.init_logger(logger, verbose)
-        
+
         if not self.webhook_url:
             self.logger.error("Slack webhook URL is not set. Please set the 'webhook_url' parameter or the 'SLACK_WEBHOOK_URL' environment variable.")
-    
+
     def _get_level_color(self, level: str = "") -> str:
         """Return color code according to the message level."""
         color_mapping = {
             "info": "5be312",
             "warn": "f2c744",
             "warning": "f2c744",
-            "error": "ff0000",    
-            "trace": "1e90ff",    
-            "critical": "ff00ff", 
-            "debug": "a9a9a9",    
+            "error": "ff0000",
+            "trace": "1e90ff",
+            "critical": "ff00ff",
+            "debug": "a9a9a9",
             "success": "5be312",
             "failed": "ff0000",
             "in_progress": "f2c744",
@@ -403,10 +403,10 @@ class SlackNotifier(LoggerMixinVerbose):
             "paused": "f2c744",
             "running": "f2c744",
         }
-        
+
         level = level.lower() if level else ""
         return color_mapping.get(level, "5be312")
-    
+
     def _get_status_emoji(self, status: Union[str, StatusType]) -> str:
         """Return emoji according to the status."""
         status_emojis = {
@@ -418,7 +418,7 @@ class SlackNotifier(LoggerMixinVerbose):
             'in_progress': '⏳',  # 진행 중
             'complete': '🏁',  # 완료
             'paused': '⏸️',  # 일시 중지
-            'running': '🏃',  # 실행 
+            'running': '🏃',  # 실행
             'error': '🔴',  # 에러
             'retrying': '🔄',  # 재시도 중
             'changed': '♻️',  # 변경
@@ -433,7 +433,7 @@ class SlackNotifier(LoggerMixinVerbose):
             'unknown': '❓'
         }
         return status_emojis.get(str(status).lower(), '')
-    
+
     def create_message_payload(
         self,
         message: Union[str, Dict, List],
@@ -447,8 +447,8 @@ class SlackNotifier(LoggerMixinVerbose):
         max_text_length: int = 1000
     ) -> Dict[str, Any]:
         """Create message payload."""
-        
-        emoji = self._get_status_emoji(status) if status else ""        
+
+        emoji = self._get_status_emoji(status) if status else ""
         color = self._get_level_color(msg_level)
         title_text = f"{emoji} {title}" if emoji and title else title
 
@@ -458,30 +458,30 @@ class SlackNotifier(LoggerMixinVerbose):
         if timestamp_format:
             from datetime import datetime
             formatted_time = datetime.now().strftime(timestamp_format)
-        
+
         # Set default payload
         payload = {
             "username": self.username,
             "icon_emoji": self.icon_emoji,
         }
-        
+
         # Simple mode
         if simple_mode:
             msg_content = message if isinstance(message, str) else json.dumps(message, indent=2)
             if len(msg_content) > max_text_length:
                 msg_content = f"{msg_content[:max_text_length]}..."
-            
+
             payload["text"] = f"{title_text}\n{msg_content}"
             return payload
-        
+
         # Normal mode
         attachments = [{
             "color": f"#{color}",
             "title": title_text,
             "ts": current_timestamp,
-            "text": text or "",            
+            "text": text or "",
         }]
-        
+
         # Process message content
         if isinstance(message, dict):
             fields = []
@@ -500,16 +500,16 @@ class SlackNotifier(LoggerMixinVerbose):
             attachments[0]["text"] = text_content
         else:
             attachments[0]["text"] = str(message)
-        
+
         # Add timestamp format
         if formatted_time:
             attachments[0]["footer"] = f"{footer} | {formatted_time}" if footer else formatted_time
         elif footer:
             attachments[0]["footer"] = f"{footer} | sent from {net.get_hostname()}"
-        
+
         payload["attachments"] = attachments
         return payload
-    
+
     def send(
         self,
         message: Union[str, Dict, List],
@@ -523,7 +523,7 @@ class SlackNotifier(LoggerMixinVerbose):
     ) -> bool:
         """
         Synchronously send a Slack message.
-        
+
         :param message: The message to send (string, dictionary, list)
         :param title: Message title
         :param msg_level: Message severity level (info, warn, error, critical, etc.)
@@ -536,7 +536,7 @@ class SlackNotifier(LoggerMixinVerbose):
         if not self.webhook_url:
             self.logger.error("SlackNotifier: Webhook URL is not set.")
             return False
-        
+
         payload = self.create_message_payload(
             message=message,
             title=title,
@@ -547,7 +547,7 @@ class SlackNotifier(LoggerMixinVerbose):
             timestamp_format=timestamp_format,
             text=text,
         )
-        
+
         # Retry logic
         for attempt in range(self.retries):
             try:
@@ -559,14 +559,14 @@ class SlackNotifier(LoggerMixinVerbose):
                     pawn.error_logger.error(f"SlackNotifier: Response error. Status code: {response.status_code}, response: {response.text}")
             except Exception as e:
                 pawn.error_logger.error(f"SlackNotifier: Exception occurred: {str(e)}")
-            
+
             # If not the last attempt, wait and retry
             if attempt < self.retries - 1:
                 self.logger.info(f"SlackNotifier: Retrying... ({attempt + 1}/{self.retries})")
                 time.sleep(self.retry_delay)
-        
+
         return False
-    
+
     async def send_async(
         self,
         message: Union[str, Dict, List],
@@ -580,7 +580,7 @@ class SlackNotifier(LoggerMixinVerbose):
     ) -> bool:
         """
         Asynchronously send a Slack message.
-        
+
         :param message: The message to send (string, dictionary, list)
         :param title: Message title
         :param msg_level: Message severity level (info, warn, error, critical, etc.)
@@ -593,7 +593,7 @@ class SlackNotifier(LoggerMixinVerbose):
         if not self.webhook_url:
             pawn.error_logger.error("SlackNotifier: Webhook URL is not set.")
             return False
-        
+
         payload = self.create_message_payload(
             message=message,
             title=title,
@@ -604,7 +604,7 @@ class SlackNotifier(LoggerMixinVerbose):
             timestamp_format=timestamp_format,
             text=text,
         )
-        
+
         # Asynchronous retry logic
         for attempt in range(self.retries):
             try:
@@ -618,18 +618,18 @@ class SlackNotifier(LoggerMixinVerbose):
                         pawn.error_logger.error(f"SlackNotifier: Response error. Status code: {response.status}, response: {await response.text()}")
             except Exception as e:
                 pawn.error_logger.error(f"SlackNotifier: Exception occurred during asynchronous send: {str(e)}")
-            
+
             # If not the last attempt, wait and retry
             if attempt < self.retries - 1:
                 pawn.app_logger.info(f"SlackNotifier: Retrying... ({attempt + 1}/{self.retries})")
                 await asyncio.sleep(self.retry_delay)
-        
+
         return False
-    
+
     def send_batch(self, messages: List[Dict]) -> List[bool]:
         """
         Send multiple messages in batch (synchronous)
-        
+
         :param messages: List of messages to send [{"message": "content", "title": "title", ...}, ...]
         :return: List of results for each message
         """
@@ -638,21 +638,21 @@ class SlackNotifier(LoggerMixinVerbose):
             result = self.send(**msg_data)
             results.append(result)
         return results
-    
+
     async def send_batch_async(self, messages: List[Dict]) -> List[bool]:
         """
         Send multiple messages in batch (asynchronous)
-        
+
         :param messages: List of messages to send [{"message": "content", "title": "title", ...}, ...]
         :return: List of results for each message
         """
         tasks = [self.send_async(**msg_data) for msg_data in messages]
         return await asyncio.gather(*tasks)
-    
+
     def send_error(self, error: Exception, additional_info: Dict = None, title: str = "Error occurred"):
         """
         Send error information
-        
+
         :param error: The exception object that occurred
         :param additional_info: Additional information dictionary
         :param title: Message title
@@ -662,28 +662,28 @@ class SlackNotifier(LoggerMixinVerbose):
         error_type = type(error).__name__
         error_message = str(error)
         error_traceback = traceback.format_exc()
-        
+
         message = {
             "Error Type": error_type,
             "Error Message": error_message,
             "Stack Trace": f"```{error_traceback[:800]}```" if len(error_traceback) > 800 else f"```{error_traceback}```"
         }
-        
+
         if additional_info:
             for key, value in additional_info.items():
                 message[key] = value
-        
+
         return self.send(
             message=message,
             title=title,
             msg_level="error",
             status="failed"
         )
-    
+
     async def send_error_async(self, error: Exception, additional_info: Dict = None, title: str = "Error occurred"):
         """
         Send error information asynchronously
-        
+
         :param error: The exception object that occurred
         :param additional_info: Additional information dictionary
         :param title: Message title
@@ -693,34 +693,34 @@ class SlackNotifier(LoggerMixinVerbose):
         error_type = type(error).__name__
         error_message = str(error)
         error_traceback = traceback.format_exc()
-        
+
         message = {
             "Error Type": error_type,
             "Error Message": error_message,
             "Stack Trace": f"```{error_traceback[:800]}```" if len(error_traceback) > 800 else f"```{error_traceback}```"
         }
-        
+
         if additional_info:
             for key, value in additional_info.items():
                 message[key] = value
-        
+
         return await self.send_async(
             message=message,
             title=title,
             msg_level="error",
             status="failed"
         )
-    
+
 
 def get_level_color(c_level: str = "") -> str:
     color_mapping = {
         "info": "5be312",
         "warn": "f2c744",
         "warning": "f2c744",
-        "error": "ff0000",    
-        "trace": "1e90ff",    
-        "critical": "ff00ff", 
-        "debug": "a9a9a9",    
+        "error": "ff0000",
+        "trace": "1e90ff",
+        "critical": "ff00ff",
+        "debug": "a9a9a9",
         "success": "5be312",
         "failed": "ff0000",
         "in_progress": "f2c744",
@@ -728,7 +728,7 @@ def get_level_color(c_level: str = "") -> str:
         "paused": "f2c744",
         "running": "f2c744",
     }
-    
+
     c_level = c_level.lower() if c_level else ""
     return color_mapping.get(c_level, "5be312")  # 기본 색상
 
@@ -764,7 +764,7 @@ def get_status_emoji(status: Union[str, StatusType]) -> str:
         'in_progress': '⏳',  # 진행 중
         'complete': '🏁',  # 완료
         'paused': '⏸️',  # 일시 중지
-        'running': '🏃',  # 실행 
+        'running': '🏃',  # 실행
         'error': '🔴',  # 에러
         'retrying': '🔄',  # 재시도 중
         'stopped': '🛑',  # 중단
@@ -848,18 +848,18 @@ def create_slack_payload(
             title=f"{emoji} {title}" if emoji else title,
             msg_text=msg_text,
             msg_level=msg_level,
-            status=status,                        
+            status=status,
             icon_emoji=":rocket:",
-            footer="Additional info",
+            footer=footer or "Additional info",
             text=text
         )
         # from pawnlib.output import print_var
         # print_var(formatted_message)
-        return formatted_message    
-        
+        return formatted_message
+
     elif simple_mode:
         return {"username": send_user_name, "text": f"{msg_title}\n{msg_text}", "attachments": []}
-            
+
     def _make_attachment(key=None, value=None):
         if key == "Info":
             text = f'{category_emoji}{"Info":^12s} : {truncate_text(value, max_value_length)}'
@@ -963,7 +963,7 @@ def send_slack_sync(
 
 def send_slack(
         url: str = "",
-        msg_text: Union[str, dict, list] = None,
+        msg_text: Union[str, dict, list] = "",
         title: str = "",
         text: str = "",
         send_user_name: str = "CtxBot",
@@ -1160,9 +1160,9 @@ def send_slack_token(title=None, message=None, token=None, channel_name=None, se
         return False
 
 
-def format_slack_message(title: str="", msg_text: str="", msg_level: str="info", 
+def format_slack_message(title: str="", msg_text: str="", msg_level: str="info",
                          status: str="", icon_emoji: str="", footer: str="", text: str="") -> dict:
-    p_color = get_level_color(msg_level)    
+    p_color = get_level_color(msg_level)
     if isinstance(msg_text, dict):
         fields = []
         for key, value in msg_text.items():
