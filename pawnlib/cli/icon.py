@@ -9,7 +9,7 @@ from pawnlib.__version__ import __version__ as _version
 from pawnlib.input.prompt import CustomArgumentParser, ColoredHelpFormatter, get_service_specific_arguments
 from typing import List, Dict, Optional, Type, Any, Callable
 from pawnlib.config.settings_config import SettingDefinition, load_environment_settings, BaseSettingsConfig, AppConfig
-from pawnlib.utils.notify import send_slack
+from pawnlib.utils.notify import send_slack, send_slack_async
 import traceback
 from dataclasses import dataclass
 from pawnlib.typing import shorten_text, random_token_address,  str2bool
@@ -20,7 +20,7 @@ from pawnlib.typing.constants import const
 from pawnlib.utils.http import IconRpcHelper, json_rpc, icx_signer, NetworkInfo
 from pawnlib.utils.redis_helper import RedisHelper
 from redis import exceptions as redis_exceptions
-from pawnlib.typing.converter import hex_to_number
+from pawnlib.typing.converter import hex_to_number, HexConverter
 from pawnlib.models.response import HexValue, HexTintValue, HexValueParser
 from rich.tree import Tree
 from rich.text import Text
@@ -31,6 +31,11 @@ from pawnlib.utils.log import print_logger_configurations
 
 IS_DOCKER = str2bool(os.environ.get("IS_DOCKER"))
 ALLOWED_TASKS = ['balance', 'iscore', 'stake', 'bond', 'delegate']
+
+kwargs = {
+    "address": "hx3825a923db7174c64b7ca81fcb88dbe22e1003fb",
+    "value": "0x1e94ec5124186572e"
+}
 
 __description__ = "ICON Tool"
 __epilog__ = (
@@ -83,7 +88,7 @@ def add_common_arguments(parser):
     parser.add_argument( '-fee', '--minimum-fee', type=float, default=0, help='')
     parser.add_argument('-mb', '--minimum-balance', type=float, default=0, help='')
     parser.add_argument('--dry-run', action='count', default=0)
-        
+
     parser.add_argument('--task-list', nargs='+', help=f'Perform the following tasks: {", ".join(ALLOWED_TASKS)}', default=[])
 
     return parser
@@ -160,15 +165,15 @@ class MonitoringManager(LoggerMixinVerbose):
         # self.logger = setup_logger(logger, "MonitoringManager", verbose)
         # self.logger = self.get_logger()
         self.init_logger(logger=logger, verbose=verbose)
-        
+
         if not MonitoringManager.initialized:  # 클래스 변수 사용
             self.logger.info(f"Initializing monitoring system {self.logger}")
-            MonitoringManager.initialized = True  # 클래스 변수 업데이트        
+            MonitoringManager.initialized = True  # 클래스 변수 업데이트
 
         self.address = self.icon_rpc_helper.get_wallet_address(self.pk)
         self.previous_value = None
         self.redis_helper = RedisHelper()
-        
+
 
     def _find_value_difference(self, old_value, new_value):
         # Case 1: If both values are dicts, compare key-by-key
@@ -195,8 +200,8 @@ class MonitoringManager(LoggerMixinVerbose):
     async def run_monitoring(self):
         """Run the monitoring loop to check for changes in wallet metrics."""
         while True:
-            try:                
-                current_value = self.rpc_method(address=self.address, return_as_hex=True, **self.params)                
+            try:
+                current_value = self.rpc_method(address=self.address, return_as_hex=True, **self.params)
                 redis_key = f"monitoring_wallet:{self.address}:{self.name}"
                 previous_value = self.redis_helper.get(redis_key, as_json=True)
                 _shorten_address = shorten_text(self.address, width=15, placeholder="..", shorten_middle=True)
@@ -211,8 +216,8 @@ class MonitoringManager(LoggerMixinVerbose):
                     difference_value = current_value_hex - previous_value_hex
                 else:
                     difference_value = None
-                
-                # self.logger.debug(f"[{self.name}][{_shorten_address}] {self.name:>15}: {previous_value_hex.readable_number} == {current_value_hex.readable_number}")  
+
+                # self.logger.debug(f"[{self.name}][{_shorten_address}] {self.name:>15}: {previous_value_hex.readable_number} == {current_value_hex.readable_number}")
                 self.logger.debug(f"[{self.name}][{_shorten_address}] {self.name:>15}: {previous_value_hex} == {current_value_hex}, difference: {difference_value}")
                 # self.logger.debug(f"[{self.name}][{_shorten_address}] {self.name:>15}: {previous_value} == {current_value}")
 
@@ -460,7 +465,7 @@ class IconTools:
             { 'name': 'bond', 'rpc_method': icon_rpc_helper.get_bond, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
             { 'name': 'delegate', 'rpc_method': icon_rpc_helper.get_delegation, 'event_hooks': [self.print_changed_hook, self.slack_notification]},
 
-            
+
             # {'rpc_method': icon_rpc_helper.get_stake, 'name': 'stake'},
             # {'rpc_method': icon_rpc_helper.get_bond, 'name': 'bond'},
             # {'rpc_method': icon_rpc_helper.get_delegation, 'name': 'delegation'}
@@ -468,7 +473,7 @@ class IconTools:
 
         if hasattr(self.config, 'task_list'):
             task_names = self.config.task_list
-            
+
             if not all(task in ALLOWED_TASKS for task in task_names):
                 self.logger.error(f"Invalid task name: {task_names}, allowed tasks: {ALLOWED_TASKS}")
                 sys_exit(f"Invalid task name: {task_names}, allowed tasks: {ALLOWED_TASKS}")
@@ -493,7 +498,7 @@ class IconTools:
 
         if current_value == "0x0":
             return
-        
+
         self.logger.info(f"Changed I-SCore:  {name}, {address}, {hex_to_number(current_value, debug=True, is_tint=True)}")
         self.ensure_minimum_fee()
         self.rpc_helper.claim_iscore(is_wait=True)
@@ -510,11 +515,22 @@ class IconTools:
     async def slack_notification(self, **kwargs):
         self.logger.info(f"✨✨✨✨ Slack notification: [{kwargs.get('name')}] Address: {kwargs.get('address')}, Result: {kwargs.get('current_value')  }")
 
+        try:
+            await send_slack(
+                title=f"Changed {kwargs.get('name')},  Address: {kwargs.get('address')}",
+                msg_text=HexConverter(kwargs, convert_type="tint", suffix=" ICX", decimal_places=2).data,
+                msg_level="info",
+                async_mode=True,
+                footer="ICON Tracker"
+            )
+        except Exception as e:
+            self.logger.error(f"Error sending slack notification: {e}")
+
     async def changed_balance(self, name, address, result):
         print(f"Changed Balanced {name}, {address}, {result}")
 
     async def print_changed_hook(self, **kwargs ):
-        self.logger.info(f"✨✨✨✨ Changed Hook: {kwargs.get('name')}, {kwargs.get('address')}, {kwargs.get('current_value')}, {kwargs.get('previous_value')}")        
+        self.logger.info(f"✨✨✨✨ Changed Hook: {kwargs.get('name')}, {kwargs.get('address')}, {kwargs.get('current_value')}, {kwargs.get('previous_value')}")
 
 
 def main():
