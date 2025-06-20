@@ -2,7 +2,6 @@
 import common
 from pawnlib.typing import const, constants
 from pawnlib.config import pawn
-from pawnlib.typing import hex_to_number
 
 def hex_test_value(value="", **kwargs):
     result = hex_to_number(value, **kwargs)

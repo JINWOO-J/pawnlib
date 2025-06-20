@@ -1725,20 +1725,25 @@ def add_node(tree, key, value, detail):
 def get_type_length_info_style(value):
     """
     Get the type and length information as a styled string based on the value's type.
+    This version provides a more intuitive output for type objects.
     """
-    value_type = type(value).__name__
-    length_info = f"len={len(value)}" if hasattr(value, '__len__') else ""
-    type_length_info = f"[dim]({value_type}) {length_info}[/dim]"
-
-    # 색상 스타일 지정
-    if isinstance(value, dict):
-        return f"[cyan]{type_length_info}[/cyan]"  # 딕셔너리는 청록색
-    elif isinstance(value, list):
-        return f"[magenta]{type_length_info}[/magenta]"  # 리스트는 자홍색
-    elif hasattr(value, '__dict__') or is_dataclass(value):
-        return f"[green]{type_length_info}[/green]"  # 클래스 인스턴스는 초록색
+    if isinstance(value, type):
+        type_name = value.__name__
+        length_info = ""
+        type_length_info = f"[dim](class: {type_name})[/dim]"
+        return f"[yellow]{type_length_info}[/yellow]"
     else:
-        return f"[white]{type_length_info}[/white]"  # 기본값은 흰색
+        type_name = type(value).__name__
+        length_info = f"len={len(value)}" if hasattr(value, '__len__') else ""
+        type_length_info = f"[dim]({type_name}) {length_info}[/dim]"
+        if isinstance(value, dict):
+            return f"[cyan]{type_length_info}[/cyan]"
+        elif isinstance(value, list):
+            return f"[magenta]{type_length_info}[/magenta]"
+        elif hasattr(value, '__dict__') or is_dataclass(value):
+            return f"[green]{type_length_info}[/green]"
+        else:
+            return f"[white]{type_length_info}[/white]"
 
 
 def style_value(value):

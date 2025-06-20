@@ -5434,7 +5434,7 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
         return hex_to_number(return_value, is_tint=True)
     
 
-    async def get_node_name_by_address(self):
+    async def get_node_name_by_address(self, url: Optional[str] = None):
         """
         Retrieves a dictionary mapping node addresses to their corresponding names.
 
@@ -5455,7 +5455,7 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
                     ...
                 }
         """
-        preps_info = await self.get_preps(return_dict_key="nodeAddress")
+        preps_info = await self.get_preps(url=url, return_dict_key="nodeAddress")
 
         # Create a new dictionary with nodeAddress as the key and name as the value
         result = {address: info['name'] for address, info in preps_info.items()}

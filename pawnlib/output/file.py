@@ -584,21 +584,51 @@ def get_parent_path(run_path=__file__) -> str:
     return parent_path
 
 
-def get_script_path(run_path=__file__):
-    """
-    Returns the script path.
+# def get_script_path(run_path=__file__):
+#     """
+#     Returns the script path.
 
-    :param run_path: (str) Path of the file to get the script path of.
-    :return: (str) Script path of the given file path.
+#     :param run_path: (str) Path of the file to get the script path of.
+#     :return: (str) Script path of the given file path.
+
+#     Example:
+
+#         .. code-block:: python
+
+#             get_script_path(__file__)
+#             # >> '/path/to/script/directory'
+#     """
+#     return os.path.dirname(run_path)
+
+
+def get_script_path(run_path=None):
+    """
+    Returns the script directory.
+
+    :param run_path: (str) Path of the file to get the script directory of.
+    :return: (str) Script directory of the given file path.
 
     Example:
 
         .. code-block:: python
 
-            get_script_path(__file__)
+            get_script_dir(__file__)
             # >> '/path/to/script/directory'
+
+            get_script_dir()
+            # >> '/path/to/script/directory'
+
     """
-    return os.path.dirname(run_path)
+    
+    if run_path:
+        return os.path.dirname(run_path)
+
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(os.path.abspath(sys.executable))    
+    if sys.argv[0]:
+        return os.path.dirname(os.path.abspath(sys.argv[0]))
+    
+    return os.getcwd()
 
 
 def get_real_path(run_path=__file__):

@@ -11,6 +11,7 @@ from pawnlib.__version__ import __version__ as _version
 from pawnlib.utils.operate_handler import run_with_keyboard_interrupt
 from pawnlib.input.prompt import NewlineHelpFormatter, ColoredHelpFormatter, CustomArgumentParser
 from pawnlib.typing.check import sys_exit, error_and_exit
+import asyncio
 
 
 def load_submodule_parsers(parent_module, parser, help=None):
@@ -52,10 +53,29 @@ def get_submodule_names():
     return modules
 
 
+# def run_module(module_name=None):
+#     module = importlib.import_module(f"pawnlib.cli.{module_name}")
+#     pawn.console.debug(f"Load a pawnlib.cli.{module_name}")
+#     module.main()
+#     return module
+#
 def run_module(module_name=None):
     module = importlib.import_module(f"pawnlib.cli.{module_name}")
     pawn.console.debug(f"Load a pawnlib.cli.{module_name}")
-    module.main()
+
+    if asyncio.iscoroutinefunction(getattr(module, 'main', None)):
+        pawn.console.debug(f"'{module_name}.main' is an async function. Running with asyncio.run().")
+        try:
+            asyncio.run(module.main())
+        except Exception as e:
+            pawn.console.log(f"[red]Error during async execution of {module_name}: {e}")
+            raise e
+
+    elif callable(getattr(module, 'main', None)):
+        pawn.console.debug(f"'{module_name}.main' is a sync function. Running directly.")
+        module.main()
+    else:
+        error_and_exit(f"Module '{module_name}' does not have a main() function.")
     return module
 
 
@@ -134,10 +154,10 @@ def get_args():
         formatter_class=ColoredHelpFormatter,
     )
     commands = parser.add_subparsers(title='sub-module')
-    
+
     # 사용자가 입력한 명령어를 가져옵니다.
     command = get_sys_argv()
-    
+
     # 명령어가 하위 모듈 이름과 일치하는지 확인합니다.
     if command and command in get_submodule_names():
         load_cli_module(commands, command)
@@ -191,4 +211,3 @@ def main():
 
 if __name__ == '__main__':
     run_with_keyboard_interrupt(main)
-

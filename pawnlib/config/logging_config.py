@@ -11,9 +11,9 @@ from datetime import datetime
 from contextlib import contextmanager
 
 try:
-    from typing import Literal, Union, Optional, Dict
+    from typing import Literal, Union, Optional, Dict, List, Tuple
 except ImportError:
-    from typing_extensions import Literal, Union, Optional, Dict
+    from typing_extensions import Literal, Union, Optional, Dict, List, Tuple
 
 TRACE = 5
 NO_LOG = logging.CRITICAL + 1
@@ -434,7 +434,9 @@ class ConsoleLoggerHandler(logging.Handler):
                 "trace": "[bold cyan]trace[/bold cyan]",
             }
             code_info = self._get_code_info(record)
-            message = f"{code_info}{message}"
+            if code_info:
+                message = f"{code_info:<16}{message}"
+
             tag = level_tags.get(_level, "[green]INFO[/green]")
             if level == "error":
                 if record.exc_info or self.exc_info:
@@ -1008,180 +1010,295 @@ def remove_rich_tags(message: str) -> str:
     return result
 
 
+class AppOrEnabledFilter(logging.Filter):
+    """
+    A logging filter that allows log records to pass if their logger name
+    starts with a specified application name or exactly matches a logger name
+    in an explicit enabled list.
+    """
+    def __init__(self, app_prefixes: List[str], enabled_list: list = None, name: str = ''):
+        """
+        Initializes the filter.
+
+        :param app_prefixes: A list of application name prefixes. Loggers whose names exactly match any of these prefixes or start with any of these prefixes followed by a dot (e.g., 'myapp' or 'myapp.module') will be allowed.
+        :type app_prefixes: List[str]
+        :param enabled_list: An optional list of specific logger names that should always be enabled, regardless of the `app_prefixes`.
+        :type enabled_list: list, optional
+        :param name: The name of the filter. This is passed to the parent logging.Filter class.
+        :type name: str, optional
+
+        Example:
+
+            .. code-block:: python
+
+                filter1 = AppOrEnabledFilter(app_prefixes=['my_app'], enabled_list=['httpx'])
+                filter2 = AppOrEnabledFilter(app_prefixes=['my_app', 'another_app'])
+        """
+        super().__init__(name)
+        self.app_prefixes_dot = tuple(f"{prefix}." for prefix in app_prefixes)
+        self.app_names = tuple(app_prefixes)
+        self.enabled_list = set(enabled_list or [])
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        """
+        Determines whether the given log record should be output.
+
+        The record passes if:
+        - The record's logger name is exactly one of `self.app_names` (e.g., 'oci_tools'), OR
+        - The record's logger name starts with one of `self.app_prefixes_dot` (e.g., 'oci_tools.sub'), OR
+        - The record's logger name is found in `self.enabled_list` (e.g., 'httpx' if 'httpx' is in `enabled_list`).
+
+        :param record: The log record to evaluate.
+        :type record: logging.LogRecord
+        :returns: True if the record should be processed, False otherwise.
+        :rtype: bool
+
+        Example:
+
+            .. code-block:: python
+
+                # Assuming filter initialized with app_prefixes=['my_app'], enabled_list=['external_lib']
+                record1 = logging.LogRecord(name='my_app', level=logging.INFO, pathname='', lineno=0, msg='Test', args=(), exc_info=None)
+                filter.filter(record1)
+                # >> True
+
+                record2 = logging.LogRecord(name='my_app.sub_module', level=logging.INFO, pathname='', lineno=0, msg='Test', args=(), exc_info=None)
+                filter.filter(record2)
+                # >> True
+
+                record3 = logging.LogRecord(name='external_lib', level=logging.INFO, pathname='', lineno=0, msg='Test', args=(), exc_info=None)
+                filter.filter(record3)
+                # >> True
+
+                record4 = logging.LogRecord(name='another_lib', level=logging.INFO, pathname='', lineno=0, msg='Test', args=(), exc_info=None)
+                filter.filter(record4)
+                # >> False
+
+                # Assuming filter initialized with app_prefixes=['appA', 'appB']
+                record5 = logging.LogRecord(name='appB', level=logging.INFO, pathname='', lineno=0, msg='Test', args=(), exc_info=None)
+                filter.filter(record5)
+                # >> True
+
+                record6 = logging.LogRecord(name='appB.component', level=logging.INFO, pathname='', lineno=0, msg='Test', args=(), exc_info=None)
+                filter.filter(record6)
+                # >> True
+        """
+        if record.name in self.app_names or record.name.startswith(self.app_prefixes_dot):
+            return True
+        if self.enabled_list and record.name in self.enabled_list:
+            return True
+        return False
+
+
 def setup_app_logger(
-        log_type: str = 'console',
-        verbose: int = 1,
-        log_path: str = "./logs",
-        app_name: str = "default",
-        log_format: str = None,
-        date_format: str = None,
-        log_level: Union[int, str, None] = None,
-        log_level_short: bool = True,
-        simple_format: Union[str, bool] = "detailed",
-        exc_info: bool = False,
-        rotate_time: str = 'midnight',  # Log rotation time (e.g., 'midnight', 'H', etc.)
-        rotate_interval: int = 1,      # Rotation interval (e.g., 1 day, 1 hour)
-        backup_count: int = 7,          # Number of backup files to keep
-        clear_existing_handlers: bool = False,
-        handle_propagate: bool = False,
-        propagate: bool = False,
-        propagate_scope: str = 'all'  # Options: 'all', 'pawnlib', 'third_party'
+    app_name: Union[str, List[str]],
+    log_type: str = 'console',
+    verbose: int = 1,
+    log_path: str = "./logs",
+    log_format: str = None,
+    date_format: str = None,
+    log_level: Union[int, str, None] = None,
+    clear_existing_handlers: bool = True,
+    configure_root: bool = False,
+    propagate: bool = False,
+    enabled_third_party_loggers: Optional[List[str]] = None,
+    log_all_third_party: bool = False,
+    log_level_short: bool = True,
+    simple_format: Union[str, bool] = "detailed",
+    exc_info: bool = False,
+    rotate_time: str = 'midnight',
+    rotate_interval: int = 1,
+    backup_count: int = 7,
+    handle_propagate: bool = False,
+    propagate_scope: str = 'all'
 ):
     """
-    Configures the application logger with specified settings.
+    Configures and sets up a Python logger for an application, addressing filtering
+    and duplicate output issues while maintaining backward compatibility.
+    The function operates in two modes based on the `configure_root` parameter.
 
-    This function sets up logging for the application, allowing output to the console, files,
-    or both. It supports features such as log level customization, log rotation, and detailed
-    formatting with fractional seconds.
-
-    :param log_type: The type of logging output ('console', 'file', or 'both').
+    :param app_name: The name(s) of the application. Can be a single string or a list of strings. Used for naming the logger(s) and the log file. If a list, the first item is used for the log file name.
+    :type app_name: Union[str, List[str]]
+    :param log_type: Specifies where logs should be output. Can be 'console', 'file', or 'both'. Defaults to 'console'.
     :type log_type: str
-    :param verbose: Verbosity level (0=WARNING, 1=INFO, 2=DEBUG). Ignored if `log_level` is specified.
+    :param verbose: Verbosity level, an integer from 0 to 5. Higher values mean more detailed logs. This is translated to a logging level if `log_level` is not explicitly set. Defaults to 1.
     :type verbose: int
-    :param log_path: Directory path for log files.
+    :param log_path: The directory where log files will be stored if `log_type` includes 'file'. Defaults to "./logs".
     :type log_path: str
-    :param app_name: Name of the application (used in log file naming).
-    :type app_name: str
-    :param log_format: Custom format string for log messages.
-    :type log_format: str
-    :param date_format: Custom date format string.
-    :type date_format: str
-    :param log_level: Explicit log level (e.g., 'DEBUG', 'INFO'). Overrides `verbose`.
+    :param log_format: The format string for log messages. If None, a default format is used.
+    :type log_format: str, optional
+    :param date_format: The format string for the date/time in log messages. If None, a default is used.
+    :type date_format: str, optional
+    :param log_level: The logging level to set (e.g., logging.INFO, 'DEBUG'). Overrides `verbose` if provided.
     :type log_level: Union[int, str, None]
-    :param log_level_short: Whether to use short names for log levels.
-    :type log_level_short: bool
-    :param simple_format: Formatting code level ("none", "minimal", "detailed", "advanced", "custom"). Default is minimal.
-    :type simple_format: str
-    :param exc_info: Whether to include exception information in the logs.
-    :type exc_info: bool
-    :param rotate_time: Time interval for rotating logs (e.g., 'midnight', 'H').
-    :type rotate_time: str
-    :param rotate_interval: Number of intervals between rotations.
-    :type rotate_interval: int
-    :param backup_count: Number of backup files to retain.
-    :type backup_count: int
-    :param clear_existing_handlers: Whether to clear existing handlers before adding new ones.
+    :param clear_existing_handlers: If True, clears all existing handlers from the logger before adding new ones. This primarily applies when `configure_root` is False. Defaults to True.
     :type clear_existing_handlers: bool
-    :param propagate: Whether to enable log message propagation.
+    :param configure_root: If True, configures the root logger. This enables a centralized logging approach with filtering. If False, configures a named logger (based on `app_name`). Defaults to False.
+    :type configure_root: bool
+    :param propagate: Whether messages from the `app_name` logger will be passed to ancestor loggers. Only applies when `configure_root` is False. Defaults to False.
     :type propagate: bool
-    :param propagate_scope: The scope for applying the propagation setting ('all', 'pawnlib', 'third_party').
+    :param enabled_third_party_loggers: A list of names of specific third-party loggers that should always be enabled, even if `log_all_third_party` is False. Applies when `configure_root` is True.
+    :type enabled_third_party_loggers: Optional[List[str]]
+    :param log_all_third_party: If True, all log messages from any logger (including third-party) will be processed by the handlers. If False and `configure_root` is True, only logs from `app_name` (or `app_prefixes`) and specified `enabled_third_party_loggers` will pass through the filter. Defaults to False.
+    :type log_all_third_party: bool
+    :param log_level_short: If True, uses a short form for log levels in the console output (e.g., 'D' for DEBUG).
+    :type log_level_short: bool
+    :param simple_format: Controls the detail level of the default format for console. Can be "detailed", True (for a simpler format), or False (for the most basic format).
+    :type simple_format: Union[str, bool]
+    :param exc_info: If True, exception information is added to log records. This is passed to the ConsoleLoggerHandler.
+    :type exc_info: bool
+    :param rotate_time: When to rotate log files. Options like 'midnight', 'H' (hourly), 'M' (minutes). Only applies if `log_type` includes 'file'.
+    :type rotate_time: str
+    :param rotate_interval: The interval for log file rotation (e.g., 1 for daily rotation if `rotate_time` is 'midnight'). Only applies if `log_type` includes 'file'.
+    :type rotate_interval: int
+    :param backup_count: The number of old log files to keep. Only applies if `log_type` includes 'file'.
+    :type backup_count: int
+    :param handle_propagate: If True, automatically adjusts propagation settings for other loggers based on `propagate_scope` to prevent duplicate output.
+    :type handle_propagate: bool
+    :param propagate_scope: Defines the scope for `handle_propagate`. Can be 'all' or other specific scopes relevant to pawnlib.
     :type propagate_scope: str
+    :returns: The configured logger instance, typically for the first `app_name` in the list if `app_name` is a list, or the single `app_name` string.
+    :rtype: logging.Logger
 
     Example:
 
         .. code-block:: python
 
-            # Set up a console logger with DEBUG level
-            setup_app_logger(
-                log_type='console',
-                verbose=2,
-                app_name='my_app',
-                log_level='DEBUG'
-            )
-
-            # Set up a file logger with INFO level and daily rotation
-            setup_app_logger(
-                log_type='file',
-                verbose=1,
-                log_path='./logs',
-                app_name='my_app',
-                rotate_time='midnight',
-                rotate_interval=1,
-                backup_count=10
-            )
-
             import logging
+            import os
+            # Assuming pawnlib.utils.log module is available or its components are imported
+            # from pawnlib.utils.log import setup_app_logger, verbose_to_log_level, ConsoleLoggerHandler, CleanAndDetailTimeFormatter, AppOrEnabledFilter, change_propagate_setting
+            # from logging.handlers import TimedRotatingFileHandler
 
-            logger = logging.getLogger()
-            logger.info("This is an info message.")
-            logger.debug("This is a debug message.")
+            # Example 1: Basic console logger for a single app name
+            logger1 = setup_app_logger(app_name="my_application", log_type="console", verbose=3)
+            logger1.info("This is an informational message from my_application.")
+            logging.getLogger("another_module").debug("This message will not show by default if configure_root is False.")
 
-            # or
+            # Example 2: File logger with rotation for a specific app
+            logger2 = setup_app_logger(
+                app_name="file_app",
+                log_type="file",
+                log_path="./my_logs",
+                log_level="WARNING",
+                rotate_time='D', # Daily rotation
+                backup_count=5
+            )
+            logger2.warning("This warning goes to a file.")
+            logger2.info("This info message will not appear due to WARNING level.")
 
-            logger = logging.getLogger(__name__)
-            logger.info("Start [bold red]Important[/bold red] process")
+            # Example 3: Centralized root logger with multiple app prefixes and third-party filtering
+            # Logs for 'main_app', 'sub_component', and 'httpx' will be processed
+            root_logger = setup_app_logger(
+                app_name=["main_app", "sub_component"],
+                log_type="console",
+                configure_root=True,
+                log_level="DEBUG", # Root logger gets DEBUG, effective level for 'main_app' and 'sub_component' is DEBUG
+                enabled_third_party_loggers=['httpx', 'sqlalchemy']
+            )
+            logging.getLogger("main_app").info("Main app message.")
+            logging.getLogger("sub_component.core").debug("Sub component debug message.")
+            logging.getLogger("httpx").info("HTTPX library message.")
+            logging.getLogger("requests").warning("Requests library message (should be filtered out).")
+            logging.getLogger("sqlalchemy.engine").info("SQLAlchemy engine message.")
 
+
+            # Example 4: Centralized root logger logging ALL messages
+            all_logs_logger = setup_app_logger(
+                app_name="catch_all_app",
+                log_type="console",
+                configure_root=True,
+                log_level="INFO",
+                log_all_third_party=True
+            )
+            logging.getLogger("catch_all_app").info("My app's info.")
+            logging.getLogger("any_library_name").debug("Debug from any library, will show because log_all_third_party is True and root is DEBUG.")
     """
-
-    if log_type in ('file', 'both'):
-        if not os.path.isdir(log_path):
-            os.makedirs(log_path)
-
-    if isinstance(log_level, str):
-        log_level = log_level.upper()
-        if log_level in logging._nameToLevel:
-            effective_log_level = logging._nameToLevel[log_level]
-        else:
-            raise ValueError(f"Invalid `log_level` string provided: {log_level}")
-    elif isinstance(log_level, int):
-        effective_log_level = log_level
-    elif log_level is None:
-        # effective_log_level = const.VERBOSE_LEVELS.get(verbose, logging.DEBUG)
-        effective_log_level = verbose_to_log_level(verbose)
+    # 1. 로그 레벨 결정
+    if log_level is not None:
+        effective_log_level = log_level.upper() if isinstance(log_level, str) else log_level
     else:
-        raise ValueError("`log_level` must be of type int or str.")
+        effective_log_level = verbose_to_log_level(verbose)
 
-    logger = logging.getLogger(app_name)
-    logger.setLevel(effective_log_level)
-    logger.propagate = propagate
+    app_prefixes = [app_name] if isinstance(app_name, str) else app_name
 
-    if clear_existing_handlers:
-        logger.handlers.clear()
+    # 2. `configure_root` 값에 따라 모드 분기
+    if configure_root:
+        # === [모드 1] 중앙 제어 모드 (권장) ===
+        target_logger = logging.getLogger()
+        target_logger.handlers.clear()
+        target_logger.setLevel(logging.DEBUG)
 
-    if not log_format:
-        log_format = '[%(asctime)s] %(levelname)s::%(filename)s/%(funcName)s(%(lineno)d) %(message)s'
+        logging.getLogger(app_prefixes[0]).setLevel(effective_log_level)
+        for prefix in app_prefixes[1:]:
+             logging.getLogger(prefix).setLevel(effective_log_level)
 
-    # ConsoleLoggerHandler 추가 (중복 방지)
-    if log_type in ('console', 'both') and not any(isinstance(h, ConsoleLoggerHandler) for h in logger.handlers):
+    else:
+        # === [모드 2] 하위 호환성 모드 ===
+        target_logger = logging.getLogger(app_prefixes[0])
+        target_logger.propagate = propagate
+        if clear_existing_handlers:
+            target_logger.handlers.clear()
+
+        # [중복 출력 방지] 전파가 켜져 있을 때, 루트의 기본 핸들러를 제거
+        if propagate:
+            root_logger = logging.getLogger()
+            for handler in root_logger.handlers[:]:
+                is_console_conflict = (log_type in ('console', 'both') and isinstance(handler, logging.StreamHandler))
+                is_file_conflict = (log_type in ('file', 'both') and isinstance(handler, logging.FileHandler))
+                if is_console_conflict or is_file_conflict:
+                    root_logger.removeHandler(handler)
+
+        target_logger.setLevel(effective_log_level)
+
+    # 3. 핸들러 생성 (pawnlib 커스텀 핸들러 사용)
+    handlers_to_add = []
+    if log_type in ('console', 'both'):
         console_handler = ConsoleLoggerHandler(
-            verbose=verbose,
-            stdout=True,
-            log_level_short=log_level_short,
-            simple_format=simple_format,
-            exc_info=exc_info
+            verbose=verbose, stdout=True, log_level_short=log_level_short,
+            simple_format=simple_format, exc_info=exc_info
         )
         console_formatter = CleanAndDetailTimeFormatter(
-            datefmt=date_format,
-            log_level_short=log_level_short,
-            simple_format=simple_format,
-            precision=3,
+            datefmt=date_format, log_level_short=log_level_short,
+            simple_format=simple_format
         )
         console_handler.setFormatter(console_formatter)
-        logger.addHandler(console_handler)
+        handlers_to_add.append(console_handler)
 
-    # TimedRotatingFileHandler 추가 (중복 방지)
-    if log_type in ('file', 'both') and not any(isinstance(h, TimedRotatingFileHandler) for h in logger.handlers):
-        file_formatter = CleanAndDetailTimeFormatter(
-            fmt=log_format,
-            datefmt=date_format,
-            log_level_short=log_level_short,
-            simple_format=simple_format,
-            precision=3,
-        )
-        log_filename = os.path.join(log_path, f"{app_name}.log")
+    if log_type in ('file', 'both'):
+        os.makedirs(log_path, exist_ok=True)
+        log_filename = os.path.join(log_path, f"{app_prefixes[0]}.log")
         file_handler = TimedRotatingFileHandler(
-            filename=log_filename,
-            when=rotate_time,
-            interval=rotate_interval,
-            backupCount=backup_count,
-            encoding='utf-8'
+            filename=log_filename, when=rotate_time, interval=rotate_interval,
+            backupCount=backup_count, encoding='utf-8'
+        )
+        file_formatter = CleanAndDetailTimeFormatter(
+            fmt=log_format, datefmt=date_format, log_level_short=log_level_short,
+            simple_format=simple_format
         )
         file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
+        handlers_to_add.append(file_handler)
 
-    if not logger.handlers:
-        raise ValueError(f"No handlers were added to the logger '{app_name}'. Check `log_type` parameter.")
+    # 4. 필터 적용 (중앙 제어 모드에서만 의미 있음)
+    if configure_root and not log_all_third_party:
+        app_filter = AppOrEnabledFilter(app_prefixes, enabled_third_party_loggers)
+        for handler in handlers_to_add:
+            handler.addFilter(app_filter)
 
-    # propagate 설정
-    # if propagate:
-    # change_propagate_setting(propagate=propagate, propagate_scope=propagate_scope, log_level=effective_log_level)
+    # 5. 준비된 핸들러를 타겟 로거에 추가
+    for handler in handlers_to_add:
+        # 핸들러 중복 추가 방지 (이미 같은 타입의 핸들러가 있다면 추가하지 않음)
+        if not any(isinstance(h, type(handler)) for h in target_logger.handlers):
+            target_logger.addHandler(handler)
+
+    # 6. 기타 설정 (기존 로직 유지)
     if handle_propagate:
         change_propagate_setting(
             propagate=propagate, propagate_scope=propagate_scope,
-            log_level=effective_log_level,  pawnlib_level=effective_log_level, third_party_level=effective_log_level
+            log_level=effective_log_level
         )
-    # change_propagate_setting(propagate=True, propagate_scope='all', pawnlib_level=5, third_party_level=logging.ERROR)
-    return logger
+
+    return logging.getLogger(app_prefixes[0])
 
 
 def setup_logger(logger=None, name: str = "", verbose: Union[bool, int] = False):
@@ -1929,7 +2046,7 @@ class LoggerMixinVerbose:
         else:
             self.logger.setLevel(log_level)
             self.logger.propagate = False
-        
+
         if hasattr(self.logger, 'handlers') and self.logger.handlers:
             for handler in self.logger.handlers:
                 if handler:

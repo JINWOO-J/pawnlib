@@ -226,12 +226,12 @@ class S3ClientBase(LoggerMixinVerbose):
         self.is_cloudflare = None
         self.session = None
         self.config = None
-        self.create_s3_client()        
+        self.create_s3_client()
 
     def create_s3_client(self):
         if self.profile_name:
             self.logger.info(f"Using profile: {self.profile_name}")
-            self.session = boto3.Session(profile_name=self.profile_name)        
+            self.session = boto3.Session(profile_name=self.profile_name)
             self.endpoint_url = None
         elif self.access_key and self.secret_key:
             self.logger.info(f"Using access key: {self.access_key}")
@@ -339,7 +339,7 @@ class S3ClientBase(LoggerMixinVerbose):
         self.print_config()
 
         try:
-            response = self.s3_client.list_buckets()            
+            response = self.s3_client.list_buckets()
             bucket_table = Table(title="Available Buckets")
             bucket_table.add_column("Bucket Name", style="cyan")
             for bucket in response['Buckets']:
@@ -363,11 +363,11 @@ class S3ClientBase(LoggerMixinVerbose):
 
 class Uploader(S3ClientBase):
     def __init__(self, bucket_name, profile_name=None, access_key=None, secret_key=None,
-                 endpoint_url=None, overwrite=False, info_file="", confirm_upload=False, keep_path=False, 
+                 endpoint_url=None, overwrite=False, info_file="", confirm_upload=False, keep_path=False,
                  use_dynamic_config=False, dry_run=False, verbose=0):
-        super().__init__(bucket_name, profile_name, access_key, secret_key, endpoint_url, overwrite, 
+        super().__init__(bucket_name, profile_name, access_key, secret_key, endpoint_url, overwrite,
                          use_dynamic_config=use_dynamic_config, verbose=verbose)
-        
+
 
         self.uploaded_files_info = []
         self.directory = ""
@@ -443,7 +443,7 @@ class Uploader(S3ClientBase):
     def upload_file(self, file_path, s3_prefix="", s3_key="", file_pbar=None, append_suffix="", confirm_upload=None, keep_path=None):
         if not s3_key:
             s3_key = os.path.join(s3_prefix, file_path).replace("\\", "/")
-                
+
         s3_key = s3_key.lstrip("/")
 
         if self.dry_run:
@@ -754,7 +754,7 @@ class Uploader(S3ClientBase):
 
 class Downloader(S3ClientBase):
     def __init__(self, bucket_name, profile_name=None, access_key=None, secret_key=None, endpoint_url=None, overwrite=False, dry_run=False):
-        self.logger = self.get_logger()
+        # self.logger = self.get_logger()
         super().__init__(bucket_name, profile_name, access_key, secret_key, endpoint_url, overwrite, dry_run=dry_run)
 
     def is_s3_file(self,  key):

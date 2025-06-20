@@ -169,7 +169,6 @@ class GenesisGenerator:
         self.validate_cid()
         pawn.console.debug(f"cid = {self.cid}")
 
-        self.write_metadata()
         self.write_genesis_zip()
 
         if cleanup_after_run:

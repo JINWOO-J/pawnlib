@@ -907,10 +907,9 @@ class PawnlibConfig(metaclass=Singleton):
 
     def _init_console(self, force_init=True):
 
-        is_interactive = hasattr(sys, 'ps1') or sys.stdin.isatty()
         _console_options = dict(
             pawn_debug=self.debug,
-            redirect=False if is_interactive else self.debug,   # 대화식일때는 무조건 redirect가 false여야함
+            redirect=self.debug,  # <-- not supported by rich.console.Console
             record=True,
             soft_wrap=False,
             force_terminal=True,
@@ -1523,7 +1522,7 @@ def create_pawn(use_global_namespace=True) -> PawnlibConfig:
     return PawnlibConfig(global_name="pawnlib_global_config", use_global_namespace=use_global_namespace).init_with_env()
 
 
-pawnlib_config: PawnlibConfig = create_pawn(use_global_namespace=False)
+pawnlib_config = create_pawn(use_global_namespace=False)
 pawn = pawnlib_config
 pconf = partial(pawn.conf)
 global_verbose = pawnlib_config.get('PAWN_VERBOSE', 0)
