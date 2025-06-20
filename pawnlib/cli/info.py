@@ -3,6 +3,10 @@ import argparse
 from pawnlib.builder.generator import generate_banner
 from pawnlib.__version__ import __version__ as _version
 from pawnlib.config import pawn, pconf
+
+# pawn.console.log(pconf_legacy().PAWN_CONFIG)
+# pawn.console.log(pconf().PAWN_CONFIG)
+# exit()
 import os
 from pawnlib.typing import str2bool, StackList, remove_tags, dict_to_line
 from pawnlib.output import write_json, get_color_by_threshold
@@ -34,12 +38,12 @@ __epilog__ = (
     "  2. Run in quiet mode without displaying any output:\n"
     "     - Executes the script without showing any output, useful for logging purposes.\n\n"
     "     `pawns info -q`\n"
-    
+
 
     "  3. Specify a custom base directory and configuration file:\n"
     "     - Uses the specified base directory and configuration file for operations.\n\n"
     "     `pawns info -b /path/to/base/dir --config-file my_config.ini`\n"
-    
+
 
     "  4. Write output to a specified file in quiet mode without displaying any output:\n"
     "     - Writes the collected resource information to 'output.json'.\n\n"
@@ -82,7 +86,7 @@ def print_banner():
             app_name=pconf().app_name,
             author="jinwoo",
             description=f"{__description__} \n"
-                        f" - base_dir    : {pconf().args.base_dir} \n" 
+                        f" - base_dir    : {pconf().args.base_dir} \n"
                         f" - logs_dir    : {pconf().args.base_dir}/logs \n",
             font="graffiti",
             version=_version
@@ -237,4 +241,3 @@ if __name__ == '__main__':
         main()
     except Exception as e:
         pawn.console.log(e)
-

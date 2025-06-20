@@ -28,12 +28,12 @@ __epilog__ = (
     "  2. Load an existing wallet using a private key:\n\n"
     "     - Loads a wallet from the provided private key.\n\n"
     "     `pawns wallet load --private-key YOUR_PRIVATE_KEY`\n"
-    
+
 
     "  3. Load an existing wallet from a keystore file:\n\n"
     "     - Loads a wallet from a keystore file with the provided password.\n\n"
     "     `pawns wallet load --keystore /path/to/keystore --password YOUR_PASSWORD`\n"
-    
+
 
     "Options:\n"
     "  - Use '--debug' to enable debug mode for more detailed logs.\n"
@@ -142,6 +142,7 @@ def main():
         argument="sub_command",
         verbose=0,
     ).fuzzy()
+
     wallet_cli = icx_signer.WalletCli(args=pconf().data.args)
 
     if args.sub_command == "load":

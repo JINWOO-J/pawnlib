@@ -82,3 +82,31 @@ pawnlib.config.globalconfig.pawnlib_config
           PAWN_GLOBAL_NAME: pawnlib_global_config_P2707BP1-0VN1HJA9-DVWMRDS2-98L6IO0U,
           params: 1
        }
+
+pawnlib.config.logging_config
+--------------------------------------------
+
+.. code-block:: python
+    :emphasize-lines: 3, 6, 17
+
+    from pawnlib.config import setup_app_logger
+
+    setup_app_logger(
+        log_type='console',
+        verbose=2,
+        app_name='my_app',
+        log_level='DEBUG'
+    )
+
+.. automodule:: pawnlib.config.logging_config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pawnlib.config.settings_config
+--------------------------------------------
+
+.. automodule:: pawnlib.config.settings_config
+   :members:
+   :undoc-members:
+   :show-inheritance:
