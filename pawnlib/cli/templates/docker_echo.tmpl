@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+from pawnlib.config import pawnlib_config as pawn
+from pawnlib.typing import generate_number_list, Counter
+from toolchains.docker import AsyncDocker, run_container, run_dyn_container
+
+args = pawn.get('args')
+
+#target_list = {{ target_list }}
+
+async def main(*params, **kwargs):
+    pawn.console.debug(f"[red bold]----IN plugin ---- args={args}, kwargs={kwargs}")
+    dn_param = params[0]
+
+    kwargs['container_name'] = f"{args.name or 'echo'}_{dn_param}"
+
+    container_config = {
+        "Image": "jmalloc/echo-server",
+        "Hostname": kwargs['container_name'],
+        "Env": [
+            f"PORT={dn_param}"
+        ],
+        "NetworkMode": "host"
+    }
+    await run_dyn_container(container_config, *params, **kwargs)

@@ -1,0 +1,1298 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.resource.net &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.resource.net</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.resource.net</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config.globalconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">timeit</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_timer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">http</span><span class="p">,</span> <span class="n">timing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_valid_ipv4</span><span class="p">,</span> <span class="n">todaydate</span><span class="p">,</span> <span class="n">shorten_text</span><span class="p">,</span> <span class="n">format_network_traffic</span><span class="p">,</span> <span class="n">format_size</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrintRichTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.progress</span><span class="w"> </span><span class="kn">import</span> <span class="n">Progress</span><span class="p">,</span> <span class="n">BarColumn</span><span class="p">,</span> <span class="n">TextColumn</span><span class="p">,</span> <span class="n">TimeRemainingColumn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.live</span><span class="w"> </span><span class="kn">import</span> <span class="n">Live</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">queue</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">bcc</span><span class="w"> </span><span class="kn">import</span> <span class="n">BPF</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">BPF</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="n">prev_getaddrinfo</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">getaddrinfo</span>
+
+<div class="viewcode-block" id="ProcNetMonitor"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.ProcNetMonitor">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ProcNetMonitor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ProcNetMonitor monitors network usage of processes using eBPF.</span>
+
+<span class="sd">    :param top_n: The top N processes to display in the table.</span>
+<span class="sd">    :param refresh_rate: The data refresh rate (refreshes per second).</span>
+<span class="sd">    :param group_by: How to group processes (&quot;pid&quot; or &quot;name&quot;).</span>
+<span class="sd">    :param unit: The unit for displaying rates (e.g., &quot;Mbps&quot;).</span>
+<span class="sd">    :param protocols: List of protocols to monitor. Defaults to [&quot;tcp&quot;, &quot;udp&quot;].</span>
+<span class="sd">    :param pid_filter: List of PIDs to monitor. Only these PIDs will be tracked.</span>
+<span class="sd">    :param proc_filter: List of process names to monitor. Only these processes will be tracked.</span>
+<span class="sd">    :param min_bytes_threshold: Minimum number of bytes to consider for monitoring.</span>
+<span class="sd">    :param callback: A user-defined function to be called when data is updated.</span>
+<span class="sd">    :param exit_signal: A string used as the termination signal. When this string is detected,</span>
+<span class="sd">                        the monitoring process will stop and the program will exit. Default is &quot;EXIT&quot;.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Example 1: Monitor top 5 processes with TCP and UDP protocols</span>
+<span class="sd">        def handle_update(data):</span>
+<span class="sd">            for group, info in data.items():</span>
+<span class="sd">                print(f&quot;Group: {group}, Sent: {info[&#39;bytes_sent&#39;]} bytes, Recv: {info[&#39;bytes_recv&#39;]} bytes&quot;)</span>
+
+<span class="sd">        monitor = ProcNetMonitor(top_n=5, protocols=[&quot;tcp&quot;, &quot;udp&quot;], callback=handle_update)</span>
+<span class="sd">        monitor.run()</span>
+
+<span class="sd">        # Example 2: Monitor specific PIDs</span>
+<span class="sd">        def handle_specific_pids(data):</span>
+<span class="sd">            for pid, info in data.items():</span>
+<span class="sd">                print(f&quot;PID: {pid}, Sent: {info[&#39;bytes_sent&#39;]} bytes, Recv: {info[&#39;bytes_recv&#39;]} bytes&quot;)</span>
+
+<span class="sd">        monitor = ProcNetMonitor(pid_filter=[1234, 5678], callback=handle_specific_pids)</span>
+<span class="sd">        monitor.run()</span>
+
+<span class="sd">        # Example 3: Monitor specific process names</span>
+<span class="sd">        def handle_specific_procs(data):</span>
+<span class="sd">            for proc, info in data.items():</span>
+<span class="sd">                print(f&quot;Process: {proc}, Sent: {info[&#39;bytes_sent&#39;]} bytes, Recv: {info[&#39;bytes_recv&#39;]} bytes&quot;)</span>
+
+<span class="sd">        monitor = ProcNetMonitor(proc_filter=[&quot;python&quot;, &quot;nginx&quot;], callback=handle_specific_procs)</span>
+<span class="sd">        monitor.run()</span>
+
+<span class="sd">        # Example 4: Set a custom refresh rate and exit signal</span>
+<span class="sd">        def handle_exit(data):</span>
+<span class="sd">            print(&quot;Received data, checking exit condition...&quot;)</span>
+<span class="sd">            if some_condition:</span>
+<span class="sd">                return &#39;EXIT&#39;</span>
+
+<span class="sd">        monitor = ProcNetMonitor(refresh_rate=1, exit_signal=&quot;EXIT&quot;, callback=handle_exit)</span>
+<span class="sd">        monitor.run()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">EVENT_TCP_SEND</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">EVENT_TCP_RECV</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">EVENT_UDP_SEND</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">EVENT_UDP_RECV</span> <span class="o">=</span> <span class="mi">4</span>
+
+<div class="viewcode-block" id="ProcNetMonitor.__init__"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.ProcNetMonitor.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">refresh_rate</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="s2">&quot;pid&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;Mbps&quot;</span><span class="p">,</span>
+                 <span class="n">protocols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pid_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proc_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_bytes_threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">exit_signal</span><span class="o">=</span><span class="s2">&quot;EXIT&quot;</span>
+                 <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the ProcNetMonitor class.</span>
+
+<span class="sd">        :param top_n: The top N processes to display in the table.</span>
+<span class="sd">        :param refresh_rate: The data refresh rate (refreshes per second).</span>
+<span class="sd">        :param group_by: How to group processes (&quot;pid&quot; or &quot;name&quot;).</span>
+<span class="sd">        :param unit: The unit for displaying rates (e.g., &quot;Mbps&quot;).</span>
+<span class="sd">        :param protocols: List of protocols to monitor. Defaults to [&quot;tcp&quot;, &quot;udp&quot;].</span>
+<span class="sd">        :param pid_filter: List of PIDs to monitor. Only these PIDs will be tracked.</span>
+<span class="sd">        :param proc_filter: List of process names to monitor. Only these processes will be tracked.</span>
+<span class="sd">        :param min_bytes_threshold: Minimum number of bytes to consider for monitoring.</span>
+<span class="sd">        :param callback: A user-defined function to be called when data is updated.</span>
+<span class="sd">        :param exit_signal: A string used as the termination signal. When this string is detected,</span>
+<span class="sd">                            the monitoring process will stop and the program will exit. Default is &quot;EXIT&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">BPF</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;&#39;bcc&#39; module is required but not found.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_n</span> <span class="o">=</span> <span class="n">top_n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_rate</span> <span class="o">=</span> <span class="n">refresh_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_by</span> <span class="o">=</span> <span class="n">group_by</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">unit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span> <span class="o">=</span> <span class="n">protocols</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;udp&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pid_filter</span> <span class="o">=</span> <span class="n">pid_filter</span>  <span class="c1"># Monitor specific PIDs only</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proc_filter</span> <span class="o">=</span> <span class="n">proc_filter</span>  <span class="c1"># Monitor specific process names only</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_bytes_threshold</span> <span class="o">=</span> <span class="n">min_bytes_threshold</span>  <span class="c1"># Minimum bytes threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>  <span class="c1"># User-defined callback function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_signal</span> <span class="o">=</span> <span class="n">exit_signal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_counts</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_update_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="n">pawn</span><span class="o">.</span><span class="n">console</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_event</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>  <span class="c1"># Event to signal exit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>  <span class="c1"># Queue for callback functions</span>
+
+        <span class="c1"># Initialize eBPF</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_bcc</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_signal_handlers</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProcNetMonitor.setup_signal_handlers"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.ProcNetMonitor.setup_signal_handlers">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">setup_signal_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up signal handlers to perform cleanup on script termination.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_signal</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_signal</span><span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize_bcc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the eBPF program.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span> <span class="o">=</span> <span class="n">BPF</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_bpf_program</span><span class="p">())</span>
+            <span class="k">if</span> <span class="s2">&quot;tcp&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="o">.</span><span class="n">attach_kprobe</span><span class="p">(</span><span class="n">event</span><span class="o">=</span><span class="s2">&quot;tcp_sendmsg&quot;</span><span class="p">,</span> <span class="n">fn_name</span><span class="o">=</span><span class="s2">&quot;trace_tcp_send&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="o">.</span><span class="n">attach_kprobe</span><span class="p">(</span><span class="n">event</span><span class="o">=</span><span class="s2">&quot;tcp_recvmsg&quot;</span><span class="p">,</span> <span class="n">fn_name</span><span class="o">=</span><span class="s2">&quot;trace_tcp_recv&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;udp&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="o">.</span><span class="n">attach_kprobe</span><span class="p">(</span><span class="n">event</span><span class="o">=</span><span class="s2">&quot;udp_sendmsg&quot;</span><span class="p">,</span> <span class="n">fn_name</span><span class="o">=</span><span class="s2">&quot;trace_udp_send&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="o">.</span><span class="n">attach_kprobe</span><span class="p">(</span><span class="n">event</span><span class="o">=</span><span class="s2">&quot;udp_recvmsg&quot;</span><span class="p">,</span> <span class="n">fn_name</span><span class="o">=</span><span class="s2">&quot;trace_udp_recv&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="p">[</span><span class="s2">&quot;events&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">open_perf_buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handle_event</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Error] bcc module not found: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold red&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Error] Failed to initialize BPF: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold red&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_bpf_program</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the eBPF program.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        #include &lt;uapi/linux/ptrace.h&gt;</span>
+<span class="s2">        #include &lt;linux/sched.h&gt;</span>
+<span class="s2">        </span>
+<span class="s2">        struct sock </span><span class="si">{}</span><span class="s2">;</span>
+<span class="s2">        struct msghdr </span><span class="si">{}</span><span class="s2">;</span>
+<span class="s2">    </span>
+<span class="s2">        #define EVENT_TCP_SEND 1</span>
+<span class="s2">        #define EVENT_TCP_RECV 2</span>
+<span class="s2">        #define EVENT_UDP_SEND 3</span>
+<span class="s2">        #define EVENT_UDP_RECV 4</span>
+<span class="s2">    </span>
+<span class="s2">        struct net_data_t {</span>
+<span class="s2">            u32 pid;</span>
+<span class="s2">            u64 bytes;</span>
+<span class="s2">            char comm[TASK_COMM_LEN];</span>
+<span class="s2">            u32 event_type; // Event type: 1 (TCP Send), 2 (TCP Recv), etc.</span>
+<span class="s2">        };</span>
+<span class="s2">    </span>
+<span class="s2">        BPF_PERF_OUTPUT(events);</span>
+<span class="s2">    </span>
+<span class="s2">        int trace_tcp_send(struct pt_regs *ctx, struct sock *sk, struct msghdr *msg, size_t size) {</span>
+<span class="s2">            struct net_data_t data = </span><span class="si">{}</span><span class="s2">;</span>
+<span class="s2">            data.pid = bpf_get_current_pid_tgid() &gt;&gt; 32;</span>
+<span class="s2">            data.bytes = size;</span>
+<span class="s2">            data.event_type = EVENT_TCP_SEND;</span>
+<span class="s2">            bpf_get_current_comm(&amp;data.comm, sizeof(data.comm));</span>
+<span class="s2">            events.perf_submit(ctx, &amp;data, sizeof(data));</span>
+<span class="s2">            return 0;</span>
+<span class="s2">        }</span>
+<span class="s2">    </span>
+<span class="s2">        int trace_tcp_recv(struct pt_regs *ctx, struct sock *sk, struct msghdr *msg, size_t size) {</span>
+<span class="s2">            struct net_data_t data = </span><span class="si">{}</span><span class="s2">;</span>
+<span class="s2">            data.pid = bpf_get_current_pid_tgid() &gt;&gt; 32;</span>
+<span class="s2">            data.bytes = size;</span>
+<span class="s2">            data.event_type = EVENT_TCP_RECV;</span>
+<span class="s2">            bpf_get_current_comm(&amp;data.comm, sizeof(data.comm));</span>
+<span class="s2">            events.perf_submit(ctx, &amp;data, sizeof(data));</span>
+<span class="s2">            return 0;</span>
+<span class="s2">        }</span>
+<span class="s2">    </span>
+<span class="s2">        int trace_udp_send(struct pt_regs *ctx, struct sock *sk, struct msghdr *msg, size_t size) {</span>
+<span class="s2">            struct net_data_t data = </span><span class="si">{}</span><span class="s2">;</span>
+<span class="s2">            data.pid = bpf_get_current_pid_tgid() &gt;&gt; 32;</span>
+<span class="s2">            data.bytes = size;</span>
+<span class="s2">            data.event_type = EVENT_UDP_SEND;</span>
+<span class="s2">            bpf_get_current_comm(&amp;data.comm, sizeof(data.comm));</span>
+<span class="s2">            events.perf_submit(ctx, &amp;data, sizeof(data));</span>
+<span class="s2">            return 0;</span>
+<span class="s2">        }</span>
+<span class="s2">    </span>
+<span class="s2">        int trace_udp_recv(struct pt_regs *ctx, struct sock *sk, struct msghdr *msg, size_t size) {</span>
+<span class="s2">            struct net_data_t data = </span><span class="si">{}</span><span class="s2">;</span>
+<span class="s2">            data.pid = bpf_get_current_pid_tgid() &gt;&gt; 32;</span>
+<span class="s2">            data.bytes = size;</span>
+<span class="s2">            data.event_type = EVENT_UDP_RECV;</span>
+<span class="s2">            bpf_get_current_comm(&amp;data.comm, sizeof(data.comm));</span>
+<span class="s2">            events.perf_submit(ctx, &amp;data, sizeof(data));</span>
+<span class="s2">            return 0;</span>
+<span class="s2">        }</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ProcNetMonitor.get_process_cmdline"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.ProcNetMonitor.get_process_cmdline">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_process_cmdline</span><span class="p">(</span><span class="n">pid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the command-line arguments of a process by PID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/proc/</span><span class="si">{</span><span class="n">pid</span><span class="si">}</span><span class="s2">/cmdline&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">cmdline</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">cmdline</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;Error reading cmdline: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&gt;&quot;</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle eBPF events.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="p">[</span><span class="s2">&quot;events&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">bytes_count</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">bytes</span>
+        <span class="n">event_type</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">event_type</span>
+        <span class="n">proc_name</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_by</span> <span class="o">==</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span>
+            <span class="n">group_by</span> <span class="o">=</span> <span class="n">proc_name</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_by</span> <span class="o">==</span> <span class="s2">&quot;pid&quot;</span><span class="p">:</span>
+            <span class="n">group_by</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pid</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">group_by</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pid</span>
+
+        <span class="c1"># cmdline = self.get_process_cmdline(pid)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid_filter</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">pid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid_filter</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_filter</span> <span class="ow">and</span> <span class="n">proc_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_filter</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">bytes_count</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bytes_threshold</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">group_by</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">group_by</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;pid&#39;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span>
+                <span class="s1">&#39;comm&#39;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                <span class="c1"># &#39;cmdline&#39;: cmdline,</span>
+                <span class="s1">&#39;bytes_sent&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;bytes_recv&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;tcp_sent&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;tcp_recv&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;tcp_sent_rate&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s1">&#39;tcp_recv_rate&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s1">&#39;udp_sent&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;udp_recv&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;udp_sent_rate&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s1">&#39;udp_recv_rate&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s1">&#39;send_rate&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s1">&#39;recv_rate&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">event_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">EVENT_TCP_SEND</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">group_by</span><span class="p">][</span><span class="s1">&#39;tcp_sent&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">bytes_count</span>
+        <span class="k">elif</span> <span class="n">event_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">EVENT_TCP_RECV</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">group_by</span><span class="p">][</span><span class="s1">&#39;tcp_recv&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">bytes_count</span>
+        <span class="k">elif</span> <span class="n">event_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">EVENT_UDP_SEND</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">group_by</span><span class="p">][</span><span class="s1">&#39;udp_sent&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">bytes_count</span>
+        <span class="k">elif</span> <span class="n">event_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">EVENT_UDP_RECV</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">group_by</span><span class="p">][</span><span class="s1">&#39;udp_recv&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">bytes_count</span>
+
+        <span class="c1"># Bytes sent/received for rate calculations</span>
+        <span class="k">if</span> <span class="n">event_type</span> <span class="ow">in</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">EVENT_TCP_SEND</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EVENT_UDP_SEND</span><span class="p">}:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">group_by</span><span class="p">][</span><span class="s1">&#39;bytes_sent&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">bytes_count</span>
+        <span class="k">elif</span> <span class="n">event_type</span> <span class="ow">in</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">EVENT_TCP_RECV</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EVENT_UDP_RECV</span><span class="p">}:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">group_by</span><span class="p">][</span><span class="s1">&#39;bytes_recv&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">bytes_count</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">:</span>
+            <span class="c1"># result = self.callback(self.process_network)</span>
+            <span class="c1"># if result == &quot;EXIT&quot;:</span>
+            <span class="c1">#     self.exit_event.set()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">callback_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update transmission rates for each process and protocol.</span>
+<span class="sd">        Add average rates based on historical data for all protocols.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Initialize history buffer for rate calculations</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;rate_history&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">pid</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="n">proto</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;sent_rate&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;recv_rate&#39;</span><span class="p">:</span> <span class="p">[]}</span> <span class="k">for</span> <span class="n">proto</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span>
+                <span class="p">}</span>
+                <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span>
+            <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">pid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_counts</span><span class="p">:</span>
+                <span class="c1"># Initialize `previous_counts` and `rate_history` for a new PID</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">previous_counts</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
+                    <span class="s1">&#39;bytes_sent&#39;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_sent&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;bytes_recv&#39;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_recv&#39;</span><span class="p">],</span>
+                    <span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_sent&#39;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_sent&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">proto</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">},</span>
+                    <span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_recv&#39;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_recv&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">proto</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">},</span>
+                <span class="p">}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">proto</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;sent_rate&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;recv_rate&#39;</span><span class="p">:</span> <span class="p">[]}</span> <span class="k">for</span> <span class="n">proto</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span>
+                <span class="p">}</span>
+                <span class="k">continue</span>
+
+            <span class="n">prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_counts</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span>
+            <span class="n">time_diff</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">prev</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">time_diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">info</span><span class="p">[</span><span class="s1">&#39;send_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_sent&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">prev</span><span class="p">[</span><span class="s1">&#39;bytes_sent&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="n">time_diff</span>
+                <span class="n">info</span><span class="p">[</span><span class="s1">&#39;recv_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_recv&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">prev</span><span class="p">[</span><span class="s1">&#39;bytes_recv&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="n">time_diff</span>
+
+                <span class="c1"># Calculate current protocol-specific rates and update history</span>
+                <span class="k">for</span> <span class="n">proto</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">:</span>
+                    <span class="n">sent_key</span><span class="p">,</span> <span class="n">recv_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_sent&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_recv&#39;</span>
+                    <span class="n">info</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_sent_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sent_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">prev</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sent_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="n">time_diff</span>
+                    <span class="n">info</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_recv_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">recv_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">prev</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">recv_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="n">time_diff</span>
+
+                    <span class="c1"># Update rate history for the protocol</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">proto</span><span class="p">][</span><span class="s1">&#39;sent_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_sent_rate&#39;</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">proto</span><span class="p">][</span><span class="s1">&#39;recv_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_recv_rate&#39;</span><span class="p">])</span>
+
+                    <span class="c1"># Limit history size to avoid excessive memory usage</span>
+                    <span class="n">max_history_size</span> <span class="o">=</span> <span class="mi">200</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">proto</span><span class="p">][</span><span class="s1">&#39;sent_rate&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">max_history_size</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">proto</span><span class="p">][</span><span class="s1">&#39;sent_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">proto</span><span class="p">][</span><span class="s1">&#39;recv_rate&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">max_history_size</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">proto</span><span class="p">][</span><span class="s1">&#39;recv_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+                    <span class="c1"># Calculate average rates for the protocol</span>
+                    <span class="n">info</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_avg_sent_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">proto</span><span class="p">][</span><span class="s1">&#39;sent_rate&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">proto</span><span class="p">][</span><span class="s1">&#39;sent_rate&#39;</span><span class="p">])</span>
+                    <span class="p">)</span>
+                    <span class="n">info</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_avg_recv_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">proto</span><span class="p">][</span><span class="s1">&#39;recv_rate&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rate_history</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">proto</span><span class="p">][</span><span class="s1">&#39;recv_rate&#39;</span><span class="p">])</span>
+                    <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">previous_counts</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
+                <span class="s1">&#39;bytes_sent&#39;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_sent&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;bytes_recv&#39;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_recv&#39;</span><span class="p">],</span>
+                <span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_sent&#39;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_sent&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">proto</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">},</span>
+                <span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_recv&#39;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_recv&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">proto</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">},</span>
+            <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_update_time</span> <span class="o">=</span> <span class="n">current_time</span>
+
+<div class="viewcode-block" id="ProcNetMonitor.generate_title"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.ProcNetMonitor.generate_title">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dynamically generate the title based on initialized parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Generated title.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Process Network Usage (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="s2"> Sent/Recv)&quot;</span>
+        <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, TopN: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">top_n</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, RefreshRate: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">refresh_rate</span><span class="si">}</span><span class="s2">s&quot;</span>
+        <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, GroupBy: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">group_by</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid_filter</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, PIDFilter: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">pid_filter</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_filter</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, ProcFilter: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">proc_filter</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bytes_threshold</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, MinBytesThreshold: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_bytes_threshold</span><span class="si">}</span><span class="s2"> bytes&quot;</span>
+        <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, Protocols: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">title</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a Rich table displaying process network usage for specified protocols.</span>
+<span class="sd">        :return: Rich Table object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># table = Table(title=f&quot;Process Network Usage ({self.unit} Sent/Recv), GroupBy: {self.group_by}&quot;, expand=True)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_title</span><span class="p">(),</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_by</span> <span class="o">==</span> <span class="s2">&quot;pid&quot;</span><span class="p">:</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PID&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">)</span>
+
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">)</span>
+
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Total Sent&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Total Recv&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Add protocol-specific columns dynamically</span>
+        <span class="k">for</span> <span class="n">proto</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">:</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proto</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> Sent(AVG)&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proto</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> Recv(AVG)&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Sort processes by the sum of all protocol rates</span>
+        <span class="n">sorted_pids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">pid</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s2">_sent&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s2">_recv&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">proto</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span>
+            <span class="p">),</span>
+            <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)[:</span><span class="bp">self</span><span class="o">.</span><span class="n">top_n</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="n">sorted_pids</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span>
+
+            <span class="c1"># Basic process details</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="c1"># str(pid),</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;comm&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">format_size</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_sent&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">format_size</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bytes_recv&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_by</span> <span class="o">==</span> <span class="s2">&quot;pid&quot;</span><span class="p">:</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span>
+
+            <span class="c1"># Add protocol-specific details</span>
+            <span class="k">for</span> <span class="n">proto</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span><span class="p">:</span>
+                <span class="n">sent_rate</span> <span class="o">=</span> <span class="n">format_network_traffic</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_sent_rate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+                <span class="n">sent_avg_rate</span> <span class="o">=</span> <span class="n">format_network_traffic</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_avg_sent_rate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span> <span class="n">show_unit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">recv_rate</span> <span class="o">=</span> <span class="n">format_network_traffic</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_recv_rate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+                <span class="n">avg_recv_rate</span> <span class="o">=</span> <span class="n">format_network_traffic</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">proto</span><span class="si">}</span><span class="s1">_avg_recv_rate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span> <span class="n">show_unit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sent_rate</span><span class="si">}</span><span class="s2"> [dim]</span><span class="si">{</span><span class="n">sent_avg_rate</span><span class="si">}</span><span class="s2">[/dim]&quot;</span><span class="p">)</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">recv_rate</span><span class="si">}</span><span class="s2"> [dim]</span><span class="si">{</span><span class="n">avg_recv_rate</span><span class="si">}</span><span class="s2">[/dim]&quot;</span><span class="p">)</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">table</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process the callback queue.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_signal</span> <span class="ow">and</span> <span class="n">result</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_signal</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">exit_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+                <span class="k">break</span>
+
+    <span class="c1"># def run(self):</span>
+        <span class="c1"># &quot;&quot;&quot;</span>
+        <span class="c1"># Run the NetworkMonitor (utilize data via callbacks or external logic).</span>
+        <span class="c1"># &quot;&quot;&quot;</span>
+        <span class="c1"># if not self.bpf:</span>
+        <span class="c1">#     self.console.print(&quot;[Error] BPF not initialized. Exiting.&quot;, style=&quot;bold red&quot;)</span>
+        <span class="c1">#     return</span>
+        <span class="c1">#</span>
+        <span class="c1"># self.console.print(&quot;Starting NetworkMonitor...&quot;, style=&quot;bold green&quot;)</span>
+        <span class="c1"># try:</span>
+        <span class="c1">#     # while not self.exit_event.is_set():</span>
+        <span class="c1">#     while self.is_running:</span>
+        <span class="c1">#</span>
+        <span class="c1">#         self.bpf.perf_buffer_poll(timeout=1000)</span>
+        <span class="c1">#         self._update_rates()</span>
+        <span class="c1">#         self._process_callbacks()</span>
+        <span class="c1">#         time.sleep(1 / self.refresh_rate)</span>
+        <span class="c1">#</span>
+        <span class="c1"># except SystemExit:</span>
+        <span class="c1">#     self.console.print(&quot;[bold yellow]Exiting NetworkMonitor...[/bold yellow]&quot;)</span>
+        <span class="c1">#     # self.is_running = False</span>
+        <span class="c1"># except KeyboardInterrupt:</span>
+        <span class="c1">#     self.console.print(&quot;Stopping NetworkMonitor.&quot;, style=&quot;bold yellow&quot;)</span>
+        <span class="c1">#</span>
+        <span class="c1"># finally:</span>
+        <span class="c1">#     self.is_running = False</span>
+        <span class="c1">#     self.console.print(&quot;[bold red]NetworkMonitor stopped.[/bold red]&quot;)</span>
+
+<div class="viewcode-block" id="ProcNetMonitor.run"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.ProcNetMonitor.run">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ProcNetMonitor를 실행합니다. `is_running`이 `True`인 동안 루프를 계속합니다.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[Error] BPF not initialized. Exiting.&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold red&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Starting NetworkMonitor...&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold green&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="o">.</span><span class="n">perf_buffer_poll</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_rates</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process_callbacks</span><span class="p">()</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_rate</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">SystemExit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold yellow]Exiting NetworkMonitor...[/bold yellow]&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Stopping NetworkMonitor.&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold yellow&quot;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold red]NetworkMonitor stopped.[/bold red]&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProcNetMonitor.run_live"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.ProcNetMonitor.run_live">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_live</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display real-time tables using Rich Live.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[Error] BPF not initialized. Exiting.&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold red&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">with</span> <span class="n">Live</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_generate_table</span><span class="p">(),</span> <span class="n">refresh_per_second</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">refresh_rate</span><span class="p">,</span> <span class="n">console</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="p">)</span> <span class="k">as</span> <span class="n">live</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="o">.</span><span class="n">perf_buffer_poll</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_rates</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_process_callbacks</span><span class="p">()</span>
+                    <span class="n">live</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_generate_table</span><span class="p">())</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_rate</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Stopping NetworkMonitor.&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold yellow&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcNetMonitor.update_data"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.ProcNetMonitor.update_data">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">update_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Poll eBPF events and update the process_network data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;BPF is not initialized.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># eBPF 이벤트 폴링</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bpf</span><span class="o">.</span><span class="n">perf_buffer_poll</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+        <span class="c1"># 네트워크 전송/수신 속도 갱신</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_rates</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProcNetMonitor.get_latest_network_data"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.ProcNetMonitor.get_latest_network_data">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_latest_network_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_n</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the latest network usage data, optionally limited to the top N processes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            top_n (int): Number of top processes to return.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Dict[str, Any]]: List of process network usage dictionaries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_data</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_top_n</span><span class="p">(</span><span class="n">top_n</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_n</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcNetMonitor.get_top_n"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.ProcNetMonitor.get_top_n">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_top_n</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the top N processes by network usage.</span>
+
+<span class="sd">        :param n: Number of top processes to retrieve. Defaults to self.top_n.</span>
+<span class="sd">        :return: List of top N processes sorted by (bytes_sent + bytes_recv).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">n</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_n</span>
+        <span class="k">with</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">():</span>
+            <span class="n">sorted_pids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">pid</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="s1">&#39;bytes_sent&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="s1">&#39;bytes_recv&#39;</span><span class="p">],</span>
+                <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">top_pids</span> <span class="o">=</span> <span class="n">sorted_pids</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span>
+            <span class="n">top_processes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">process_network</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span> <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="n">top_pids</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">top_processes</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle signals for cleanup.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Exiting... signal=</span><span class="si">{</span><span class="n">sig</span><span class="si">}</span><span class="s2">, frame=</span><span class="si">{</span><span class="n">frame</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold red&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="OverrideDNS"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.OverrideDNS">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">OverrideDNS</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Change the Domain Name using socket</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import net</span>
+<span class="sd">            net.OverrideDNS(domain=domain, ipaddr=ipaddr).set()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_dns_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">ipaddr</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">80</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dns_cache</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="n">ipaddr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prv_getaddrinfo</span> <span class="o">=</span> <span class="n">prev_getaddrinfo</span>
+
+<div class="viewcode-block" id="OverrideDNS.new_getaddrinfo"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.OverrideDNS.new_getaddrinfo">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">new_getaddrinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dns_cache</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pawn</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Forcing FQDN: </span><span class="si">{}</span><span class="s2"> to IP: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dns_cache</span><span class="p">[</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prv_getaddrinfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dns_cache</span><span class="p">[</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prv_getaddrinfo</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OverrideDNS.set"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.OverrideDNS.set">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">socket</span><span class="o">.</span><span class="n">getaddrinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_getaddrinfo</span></div>
+
+<div class="viewcode-block" id="OverrideDNS.unset"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.OverrideDNS.unset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">unset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">socket</span><span class="o">.</span><span class="n">getaddrinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prv_getaddrinfo</span></div></div>
+
+
+<div class="viewcode-block" id="get_public_ip"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.get_public_ip">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_public_ip</span><span class="p">(</span><span class="n">use_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The get_public_ip function returns the public IP address of the machine it is called on.</span>
+
+<span class="sd">    :param use_cache: Whether to use the cached public IP if available</span>
+<span class="sd">    :type use_cache: bool</span>
+
+<span class="sd">    :return: The public ip address of the server</span>
+
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import net</span>
+<span class="sd">            net.get_public_ip()</span>
+
+<span class="sd">            net.get_public_ip(use_cache=True)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">use_cache</span> <span class="ow">and</span> <span class="n">pawn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CACHED_PUBLIC_IP&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">pawn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CACHED_PUBLIC_IP&#39;</span><span class="p">)</span>
+
+        <span class="n">public_ip</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">jequest</span><span class="p">(</span><span class="s2">&quot;http://checkip.amazonaws.com&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">is_valid_ipv4</span><span class="p">(</span><span class="n">public_ip</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">use_cache</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">CACHED_PUBLIC_IP</span><span class="o">=</span><span class="n">public_ip</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">public_ip</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred while fetching Public IP address. Invalid IPv4 address - &#39;</span><span class="si">{</span><span class="n">public_ip</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred while fetching Public IP address. Invalid IPv4 address - &#39;</span><span class="si">{</span><span class="n">public_ip</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred while fetching Public IP address - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred while fetching Public IP address - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="FindFastestRegion"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.FindFastestRegion">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">FindFastestRegion</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aws_regions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="k">if</span> <span class="n">aws_regions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aws_regions</span> <span class="o">=</span> <span class="n">aws_regions</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aws_regions</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;Seoul&quot;</span><span class="p">:</span> <span class="s2">&quot;ap-northeast-2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Tokyo&quot;</span><span class="p">:</span> <span class="s2">&quot;ap-northeast-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Virginia&quot;</span><span class="p">:</span> <span class="s2">&quot;us-east-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Hongkong&quot;</span><span class="p">:</span> <span class="s2">&quot;ap-east-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Singapore&quot;</span><span class="p">:</span> <span class="s2">&quot;ap-southeast-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Mumbai&quot;</span><span class="p">:</span> <span class="s2">&quot;ap-south-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Frankfurt&quot;</span><span class="p">:</span> <span class="s2">&quot;eu-central-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Ohio&quot;</span><span class="p">:</span> <span class="s2">&quot;us-east-2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;California&quot;</span><span class="p">:</span> <span class="s2">&quot;us-west-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;US-West&quot;</span><span class="p">:</span> <span class="s2">&quot;us-west-2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Ceentral&quot;</span><span class="p">:</span><span class="s2">&quot;ca-central-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Ireland&quot;</span><span class="p">:</span> <span class="s2">&quot;eu-west-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;London&quot;</span><span class="p">:</span> <span class="s2">&quot;eu-west-2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Sydney&quot;</span><span class="p">:</span> <span class="s2">&quot;ap-southeast-2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;São Paulo&quot;</span><span class="p">:</span> <span class="s2">&quot;sa-east-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Beijing&quot;</span><span class="p">:</span> <span class="s2">&quot;cn-north-1&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+<div class="viewcode-block" id="FindFastestRegion.run"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.FindFastestRegion.run">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+        <span class="n">future</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">ensure_future</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find_fastest_region</span><span class="p">())</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="n">future</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sorted_results</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span></div>
+
+<div class="viewcode-block" id="FindFastestRegion.find_fastest_region"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.FindFastestRegion.find_fastest_region">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">find_fastest_region</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+            <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">region_name</span><span class="p">,</span> <span class="n">region_code</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aws_regions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://s3.</span><span class="si">{</span><span class="n">region_code</span><span class="si">}</span><span class="s1">.amazonaws.com/ping?x=%s&#39;</span> <span class="o">%</span> <span class="n">todaydate</span><span class="p">(</span><span class="s2">&quot;ms&quot;</span><span class="p">)</span>
+                <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">region_name</span><span class="p">)))</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FindFastestRegion.get_time"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.FindFastestRegion.get_time">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;NULL&quot;</span><span class="p">):</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">default_timer</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">response_text</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">response_time</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">elapsed</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(),</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">status_code</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">response_time</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">response_text</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">status_code</span> <span class="o">=</span> <span class="mi">999</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">default_timer</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">response_time</span><span class="p">,</span>
+            <span class="s2">&quot;run_time&quot;</span><span class="p">:</span> <span class="n">elapsed</span><span class="p">,</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">shorten_text</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+            <span class="c1"># &quot;text&quot;: response_text,</span>
+            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="n">status_code</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_time&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status_code&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="FindFastestRegion.sorted_results"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.FindFastestRegion.sorted_results">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">sorted_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;run_time&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FindFastestRegion.print_results"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.FindFastestRegion.print_results">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">PrintRichTable</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;fast_region&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fastest Region=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;region&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, time=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;run_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> sec&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AsyncPortScanner"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AsyncPortScanner</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Asynchronous Port Scanner class.</span>
+
+<span class="sd">    :param ip_range: Tuple of start and end IP addresses to scan.</span>
+<span class="sd">    :param port_range: Tuple of start and end ports to scan. Default is all ports (0, 65535).</span>
+<span class="sd">    :param max_concurrency: Maximum number of concurrent scans. Default is 30.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            scanner = AsyncPortScanner((&quot;192.168.0.1&quot;, &quot;192.168.0.255&quot;), (1, 1024), 50)</span>
+<span class="sd">            asyncio.run(scanner.scan_all())</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">port_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">65535</span><span class="p">),</span>
+                 <span class="n">max_concurrency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ping_timeout</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">fast_scan_ports</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">22</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">443</span><span class="p">],</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50000</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_ip</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_ip</span> <span class="o">=</span> <span class="n">ip_range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_port</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_port</span> <span class="o">=</span> <span class="n">port_range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scan_results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="n">max_concurrency</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ping_timeout</span> <span class="o">=</span> <span class="n">ping_timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fast_scan_ports</span> <span class="o">=</span> <span class="n">fast_scan_ports</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+
+<div class="viewcode-block" id="AsyncPortScanner.ping_host"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.ping_host">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ping_host</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">common_ports</span> <span class="o">=</span> <span class="p">[</span><span class="mi">22</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">443</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">common_ports</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">open_connection</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ping_timeout</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">ip</span>  <span class="c1"># 연결 성공, 호스트가 살아 있음</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># 해당 포트에 대한 연결 실패, 다음 포트 시도</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># 모든 시도 실패, 호스트가 닫혀 있음</span></div>
+
+<div class="viewcode-block" id="AsyncPortScanner.try_ping_host"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.try_ping_host">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">try_ping_host</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="n">Progress</span><span class="p">,</span> <span class="n">task_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">progress</span><span class="o">.</span><span class="n">advance</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fast_scan_ports</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">open_connection</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">task_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">progress</span><span class="o">.</span><span class="n">advance</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>  <span class="c1"># 성공적으로 핑을 완료하면 진행 상황을 업데이트합니다.</span>
+                <span class="k">return</span> <span class="n">ip</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
+                <span class="k">continue</span>  <span class="c1"># 해당 포트에서 연결 실패, 다음 포트로 계속 시도합니다.</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="AsyncPortScanner.scan_all"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.scan_all">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">scan_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fast_scan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fast_scan</span><span class="p">:</span>
+            <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">check_and_scan_host</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span> <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_ips</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wrap_scan</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_ips</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_port</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_port</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AsyncPortScanner.check_and_scan_host"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.check_and_scan_host">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_and_scan_host</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip</span><span class="p">):</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">ping_host</span><span class="p">(</span><span class="n">ip</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2"> is up, scanning ports...&quot;</span><span class="p">)</span>
+            <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">wrap_scan</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span> <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_port</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_port</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2"> is down, skipping...&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AsyncPortScanner.scan_port"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.scan_port">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">scan_port</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span><span class="p">):</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Scanning </span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2"> - Acquired semaphore, timeout=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">open_connection</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection successful: </span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timeout: </span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;Too many&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error scanning -&gt; [red]</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error scanning </span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="kc">False</span></div>
+            <span class="c1"># finally:</span>
+            <span class="c1">#     pawn.console.log(f&quot;Releasing semaphore: {ip}:{port}&quot;)</span>
+
+<div class="viewcode-block" id="AsyncPortScanner.calculate_scan_range"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.calculate_scan_range">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_scan_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">start_ip_int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ip_to_int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_ip</span><span class="p">)</span>
+        <span class="n">end_ip_int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ip_to_int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_ip</span><span class="p">)</span>
+        <span class="n">total_ips</span> <span class="o">=</span> <span class="n">end_ip_int</span> <span class="o">-</span> <span class="n">start_ip_int</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">total_ports</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_port</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_port</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">total_tasks</span> <span class="o">=</span> <span class="n">total_ips</span> <span class="o">*</span> <span class="n">total_ports</span>
+        <span class="k">return</span> <span class="n">start_ip_int</span><span class="p">,</span> <span class="n">end_ip_int</span><span class="p">,</span> <span class="n">total_tasks</span></div>
+
+<div class="viewcode-block" id="AsyncPortScanner.scan"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.scan">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fast_scan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="n">Progress</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ips_to_scan</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ips_to_scan</span><span class="p">(</span><span class="n">fast_scan</span><span class="p">,</span> <span class="n">progress</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fast_scan</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ips_to_scan</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;FAST SCAN&gt; Alive IPs: </span><span class="si">{</span><span class="n">ips_to_scan</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;FAST SCAN&gt; [red]No open servers found on ports </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fast_scan_ports</span><span class="si">}</span><span class="s2">.[/red]&quot;</span><span class="p">)</span>
+
+        <span class="n">total_ports</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_port</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_port</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">total_tasks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ips_to_scan</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_ports</span>
+        <span class="n">fast_scan_string</span> <span class="o">=</span> <span class="s2">&quot;FastScan&quot;</span> <span class="k">if</span> <span class="n">fast_scan</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">task_id</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[cyan]Scanning </span><span class="si">{</span><span class="n">fast_scan_string</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">total_tasks</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fast_scan</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alive IP: </span><span class="si">{</span><span class="n">ips_to_scan</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">ips_to_scan</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_port</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_port</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_scan</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">task_id</span><span class="p">)</span>
+                <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">:</span>
+                    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+                    <span class="n">tasks</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">tasks</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AsyncPortScanner.get_ips_to_scan"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.get_ips_to_scan">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_ips_to_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fast_scan</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="n">Progress</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">ips</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_ips</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fast_scan</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ips</span>
+
+        <span class="n">task_id</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="s2">&quot;Checking IPs...&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ips</span><span class="p">))</span>
+        <span class="n">ping_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">try_ping_host</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">task_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">ips</span><span class="p">]</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">ping_tasks</span><span class="p">)</span>
+        <span class="n">alive_ips</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">result</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">alive_ips</span></div>
+
+<div class="viewcode-block" id="AsyncPortScanner.wrap_scan"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.wrap_scan">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrap_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">task_id</span><span class="p">):</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_port</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_results</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_ips</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">start_int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ip_to_int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_ip</span><span class="p">)</span>
+        <span class="n">end_int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ip_to_int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_ip</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">int_to_ip</span><span class="p">(</span><span class="n">ip_int</span><span class="p">)</span> <span class="k">for</span> <span class="n">ip_int</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_int</span><span class="p">,</span> <span class="n">end_int</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="AsyncPortScanner.ip_to_int"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.ip_to_int">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ip_to_int</span><span class="p">(</span><span class="n">ip</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">octet</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">octet</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)))])</span></div>
+
+<div class="viewcode-block" id="AsyncPortScanner.int_to_ip"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.int_to_ip">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">int_to_ip</span><span class="p">(</span><span class="n">ip_int</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">((</span><span class="n">ip_int</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">i</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)))</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">results</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">is_open</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ip</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_results</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scan_results</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;open&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;closed&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+            <span class="k">if</span> <span class="n">is_open</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scan_results</span><span class="p">[</span><span class="n">ip</span><span class="p">][</span><span class="s2">&quot;open&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scan_results</span><span class="p">[</span><span class="n">ip</span><span class="p">][</span><span class="s2">&quot;closed&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AsyncPortScanner.get_results"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.get_results">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_results</span></div>
+
+<div class="viewcode-block" id="AsyncPortScanner.print_scan_results"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.print_scan_results">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_scan_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">ipaddr</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">parsed_data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">is_open</span><span class="p">,</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">view</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span> <span class="ow">or</span> <span class="n">view</span> <span class="o">==</span> <span class="n">is_open</span> <span class="ow">and</span> <span class="n">port</span><span class="p">:</span>
+                    <span class="c1"># pawn.console.print(f&quot;\t \[{is_open}] {port}&quot;)</span>
+                    <span class="n">parsed_data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> \[</span><span class="si">{</span><span class="n">is_open</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="c1"># is_data = True</span>
+
+            <span class="k">if</span> <span class="n">parsed_data</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">ipaddr</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AsyncPortScanner.run_scan"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.AsyncPortScanner.run_scan">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fast_scan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">Progress</span><span class="p">(</span>
+                <span class="n">TextColumn</span><span class="p">(</span><span class="s2">&quot;[bold blue]</span><span class="si">{task.description}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">),</span>
+                <span class="n">BarColumn</span><span class="p">(</span><span class="n">bar_width</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+                <span class="n">TextColumn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{task.completed}</span><span class="s2">/</span><span class="si">{task.total}</span><span class="s2"> • [progress.percentage]</span><span class="si">{task.percentage:&gt;3.0f}</span><span class="s2">%&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;•&quot;</span><span class="p">,</span>
+                <span class="n">TimeRemainingColumn</span><span class="p">(),</span>
+                <span class="n">transient</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Hide the progress bar when done</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">progress</span><span class="p">:</span>
+            <span class="c1"># asyncio.get_event_loop().run_until_complete(self.scan(progress))</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">fast_scan</span><span class="p">,</span> <span class="n">progress</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="get_local_ip"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.get_local_ip">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_local_ip</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Get the local IP address</span>
+
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import net</span>
+<span class="sd">            net.get_local_ip()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_DGRAM</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="s1">&#39;10.255.255.255&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">ipaddr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">ipaddr</span> <span class="o">=</span> <span class="s1">&#39;127.0.0.1&#39;</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">is_valid_ipv4</span><span class="p">(</span><span class="n">ipaddr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ipaddr</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;An error occurred while fetching Local IP address. Invalid IPv4 address&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;An error occurred while fetching Local IP address. Invalid IPv4 address&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_hostname"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.get_hostname">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_hostname</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Get the local hostname</span>
+
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import net</span>
+<span class="sd">            net.get_hostname()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="extract_host_port"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.extract_host_port">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">extract_host_port</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The extract_host_port function extracts the host and port from a string.</span>
+
+<span class="sd">    :param host: Extract the hostname from the url</span>
+<span class="sd">    :return: A tuple of the host and port number</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from pawnlib.resource import net</span>
+<span class="sd">        net.extract_host_port(&quot;http://127.0.0.1:8000&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">http_regex</span> <span class="o">=</span> <span class="s1">&#39;^((?P&lt;proto&gt;https?)(://))?(?P&lt;host&gt;[^:/ ]+).?(?P&lt;port&gt;[0-9]*).*&#39;</span>
+
+    <span class="n">regex_res</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">http_regex</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+    <span class="n">port</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">regex_res</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">regex_res</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;port&#39;</span><span class="p">):</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">regex_res</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;port&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">regex_res</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;proto&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">regex_res</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;proto&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;http&quot;</span><span class="p">:</span>
+                    <span class="n">port</span> <span class="o">=</span> <span class="mi">80</span>
+                <span class="k">elif</span> <span class="n">regex_res</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;proto&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;https&quot;</span><span class="p">:</span>
+                    <span class="n">port</span> <span class="o">=</span> <span class="mi">443</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">port</span> <span class="o">=</span> <span class="mi">80</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">regex_res</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;host&#39;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Regex] host=</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">, port=</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">regex_res</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span></div>
+
+
+<div class="viewcode-block" id="check_port"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.check_port">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">check_port</span><span class="p">(</span><span class="n">host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;udp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tcp&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns boolean with checks if the port is open</span>
+
+<span class="sd">    :param host: ipaddress os hostname</span>
+<span class="sd">    :param port: destination port number</span>
+<span class="sd">    :param timeout: timeout sec</span>
+<span class="sd">    :param protocol: type of protocol</span>
+<span class="sd">    :return: boolean</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import net</span>
+<span class="sd">            net.check_port()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Host must be specified. inputs: host=</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">protocol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;udp&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid protocol specified. Only &#39;tcp&#39; and &#39;udp&#39; are supported. inputs: </span><span class="si">{</span><span class="n">protocol</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">port</span><span class="p">:</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">extract_host_port</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red] Parsed from host -&gt; host=</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">, port=</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;host=</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">, port=</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">port</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">), protocol=</span><span class="si">{</span><span class="n">protocol</span><span class="si">}</span><span class="s2">, timeout=</span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">socket_protocol</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span> <span class="k">if</span> <span class="n">protocol</span> <span class="o">==</span> <span class="s2">&quot;tcp&quot;</span> <span class="k">else</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_DGRAM</span>
+
+    <span class="c1"># if timeout:</span>
+    <span class="c1">#     socket.setdefaulttimeout(float(timeout))  # seconds (float)</span>
+
+    <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket_protocol</span><span class="p">)</span> <span class="k">as</span> <span class="n">sock</span><span class="p">:</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">remove_http</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">sock</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>  <span class="c1"># Set timeout directly on the socket</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">connect_ex</span><span class="p">((</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[FAIL] </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[FAIL] </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[OK] Opened port -&gt; </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[FAIL] Closed port -&gt; </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="listen_socket"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.listen_socket">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">listen_socket</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a socket object and bind it to the host and port provided.</span>
+<span class="sd">    Listen for incoming connections on that socket, with a maximum of 5 connections in the queue.</span>
+
+<span class="sd">    :param host: str - hostname of the machine where the server is running</span>
+<span class="sd">    :param port: int - port number that the server will listen on</span>
+<span class="sd">    :return: socket - a socket object</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # create a socket object and bind it to localhost and port 8080</span>
+<span class="sd">            sock = listen_socket(&quot;localhost&quot;, 8080)</span>
+
+<span class="sd">            # listen for incoming connections</span>
+<span class="sd">            conn, addr = sock.accept()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+    <span class="n">sock</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
+    <span class="n">sock</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sock</span></div>
+
+
+<div class="viewcode-block" id="wait_for_port_open"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.wait_for_port_open">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">wait_for_port_open</span><span class="p">(</span><span class="n">host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;udp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="n">sleep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Wait for a port to open. Useful when writing scripts which need to wait for a server to be available.</span>
+
+<span class="sd">    :param host: hostname or ipaddress</span>
+<span class="sd">    :param port: port</span>
+<span class="sd">    :param timeout: timeout seconds (float)</span>
+<span class="sd">    :param protocol: tcp or udp</span>
+<span class="sd">    :param sleep: sleep fime seconds (float)</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.resource import net</span>
+<span class="sd">            net.wait_for_port_open(&quot;127.0.0.1&quot;, port)</span>
+
+<span class="sd">            ## ⠏  Wait for port open 127.0.0.1:9900 ... 6</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[bold green] Wait for port open[/bold green] </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2"> .........&quot;</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="k">as</span> <span class="n">status</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">check_port</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="n">protocol</span><span class="p">):</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[OK] Activate port -&gt; </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">app_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[OK] Activate port -&gt; </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">[cyan] </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">[/cyan]&quot;</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">sleep</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_location"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.get_location">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_location</span><span class="p">(</span><span class="n">ipaddress</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;https://ipinfo.io/widget/demo/</span><span class="si">{</span><span class="n">ipaddress</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;referer&#39;</span><span class="p">:</span> <span class="s1">&#39;https://ipinfo.io/&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;content-type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error getting location - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="get_location_with_ip_api"><a class="viewcode-back" href="../../../module/pawnlib.resource.html#pawnlib.resource.net.get_location_with_ip_api">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_location_with_ip_api</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;http://ip-api.com/json&quot;</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;content-type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error getting location - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

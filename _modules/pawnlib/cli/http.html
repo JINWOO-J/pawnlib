@@ -1,0 +1,667 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.cli.http &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.cli.http</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.cli.http</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.builder.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_banner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.__version__</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawn</span><span class="p">,</span> <span class="n">pconf</span><span class="p">,</span> <span class="n">one_time_run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">StackList</span><span class="p">,</span> <span class="n">ErrorCounter</span><span class="p">,</span>  <span class="n">is_json</span><span class="p">,</span> <span class="n">is_valid_url</span><span class="p">,</span> <span class="n">sys_exit</span><span class="p">,</span> <span class="n">Null</span><span class="p">,</span> <span class="n">remove_tags</span><span class="p">,</span> <span class="n">FlatDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.utils.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">CallHttp</span><span class="p">,</span> <span class="n">disable_ssl_warnings</span><span class="p">,</span> <span class="n">ALLOW_OPERATOR</span><span class="p">,</span> <span class="n">HttpInspect</span><span class="p">,</span> <span class="n">CheckSSL</span><span class="p">,</span> <span class="n">parse_auth</span><span class="p">,</span> <span class="n">parse_headers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolRunner</span><span class="p">,</span> <span class="n">send_slack</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">bcolors</span><span class="p">,</span> <span class="n">print_json</span><span class="p">,</span> <span class="n">is_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.input</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColoredHelpFormatter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">get_type_hints</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="n">script_name</span> <span class="o">=</span> <span class="s2">&quot;pawns&quot;</span>
+
+<span class="n">__description__</span> <span class="o">=</span> <span class="s1">&#39;This is a tool to measure RTT on HTTP/S requests.&#39;</span>
+
+<span class="n">http_config_example</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    # The configuration options are provided below. You can customize these settings in the &#39;http_config.ini&#39; file.</span>
+<span class="s2">    </span>
+<span class="s2">    [default]</span>
+<span class="s2">    success = status_code==200 </span>
+<span class="s2">    slack_url = </span>
+<span class="s2">    interval = 3</span>
+<span class="s2">    method = get</span>
+<span class="s2">    ; data = sdsd</span>
+<span class="s2">    data = {&quot;sdsd&quot;: &quot;sd222sd&quot;}</span>
+<span class="s2">    </span>
+<span class="s2">    [post]</span>
+<span class="s2">    url = http://httpbin.org/post</span>
+<span class="s2">    method = post</span>
+<span class="s2">    </span>
+<span class="s2">    [http_200_ok]</span>
+<span class="s2">    url = http://httpbin.org/status/200</span>
+<span class="s2">    success = status_code==200</span>
+<span class="s2">    </span>
+<span class="s2">    [http_300_ok_and_2ms_time]</span>
+<span class="s2">    url = http://httpbin.org/status/400</span>
+<span class="s2">    success = [&#39;status_code==300&#39;, &#39;response_time&lt;0.02&#39;]</span>
+<span class="s2">        </span>
+<span class="s2">    [http_400_ok]</span>
+<span class="s2">    url = http://httpbin.org/status/400</span>
+<span class="s2">    success = [&quot;status_code==400&quot;]</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+<span class="n">__epilog__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;This script provides various options to check the HTTP status of URLs. </span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;Usage examples:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;  1. Basic usage:  </span><span class="se">\n\t</span><span class="s2">`</span><span class="si">{</span><span class="n">script_name</span><span class="si">}</span><span class="s2"> http https://example.com`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;  2. Verbose mode: </span><span class="se">\n\t</span><span class="s2">`</span><span class="si">{</span><span class="n">script_name</span><span class="si">}</span><span class="s2"> http https://example.com -v`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;  3. Using custom headers and POST method: </span><span class="se">\n\t</span><span class="s2">`</span><span class="si">{</span><span class="n">script_name</span><span class="si">}</span><span class="s2"> http https://example.com -m POST --headers &#39;</span><span class="se">{{\&quot;</span><span class="s2">Content-Type</span><span class="se">\&quot;</span><span class="s2">: </span><span class="se">\&quot;</span><span class="s2">application/json</span><span class="se">\&quot;}}</span><span class="s2">&#39; --data &#39;</span><span class="se">{{\&quot;</span><span class="s2">param</span><span class="se">\&quot;</span><span class="s2">: </span><span class="se">\&quot;</span><span class="s2">value</span><span class="se">\&quot;}}</span><span class="s2">&#39;` </span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;  4. Ignoring SSL verification and setting a custom timeout: </span><span class="se">\n\t</span><span class="s2">`</span><span class="si">{</span><span class="n">script_name</span><span class="si">}</span><span class="s2"> http https://example.com --ignore-ssl True --timeout 5`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;  5. Checking with specific success criteria and logical operator: </span><span class="se">\n\t</span><span class="s2">`</span><span class="si">{</span><span class="n">script_name</span><span class="si">}</span><span class="s2"> http https://example.com --success &#39;status_code==200&#39; &#39;response_time&lt;2&#39; --logical-operator and`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;  6. Running with a custom config file and interval: </span><span class="se">\n\t</span><span class="s2">`</span><span class="si">{</span><span class="n">script_name</span><span class="si">}</span><span class="s2"> http https://example.com -c http_config.ini -i 3`</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;  7. Setting maximum workers and stack limit: </span><span class="se">\n\t</span><span class="si">{</span><span class="n">script_name</span><span class="si">}</span><span class="s2"> http https://example.com -w 5 --stack-limit 10</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;  8. Dry run without actual HTTP request: </span><span class="se">\n\t</span><span class="si">{</span><span class="n">script_name</span><span class="si">}</span><span class="s2"> http https://example.com --dry-run</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;  9. Sending notifications to a Slack URL on failure: </span><span class="se">\n\t</span><span class="si">{</span><span class="n">script_name</span><span class="si">}</span><span class="s2"> http https://example.com --slack-url &#39;https://hooks.slack.com/services/...&#39;</span><span class="se">\n\n\n</span><span class="s2">&quot;</span>
+
+    <span class="sa">f</span><span class="s2">&quot; 10. Checking blockheight increase: </span><span class="se">\n\t</span><span class="s2">`</span><span class="si">{</span><span class="n">script_name</span><span class="si">}</span><span class="s2"> http http://test-node-01:26657/status --blockheight-key </span><span class="se">\&quot;</span><span class="s2">result.sync_info.latest_block_height</span><span class="se">\&quot;</span><span class="s2"> -i 5`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+
+    <span class="s2">&quot;Note:  </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;   .. line-block:: </span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">http_config_example</span><span class="si">}</span><span class="se">\n\n\n</span><span class="s2">&quot;</span>
+    
+    <span class="sa">f</span><span class="s2">&quot;For more details, use the -h or --help flag.&quot;</span>
+<span class="p">)</span>
+
+<div class="viewcode-block" id="SuccessCriteria"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.SuccessCriteria">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SuccessCriteria</span><span class="p">:</span>
+<div class="viewcode-block" id="SuccessCriteria.from_string"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.SuccessCriteria.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_string</span><span class="p">(</span><span class="n">criteria_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s+(?=[a-zA-Z_]+)&#39;</span><span class="p">,</span> <span class="n">criteria_string</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AppConfig"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.AppConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AppConfig</span><span class="p">:</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;config.ini&quot;</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">quiet</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="c1"># method: str = &quot;GET&quot;</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span>
+    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+    <span class="c1"># success: List[str] = field(default_factory=lambda: [&quot;status_code==200&quot;])</span>
+    <span class="n">success</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span>
+    <span class="c1"># success: List = []</span>
+    <span class="n">logical_operator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;and&quot;</span>
+    <span class="n">ignore_ssl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">headers</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">stack_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="n">section_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
+    <span class="n">total_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">error_stack_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">fail_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">response_time</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">StackList</span><span class="p">())</span>
+
+    <span class="n">dynamic_increase_stack_limit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">slack_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="c1"># blockheight_key: str = &quot;&quot;</span>
+    <span class="n">blockheight_key</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">blockheight_stack</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">StackList</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="CustomArgumentParser"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.CustomArgumentParser">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CustomArgumentParser</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+<div class="viewcode-block" id="CustomArgumentParser.error"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.CustomArgumentParser.error">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="n">sys_exit</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="convert_type"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.convert_type">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">convert_type</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">to_type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;주어진 값을 to_type 타입으로 변환합니다.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">to_type</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># 이전에 정의한 str2bool 함수 사용</span>
+    <span class="k">elif</span> <span class="n">to_type</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="n">to_type</span> <span class="o">==</span> <span class="n">List</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">to_type</span> <span class="o">==</span> <span class="nb">dict</span> <span class="ow">or</span> <span class="n">to_type</span> <span class="o">==</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">to_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convert_value"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.convert_value">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">convert_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">target_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_type</span><span class="p">,</span> <span class="s1">&#39;__origin__&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">target_type</span><span class="o">.</span><span class="n">__origin__</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_convert_to_list</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">target_type</span><span class="o">.</span><span class="n">__args__</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">target_type</span><span class="o">.</span><span class="n">__origin__</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_convert_to_dict</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">target_type</span><span class="o">.</span><span class="n">__args__</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>  <span class="c1"># 기타 제네릭 타입에 대한 처리</span>
+
+    <span class="c1"># 기본 타입 (예: int, str)에 대한 처리</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">target_type</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">target_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span>  <span class="c1"># 이미 올바른 타입일 경우</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_to_list</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">item_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">parsed_list</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+            <span class="n">parsed_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s+(?=[a-zA-Z_]+)&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">parsed_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">convert_value</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">item_type</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">parsed_list</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_to_dict</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">key_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">,</span> <span class="n">value_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">parsed_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">parsed_dict</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="n">convert_value</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">key_type</span><span class="p">):</span> <span class="n">convert_value</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">parsed_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.get_parser">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_parser</span><span class="p">():</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">CustomArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;httping&#39;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="n">__epilog__</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">ColoredHelpFormatter</span>
+    <span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="get_arguments"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.get_arguments">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;URL to be checked&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--config-file&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the configuration file. Defaults to &quot;config.ini&quot;.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;config.ini&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Enables verbose mode. Higher values increase verbosity level. Default is 1.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-q&#39;</span><span class="p">,</span> <span class="s1">&#39;--quiet&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Enables quiet mode. Suppresses all messages. Default is 0.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="s1">&#39;--interval&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Interval time in seconds between checks. Default is 1 second.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;--method&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;HTTP method to use (e.g., GET, POST). Default is &quot;GET&quot;.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="s1">&#39;--timeout&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Timeout in seconds for each HTTP request. Default is 10 seconds.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="s1">&#39;--base-dir&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Base directory for httping operations. Default is the current working directory.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--success&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Criteria for success. Can specify multiple criteria. Default is [&quot;status_code==200&quot;].&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;status_code==200&#39;</span><span class="p">])</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--logical-operator&#39;</span><span class="p">,</span>
+                        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Logical operator for evaluating success criteria. Choices are &quot;and&quot;, &quot;or&quot;. Default is &quot;and&quot;.&#39;</span><span class="p">,</span>
+                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;and&quot;</span><span class="p">,</span> <span class="s2">&quot;or&quot;</span><span class="p">],</span>
+                        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;and&quot;</span>
+                        <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--ignore-ssl&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">str2bool</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Ignores SSL certificate validation if set to True. Default is True.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--data&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Data to be sent in the HTTP request body. Expected in JSON format. Default is an empty dictionary.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">{})</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--headers&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;HTTP headers to be sent with the request. Expected in JSON format. Default is an empty dictionary.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">{})</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="s1">&#39;--workers&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Maximum number of worker processes. Default is 10.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--stack-limit&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Error stack limit. Default is 5.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--dynamic-increase-stack-limit&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">str2bool</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Dynamically increases the error stack limit if set to True. Default is True.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--slack-url&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;URL for sending notifications to Slack. Optional.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--log-level&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Log level.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;info&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-bk&#39;</span><span class="p">,</span> <span class="s1">&#39;--blockheight-key&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;JSON key to extract the blockheight information, e.g., &#39;result.sync_info.latest_block_height&#39;. &quot;</span>
+                                                            <span class="s2">&quot;The script will check if the blockheight at this path is increasing.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--dry-run&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Executes a dry run without making actual HTTP requests. Default is False.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="check_url_process"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.check_url_process">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">check_url_process</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">url</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">one_time_run</span><span class="p">()</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">slack_url</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">_send_slack</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">slack_url</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Starting HTTPING - </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">section_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg_text</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+
+    <span class="n">check_url</span> <span class="o">=</span> <span class="n">CallHttp</span><span class="p">(</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">timeout</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">payload</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">headers</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span>
+        <span class="n">success_criteria</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">success</span><span class="p">,</span>
+        <span class="n">success_operator</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">logical_operator</span><span class="p">,</span>
+        <span class="n">ignore_ssl</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">ignore_ssl</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">total_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">parsed_response</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">verbose</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">check_url</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">response_time</span> <span class="o">=</span> <span class="n">check_url</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">elapsed</span>
+
+    <span class="n">config</span><span class="o">.</span><span class="n">response_time</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">response_time</span><span class="p">)</span>
+    <span class="n">avg_response_time</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">response_time</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">max_response_time</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">response_time</span><span class="o">.</span><span class="n">max</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">min_response_time</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">response_time</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">status_code</span> <span class="o">=</span> <span class="n">check_url</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">fail_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">count_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;CER:</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">error_stack_count</span><span class="si">}</span><span class="s1">/[red]ER:</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">fail_count</span><span class="si">}</span><span class="s1">[/red]/SQ:</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">total_count</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">count_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;CER:</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">error_stack_count</span><span class="si">}</span><span class="s1">/ER:</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">fail_count</span><span class="si">}</span><span class="s1">/SQ:</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">total_count</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">blockheight_key</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">check_url</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+        <span class="n">flat_json</span> <span class="o">=</span> <span class="n">FlatDict</span><span class="p">(</span><span class="n">check_url</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">)</span>
+        <span class="n">blockheight_key</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">blockheight_key</span>
+        <span class="n">last_blockheight</span> <span class="o">=</span> <span class="n">flat_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockheight_key</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">last_blockheight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">last_blockheight</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">last_blockheight</span><span class="p">)</span>
+            <span class="n">check_block_result</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">blockheight_stack</span><span class="o">.</span><span class="n">check_and_push</span><span class="p">(</span><span class="n">last_blockheight</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">check_block_result</span><span class="p">:</span>
+                <span class="n">handle_failure_on_check_url</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Blockheight &#39;</span><span class="si">{</span><span class="n">blockheight_key</span><span class="si">}</span><span class="s2">&#39; did not increase =&gt; </span><span class="si">{</span><span class="n">last_blockheight</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">check_url</span><span class="p">)</span>
+
+            <span class="n">parsed_response</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">blockheight_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">last_blockheight</span><span class="si">}</span><span class="s2">, &quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">handle_failure_on_check_url</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Blockheight key &#39;</span><span class="si">{</span><span class="n">blockheight_key</span><span class="si">}</span><span class="s2">&#39; not found in JSON response&quot;</span><span class="p">,</span> <span class="n">check_url</span><span class="p">)</span>
+    <span class="c1"># else:</span>
+    <span class="c1">#     handle_failure_on_check_url(config, f&quot;Invalid blockheight key or JSON response structure, &quot;</span>
+    <span class="c1">#                                         f&quot;blockheight_key={config.blockheight_key} &quot;</span>
+    <span class="c1">#                                         f&quot;response={type(check_url.response.json)}&quot;, check_url)</span>
+
+    <span class="c1"># message = f&quot;&lt;{count_msg}&gt; name={args.section_name}, url={args.url}, {parsed_response}&quot; \</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">_name_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">section_name</span><span class="si">}</span><span class="s2">, &quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_name_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="n">count_msg</span><span class="si">}</span><span class="s2">&gt; </span><span class="si">{</span><span class="n">_name_string</span><span class="si">}</span><span class="s2">url=&#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&#39;, </span><span class="si">{</span><span class="n">parsed_response</span><span class="si">}</span><span class="s2">&quot;</span> \
+              <span class="sa">f</span><span class="s2">&quot;status=</span><span class="si">{</span><span class="n">status_code</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">response_time</span><span class="si">:</span><span class="s2">&gt;4</span><span class="si">}</span><span class="s2">ms &quot;</span> \
+              <span class="sa">f</span><span class="s2">&quot;(avg: </span><span class="si">{</span><span class="n">avg_response_time</span><span class="si">}</span><span class="s2">, max: </span><span class="si">{</span><span class="n">max_response_time</span><span class="si">}</span><span class="s2">, min: </span><span class="si">{</span><span class="n">min_response_time</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">if</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">status_code</span> <span class="o">!=</span> <span class="mi">999</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">detail</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; 📄[i]</span><span class="si">{</span><span class="n">check_url</span><span class="o">.</span><span class="n">response</span><span class="si">}</span><span class="s2">, criteria: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">success</span><span class="si">}</span><span class="s2">, operator: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">logical_operator</span><span class="si">}</span><span class="s2">[/i]&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">detail</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}{</span><span class="n">detail</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2"> 😞 &quot;</span>
+
+    <span class="k">if</span> <span class="n">check_url</span><span class="o">.</span><span class="n">is_success</span><span class="p">():</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">app_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">remove_tags</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[ OK ] </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+        <span class="n">print_response_if_verbose</span><span class="p">(</span><span class="n">check_url</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">handle_failure_on_check_url</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">check_url</span><span class="p">)</span>
+        <span class="n">print_response_if_verbose</span><span class="p">(</span><span class="n">check_url</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">interval</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">interval</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;ok&quot;</span></div>
+
+<div class="viewcode-block" id="print_response_if_verbose"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.print_response_if_verbose">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_response_if_verbose</span><span class="p">(</span><span class="n">check_url</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">dry_run</span><span class="p">)</span>  <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">check_url</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">):</span>
+        <span class="n">check_url</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span> <span class="o">=</span> <span class="n">FlatDict</span><span class="p">(</span><span class="n">check_url</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">check_url</span><span class="o">.</span><span class="n">print_http_response</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="handle_failure_on_check_url"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.handle_failure_on_check_url">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">handle_failure_on_check_url</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">check_url</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">fail_count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">error_stack_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">error_stack_count</span> <span class="o">&gt;=</span> <span class="n">args</span><span class="o">.</span><span class="n">stack_limit</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">remove_tags</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[FAIL][OVERFLOW]</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">error_stack_count</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">stack_limit</span><span class="si">}</span><span class="s2"> &quot;</span>
+                                            <span class="sa">f</span><span class="s2">&quot;Error Stack Count: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">error_stack_count</span><span class="si">}</span><span class="s2">, SEND_SLACK&quot;</span><span class="p">))</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">error_stack_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dynamic_increase_stack_limit</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">stack_limit</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">stack_limit</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">_send_slack</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">slack_url</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg_text</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">remove_tags</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[FAIL] </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">, Error=</span><span class="si">{</span><span class="n">check_url</span><span class="o">.</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="set_default_counter"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.set_default_counter">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">set_default_counter</span><span class="p">(</span><span class="n">section_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">section_name</span> <span class="o">=</span> <span class="n">section_name</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">response_time</span> <span class="o">=</span> <span class="n">StackList</span><span class="p">()</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">blockheight_stack</span> <span class="o">=</span> <span class="n">StackList</span><span class="p">()</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">error_stack_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">total_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">fail_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">args</span></div>
+
+
+<div class="viewcode-block" id="apply_config_values"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.apply_config_values">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">apply_config_values</span><span class="p">(</span><span class="n">config_instance</span><span class="p">,</span> <span class="n">section_name</span><span class="p">,</span> <span class="n">section_value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;섹션 값들을 AppConfig 인스턴스에 적용합니다.&quot;&quot;&quot;</span>
+    <span class="n">type_hints</span> <span class="o">=</span> <span class="n">get_type_hints</span><span class="p">(</span><span class="n">AppConfig</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">section_name</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">config_instance</span><span class="p">,</span> <span class="s2">&quot;section_name&quot;</span><span class="p">,</span> <span class="n">section_name</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">conf_key</span><span class="p">,</span> <span class="n">conf_value</span> <span class="ow">in</span> <span class="n">section_value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">conf_key</span> <span class="ow">in</span> <span class="n">type_hints</span><span class="p">:</span>
+            <span class="c1"># 필드 타입에 맞게 값을 변환</span>
+            <span class="n">converted_value</span> <span class="o">=</span> <span class="n">convert_value</span><span class="p">(</span><span class="n">conf_value</span><span class="p">,</span> <span class="n">type_hints</span><span class="p">[</span><span class="n">conf_key</span><span class="p">])</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;conf_value=</span><span class="si">{</span><span class="n">conf_value</span><span class="si">}</span><span class="s2">, type_hints=</span><span class="si">{</span><span class="n">type_hints</span><span class="p">[</span><span class="n">conf_key</span><span class="p">]</span><span class="si">}</span><span class="s2">, converted_value=</span><span class="si">{</span><span class="n">converted_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Update argument from </span><span class="si">{</span><span class="n">config_instance</span><span class="si">}</span><span class="s2">, &lt;</span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">&gt; </span><span class="si">{</span><span class="n">conf_key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">conf_value</span><span class="si">}</span><span class="s2"> &lt;ignore args=</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="n">conf_key</span><span class="p">,</span><span class="w"> </span><span class="kc">None</span><span class="p">)</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">config_instance</span><span class="p">,</span> <span class="n">conf_key</span><span class="p">,</span> <span class="n">converted_value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config_instance</span></div>
+
+
+<div class="viewcode-block" id="load_and_verify_config"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.load_and_verify_config">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">load_and_verify_config</span><span class="p">():</span>
+    <span class="n">pconfig</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">PAWN_CONFIG</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">PAWN_CONFIG_FILE</span>
+    <span class="n">pconf_dict</span> <span class="o">=</span> <span class="n">pconfig</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">is_file</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found config file=</span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pconf_dict</span><span class="p">:</span>
+            <span class="n">sys_exit</span><span class="p">(</span><span class="s2">&quot;Invalid config file. Exiting...&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pconf_dict</span></div>
+
+
+<div class="viewcode-block" id="generate_task_from_config"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.generate_task_from_config">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">generate_task_from_config</span><span class="p">():</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">pconf_dict</span> <span class="o">=</span> <span class="n">load_and_verify_config</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">pconf_dict</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">section_name</span><span class="p">,</span> <span class="n">section_value</span> <span class="ow">in</span> <span class="n">pconf_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">config_instance</span> <span class="o">=</span> <span class="n">AppConfig</span><span class="p">()</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;section_name=</span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">, value=</span><span class="si">{</span><span class="n">section_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># args = set_default_counter(section_name)</span>
+            <span class="n">_config_instance</span> <span class="o">=</span> <span class="n">apply_config_values</span><span class="p">(</span><span class="n">config_instance</span><span class="p">,</span> <span class="n">section_name</span><span class="p">,</span> <span class="n">section_value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_config_instance</span><span class="o">.</span><span class="n">url</span> <span class="ow">and</span> <span class="n">_config_instance</span><span class="o">.</span><span class="n">url</span> <span class="o">!=</span> <span class="s2">&quot;http&quot;</span><span class="p">:</span>
+                <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_config_instance</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">section_name</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">default_config</span><span class="o">=</span><span class="n">_config_instance</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">set_default_counter</span><span class="p">()]</span>
+
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">fill_default_config_values</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+
+    <span class="n">validate_task_exit_on_failure</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tasks</span></div>
+
+<div class="viewcode-block" id="fill_default_config_values"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.fill_default_config_values">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">fill_default_config_values</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">method</span><span class="p">:</span>
+            <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;GET&quot;</span>
+
+    <span class="n">ignore_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;log_level&quot;</span><span class="p">,</span> <span class="s2">&quot;dry_run&quot;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">args_key</span><span class="p">,</span> <span class="n">args_value</span> <span class="ow">in</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="k">if</span> <span class="n">args_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ignore_keys</span> <span class="ow">and</span> <span class="n">args_value</span><span class="p">:</span>
+            <span class="n">_default_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">,</span> <span class="n">args_key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_default_value</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Change default value &#39;</span><span class="si">{</span><span class="n">args_key</span><span class="si">}</span><span class="s2">&#39; =&gt; </span><span class="si">{</span><span class="n">args_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">,</span> <span class="n">args_key</span><span class="p">,</span> <span class="n">args_value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">,</span> <span class="n">args_key</span><span class="p">)</span> <span class="o">!=</span> <span class="n">args_value</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Priority args </span><span class="si">{</span><span class="n">_default_value</span><span class="si">}</span><span class="s2"> =&gt; </span><span class="si">{</span><span class="n">args_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="p">,</span> <span class="n">args_key</span><span class="p">,</span> <span class="n">args_value</span><span class="p">)</span>
+
+
+    <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_default_key</span><span class="p">,</span> <span class="n">_default_value</span>  <span class="ow">in</span>  <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">default_config</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">_default_key</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">_default_key</span><span class="p">,</span> <span class="n">_default_value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tasks</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_send_slack</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">msg_text</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">send_user_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">msg_level</span><span class="o">=</span><span class="s1">&#39;info&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">send_user_name</span><span class="p">:</span>
+        <span class="n">send_user_name</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">app_name</span>
+
+    <span class="k">if</span> <span class="n">url</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Send slack&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">send_slack</span><span class="p">(</span>
+            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+            <span class="n">msg_text</span><span class="o">=</span><span class="n">msg_text</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">send_user_name</span><span class="o">=</span><span class="n">send_user_name</span><span class="p">,</span>
+            <span class="n">msg_level</span><span class="o">=</span><span class="n">msg_level</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="print_banner"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.print_banner">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_banner</span><span class="p">():</span>
+    <span class="n">banner</span> <span class="o">=</span> <span class="n">generate_banner</span><span class="p">(</span>
+        <span class="n">app_name</span><span class="o">=</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">app_name</span><span class="p">,</span>
+        <span class="n">author</span><span class="o">=</span><span class="s2">&quot;jinwoo&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__description__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; - base_dir    : </span><span class="si">{</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">base_dir</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> 
+                    <span class="sa">f</span><span class="s2">&quot; - logs_dir    : </span><span class="si">{</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">/logs </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;graffiti&quot;</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">_version</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">banner</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validate_task_exit_on_failure"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.validate_task_exit_on_failure">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">validate_task_exit_on_failure</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="n">sys_exit</span><span class="p">(</span><span class="s2">&quot;Task not found&quot;</span><span class="p">)</span>
+    <span class="n">is_least_one_url</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="c1"># if is_valid_url(task.url, strict=False) and task.url != &quot;http&quot;:</span>
+        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">url</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">url</span> <span class="o">!=</span> <span class="s2">&quot;http&quot;</span><span class="p">:</span>
+            <span class="n">is_least_one_url</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid url: name=</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">section_name</span><span class="si">}</span><span class="s2">, url=</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_least_one_url</span><span class="p">:</span>
+        <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args_parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Requires at least one valid URL. The URL argument must be in the first position.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.http.main">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">app_name</span> <span class="o">=</span> <span class="s1">&#39;httping&#39;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;args=</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">, unknown=</span><span class="si">{</span><span class="n">unknown</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">config_file</span>
+
+    <span class="n">is_hide_line_number</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="n">stdout</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">PAWN_CONFIG_FILE</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
+        <span class="n">PAWN_PATH</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">base_dir</span><span class="p">,</span>
+        <span class="n">PAWN_LOGGER</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">log_level</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">log_level</span><span class="p">,</span>
+            <span class="n">stdout_level</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">log_level</span><span class="p">,</span>
+            <span class="n">log_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">/logs&quot;</span><span class="p">,</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span>
+            <span class="n">use_hook_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">show_path</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="c1">#hide line numbers</span>
+        <span class="p">),</span>
+        <span class="n">PAWN_CONSOLE</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">redirect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">log_path</span><span class="o">=</span><span class="n">is_hide_line_number</span><span class="p">,</span> <span class="c1"># hide line number on the right side</span>
+        <span class="p">),</span>
+        <span class="n">args_parser</span><span class="o">=</span><span class="n">parser</span><span class="p">,</span>
+        <span class="n">app_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">try_pass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">last_execute_point</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;response_time&quot;</span><span class="p">:</span> <span class="n">StackList</span><span class="p">(),</span>
+        <span class="p">},</span>
+        <span class="n">fail_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">total_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">default_config</span><span class="o">=</span><span class="p">{},</span>
+
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="n">PAWN_LOGGER</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+                <span class="n">stdout_level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">print_banner</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ignore_ssl</span><span class="p">:</span>                
+        <span class="n">disable_ssl_warnings</span><span class="p">()</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">generate_task_from_config</span><span class="p">()</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span><span class="p">)</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start httping ... url_count=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;If you want to see more logs, use the [yellow]-v[/yellow] option&quot;</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tasks=</span><span class="si">{</span><span class="n">tasks</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+            <span class="n">check_url_process</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">runner</span> <span class="o">=</span> <span class="n">ThreadPoolRunner</span><span class="p">(</span>
+            <span class="n">func</span><span class="o">=</span><span class="n">check_url_process</span><span class="p">,</span>
+            <span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span><span class="p">,</span>
+            <span class="n">max_workers</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">workers</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">sleep</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">interval</span>
+        <span class="p">)</span>
+        <span class="n">runner</span><span class="o">.</span><span class="n">forever_run</span><span class="p">()</span></div>
+
+<span class="n">main</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__description__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__epilog__</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

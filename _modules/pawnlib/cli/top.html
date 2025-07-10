@@ -1,0 +1,566 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.cli.top &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.cli.top</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.cli.top</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.builder.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_banner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.__version__</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawn</span><span class="p">,</span> <span class="n">pconf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StackList</span><span class="p">,</span> <span class="n">list_to_oneline_string</span><span class="p">,</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">shorten_text</span><span class="p">,</span> <span class="n">get_procfs_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.resource</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SystemMonitor</span><span class="p">,</span> <span class="n">get_cpu_load</span><span class="p">,</span> <span class="n">get_interface_ips</span><span class="p">,</span> <span class="n">get_platform_info</span><span class="p">,</span>
+    <span class="n">get_mem_info</span><span class="p">,</span> <span class="n">get_netstat_count</span><span class="p">,</span> <span class="n">get_hostname</span><span class="p">,</span> <span class="n">ProcessMonitor</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.models.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">CriticalText</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.resource.net</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcNetMonitor</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">Layout</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.live</span><span class="w"> </span><span class="kn">import</span> <span class="n">Live</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.align</span><span class="w"> </span><span class="kn">import</span> <span class="n">Align</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.panel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Panel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich</span><span class="w"> </span><span class="kn">import</span> <span class="n">box</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">todaydate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.input.prompt</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomArgumentParser</span><span class="p">,</span> <span class="n">ColoredHelpFormatter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="n">__description__</span> <span class="o">=</span> <span class="s2">&quot;A simple and powerful tool for monitoring server resources in real time.&quot;</span>
+
+<span class="n">__epilog__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;This tool is a comprehensive solution for monitoring your server&#39;s resource usage. </span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Features include real-time tracking of network traffic, CPU, memory, and disk usage, </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;making it an indispensable tool for system administrators and DevOps professionals.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Here are some usage examples to get you started:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  1. **Basic Monitoring:** Monitor system resources with default settings. </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     Example: `pawns top`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  2. **Detailed View:** Use `-v` to increase verbosity and get more detailed logs.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     Example: `pawns top -v`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  3. **Minimal Output:** Use `-q` for quiet mode to suppress standard output.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     Example: `pawns top -q`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  4. **Custom Update Interval:** Adjust the refresh rate with `-i` to set the interval in seconds.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     Example: `pawns top -i 5`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  5. **Output Formats:** Choose between &#39;live&#39; and &#39;line&#39; output styles with `-t`.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     Example: `pawns top -t live`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  6. **Network-Specific Monitoring:** Focus solely on network traffic and protocols.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     Example: `pawns top net`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  7. **Advanced Filters:** Use advanced options to filter processes by PID, name, or network protocols.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     Example: `pawns top proc --pid-filter 1234 --protocols tcp udp`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Key options:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  --top-n              Specify the number of top processes to display.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  --refresh-rate       Set the data refresh rate in seconds.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  --unit               Choose the unit for network traffic (e.g., Mbps, Gbps).</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  --group-by           Group processes by PID or name.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;This flexibility allows you to tailor the tool to your specific needs. </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;For more detailed usage, run `--help` or refer to the documentation.&quot;</span>
+<span class="p">)</span>
+
+<span class="n">PROCFS_PATH</span> <span class="o">=</span> <span class="n">get_procfs_path</span><span class="p">()</span>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.top.get_parser">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">CustomArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;monitor&#39;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="n">__epilog__</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">ColoredHelpFormatter</span>
+    <span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="get_arguments"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.top.get_arguments">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;command&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;command to execute. For example, &quot;net&quot; retrieves network information.&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;resource&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--config-file&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;config.ini&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;verbose mode. view level (default: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-q&#39;</span><span class="p">,</span> <span class="s1">&#39;--quiet&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Quiet mode. Dont show any messages. (default: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="s1">&#39;--interval&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;interval sleep time seconds. (default: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="s1">&#39;--base-dir&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;base dir for httping (default: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="s1">&#39;--print-type&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;printing type  </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;live&quot;</span><span class="p">,</span> <span class="s2">&quot;layout&quot;</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="p">])</span>
+
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--top-n&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of top processes to display in the table. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># parser.add_argument(</span>
+    <span class="c1">#     &#39;--refresh-rate&#39;, type=int, default=2,</span>
+    <span class="c1">#     help=&quot;The data refresh rate in seconds. Default: %(default)s.&quot;</span>
+    <span class="c1"># )</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--group-by&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;pid&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pid&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Criteria for grouping processes (e.g., &#39;pid&#39; or &#39;name&#39;). Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--unit&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;Mbps&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bps&#39;</span><span class="p">,</span> <span class="s1">&#39;Kbps&#39;</span><span class="p">,</span> <span class="s1">&#39;Mbps&#39;</span><span class="p">,</span> <span class="s1">&#39;Gbps&#39;</span><span class="p">,</span> <span class="s1">&#39;Tbps&#39;</span><span class="p">,</span> <span class="s1">&#39;Pbps&#39;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Unit for displaying network traffic (e.g., &#39;bps&#39;, &#39;Kbps&#39;, &#39;Mbps&#39;, &#39;Gbps&#39;, &#39;Tbps&#39;, &#39;Pbps&#39;). Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--protocols&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;udp&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List of protocols to monitor. Defaults to </span><span class="si">%(default)s</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--pid-filter&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filter processes by specific process IDs.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--proc-filter&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filter processes by name.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--min-bytes-threshold&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Minimum bytes threshold for displaying processes. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--callback&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to a user-defined Python script to execute when data is updated.&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="print_banner"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.top.print_banner">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_banner</span><span class="p">():</span>
+    <span class="n">banner</span> <span class="o">=</span> <span class="n">generate_banner</span><span class="p">(</span>
+        <span class="n">app_name</span><span class="o">=</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">app_name</span><span class="p">,</span>
+        <span class="n">author</span><span class="o">=</span><span class="s2">&quot;jinwoo&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__description__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; - base_dir    : </span><span class="si">{</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">base_dir</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> 
+                    <span class="sa">f</span><span class="s2">&quot; - logs_dir    : </span><span class="si">{</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">/logs </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;graffiti&quot;</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">_version</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">banner</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.top.main">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">app_name</span> <span class="o">=</span> <span class="s1">&#39;monitor&#39;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">config_file</span>
+
+    <span class="n">is_hide_line_number</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">2</span>
+    <span class="n">stdout</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">PAWN_CONFIG_FILE</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
+        <span class="n">PAWN_PATH</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">base_dir</span><span class="p">,</span>
+        <span class="n">PAWN_CONSOLE</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">redirect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">log_path</span><span class="o">=</span><span class="n">is_hide_line_number</span><span class="p">,</span> <span class="c1"># hide line number on the right side</span>
+        <span class="p">),</span>
+        <span class="n">app_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">try_pass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">last_execute_point</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;response_time&quot;</span><span class="p">:</span> <span class="n">StackList</span><span class="p">(),</span>
+        <span class="p">},</span>
+        <span class="n">fail_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">total_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="n">PAWN_LOGGER</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+                <span class="n">stdout_level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+                <span class="c1"># log_path=f&quot;{args.base_dir}/logs&quot;,</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span>
+                <span class="n">use_hook_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">show_path</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="c1">#hide line numbers</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">print_banner</span><span class="p">()</span>
+    <span class="n">system_info</span> <span class="o">=</span> <span class="n">get_platform_info</span><span class="p">()</span>
+    <span class="n">hostname</span> <span class="o">=</span> <span class="n">shorten_text</span><span class="p">(</span><span class="n">get_hostname</span><span class="p">(),</span> <span class="n">width</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">placeholder</span><span class="o">=</span><span class="s1">&#39;...&#39;</span><span class="p">)</span>
+    <span class="n">system_monitor</span> <span class="o">=</span> <span class="n">SystemMonitor</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">interval</span><span class="p">,</span> <span class="n">proc_path</span><span class="o">=</span><span class="n">PROCFS_PATH</span><span class="p">)</span>
+    <span class="n">table_title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;🐰 </span><span class="si">{</span><span class="n">hostname</span><span class="si">}</span><span class="s2"> &lt;</span><span class="si">{</span><span class="n">system_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">,  </span><span class="si">{</span><span class="n">system_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cores&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> cores, </span><span class="si">{</span><span class="n">get_mem_info</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mem_total&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> GB&gt; 🐰&quot;</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;proc_net&quot;</span><span class="p">:</span>
+        <span class="n">net_mon</span> <span class="o">=</span> <span class="n">ProcNetMonitor</span><span class="p">(</span>
+            <span class="n">top_n</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">top_n</span><span class="p">,</span>
+            <span class="n">refresh_rate</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">interval</span><span class="p">,</span>
+            <span class="n">group_by</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">group_by</span><span class="p">,</span>
+            <span class="n">unit</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span>
+            <span class="n">protocols</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">protocols</span><span class="p">,</span>
+            <span class="n">pid_filter</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">pid_filter</span><span class="p">,</span>
+            <span class="n">proc_filter</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">proc_filter</span><span class="p">,</span>
+            <span class="n">min_bytes_threshold</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">min_bytes_threshold</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">net_mon</span><span class="o">.</span><span class="n">run_live</span><span class="p">()</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;proc&quot;</span><span class="p">:</span>
+        <span class="n">proc_mon</span> <span class="o">=</span> <span class="n">ProcessMonitor</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">top_n</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">proc_mon</span><span class="o">.</span><span class="n">run_live</span><span class="p">()</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">print_type</span> <span class="o">==</span> <span class="s2">&quot;live&quot;</span><span class="p">:</span>
+        <span class="n">print_rich_live_type_status</span><span class="p">(</span><span class="n">table_title</span><span class="o">=</span><span class="n">table_title</span><span class="p">,</span>  <span class="n">system_info</span><span class="o">=</span><span class="n">system_info</span><span class="p">,</span> <span class="n">system_monitor</span><span class="o">=</span><span class="n">system_monitor</span><span class="p">)</span>
+    <span class="c1"># elif args.print_type == &quot;tab&quot;:</span>
+    <span class="c1">#     print_tabulate_status(system_monitor=system_monitor)</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">print_type</span> <span class="o">==</span> <span class="s2">&quot;line&quot;</span><span class="p">:</span>
+        <span class="n">print_simple_line_type_status</span><span class="p">(</span><span class="n">table_title</span><span class="o">=</span><span class="n">table_title</span><span class="p">,</span> <span class="n">system_info</span><span class="o">=</span><span class="n">system_info</span><span class="p">,</span> <span class="n">system_monitor</span><span class="o">=</span><span class="n">system_monitor</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">print_type</span> <span class="o">==</span> <span class="s2">&quot;layout&quot;</span><span class="p">:</span>
+        <span class="n">print_rich_layout_type_status</span><span class="p">(</span><span class="n">table_title</span><span class="o">=</span><span class="n">table_title</span><span class="p">,</span> <span class="n">system_info</span><span class="o">=</span><span class="n">system_info</span><span class="p">,</span> <span class="n">system_monitor</span><span class="o">=</span><span class="n">system_monitor</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_simple_line_type_status"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.top.print_simple_line_type_status">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_simple_line_type_status</span><span class="p">(</span><span class="n">table_title</span><span class="p">,</span> <span class="n">system_info</span><span class="p">,</span> <span class="n">system_monitor</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">columns</span><span class="p">,</span> <span class="n">term_rows</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">get_terminal_size</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">get_resources_status</span><span class="p">(</span><span class="n">system_monitor</span><span class="o">=</span><span class="n">system_monitor</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="n">column_widths</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;net_in&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+            <span class="s2">&quot;net_out&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+            <span class="s2">&quot;pk_in&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s2">&quot;pk_out&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s2">&quot;load&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;usr&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">&quot;sys&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">&quot;i/o&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">&quot;mem_%&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">column_key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">align_space</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">column_key</span><span class="p">))</span> <span class="o">+</span> <span class="mi">3</span>
+            <span class="k">if</span> <span class="n">column_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">column_widths</span><span class="p">:</span>  <span class="c1"># Avoid overwriting custom values</span>
+                <span class="n">column_widths</span><span class="p">[</span><span class="n">column_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">align_space</span>
+
+        <span class="c1"># Prepare headers and lines with calculated widths</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">column_key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">align_space</span> <span class="o">=</span> <span class="n">column_widths</span><span class="p">[</span><span class="n">column_key</span><span class="p">]</span>
+            <span class="n">headers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[blue][u]</span><span class="si">{</span><span class="n">column_key</span><span class="si">:</span><span class="s2">&gt;</span><span class="si">{</span><span class="n">align_space</span><span class="si">}}</span><span class="s2">[/u][/blue]&quot;</span><span class="p">)</span>
+            <span class="n">_value</span> <span class="o">=</span> <span class="n">CriticalText</span><span class="p">(</span><span class="n">column_key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">cores</span><span class="o">=</span><span class="n">system_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cores&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">align_space</span><span class="o">=</span><span class="n">align_space</span><span class="p">)</span>
+            <span class="n">line</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="n">term_rows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">Panel</span><span class="p">(</span><span class="n">table_title</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+            <span class="n">print_line_status</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span>
+
+        <span class="n">print_line_status</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="print_line_status"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.top.print_line_status">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_line_status</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;│&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;│&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="print_rich_live_type_status"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.top.print_rich_live_type_status">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_rich_live_type_status</span><span class="p">(</span><span class="n">table_title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">system_info</span><span class="o">=</span><span class="p">{},</span> <span class="n">system_monitor</span><span class="p">:</span> <span class="n">SystemMonitor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Buffer to store rows of data</span>
+    <span class="k">with</span> <span class="n">Live</span><span class="p">(</span><span class="n">console</span><span class="o">=</span><span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="p">,</span> <span class="n">auto_refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">refresh_per_second</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">screen</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">live_table</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">columns</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">get_terminal_size</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">columns</span> <span class="o">&lt;</span> <span class="mi">20</span> <span class="ow">or</span> <span class="n">rows</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>  <span class="c1"># Check minimum terminal size</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[red]Terminal size too small to render the table![/red]&quot;</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">get_resources_status</span><span class="p">(</span><span class="n">system_monitor</span><span class="o">=</span><span class="n">system_monitor</span><span class="p">)</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">table_title</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="n">box</span><span class="o">.</span><span class="n">SIMPLE</span><span class="p">)</span>
+            <span class="n">data_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">column_key</span> <span class="ow">in</span> <span class="n">data_keys</span><span class="p">:</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">column_key</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+
+            <span class="n">line</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">CriticalText</span><span class="p">(</span><span class="n">column_key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">cores</span><span class="o">=</span><span class="n">system_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cores&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">return_text</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">column_key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">):</span>
+                <span class="n">line</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)))</span>  <span class="c1"># Fill missing columns with empty strings</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">):</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">)]</span>  <span class="c1"># Trim excess columns</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">rows</span> <span class="o">-</span> <span class="mi">6</span><span class="p">:</span>  <span class="c1"># Leave space for title and padding</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]Error adding row at index </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]Expected columns: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">)</span><span class="si">}</span><span class="s2">, Got: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">e</span>
+            <span class="n">live_table</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">Align</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+            <span class="n">live_table</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="print_rich_layout_type_status"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.top.print_rich_layout_type_status">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_rich_layout_type_status</span><span class="p">(</span><span class="n">table_title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">system_info</span><span class="o">=</span><span class="p">{},</span> <span class="n">system_monitor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">()</span>
+    <span class="n">layout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+        <span class="n">Layout</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>  <span class="c1"># Header section with fixed size</span>
+        <span class="n">Layout</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;body&quot;</span><span class="p">),</span>           <span class="c1"># Body section for the table (dynamic size)</span>
+        <span class="n">Layout</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;footer&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># Footer section with fixed size</span>
+    <span class="p">)</span>
+
+    <span class="n">layout</span><span class="p">[</span><span class="s2">&quot;header&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold magenta]</span><span class="si">{</span><span class="n">table_title</span><span class="si">}</span><span class="s2">[/bold magenta]&quot;</span><span class="p">)</span>
+    <span class="n">layout</span><span class="p">[</span><span class="s2">&quot;footer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;[green]Press Ctrl+C to exit[/green]&quot;</span><span class="p">)</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Buffer to store rows of data</span>
+
+    <span class="k">with</span> <span class="n">Live</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">console</span><span class="o">=</span><span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="p">,</span> <span class="n">auto_refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">refresh_per_second</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">screen</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">live_layout</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">columns</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">get_terminal_size</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">columns</span> <span class="o">&lt;</span> <span class="mi">20</span> <span class="ow">or</span> <span class="n">rows</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>  <span class="c1"># Check minimum terminal size</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[red]Terminal size too small to render the table![/red]&quot;</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">get_resources_status</span><span class="p">(</span><span class="n">system_monitor</span><span class="o">=</span><span class="n">system_monitor</span><span class="p">)</span>
+
+            <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">table_title</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="n">box</span><span class="o">.</span><span class="n">SIMPLE</span><span class="p">)</span>
+            <span class="n">data_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+            <span class="k">for</span> <span class="n">column_key</span> <span class="ow">in</span> <span class="n">data_keys</span><span class="p">:</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">column_key</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+
+            <span class="n">line</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">CriticalText</span><span class="p">(</span><span class="n">column_key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">cores</span><span class="o">=</span><span class="n">system_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cores&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">return_text</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">column_key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">):</span>
+                <span class="n">line</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)))</span>  <span class="c1"># Fill missing columns with empty strings</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">):</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">)]</span>  <span class="c1"># Trim excess columns</span>
+
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">rows</span> <span class="o">-</span> <span class="mi">8</span><span class="p">:</span>  <span class="c1"># Leave space for header and footer</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]Error adding row at index </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]Expected columns: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">)</span><span class="si">}</span><span class="s2">, Got: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">e</span>
+
+            <span class="n">layout</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">Align</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+            <span class="n">live_layout</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.6</span><span class="p">)</span>  <span class="c1"># Simulate delay between updates (adjust as needed)</span></div>
+
+
+<div class="viewcode-block" id="get_resources_status"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.top.get_resources_status">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_resources_status</span><span class="p">(</span><span class="n">system_monitor</span><span class="p">:</span> <span class="n">SystemMonitor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;net&quot;</span><span class="p">:</span>
+        <span class="n">netstat</span> <span class="o">=</span> <span class="n">get_netstat_count</span><span class="p">(</span><span class="n">proc_path</span><span class="o">=</span><span class="n">PROCFS_PATH</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">todaydate</span><span class="p">(</span><span class="s2">&quot;time_sec&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">netstat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;COUNT&#39;</span><span class="p">))</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">interval</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;mem&quot;</span><span class="p">:</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="n">system_monitor</span><span class="o">.</span><span class="n">get_memory_status</span><span class="p">()</span>
+        <span class="n">memory_unit</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">todaydate</span><span class="p">(</span><span class="s2">&quot;time_sec&quot;</span><span class="p">),</span>
+            <span class="c1"># &quot;total&quot;: f&quot;{memory.get(&#39;total&#39;):.1f}{memory_unit}&quot;,</span>
+            <span class="s2">&quot;used&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;used&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}{</span><span class="n">memory_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;free&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;free&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}{</span><span class="n">memory_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="c1"># &quot;available&quot;: f&quot;{memory.get(&#39;available&#39;):.1f}{memory_unit}&quot;,</span>
+            <span class="s2">&quot;cached&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cached&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}{</span><span class="n">memory_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;buff&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;buffers&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}{</span><span class="n">memory_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;use_%&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;percent&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;swp_tot&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;swap_total&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}{</span><span class="n">memory_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;swp_use&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;swap_used&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}{</span><span class="n">memory_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;swp_free&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;swap_free&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}{</span><span class="n">memory_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;swp_%&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;swap_percent&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+            <span class="c1"># &quot;memory_trend&quot;: f&quot;{memory.get(&#39;memory_trend&#39;)}&quot;,</span>
+        <span class="p">}</span>
+
+        <span class="n">pressure</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pressure&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="n">pressure</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s2">&quot;pressure_some_10&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pressure</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;some_avg10&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pressure_some_60&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pressure</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;some_avg60&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pressure_full_10&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pressure</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;full_avg10&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pressure_full_60&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pressure</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;full_avg60&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">})</span>
+
+        <span class="c1"># Huge Pages 정보 추가</span>
+        <span class="n">huge_pages</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;huge_pages&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="n">huge_pages</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="c1"># &quot;huge_total&quot;: str(huge_pages.get(&#39;HugePages_Total&#39;, 0)),</span>
+                <span class="c1"># &quot;huge_free&quot;: str(huge_pages.get(&#39;HugePages_Free&#39;, 0)),</span>
+                <span class="c1"># &quot;huge_rsvd&quot;: str(huge_pages.get(&#39;HugePages_Rsvd&#39;, 0)),</span>
+                <span class="c1"># &quot;huge_surp&quot;: str(huge_pages.get(&#39;HugePages_Surp&#39;, 0)),</span>
+                <span class="s2">&quot;huge_size&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">huge_pages</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Hugepagesize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">MB&quot;</span><span class="p">,</span>
+            <span class="p">})</span>
+
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">interval</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;top_mem&quot;</span><span class="p">:</span>
+        <span class="n">top_processes</span> <span class="o">=</span> <span class="n">system_monitor</span><span class="o">.</span><span class="n">mem_status</span><span class="o">.</span><span class="n">get_top_memory_processes</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">todaydate</span><span class="p">(</span><span class="s2">&quot;time_sec&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">proc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">top_processes</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;proc_mem_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proc</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">proc</span><span class="p">[</span><span class="s1">&#39;pid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">proc</span><span class="p">[</span><span class="s1">&#39;memory_percent&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">interval</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="n">system_monitor</span><span class="o">.</span><span class="n">get_memory_status</span><span class="p">()</span>
+        <span class="n">network</span><span class="p">,</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">disk</span> <span class="o">=</span> <span class="n">system_monitor</span><span class="o">.</span><span class="n">collect_system_status</span><span class="p">()</span>
+        <span class="n">memory_unit</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">todaydate</span><span class="p">(</span><span class="s2">&quot;time_sec&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;net_in&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;recv&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">M&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;net_out&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sent&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">M&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pk_in&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;packets_recv&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pk_out&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;packets_sent&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;load&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">get_cpu_load</span><span class="p">()[</span><span class="s1">&#39;1min&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;usr&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cpu</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;usr&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sys&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cpu</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sys&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;i/o&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cpu</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;io_wait&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;disk_rd&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">disk</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;read_mb&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">M&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;disk_wr&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">disk</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;write_mb&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">M&quot;</span><span class="p">,</span>
+            <span class="c1"># &quot;mem_total&quot;: f&quot;{memory.get(&#39;total&#39;):.1f}{memory_unit}&quot;,</span>
+            <span class="c1"># &quot;mem_free&quot;: f&quot;{memory.get(&#39;free&#39;):.1f}{memory_unit}&quot;,</span>
+            <span class="c1"># &quot;cached&quot;: f&quot;{memory.get(&#39;cached&#39;):.1f}{memory_unit}&quot;,</span>
+            <span class="s2">&quot;mem_%&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">memory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;percent&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+<span class="n">main</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__description__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__epilog__</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

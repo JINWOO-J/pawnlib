@@ -1,0 +1,2043 @@
+[2022-11-24 10:37:55,703] ERROR::log.py/handle_exception(361) Unexpected exception
+Traceback (most recent call last):
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/global_config/./pawn_config_test.py", line 49, in <module>
+    main()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/global_config/./pawn_config_test.py", line 15, in main
+    pawn.set(
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 483, in set
+    self._init_console()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 237, in _init_console
+    self.console = Console(**default_options)
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/console.py", line 33, in __init__
+    super().__init__(*args, **kwargs)
+TypeError: __init__() got an unexpected keyword argument '__log_time_format'
+[2022-11-24 10:38:53,159] ERROR::log.py/handle_exception(361) Unexpected exception
+Traceback (most recent call last):
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/global_config/./pawn_config_test.py", line 49, in <module>
+    main()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/global_config/./pawn_config_test.py", line 15, in main
+    pawn.set(
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 485, in set
+    self._init_console()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 239, in _init_console
+    self.console = Console(**default_options)
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/console.py", line 33, in __init__
+    super().__init__(*args, **kwargs)
+TypeError: __init__() got an unexpected keyword argument '__log_time_format'
+[2022-11-24 10:39:13,546] ERROR::log.py/handle_exception(361) Unexpected exception
+Traceback (most recent call last):
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/global_config/./pawn_config_test.py", line 49, in <module>
+    main()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/global_config/./pawn_config_test.py", line 15, in main
+    pawn.set(
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 485, in set
+    self._init_console()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 239, in _init_console
+    self.console = Console(**default_options)
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/console.py", line 33, in __init__
+    super().__init__(*args, **kwargs)
+TypeError: __init__() got an unexpected keyword argument '__log_time_format'
+[2022-11-24 14:40:05,347] ERROR::log.py/handle_exception(361) Unexpected exception
+Traceback (most recent call last):
+  File "/Users/jinwoo/.pyenv/versions/3.9.13/lib/python3.9/pathlib.py", line 746, in __str__
+    return self._str
+AttributeError: _str
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/global_config/./pawn_config_test.py", line 59, in <module>
+    main()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/global_config/./pawn_config_test.py", line 15, in main
+    pawn.set(
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 249, in _load_config_file
+    self.set(PAWN_CONFIG=config.as_dict())
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 515, in set
+    self._load_config_file()
+  File "/Users/jinwoo/work/python_prj/pawnlib/examples/../pawnlib/config/globalconfig.py", line 247, in _load_config_file
+    if _config_filename.is_file():
+  File "/Users/jinwoo/.pyenv/versions/3.9.13/lib/python3.9/pathlib.py", line 1456, in is_file
+    return S_ISREG(self.stat().st_mode)
+  File "/Users/jinwoo/.pyenv/versions/3.9.13/lib/python3.9/pathlib.py", line 1232, in stat
+    return self._accessor.stat(self)
+  File "/Users/jinwoo/.pyenv/versions/3.9.13/lib/python3.9/pathlib.py", line 753, in __fspath__
+    return str(self)
+  File "/Users/jinwoo/.pyenv/versions/3.9.13/lib/python3.9/pathlib.py", line 748, in __str__
+    self._str = self._format_parsed_parts(self._drv, self._root,
+  File "/Users/jinwoo/.pyenv/versions/3.9.13/lib/python3.9/pathlib.py", line 728, in _format_parsed_parts
+    return drv + root + cls._flavour.join(parts[1:])
+RecursionError: maximum recursion depth exceeded while calling a Python object

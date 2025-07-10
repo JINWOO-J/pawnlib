@@ -1,0 +1,678 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.utils.log &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.utils.log</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.utils.log</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">handlers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config.globalconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawnlib_config</span><span class="p">,</span> <span class="n">pawn</span><span class="p">,</span> <span class="n">Null</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">Console</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">RichHandler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span>
+
+
+<div class="viewcode-block" id="CustomLog"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.CustomLog">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CustomLog</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CustomLog</span>
+
+<span class="sd">    :param name: logger name</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.utils.log import CustomLog</span>
+
+<span class="sd">            file_name = &#39;./time_log.txt&#39;</span>
+<span class="sd">            logger = CustomLog(&quot;custom_log&quot;)</span>
+<span class="sd">            logger.set_level(&#39;DEBUG&#39;)</span>
+<span class="sd">            logger.stream_handler(&quot;INFO&quot;)</span>
+<span class="sd">            logger.time_rotate_handler(filename=file_name,</span>
+<span class="sd">                                       when=&quot;M&quot;,</span>
+<span class="sd">                                       interval=2,</span>
+<span class="sd">                                       backup_count=3,</span>
+<span class="sd">                                       level=&quot;INFO&quot;</span>
+<span class="sd">                                       )</span>
+<span class="sd">            idx = 1</span>
+<span class="sd">            logger.log.debug(logger.log_formatter(f&#39;debug {idx}&#39;))</span>
+<span class="sd">            logger.log.info(logger.log_formatter(f&#39;info {idx}&#39;))</span>
+<span class="sd">            logger.log.warning(logger.log_formatter(f&#39;warning {idx}&#39;))</span>
+<span class="sd">            logger.log.error(logger.log_formatter(f&#39;error {idx}&#39;))</span>
+<span class="sd">            logger.log.critical(logger.log_formatter(f&#39;critical {idx}&#39;))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># self.formatter = logging.Formatter(&quot;%(levelname).1s|%(asctime)s.%(msecs)06d|-|%(name)s|%(message)s&quot;, &quot;%Y%m%d-%H:%M:%S&quot;)</span>
+        <span class="c1"># self.formatter = logging.Formatter(f&quot;%(levelname).1s|%(asctime)s.%(msecs)06d|-|%(name)s|%(filename)s:%(lineno)d %(funcName)-15s| %(message)s&quot;, &quot;%Y%m%d-%H:%M:%S&quot;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;%(levelname).1s|%(asctime)s.%(msecs)06d|-|%(name)s|%(filename)s:%(lineno)d| %(message)s&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">-%H:%M:%S&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">levels</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+            <span class="s2">&quot;INFO&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+            <span class="s2">&quot;WARNING&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+            <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+            <span class="s2">&quot;CRITICAL&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="CustomLog.set_level"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.set_level">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">set_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="n">level</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="CustomLog.log_formatter"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.log_formatter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param msg:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">log_str</span></div>
+
+<div class="viewcode-block" id="CustomLog.stream_handler"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.stream_handler">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">stream_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param level:</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            level</span>
+
+<span class="sd">            * &quot;DEBUG&quot; : logging.DEBUG ,</span>
+<span class="sd">            * &quot;INFO&quot; : logging.INFO ,</span>
+<span class="sd">            * &quot;WARNING&quot; : logging.WARNING ,</span>
+<span class="sd">            * &quot;ERROR&quot; : logging.ERROR ,</span>
+<span class="sd">            * &quot;CRITICAL&quot; : logging.CRITICAL ,</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_stream_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
+        <span class="n">_stream_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="n">level</span><span class="p">])</span>
+        <span class="n">_stream_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">_stream_handler</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span></div>
+
+<div class="viewcode-block" id="CustomLog.file_handler"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.file_handler">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">file_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param file_name: ~.txt / ~.log</span>
+<span class="sd">        :param mode: &quot;w&quot; / &quot;a&quot;</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+        <span class="n">_file_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="n">_file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">_file_handler</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span></div>
+
+<div class="viewcode-block" id="CustomLog.file_rotating_handler"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.file_rotating_handler">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">file_rotating_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">backup_count</span><span class="p">,</span> <span class="n">log_max_size</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param file_name: file의 이름 , ~.txt / ~.log</span>
+<span class="sd">        :param mode: &quot;w&quot; / &quot;a&quot;</span>
+<span class="sd">        :param backup_count: backup할 파일 개수</span>
+<span class="sd">        :param log_max_size: 한 파일당 용량 최대</span>
+<span class="sd">        :param level:</span>
+
+<span class="sd">        &gt; &quot;DEBUG&quot; : logging.DEBUG ,</span>
+<span class="sd">        &gt; &quot;INFO&quot; : logging.INFO ,</span>
+<span class="sd">        &gt; &quot;WARNING&quot; : logging.WARNING ,</span>
+<span class="sd">        &gt; &quot;ERROR&quot; : logging.ERROR ,</span>
+<span class="sd">        &gt; &quot;CRITICAL&quot; : logging.CRITICAL ,</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">_file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">RotatingFileHandler</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span>
+            <span class="n">maxBytes</span><span class="o">=</span><span class="n">log_max_size</span><span class="p">,</span>
+            <span class="n">backupCount</span><span class="o">=</span><span class="n">backup_count</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+        <span class="n">_file_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="n">level</span><span class="p">])</span>
+        <span class="n">_file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">_file_handler</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span></div>
+
+<div class="viewcode-block" id="CustomLog.time_rotate_handler"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.CustomLog.time_rotate_handler">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">time_rotate_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;./log.txt&#39;</span><span class="p">,</span>
+                            <span class="n">when</span><span class="o">=</span><span class="s2">&quot;M&quot;</span><span class="p">,</span>
+                            <span class="n">level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+                            <span class="n">backup_count</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                            <span class="n">atTime</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                            <span class="n">interval</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param level:</span>
+<span class="sd">        :param filename:</span>
+<span class="sd">        :param when: 저장 주기</span>
+<span class="sd">        :param interval: 저장 주기에서 어떤 간격으로 저장할지</span>
+<span class="sd">        :param backup_count: 5</span>
+<span class="sd">        :param atTime: datetime.time(0, 0, 0)</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">TimedRotatingFileHandler</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+            <span class="n">when</span><span class="o">=</span><span class="n">when</span><span class="p">,</span>  <span class="c1"># W0</span>
+            <span class="n">backupCount</span><span class="o">=</span><span class="n">backup_count</span><span class="p">,</span>
+            <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+            <span class="n">atTime</span><span class="o">=</span><span class="n">atTime</span><span class="p">)</span>
+        <span class="n">_file_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="n">level</span><span class="p">])</span>
+        <span class="n">_file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">_file_handler</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span></div></div>
+
+
+<div class="viewcode-block" id="AppLogger"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.AppLogger">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AppLogger</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A logger class for managing application logging.</span>
+
+<span class="sd">    This logger supports logging to both a file and stdout with customizable formats,</span>
+<span class="sd">    levels, and handlers. It can also handle exceptions and apply filters to log messages.</span>
+
+<span class="sd">    :param app_name: The name of the application, which will be used as the log file name.</span>
+<span class="sd">    :param log_level: The logging level (default is &quot;INFO&quot;). Options include:</span>
+<span class="sd">                      &quot;DEBUG&quot;, &quot;INFO&quot;, &quot;WARN&quot;, &quot;ERROR&quot;.</span>
+<span class="sd">    :param log_path: The directory path where log files will be stored (default is &quot;./logs&quot;).</span>
+<span class="sd">    :param stdout: If True, enables logging to stdout (default is False).</span>
+<span class="sd">    :param markup: If True, enables markup formatting for stdout logging (default is False).</span>
+<span class="sd">    :param stdout_level: The logging level for stdout (default is &quot;INFO&quot;).</span>
+<span class="sd">                         Options include &quot;DEBUG&quot;, &quot;INFO&quot;, &quot;WARN&quot;, &quot;ERROR&quot;, &quot;NOTSET&quot;.</span>
+<span class="sd">    :param stdout_log_formatter: Custom formatter for stdout logging (default is None).</span>
+<span class="sd">    :param log_format: Custom format for log messages (default is a predefined format).</span>
+<span class="sd">                       Example: &quot;[%(asctime)s] %(levelname)s - %(message)s&quot;.</span>
+<span class="sd">    :param use_hook_exception: If True, sets a hook to log uncaught exceptions (default is True).</span>
+<span class="sd">    :param exception_handler: A custom function to handle exceptions (default is None).</span>
+<span class="sd">    :param debug: If True, enables debug mode for additional logging information (default is False).</span>
+
+<span class="sd">    Example Usage:</span>
+
+<span class="sd">        from pawnlib.utils import log</span>
+
+<span class="sd">        app_logger, error_logger = log.AppLogger().get_logger()</span>
+<span class="sd">        app_logger.info(&quot;This is an info message.&quot;)</span>
+<span class="sd">        error_logger.error(&quot;This is an error message.&quot;)</span>
+
+<span class="sd">        # Advanced usage with configuration</span>
+<span class="sd">        from pawnlib.config.globalconfig import pawnlib_config as pawn</span>
+
+<span class="sd">        app_logger, error_logger = log.AppLogger(</span>
+<span class="sd">            app_name=&quot;app&quot;,</span>
+<span class="sd">            log_path=&quot;./logs&quot;,</span>
+<span class="sd">            stdout=True,</span>
+<span class="sd">            markup=True,</span>
+<span class="sd">            log_level=&quot;DEBUG&quot;</span>
+<span class="sd">        ).set_global()</span>
+
+<span class="sd">        pawn.app_logger.info(&quot;This is an info message.&quot;)</span>
+<span class="sd">        pawn.error_logger.error(&quot;This is an error message.&quot;)</span>
+
+<span class="sd">        # Expected Output:</span>
+<span class="sd">        # [2022-07-25 18:52:44,415] INFO::app_logging_test.py/main(38) This is an info message.</span>
+<span class="sd">        # [2022-07-25 18:52:44,416] ERROR::app_logging_test.py/main(39) This is an error message.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        logger: The main application logger instance.</span>
+<span class="sd">        error_logger: The error logger instance for capturing error messages.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        get_logger(): Returns the main and error logger instances.</span>
+<span class="sd">        set_global(): Sets the logger instances globally in the pawnlib configuration.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Ensure that the specified log path exists or can be created by the application.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_logger</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">app_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+                 <span class="n">log_level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARN&quot;</span><span class="p">,</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+                 <span class="n">log_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./logs&quot;</span><span class="p">,</span>
+                 <span class="n">markup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                 <span class="n">stdout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">stdout_level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARN&quot;</span><span class="p">,</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;NOTSET&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+                 <span class="n">stdout_log_formatter</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="s2">&quot;%H:%M:%S,</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span>
+                 <span class="n">log_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">std_log_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">use_hook_exception</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                 <span class="n">use_clean_text_filter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">exception_handler</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span>
+                 <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_name</span> <span class="o">=</span> <span class="n">app_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_path</span> <span class="o">=</span> <span class="n">log_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout_level</span> <span class="o">=</span> <span class="n">stdout_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout_log_formatter</span> <span class="o">=</span> <span class="n">stdout_log_formatter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">markup</span> <span class="o">=</span> <span class="n">markup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="n">log_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_hook_exception</span> <span class="o">=</span> <span class="n">use_hook_exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hook_exception</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">exception_handler</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="n">exception_handler</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_clean_text_filter</span> <span class="o">=</span> <span class="n">use_clean_text_filter</span>
+
+        <span class="k">if</span> <span class="n">log_format</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_format</span> <span class="o">=</span> <span class="n">log_format</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># self.log_format = &quot;[%(asctime)s] %(name)s::&quot; &quot;%(filename)s/%(funcName)s(%(lineno)d) %(message)s&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_format</span> <span class="o">=</span> <span class="s2">&quot;[</span><span class="si">%(asctime)s</span><span class="s2">] </span><span class="si">%(levelname)s</span><span class="s2">::&quot;</span> <span class="s2">&quot;</span><span class="si">%(filename)s</span><span class="s2">/</span><span class="si">%(funcName)s</span><span class="s2">(</span><span class="si">%(lineno)d</span><span class="s2">) </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">std_log_format</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">std_log_format</span> <span class="o">=</span> <span class="n">std_log_format</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">std_log_format</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;%(name)s&gt; %(message)s&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_format</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_logger</span><span class="p">(</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="AppLogger.get_realpath"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.get_realpath">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_realpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="n">parent_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">parent_path</span></div>
+
+<div class="viewcode-block" id="AppLogger.set_logger"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.set_logger">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">set_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">):</span>
+        <span class="c1"># log_path = f&quot;{self.get_realpath()}/logs&quot;</span>
+        <span class="c1"># print(f&quot;log_path={self.log_path}&quot;)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_path</span><span class="p">)</span>
+
+        <span class="c1"># _logger = logging.getLogger(f&quot;PAWN_LOGGER_{log_type}&quot;)</span>
+        <span class="k">if</span> <span class="n">log_type</span> <span class="o">==</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span>
+            <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pawn.error_logger&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pawn.app_logger&quot;</span><span class="p">)</span>
+
+        <span class="n">stack</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_stack</span><span class="p">()</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">logging</span><span class="p">,</span> <span class="n">log_type</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">log_type</span> <span class="o">==</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">app_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">log_type</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">.log&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">app_name</span><span class="si">}</span><span class="s2">.log&quot;</span>
+
+        <span class="n">logfile_filename</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+        <span class="n">file_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_rotate_handler</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">logfile_filename</span><span class="p">,</span>
+            <span class="n">when</span><span class="o">=</span><span class="s1">&#39;midnight&#39;</span><span class="p">,</span>
+            <span class="n">interval</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span>
+            <span class="n">backup_count</span><span class="o">=</span><span class="mi">10</span>
+        <span class="p">)</span>
+        <span class="n">file_handler</span><span class="o">.</span><span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">&#39;</span>
+        <span class="n">file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_formatter</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_clean_text_filter</span><span class="p">:</span>
+            <span class="n">file_handler</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="n">CleanTextFilter</span><span class="p">())</span>
+
+        <span class="n">_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stdout_log_formatter</span><span class="p">:</span>
+                <span class="n">log_time_formatter</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">dt</span><span class="p">:</span> <span class="n">Text</span><span class="o">.</span><span class="n">from_markup</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdout_log_formatter</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log_time_formatter</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># if self.stdout_log_formatter:</span>
+            <span class="c1">#</span>
+            <span class="c1"># else:</span>
+            <span class="c1">#     log_time_formatter = lambda dt: Text.from_markup(f&quot;[{dt.strftime(&#39;%H:%M:%S,%f&#39;)[:-3]}]&quot;)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+                <span class="c1"># level=self.stdout_level, format=&quot;%(message)s&quot;, datefmt=&quot;[%Y-%m-%d %H:%M:%S.%f]&quot;, handlers=[RichHandler(rich_tracebacks=True)]</span>
+                <span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stdout_level</span><span class="p">,</span>
+                <span class="c1"># format=f&quot;[STDOUT] %(message)s&quot;,</span>
+                <span class="nb">format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">std_log_format</span><span class="p">,</span>
+                <span class="n">handlers</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">TightLevelRichHandler</span><span class="p">(</span>
+                        <span class="n">rich_tracebacks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">log_time_format</span><span class="o">=</span><span class="n">log_time_formatter</span><span class="p">,</span>
+                        <span class="n">markup</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">markup</span><span class="p">,</span>
+                        <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     # logging.getLogger().handlers = []</span>
+        <span class="c1">#     root_logger = logging.getLogger()</span>
+        <span class="c1">#     for handler in root_logger.handlers:</span>
+        <span class="c1">#         root_logger.removeHandler(handler)</span>
+
+        <span class="c1"># _logger.addHandler(self.add_stream_handler(level=log_type))</span>
+        <span class="k">return</span> <span class="n">_logger</span></div>
+
+<div class="viewcode-block" id="AppLogger.add_stream_handler"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.add_stream_handler">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_stream_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+        <span class="n">stream_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
+        <span class="n">stream_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+        <span class="n">stream_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_formatter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stream_handler</span></div>
+
+<div class="viewcode-block" id="AppLogger.time_rotate_handler"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.time_rotate_handler">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">time_rotate_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;./log.txt&#39;</span><span class="p">,</span>
+                            <span class="n">when</span><span class="o">=</span><span class="s2">&quot;M&quot;</span><span class="p">,</span>
+                            <span class="n">backup_count</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                            <span class="n">atTime</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                            <span class="n">interval</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+                            <span class="p">):</span>
+        <span class="n">file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">TimedRotatingFileHandler</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+            <span class="n">when</span><span class="o">=</span><span class="n">when</span><span class="p">,</span>  <span class="c1"># W0</span>
+            <span class="n">backupCount</span><span class="o">=</span><span class="n">backup_count</span><span class="p">,</span>
+            <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+            <span class="n">atTime</span><span class="o">=</span><span class="n">atTime</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">file_handler</span></div>
+
+<div class="viewcode-block" id="AppLogger.get_logger"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.get_logger">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the logger</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span></div>
+
+<div class="viewcode-block" id="AppLogger.set_global"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.set_global">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">set_global</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add global config in pawnlib</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pawnlib_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="n">PAWN_APP_LOGGER</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span>
+            <span class="n">PAWN_ERROR_LOGGER</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppLogger.handle_exception"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.AppLogger.handle_exception">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">handle_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hook_exception</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unexpected exception&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="CleanTextFilter"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.CleanTextFilter">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CleanTextFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
+<div class="viewcode-block" id="CleanTextFilter.filter"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.CleanTextFilter.filter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="c1"># Remove ASCII and tags from the message before logging</span>
+        <span class="n">record</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">_remove_ascii_and_tags</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_ascii_and_tags</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">,</span> <span class="s2">&quot;both&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;lower&quot;</span><span class="p">):</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">_remove_ascii_color_codes</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">_remove_tags</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="n">case_sensitive</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_ascii_color_codes</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove ASCII color codes from a string.</span>
+
+<span class="sd">    :param text: string to remove ASCII color codes from</span>
+<span class="sd">    :return: string without ASCII color codes</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing.converter import remove_ascii_color_codes</span>
+
+<span class="sd">            remove_ascii_color_codes(&quot;\x1b[31mHello\x1b[0m&quot;)</span>
+<span class="sd">            # &gt;&gt; &quot;Hello&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\x1b\[\d+m&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_tags</span><span class="p">(</span><span class="n">text</span><span class="p">,</span>
+                <span class="n">case_sensitive</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">,</span> <span class="s2">&quot;both&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;lower&quot;</span><span class="p">,</span>
+                <span class="n">tag_style</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;angle&quot;</span><span class="p">,</span> <span class="s2">&quot;square&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;square&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove specific tags from given text based on case sensitivity and tag style options.</span>
+
+<span class="sd">    :param text: The input text from which tags need to be removed.</span>
+<span class="sd">    :param case_sensitive: The case sensitivity option for tags, default is &quot;lower&quot;. Available options are &quot;lower&quot;, &quot;upper&quot;, and &quot;both&quot;.</span>
+<span class="sd">    :param tag_style: The tag style to be removed, default is &quot;square&quot;. Available options are &quot;angle&quot; and &quot;square&quot;.</span>
+<span class="sd">    :return: The cleaned text after specific tags have been removed.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing.converter import remove_tags</span>
+
+<span class="sd">            remove_tags(&quot;&lt;b&gt;Hello&lt;/b&gt; [WORLD]&quot;, case_sensitive=&quot;both&quot;, tag_style=&quot;angle&quot;)</span>
+<span class="sd">            # &gt;&gt; &quot;Hello [WORLD]&quot;</span>
+
+<span class="sd">            remove_tags(&quot;&lt;b&gt;Hello&lt;/b&gt; [WORLD]&quot;, case_sensitive=&quot;both&quot;, tag_style=&quot;square&quot;)</span>
+<span class="sd">            # &gt;&gt; &quot;&lt;b&gt;Hello&lt;/b&gt; &quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">case_sensitive</span> <span class="o">==</span> <span class="s2">&quot;lower&quot;</span><span class="p">:</span>
+        <span class="n">case_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[a-z\s]&#39;</span>
+    <span class="k">elif</span> <span class="n">case_sensitive</span> <span class="o">==</span> <span class="s2">&quot;upper&quot;</span><span class="p">:</span>
+        <span class="n">case_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[A-Z\s]&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">case_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[\w\s]&#39;</span>
+
+    <span class="k">if</span> <span class="n">tag_style</span> <span class="o">==</span> <span class="s2">&quot;angle&quot;</span><span class="p">:</span>
+        <span class="n">tag_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&lt;(/?&#39;</span> <span class="o">+</span> <span class="n">case_pattern</span> <span class="o">+</span> <span class="s1">&#39;+)&gt;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tag_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\[(?:/?&#39;</span> <span class="o">+</span> <span class="n">case_pattern</span> <span class="o">+</span> <span class="s1">&#39;+)\]&#39;</span>
+    <span class="n">cleaned_text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">tag_pattern</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cleaned_text</span>
+
+<div class="viewcode-block" id="TightLevelRichHandler"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.TightLevelRichHandler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TightLevelRichHandler</span><span class="p">(</span><span class="n">RichHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="TightLevelRichHandler.get_level_text"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.TightLevelRichHandler.get_level_text">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_level_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the level name from the record.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            record (LogRecord): LogRecord instance.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Text: A tuple of the style and level name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">display_level_count</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">level_name</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">levelname</span>
+
+        <span class="n">short_level_name</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">levelname</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">display_level_count</span><span class="p">]</span>
+
+        <span class="n">level_text</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">styled</span><span class="p">(</span>
+            <span class="n">short_level_name</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">display_level_count</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;logging.level.</span><span class="si">{</span><span class="n">level_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">level_text</span></div></div>
+
+
+<div class="viewcode-block" id="print_logger_configurations"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.print_logger_configurations">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_logger_configurations</span><span class="p">(</span><span class="n">min_level</span><span class="o">=</span><span class="s2">&quot;TRACE&quot;</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rich.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">Console</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rich.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">const</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">min_level</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Required minimum log level, allows values - </span><span class="si">{</span><span class="n">const</span><span class="o">.</span><span class="n">get_level_keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Logger Configurations , min_level=</span><span class="si">{</span><span class="n">min_level</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">const</span><span class="o">.</span><span class="n">get_level</span><span class="p">(</span><span class="n">min_level</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add table columns</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Logger Name&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">,</span> <span class="n">overflow</span><span class="o">=</span><span class="s2">&quot;fold&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Effective Level&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Propagate&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Handlers Count&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;orange1&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Handler ID&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dim&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Handler Type&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Stream Dest.&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Handler Level&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;purple&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Formatter&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Filters&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;purple&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">logger_name</span><span class="p">,</span> <span class="n">logger</span> <span class="ow">in</span> <span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">loggerDict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">logger_name</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Skip placeholder loggers</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">PlaceHolder</span><span class="p">):</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]Logger Name: </span><span class="si">{</span><span class="n">logger_name</span><span class="si">}</span><span class="s2"> is a PlaceHolder and not initialized.[/red]&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">effective_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLevelName</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">())</span>
+        <span class="n">propagate</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">propagate</span><span class="p">)</span>
+        <span class="n">handlers_count</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">const</span><span class="o">.</span><span class="n">get_level</span><span class="p">(</span><span class="n">min_level</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+                    <span class="n">handler_id</span> <span class="o">=</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">handler</span><span class="p">))</span>
+                    <span class="n">handler_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                    <span class="n">handler_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLevelName</span><span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">level</span><span class="p">)</span>
+                    <span class="n">formatter</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">_fmt</span> <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">formatter</span> <span class="k">else</span> <span class="s2">&quot;No formatter configured&quot;</span>
+                    <span class="n">filters</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">filters</span><span class="p">])</span> <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">filters</span> <span class="k">else</span> <span class="s2">&quot;No filters&quot;</span>
+
+                    <span class="c1"># Get stream destination for StreamHandlers</span>
+                    <span class="n">stream_dest</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">handler</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="s2">&quot;stream&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="c1"># Add row with all info</span>
+                    <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                        <span class="n">logger_name</span><span class="p">,</span> <span class="n">effective_level</span><span class="p">,</span> <span class="n">propagate</span><span class="p">,</span> <span class="n">handlers_count</span><span class="p">,</span>
+                        <span class="n">handler_id</span><span class="p">,</span> <span class="n">handler_type</span><span class="p">,</span> <span class="n">stream_dest</span><span class="p">,</span> <span class="n">handler_level</span><span class="p">,</span>
+                        <span class="n">formatter</span><span class="p">,</span> <span class="n">filters</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">logger_name</span><span class="p">,</span> <span class="n">effective_level</span><span class="p">,</span> <span class="n">propagate</span><span class="p">,</span> <span class="n">handlers_count</span><span class="p">,</span> <span class="s2">&quot;No handlers configured&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="list_all_loggers"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.log.list_all_loggers">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">list_all_loggers</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">loggerDict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

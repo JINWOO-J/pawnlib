@@ -1,0 +1,551 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.cli.rpc &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.cli.rpc</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.cli.rpc</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.builder.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_banner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.__version__</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output.color_print</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_yaml</span><span class="p">,</span> <span class="n">is_file</span><span class="p">,</span> <span class="n">open_yaml_file</span><span class="p">,</span> <span class="n">print_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span><span class="p">,</span> <span class="n">pconf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">sys_exit</span><span class="p">,</span> <span class="n">is_valid_url</span><span class="p">,</span> <span class="n">json_rpc</span><span class="p">,</span> <span class="n">is_json</span><span class="p">,</span> <span class="n">get_value_size</span><span class="p">,</span> <span class="n">get_size</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">IconRpcHelper</span><span class="p">,</span> <span class="n">IconRpcTemplates</span><span class="p">,</span> <span class="n">NetworkInfo</span><span class="p">,</span> <span class="n">icx_signer</span><span class="p">,</span> <span class="n">CallHttp</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">InquirerPy</span><span class="w"> </span><span class="kn">import</span> <span class="n">prompt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">disable_ssl_warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.input</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptWithArgument</span><span class="p">,</span> <span class="n">PrivateKeyValidator</span><span class="p">,</span> <span class="n">StringCompareValidator</span><span class="p">,</span> <span class="n">PrivateKeyOrJsonValidator</span>
+
+<span class="n">disable_ssl_warnings</span><span class="p">()</span>
+
+<span class="n">NONE_STRING</span> <span class="o">=</span> <span class="s2">&quot;__NOT_DEFINED_VALUE__&quot;</span>
+<span class="n">__description__</span> <span class="o">=</span> <span class="s2">&quot;This tool uses JSON remote procedure calls, or RPCs, commonly used on the ICON blockchain.&quot;</span>
+
+<span class="n">__epilog__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;This utility offers a comprehensive suite for interacting with the ICON blockchain, leveraging JSON-RPC for efficient communication.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Usage examples:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  1. Query network information:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Fetches block information by height.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns rpc --url &lt;RPC_ENDPOINT&gt; --method icx_getBlockByHeight --params &#39;{</span><span class="se">\&quot;</span><span class="s2">height</span><span class="se">\&quot;</span><span class="s2">:</span><span class="se">\&quot;</span><span class="s2">0x1</span><span class="se">\&quot;</span><span class="s2">}&#39;`</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+    <span class="s2">&quot;  2. Send ICX transaction:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Sends an ICX transaction to the network.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns rpc --url &lt;RPC_ENDPOINT&gt; --method icx_sendTransaction --params &lt;TRANSACTION_PARAMETERS&gt;`</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+    <span class="s2">&quot;  3. Configure network settings:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Sets the network configuration for subsequent operations.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns rpc --platform icon --network mainnet`</span><span class="se">\n</span><span class="s2">&quot;</span>
+    
+    <span class="s2">&quot;  4. Configure custom network settings:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;      -  If you want to edit network information, create config.yaml with a parameter called config and then change it.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns rpc config` </span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;For detailed command usage and options, refer to the help documentation by running &#39;pawns rpc --help&#39;.&quot;</span>
+<span class="p">)</span>
+
+
+<span class="n">PLATFORM_LIST</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;icon&quot;</span><span class="p">,</span> <span class="s2">&quot;havah&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.get_parser">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;RPC&#39;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="get_arguments"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.get_arguments">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;command&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Edit network information by creating a config.yaml file.&#39;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--url&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;endpoint url default: None&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--from&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;from address. default: None&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--to&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;to&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;to address. default: None&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--address&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;icx address. default: None&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--txhash&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;txhash&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;txhash&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--value&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;amount&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;icx amount to transfer. unit: icx. ex) 1.0. default:0.001&#39;</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--pk&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;private_key&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;hexa string. default: None&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;debug mode. True/False&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;--number&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;try number. default: None&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nid&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;nid&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;network id default: None&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--config&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;config name&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-k&#39;</span><span class="p">,</span> <span class="s1">&#39;--keystore&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;keystore&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;keystore file name&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="s1">&#39;--password&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;keystore file password&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="s1">&#39;--timeout&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;timeout&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;timeout&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="s1">&#39;--worker&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;worker&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;worker&#39;</span><span class="p">)</span>
+
+    <span class="c1"># parser.add_argument(&#39;-i&#39;, &#39;--increase&#39;, metavar=&#39;increase_count&#39;, type=int, help=f&#39;increase count number&#39;)</span>
+    <span class="c1"># parser.add_argument(&#39;--increase-count&#39;, metavar=&#39;increase_count&#39;, type=int, help=f&#39;increase count number&#39;, default=1)</span>
+    <span class="c1"># parser.add_argument(&#39;-r&#39;, &#39;--rnd_icx&#39;, metavar=&#39;rnd_icx&#39;, help=f&#39;rnd_icx&#39;, default=&quot;no&quot;)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;--method&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;method for JSON-RPC&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--params&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;params&#39;</span><span class="p">,</span>  <span class="n">help</span><span class="o">=</span><span class="s1">&#39;params for JSON-RPC&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">{})</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-x&#39;</span><span class="p">,</span> <span class="s1">&#39;--http-method&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;method for HTTP&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;post&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--platform&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span> <span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;platform&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;platform name of network name&#39;</span><span class="p">,</span>
+                        <span class="c1"># choices=PLATFORM_LIST,</span>
+                        <span class="c1"># default=&quot;havah&quot;</span>
+                        <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--src&#39;</span><span class="p">,</span>  <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Source path of SCORE&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--network&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;network_name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;network name&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--fill-each-prompt&#39;</span><span class="p">,</span>  <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;fill each prompt&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--base-dir&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;base_dir&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;base directory&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+    <span class="c1"># parser.add_argument(&#39;--load-type&#39;, metavar=&#39;network_name&#39;, help=&#39;network name&#39;, default=&quot;&quot;)</span>
+
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="get_methods"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.get_methods">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_methods</span><span class="p">(</span><span class="n">answers</span><span class="p">):</span>
+    <span class="n">icon_tpl</span> <span class="o">=</span> <span class="n">IconRpcTemplates</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">icon_tpl</span><span class="o">.</span><span class="n">get_methods</span><span class="p">(</span><span class="n">answers</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="get_required"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.get_required">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_required</span><span class="p">(</span><span class="n">answers</span><span class="p">):</span>
+    <span class="n">icon_tpl</span> <span class="o">=</span> <span class="n">IconRpcTemplates</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">answers</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="n">answers</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">])</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;get_required =&gt; </span><span class="si">{</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">get_required_params</span><span class="p">()</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">answers</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">answers</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">icon_tpl</span><span class="o">.</span><span class="n">get_required_params</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="fetch_environments_to_args"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.fetch_environments_to_args">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_environments_to_args</span><span class="p">():</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">args</span>
+    <span class="n">env_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;PLATFORM&quot;</span><span class="p">:</span> <span class="s2">&quot;platform&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SERVICE&quot;</span><span class="p">:</span> <span class="s2">&quot;network&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">env_key</span><span class="p">,</span> <span class="n">args_key</span> <span class="ow">in</span> <span class="n">env_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">env_value</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">env_key</span><span class="p">,</span> <span class="n">NONE_STRING</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">env_value</span> <span class="o">!=</span> <span class="n">NONE_STRING</span> <span class="ow">and</span> \
+                <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">args_key</span><span class="p">,</span> <span class="n">NONE_STRING</span><span class="p">)</span> <span class="o">!=</span> <span class="n">NONE_STRING</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[yellow]Defined from environment variable, </span><span class="si">{</span><span class="n">env_key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">env_value</span><span class="si">}</span><span class="s2">, (args.</span><span class="si">{</span><span class="n">args_key</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">args_key</span><span class="p">,</span> <span class="n">env_value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_banner"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.print_banner">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_banner</span><span class="p">():</span>
+    <span class="n">banner</span> <span class="o">=</span> <span class="n">generate_banner</span><span class="p">(</span>
+        <span class="n">app_name</span><span class="o">=</span><span class="s2">&quot;RPC&quot;</span><span class="p">,</span>
+        <span class="n">author</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;jinwoo </span><span class="se">\n\n</span><span class="s2"> - Platform    : </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">platform</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;JSON-RPC request&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;graffiti&quot;</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">_version</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">banner</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="fill_sign_params_from_args"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.fill_sign_params_from_args">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">fill_sign_params_from_args</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">args</span>
+    <span class="n">args_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">,</span> <span class="s2">&quot;stepLimit&quot;</span><span class="p">,</span> <span class="s2">&quot;nid&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;nonce&quot;</span><span class="p">]</span>
+
+    <span class="n">payload</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="k">for</span> <span class="n">args_key</span> <span class="ow">in</span> <span class="n">args_list</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">args_key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args_key</span> <span class="o">==</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">18</span><span class="p">))</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[yellow]Defined from parameters variable, </span><span class="si">{</span><span class="n">args_key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">, (args.</span><span class="si">{</span><span class="n">args_key</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">args_key</span><span class="p">):</span>
+                <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="n">args_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">payload</span></div>
+
+
+<div class="viewcode-block" id="network_info_to_args"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.network_info_to_args">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">network_info_to_args</span><span class="p">(</span><span class="n">network_info</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">network_info</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RpcCommand"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RpcCommand</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span> <span class="o">=</span> <span class="n">IconRpcTemplates</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_file</span> <span class="o">=</span> <span class="s2">&quot;config.yaml&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_supported_platform</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="RpcCommand.initialize_arguments"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.initialize_arguments">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
+        <span class="n">args</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">subparser_name</span> <span class="o">=</span> <span class="s2">&quot;rpc&quot;</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="n">PAWN_DEBUG</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">args</span><span class="o">=</span><span class="n">args</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">print_banner</span><span class="p">()</span>
+        <span class="n">fetch_environments_to_args</span><span class="p">()</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">args</span></div>
+
+<div class="viewcode-block" id="RpcCommand.load_network_config"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.load_network_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">load_network_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_config_file</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span> <span class="o">=</span> <span class="n">NetworkInfo</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">update_platform_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RpcCommand.load_config_file"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.load_config_file">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">load_config_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_file</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_data</span> <span class="o">=</span> <span class="n">open_yaml_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_file</span><span class="p">)</span>
+
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded configuration from &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&#39; len=</span><span class="si">{</span><span class="n">get_value_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">)</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="n">get_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_file</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RpcCommand.set_network_info"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.set_network_info">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">set_network_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="p">)</span>
+
+        <span class="n">platform_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">get_platform_list</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;etc&quot;</span><span class="p">]</span>
+        <span class="n">PromptWithArgument</span><span class="p">(</span>
+            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Select Platform ?&quot;</span><span class="p">,</span>
+            <span class="n">choices</span><span class="o">=</span><span class="n">platform_list</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">,</span>
+            <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;platform&quot;</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">prompt</span><span class="p">()</span>
+
+        <span class="n">network_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">get_network_list</span><span class="p">(</span><span class="n">platform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">platform</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">network_list</span><span class="p">:</span>
+            <span class="n">PromptWithArgument</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Select Network ?&quot;</span><span class="p">,</span>
+                <span class="n">choices</span><span class="o">=</span><span class="n">network_list</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">,</span>
+                <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;network&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;vega&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">prompt</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">set_network</span><span class="p">(</span><span class="n">platform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">platform</span><span class="p">,</span> <span class="n">network_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">network</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_supported_platform</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RpcCommand.generate_tx_payload"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.generate_tx_payload">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate_tx_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span> <span class="o">=</span> <span class="n">IconRpcHelper</span><span class="p">(</span><span class="n">network_info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Fetching Governance SCORE API&quot;</span><span class="p">)</span>
+        <span class="n">_governance_score_api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">get_governance_api</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">update_template</span><span class="p">(</span><span class="n">_governance_score_api</span><span class="p">)</span>
+
+        <span class="n">category</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">method</span><span class="p">:</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="n">PromptWithArgument</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Select a category to use in JSON-RPC.&quot;</span><span class="p">,</span>
+                <span class="n">choices</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">get_category</span><span class="p">(),</span>
+                <span class="n">long_instruction</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Use the up/down keys to select&quot;</span><span class="p">,</span>
+                <span class="n">max_height</span><span class="o">=</span><span class="s2">&quot;40%&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="c1"># args=pconf().data.args</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+
+        <span class="n">PromptWithArgument</span><span class="p">(</span>
+            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;&gt;&gt; Select a method to use in JSON-RPC.&quot;</span><span class="p">,</span>
+            <span class="n">choices</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">get_methods</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">),</span>
+            <span class="n">long_instruction</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Use the up/down keys to select&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">,</span>
+            <span class="n">max_height</span><span class="o">=</span><span class="s2">&quot;40%&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;method&quot;</span><span class="p">,</span>
+            <span class="c1"># args=pconf().data.args</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">fuzzy</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">get_rpc</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">get_params_hint</span><span class="p">():</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type Hints for &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="n">print_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">get_params_hint</span><span class="p">())</span>
+
+        <span class="n">required_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">get_required_params</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">required_params</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">fill_each_prompt</span><span class="p">:</span>
+            <span class="n">_questions</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">required_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">_questions</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;What</span><span class="se">\&#39;</span><span class="s1">s &quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">&quot; parameter?&#39;</span><span class="p">})</span>
+                <span class="c1"># from 주소면 wallet 디렉토리를 읽어서 리스트를 보여준다.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prompt</span><span class="p">(</span><span class="n">_questions</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_wallet_and_prepare_for_sign</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">=</span> <span class="n">PromptWithArgument</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Edit transaction: &quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+                <span class="n">long_instruction</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">edit the transaction&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">prompt</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">is_required_sign</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">sign_tx</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">rpc_call</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">print_request</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">print_response</span><span class="p">(</span><span class="n">hex_to_int</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">is_required_sign</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">get_tx_wait</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="RpcCommand.load_wallet_and_prepare_for_sign"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.load_wallet_and_prepare_for_sign">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">load_wallet_and_prepare_for_sign</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_tpl</span><span class="o">.</span><span class="n">is_required_sign</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;icx_sendTransaction&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">wallet</span> <span class="o">=</span> <span class="n">icx_signer</span><span class="o">.</span><span class="n">WalletCli</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;from&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;address&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_balance</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepare_signature</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="RpcCommand.print_balance"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.print_balance">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;address&#39;</span><span class="p">)</span>
+        <span class="n">balance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">get_balance</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;address=</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">, balance=</span><span class="si">{</span><span class="n">balance</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">symbol</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RpcCommand.prepare_signature"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.prepare_signature">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">=</span> <span class="n">fill_sign_params_from_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">nid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;nid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="o">.</span><span class="n">nid</span></div>
+
+<div class="viewcode-block" id="RpcCommand.write_config_file"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.write_config_file">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">write_config_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output.file</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_file_overwrite</span>
+        <span class="k">if</span> <span class="n">check_file_overwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_file</span><span class="p">):</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Write configuration config.yaml&quot;</span><span class="p">)</span>
+            <span class="n">network_info</span> <span class="o">=</span> <span class="n">NetworkInfo</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get_platform_info</span><span class="p">()</span>
+            <span class="n">write_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">network_info</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RpcCommand.call_raw_rpc"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.call_raw_rpc">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">call_raw_rpc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="n">valid_url</span> <span class="o">=</span> <span class="n">is_valid_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">, is_valid_url =&gt; </span><span class="si">{</span><span class="n">valid_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># if not valid_url:</span>
+            <span class="c1">#     sys_exit(f&quot;Required valid url -&gt; {self.args.url}&quot;)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">is_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">sys_exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid params -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">:</span>
+                <span class="n">json_params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="k">if</span> <span class="n">is_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">=</span> <span class="n">json_rpc</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">json_params</span><span class="p">)</span>
+
+            <span class="n">call_http</span> <span class="o">=</span> <span class="n">CallHttp</span><span class="p">(</span>
+                <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">http_method</span><span class="p">,</span>
+                <span class="n">payload</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">,</span>
+                <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">call_http</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">call_http</span><span class="o">.</span><span class="n">response</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;payload=</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">dump</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">,</span> <span class="n">hex_to_int</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">sys_exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RpcCommand.deploy_score"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.deploy_score">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">deploy_score</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span> <span class="o">=</span> <span class="n">IconRpcHelper</span><span class="p">(</span><span class="n">network_info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">network_info</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">):</span>
+            <span class="n">sys_exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Required invalid params-&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">src</span><span class="p">:</span>
+            <span class="n">sys_exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Required Source path of SCORE -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">src</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="n">_params</span> <span class="o">=</span> <span class="n">PromptWithArgument</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Edit Params: &quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+            <span class="n">long_instruction</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">edit the transaction&quot;</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">prompt</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">to</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Update to &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">to</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">create_deploy_payload</span><span class="p">(</span>
+            <span class="c1"># src=&quot;examples/icon_rpc_test/SCORE/hello-world/build/libs/hello-world-0.1.0-optimized.jar&quot;,</span>
+            <span class="n">src</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">src</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">_params</span><span class="p">),</span>
+            <span class="n">governance_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">to</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_wallet_and_prepare_for_sign</span><span class="p">()</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">request_payload</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="s2">&quot;2. Calculate Fee&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fee = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">get_fee</span><span class="p">(</span><span class="w"> </span><span class="n">symbol</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="s2">&quot;3. Sign the Transaction&quot;</span><span class="p">)</span>
+        <span class="n">signed_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">sign_tx</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">)</span>
+        <span class="n">print_json</span><span class="p">(</span><span class="n">signed_payload</span><span class="p">)</span>
+
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="s2">&quot;4. Send the Transaction&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">rpc_call</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">signed_payload</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">print_response</span><span class="p">()</span>
+
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="s2">&quot;5. Wait the Transaction&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">get_tx_wait</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_rpc</span><span class="o">.</span><span class="n">print_response</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="RpcCommand.create_json_rpc_request_from_dot_command"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.create_json_rpc_request_from_dot_command">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">create_json_rpc_request_from_dot_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># pawn.console.log(self.icon_tpl.get_methods())</span>
+        <span class="c1"># exit()</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">param_type</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">param_value</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">param_type</span><span class="p">,</span> <span class="n">param_value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">=</span> <span class="n">json_rpc</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="n">param_type</span><span class="p">:</span> <span class="n">param_value</span><span class="p">})</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;auto payload=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RpcCommand.run"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.RpcCommand.run">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialize_arguments</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;config&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_config_file</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_network_config</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">url</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_network_info</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_supported_platform</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;deploy&quot;</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Deploy SCORE&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">deploy_score</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">generate_tx_payload</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported platform=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">platform</span><span class="si">}</span><span class="s2">, network_name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">network</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_json_rpc_request_from_dot_command</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">call_raw_rpc</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.rpc.main">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">RpcCommand</span><span class="p">()</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+
+<span class="n">main</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__description__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__epilog__</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

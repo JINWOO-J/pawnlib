@@ -1,0 +1,1506 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.input.prompt &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.input.prompt</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.input.prompt</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_operator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span><span class="p">,</span> <span class="n">pconf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_hex</span><span class="p">,</span> <span class="n">is_int</span><span class="p">,</span> <span class="n">is_float</span><span class="p">,</span> <span class="n">FlatDict</span><span class="p">,</span> <span class="n">Namespace</span><span class="p">,</span> <span class="n">sys_exit</span><span class="p">,</span> <span class="n">is_valid_token_address</span><span class="p">,</span> <span class="n">is_valid_private_key</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output.file</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_file_list</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output.color_print</span><span class="w"> </span><span class="kn">import</span> <span class="n">bcolors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">InquirerPy</span><span class="w"> </span><span class="kn">import</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">inquirer</span><span class="p">,</span> <span class="n">get_style</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">InquirerPy.validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">NumberValidator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prompt_toolkit.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">Validator</span><span class="p">,</span> <span class="n">DynamicValidator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prompt_toolkit.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">prompt</span> <span class="k">as</span> <span class="n">toolkit_prompt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">Console</span>
+
+<span class="n">all_special_characters</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="c1"># from pawnlib.config.globalconfig import Null</span>
+<span class="c1"># pawn.console.debug = Null</span>
+<div class="viewcode-block" id="PromptWithArgument"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.PromptWithArgument">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PromptWithArgument</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">argument</span> <span class="o">=</span> <span class="n">argument</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">argument_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_length</span> <span class="o">=</span> <span class="n">min_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_length</span> <span class="o">=</span> <span class="n">max_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arg_missing_word</span> <span class="o">=</span> <span class="s2">&quot;DO_NOT_SET_THE_ARG&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;fuzzy&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;select&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;checkbox&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_prefix_text</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Input the&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fuzzy&quot;</span><span class="p">:</span> <span class="s2">&quot;Select the&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;checkbox&quot;</span><span class="p">:</span> <span class="s2">&quot;Choice the&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">checkbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">enabled_symbol</span><span class="o">=</span><span class="s2">&quot;✅&quot;</span><span class="p">,</span>
+                <span class="n">disabled_symbol</span><span class="o">=</span><span class="s2">&quot;◻️ &quot;</span><span class="p">,</span>
+                <span class="n">validate</span><span class="o">=</span><span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">invalid_message</span><span class="o">=</span><span class="s2">&quot;should be at least 1 selection&quot;</span><span class="p">,</span>
+                <span class="n">instruction</span><span class="o">=</span><span class="s2">&quot;(select at least 1)&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">select</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="c1"># pointer=&quot;➡️ &quot;,</span>
+                <span class="n">pointer</span><span class="o">=</span><span class="s2">&quot; 👉&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">fuzzy</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">match_exact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">pointer</span><span class="o">=</span><span class="s2">&quot;➤&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_options</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_style</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_default_options</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_style</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style_type</span><span class="o">=</span><span class="s1">&#39;fuzzy&#39;</span><span class="p">):</span>
+        <span class="n">default_style</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;#98c379 bold&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="s2">&quot;#61afef bold&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;long_instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;#96979A italic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;italic bold #b6b8ba&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;italic bold #ffffff&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fuzzy_info&quot;</span><span class="p">:</span> <span class="s2">&quot;#474747&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">==</span> <span class="s1">&#39;fuzzy&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_style</span><span class="p">(</span><span class="n">default_style</span><span class="p">,</span> <span class="n">style_override</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">==</span> <span class="s1">&#39;prompt&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="c1"># &quot;questionmark&quot;: &quot;#ffffff&quot;,</span>
+                <span class="c1"># &quot;answer&quot;: &quot;#000000&quot;,</span>
+                <span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="n">default_style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;answer&#39;</span><span class="p">),</span>
+                <span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="n">default_style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;question&#39;</span><span class="p">),</span>
+                <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="n">default_style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">),</span>
+                <span class="s2">&quot;long_instruction&quot;</span><span class="p">:</span> <span class="n">default_style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;long_instruction&#39;</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">==</span> <span class="s1">&#39;checkbox&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_style</span><span class="p">(</span><span class="n">default_style</span><span class="p">,</span> <span class="n">style_override</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># self._options.update(mark_options)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_default_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">common_mark_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">qmark</span><span class="o">=</span><span class="s2">&quot;[❓]&quot;</span><span class="p">,</span>
+            <span class="n">amark</span><span class="o">=</span><span class="s2">&quot;[❓]&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">):</span>
+            <span class="n">_default_option</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_options</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">]</span>
+            <span class="n">_default_option</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">common_mark_options</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_default_option</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span>  <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_option_to_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="c1"># _arg_missing_word = &quot;DO_NOT_SET_THE_ARG&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">args</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># pawn.console.debug(f&quot;[yellow] Error parsing - {e}&quot;)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">subparser_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="n">options</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_missing_word</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_missing_word</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">message_prefix_text</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Input&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Required argument, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extract_option_to_variable</span><span class="p">([</span><span class="s2">&quot;min_length&quot;</span><span class="p">,</span> <span class="s2">&quot;max_length&quot;</span><span class="p">,</span> <span class="s2">&quot;argument&quot;</span><span class="p">,</span> <span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">argument_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">argument_name_real</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">argument_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_missing_word</span><span class="p">)</span>
+
+            <span class="n">_default_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+            <span class="c1"># if self._options.get(&#39;verbose&#39;):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="s1">&#39;instruction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;instruction&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;( --</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">argument_name_real</span><span class="si">}</span><span class="s2"> )&quot;</span>
+
+        <span class="c1"># if _arg_missing_word == self.argument_value:</span>
+        <span class="c1">#     raise ValueError(f&quot;Cannot find argument in args. {self.argument}&quot;)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;invalid_message&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="s1">&#39;invalid_message&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;minimum 1 selection&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;validate&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="s1">&#39;validate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;undefined message&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">==</span> <span class="s2">&quot;prompt&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_missing_word</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_missing_word</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;input&quot;</span>
+            <span class="c1"># else:</span>
+            <span class="c1">#     if self._options[&#39;type&#39;] == &quot;list&quot;:</span>
+            <span class="c1">#         self._options[&#39;type&#39;] = &quot;select&quot;</span>
+
+            <span class="c1"># _options = dict(</span>
+            <span class="c1">#     qmark=&quot;[❓]&quot;,</span>
+            <span class="c1">#     amark=&quot;[❓]&quot;,</span>
+            <span class="c1"># )</span>
+            <span class="c1"># self._options.update(_options)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_unnecessary_options</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_remove_unnecessary_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_options</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_push_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">target_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># if not target_args:</span>
+        <span class="c1">#     target_args = pconf().data.args</span>
+        <span class="c1"># setattr(target_args, self.argument, result)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">target_args</span><span class="p">:</span>
+                <span class="n">target_args</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">args</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">target_args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+            <span class="c1"># pawn.console.debug(f&quot;args not found, {target_args}, {self.argument}, {result}&quot;)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_skip_if_value_in_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_common_executes_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">executor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="c1"># pawn.console.debug(f&quot;Starting executor - {func.__name__}&quot;)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prepare</span><span class="p">()</span>
+
+            <span class="c1"># if self.argument_value == self._arg_missing_word:</span>
+            <span class="c1">#     self.argument_value = &quot;&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_missing_word</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_missing_word</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_push_argument</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">argument_real_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;password&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pawn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PAWN_DEBUG&quot;</span><span class="p">):</span>
+                        <span class="n">_argument_value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span><span class="p">)</span><span class="o">*</span><span class="s1">&#39;*&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">_argument_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span>
+                    <span class="c1"># pawn.console.debug(f&quot;Skipped [yellow]{self._options.get(&#39;name&#39;,&#39;&#39;)}[/yellow]&quot;</span>
+                    <span class="c1">#                  f&quot;prompt cause args value exists. --{self.argument_real_name}={_argument_value}&quot;)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_check_force_validation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">argument_real_name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_force_filtering</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">argument_real_name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">executor</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_force_validation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_validator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;validate&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_validator</span><span class="p">:</span>
+                <span class="c1"># pawn.console.debug(f&quot;force validation name={name} value={value}&quot;)</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_validator</span><span class="p">,</span> <span class="s1">&#39;validate&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                    <span class="n">document</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span><span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">cursor_position</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+                    <span class="n">_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">sys_exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold]Failed to validate[/bold] : </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_force_filtering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_filtering</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;filter&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_filtering</span><span class="p">:</span>
+                <span class="c1"># pawn.console.debug(f&quot;force filtering name={name} value={value} return={_filtering(value)}&quot;)</span>
+                <span class="k">return</span> <span class="n">_filtering</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">sys_exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold]Failed to filtering : </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="PromptWithArgument.fuzzy"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.PromptWithArgument.fuzzy">[docs]</a>    <span class="nd">@_common_executes_decorator</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fuzzy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prepare</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_value</span><span class="p">:</span>
+            <span class="n">_prompt</span> <span class="o">=</span> <span class="n">inquirer</span><span class="o">.</span><span class="n">fuzzy</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">)</span>
+            <span class="n">input_value</span> <span class="o">=</span> <span class="n">_prompt</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+            <span class="c1"># self._push_argument(result=input_value)</span>
+            <span class="k">return</span> <span class="n">input_value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># pawn.console.debug(f&quot;Skipped prompt, {self.argument_name}={self.argument_value}&quot;)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="PromptWithArgument.prompt"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.PromptWithArgument.prompt">[docs]</a>    <span class="nd">@_common_executes_decorator</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">_args_options_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="n">prompt</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_style</span><span class="p">(</span><span class="n">style_type</span><span class="o">=</span><span class="s2">&quot;prompt&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;style&#39;</span><span class="p">):</span>
+                <span class="n">style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;style&#39;</span><span class="p">)</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="n">prompt</span><span class="p">(</span><span class="n">questions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="n">style_override</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">answer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">answer</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">answer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_args_options_name</span><span class="p">,</span> <span class="s1">&#39;__NOT_DEFINED__&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;__NOT_DEFINED__&quot;</span> <span class="p">:</span>
+                <span class="k">return</span> <span class="n">answer</span><span class="p">[</span><span class="n">_args_options_name</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">answer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red] Parse Error on prompt, answer=</span><span class="si">{</span><span class="n">answer</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PromptWithArgument.checkbox"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.PromptWithArgument.checkbox">[docs]</a>    <span class="nd">@_common_executes_decorator</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">checkbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">inquirer</span><span class="o">.</span><span class="n">checkbox</span><span class="p">(</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PromptWithArgument.select"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.PromptWithArgument.select">[docs]</a>    <span class="nd">@_common_executes_decorator</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">inquirer</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="CompareValidator"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.CompareValidator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CompareValidator</span><span class="p">(</span><span class="n">NumberValidator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validator that compares the input value with the given operator and length.</span>
+
+<span class="sd">    :param operator: Comparison operator. Allowed operators are &#39;!=&#39;, &#39;==&#39;, &#39;&gt;=&#39;, &#39;&lt;=&#39;, &#39;&gt;&#39;, and &#39;&lt;&#39;.</span>
+<span class="sd">    :type operator: Literal[&quot;!=&quot;, &quot;==&quot;, &quot;&gt;=&quot;, &quot;&lt;=&quot;, &quot;&gt;&quot;, &quot;&lt;&quot;]</span>
+<span class="sd">    :param length: Length of the input value.</span>
+<span class="sd">    :type length: int</span>
+<span class="sd">    :param message: Error message to display when the validation fails.</span>
+<span class="sd">    :type message: str</span>
+<span class="sd">    :param float_allowed: Flag to allow float input values.</span>
+<span class="sd">    :type float_allowed: bool</span>
+<span class="sd">    :param value_type: Type of the input value. Allowed types are &#39;number&#39;, &#39;string&#39;, and &#39;min_max&#39;.</span>
+<span class="sd">    :type value_type: str</span>
+<span class="sd">    :param min_value: Minimum value for &#39;min_max&#39; value type.</span>
+<span class="sd">    :type min_value: int</span>
+<span class="sd">    :param max_value: Maximum value for &#39;min_max&#39; value type.</span>
+<span class="sd">    :type max_value: int</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            validator = CompareValidator(</span>
+<span class="sd">                operator=&quot;&gt;=&quot;,</span>
+<span class="sd">                length=3,</span>
+<span class="sd">                message=&quot;Input should be a number greater than or equal to 3&quot;,</span>
+<span class="sd">                float_allowed=True,</span>
+<span class="sd">                value_type=&quot;number&quot;,</span>
+<span class="sd">                min_value=3</span>
+<span class="sd">            )</span>
+
+<span class="sd">            validator.validate(document)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">operator</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;!=&quot;</span><span class="p">,</span> <span class="s2">&quot;==&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span>
+            <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Input should be a &quot;</span><span class="p">,</span>
+            <span class="n">float_allowed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">value_type</span><span class="o">=</span><span class="s2">&quot;number&quot;</span><span class="p">,</span>
+            <span class="n">min_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">max_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">float_allowed</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_allowed_operators</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;!=&quot;</span><span class="p">,</span> <span class="s2">&quot;==&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">operator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allowed_operators</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid operator, allows=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_allowed_operators</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2"> &lt;</span><span class="si">{</span><span class="n">value_type</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">&gt; </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">length</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_message</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_float_allowed</span> <span class="o">=</span> <span class="n">float_allowed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_operator</span> <span class="o">=</span> <span class="n">operator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="n">length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value_type</span> <span class="o">=</span> <span class="n">value_type</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="n">min_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="n">max_value</span>
+
+<div class="viewcode-block" id="CompareValidator.raise_error"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.CompareValidator.raise_error">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">raise_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raises a ValidationError with the given error message.</span>
+
+<span class="sd">        :param document: The document being validated.</span>
+<span class="sd">        :type document: Any</span>
+<span class="sd">        :param message: The error message to display.</span>
+<span class="sd">        :type message: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_message</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+            <span class="n">message</span><span class="o">=</span><span class="n">_message</span><span class="p">,</span> <span class="n">cursor_position</span><span class="o">=</span><span class="n">document</span><span class="o">.</span><span class="n">cursor_position</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_numberify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the input value to a number.</span>
+
+<span class="sd">        :param value: The input value to convert.</span>
+<span class="sd">        :type value: Any</span>
+<span class="sd">        :return: The converted number.</span>
+<span class="sd">        :rtype: Union[int, float]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">is_float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_int</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_float_allowed</span><span class="p">:</span>
+                <span class="n">number</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">number</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_max_min_operator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the input value is within the given min and max values.</span>
+
+<span class="sd">        :param value: The input value to check.</span>
+<span class="sd">        :type value: Union[int, float]</span>
+<span class="sd">        :return: True if the value is within the min and max values, False otherwise.</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="CompareValidator.validate"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.CompareValidator.validate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates the input document.</span>
+
+<span class="sd">        :param document: The document to validate.</span>
+<span class="sd">        :type document: Any</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">text_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numberify</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_type</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">get_operator_truth</span><span class="p">(</span><span class="n">text_length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_operator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_type</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">get_operator_truth</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">text</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_operator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_type</span> <span class="o">==</span> <span class="s2">&quot;min_max&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_min_operator</span><span class="p">(</span><span class="n">text_length</span><span class="p">):</span>
+                    <span class="k">return</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;input_length=</span><span class="si">{</span><span class="n">text_length</span><span class="si">}</span><span class="s2">, min=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="si">}</span><span class="s2">, max=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="NumberCompareValidator"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.NumberCompareValidator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NumberCompareValidator</span><span class="p">(</span><span class="n">CompareValidator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A validator that compares a number with a given operator.</span>
+
+<span class="sd">    :param operator: A string representing the operator. Default is &quot;&quot;.</span>
+<span class="sd">    :param length: An integer representing the length of the input. Default is 0.</span>
+<span class="sd">    :param message: A string representing the error message. Default is &quot;Input should be a &quot;.</span>
+<span class="sd">    :param float_allowed: A boolean representing whether float input is allowed. Default is False.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            validator = NumberCompareValidator(operator=&quot;&gt;&quot;, length=0, message=&quot;Input should be a number&quot;, float_allowed=True)</span>
+<span class="sd">            validator.validate(5) # &gt;&gt; True</span>
+<span class="sd">            validator.validate(&quot;5.0&quot;) # &gt;&gt; True</span>
+<span class="sd">            validator.validate(&quot;abc&quot;) # &gt;&gt; False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operator</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Input should be a &quot;</span><span class="p">,</span> <span class="n">float_allowed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">operator</span><span class="o">=</span><span class="n">operator</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">float_allowed</span><span class="o">=</span><span class="n">float_allowed</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="s2">&quot;number&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StringCompareValidator"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.StringCompareValidator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">StringCompareValidator</span><span class="p">(</span><span class="n">CompareValidator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A validator that compares a string with a given operator.</span>
+
+<span class="sd">    :param operator: A string representing the operator. Default is &quot;&quot;.</span>
+<span class="sd">    :param length: An integer representing the length of the input. Default is 0.</span>
+<span class="sd">    :param message: A string representing the error message. Default is &quot;Input should be a &quot;.</span>
+<span class="sd">    :param float_allowed: A boolean representing whether float input is allowed. Default is False.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            validator = StringCompareValidator(operator=&quot;&gt;&quot;, length=0, message=&quot;Input should be a string&quot;, float_allowed=False)</span>
+<span class="sd">            validator.validate(&quot;abc&quot;) # &gt;&gt; True</span>
+<span class="sd">            validator.validate(123) # &gt;&gt; False</span>
+<span class="sd">            validator.validate(&quot;abcdefg&quot;) # &gt;&gt; False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operator</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Input should be a &quot;</span><span class="p">,</span> <span class="n">float_allowed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">operator</span><span class="o">=</span><span class="n">operator</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">float_allowed</span><span class="o">=</span><span class="n">float_allowed</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MinMaxValidator"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.MinMaxValidator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">MinMaxValidator</span><span class="p">(</span><span class="n">CompareValidator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A validator that checks whether a number is within a given range.</span>
+
+<span class="sd">    :param min_value: An integer representing the minimum value. Default is 0.</span>
+<span class="sd">    :param max_value: An integer representing the maximum value. Default is 0.</span>
+<span class="sd">    :param message: A string representing the error message. Default is &quot;Input should be a &quot;.</span>
+<span class="sd">    :param float_allowed: A boolean representing whether float input is allowed. Default is False.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            validator = MinMaxValidator(min_value=0, max_value=10, message=&quot;Input should be between 0 and 10&quot;, float_allowed=True)</span>
+<span class="sd">            validator.validate(5) # &gt;&gt; True</span>
+<span class="sd">            validator.validate(15) # &gt;&gt; False</span>
+<span class="sd">            validator.validate(&quot;5.0&quot;) # &gt;&gt; True</span>
+<span class="sd">            validator.validate(&quot;abc&quot;) # &gt;&gt; False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">max_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Input should be a &quot;</span><span class="p">,</span> <span class="n">float_allowed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">float_allowed</span><span class="o">=</span><span class="n">float_allowed</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="s2">&quot;min_max&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HexValidator"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.HexValidator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">HexValidator</span><span class="p">(</span><span class="n">CompareValidator</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Input should be a &quot;</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">value_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Hex&quot;</span><span class="p">,</span> <span class="n">value_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_none</span> <span class="o">=</span> <span class="n">allow_none</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value_type</span> <span class="o">=</span> <span class="n">value_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value_length</span> <span class="o">=</span> <span class="n">value_length</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>  <span class="n">value_type</span><span class="o">=</span><span class="n">value_type</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HexValidator.validate"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.HexValidator.validate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates whether the input is a valid Hex.</span>
+
+<span class="sd">        :param document: The input to validate.</span>
+<span class="sd">        :type document: Any</span>
+
+<span class="sd">        :raises ValueError: If the input is not a valid private key.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                validator = HexValidator(value_type=&quot;TX hash&quot;, value_length=64)</span>
+<span class="sd">                validator.validate(&quot;4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d&quot;)</span>
+<span class="sd">                # &gt;&gt; None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">text</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_none</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_hex</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value_type</span><span class="si">}</span><span class="s2">. &#39;</span><span class="si">{</span><span class="n">document</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&#39; is not Hex &quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_length</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value_type</span><span class="si">}</span><span class="s2">. Length should be </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value_length</span><span class="si">}</span><span class="s2">. len=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PrivateKeyValidator"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.PrivateKeyValidator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PrivateKeyValidator</span><span class="p">(</span><span class="n">CompareValidator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validator class for private key.</span>
+
+<span class="sd">    :param message: Error message to display.</span>
+<span class="sd">    :param allow_none: If True, allows None as a valid input.</span>
+<span class="sd">    :type message: str</span>
+<span class="sd">    :type allow_none: bool</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            validator = PrivateKeyValidator()</span>
+<span class="sd">            validator.validate(&quot;4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d&quot;)</span>
+<span class="sd">            # &gt;&gt; None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Input should be a &quot;</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_none</span> <span class="o">=</span> <span class="n">allow_none</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>  <span class="n">value_type</span><span class="o">=</span><span class="s2">&quot;PrivateKey Hex&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PrivateKeyValidator.validate"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.PrivateKeyValidator.validate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates whether the input is a valid private key.</span>
+
+<span class="sd">        :param document: The input to validate.</span>
+<span class="sd">        :type document: Any</span>
+
+<span class="sd">        :raises ValueError: If the input is not a valid private key.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                validator = PrivateKeyValidator()</span>
+<span class="sd">                validator.validate(&quot;4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d&quot;)</span>
+<span class="sd">                # &gt;&gt; None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">text</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_none</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_hex</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Invalid Private Key. &#39;</span><span class="si">{</span><span class="n">document</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&#39; is not Hex &quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_valid_private_key</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Invalid Private Key. Length should be 64. len=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PrivateKeyOrJsonValidator"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.PrivateKeyOrJsonValidator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PrivateKeyOrJsonValidator</span><span class="p">(</span><span class="n">CompareValidator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validator class for private key or JSON.</span>
+
+<span class="sd">    :param message: Error message to display.</span>
+<span class="sd">    :param allow_none: If True, allows None as a valid input.</span>
+<span class="sd">    :type message: str</span>
+<span class="sd">    :type allow_none: bool</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            validator = PrivateKeyOrJsonValidator()</span>
+<span class="sd">            validator.validate(&#39;{&quot;private_key&quot;: &quot;4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d&quot;}&#39;)</span>
+<span class="sd">            # &gt;&gt; None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Input should be a &quot;</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_none</span> <span class="o">=</span> <span class="n">allow_none</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>  <span class="n">value_type</span><span class="o">=</span><span class="s2">&quot;PrivateKey Hex&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PrivateKeyOrJsonValidator.validate"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.PrivateKeyOrJsonValidator.validate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates whether the input is a valid private key or JSON.</span>
+
+<span class="sd">        :param document: The input to validate.</span>
+<span class="sd">        :type document: Any</span>
+
+<span class="sd">        :raises ValueError: If the input is not a valid private key or JSON.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                validator = PrivateKeyOrJsonValidator()</span>
+<span class="sd">                validator.validate(&#39;{&quot;private_key&quot;: &quot;4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d&quot;}&#39;)</span>
+<span class="sd">                # &gt;&gt; None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">text</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_none</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_hex</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Invalid input. &#39;</span><span class="si">{</span><span class="n">document</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&#39; is not Hex or JSON.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_valid_private_key</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Invalid Private Key. Length should be 64. len=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="JsonValidator"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.JsonValidator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">JsonValidator</span><span class="p">(</span><span class="n">CompareValidator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validator class for  JSON.</span>
+
+<span class="sd">    :param message: Error message to display.</span>
+<span class="sd">    :param allow_none: If True, allows None as a valid input.</span>
+<span class="sd">    :type message: str</span>
+<span class="sd">    :type allow_none: bool</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            validator = JsonValidator()</span>
+<span class="sd">            validator.validate(&#39;{&quot;private_key&quot;: &quot;4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d&quot;}&#39;)</span>
+<span class="sd">            # &gt;&gt; None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Input should be a &quot;</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_none</span> <span class="o">=</span> <span class="n">allow_none</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>  <span class="n">value_type</span><span class="o">=</span><span class="s2">&quot;JSON Validator&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="JsonValidator.validate"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.JsonValidator.validate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates whether the input is a valid  JSON.</span>
+
+<span class="sd">        :param document: The input to validate.</span>
+<span class="sd">        :type document: Any</span>
+
+<span class="sd">        :raises ValueError: If the input is not a valid JSON.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                validator = JsonValidator()</span>
+<span class="sd">                validator.validate(&#39;{&quot;private_key&quot;: &quot;4a3c6a7b9d9a51f4e8a46e8b8d2a6f3c2f2b7e3e8b75a8c9e7d6f5a4c3b2a19d&quot;}&#39;)</span>
+<span class="sd">                # &gt;&gt; None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">text</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_none</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_hex</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Invalid JSON: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">document</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="check_valid_private_length"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.check_valid_private_length">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">check_valid_private_length</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the length of a private key is valid.</span>
+
+<span class="sd">    :param text: a string representing a private key.</span>
+<span class="sd">    :return: True if the length of the private key is valid, False otherwise.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            check_valid_private_length(&quot;0x1234567890123456789012345678901234567890123456789012345678901234&quot;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            check_valid_private_length(&quot;0x123456789012345678901234567890123456789012345678901234567890&quot;)</span>
+<span class="sd">            # &gt;&gt; False</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">private_length</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="k">if</span> <span class="n">is_hex</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;0x&quot;</span><span class="p">):</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">==</span> <span class="n">private_length</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="get_operator_truth"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.get_operator_truth">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_operator_truth</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">relate</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare two values based on a relationship operator.</span>
+
+<span class="sd">    :param inp: First value to compare.</span>
+<span class="sd">    :type inp: any</span>
+<span class="sd">    :param relate: Relationship operator.</span>
+<span class="sd">    :type relate: str</span>
+<span class="sd">    :param cut: Second value to compare.</span>
+<span class="sd">    :type cut: any</span>
+<span class="sd">    :return: Comparison result.</span>
+<span class="sd">    :rtype: bool</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            get_operator_truth(3, &#39;&gt;&#39;, 2)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">            get_operator_truth(&#39;hello&#39;, &#39;include&#39;, &#39;he&#39;)</span>
+<span class="sd">            # &gt;&gt; True</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ops</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span> <span class="n">_operator</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span>
+        <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span> <span class="n">_operator</span><span class="o">.</span><span class="n">lt</span><span class="p">,</span>
+        <span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span> <span class="n">_operator</span><span class="o">.</span><span class="n">ge</span><span class="p">,</span>
+        <span class="s1">&#39;&lt;=&#39;</span><span class="p">:</span> <span class="n">_operator</span><span class="o">.</span><span class="n">le</span><span class="p">,</span>
+        <span class="s1">&#39;==&#39;</span><span class="p">:</span> <span class="n">_operator</span><span class="o">.</span><span class="n">eq</span><span class="p">,</span>
+        <span class="s1">&#39;!=&#39;</span><span class="p">:</span> <span class="n">_operator</span><span class="o">.</span><span class="n">ne</span><span class="p">,</span>
+        <span class="s1">&#39;include&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;exclude&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">y</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ops</span><span class="p">[</span><span class="n">relate</span><span class="p">](</span><span class="n">inp</span><span class="p">,</span> <span class="n">cut</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="prompt_with_keyboard_interrupt"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.prompt_with_keyboard_interrupt">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">prompt_with_keyboard_interrupt</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handle keyboard interrupt with prompt.</span>
+
+<span class="sd">    :param args:</span>
+<span class="sd">    :param kwargs:</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            prompt_with_keyboard_interrupt({&#39;name&#39;: &#39;test&#39;}, {})</span>
+<span class="sd">            # &gt;&gt; {&#39;test&#39;: &#39;value&#39;}</span>
+
+<span class="sd">            prompt_with_keyboard_interrupt([{&#39;name&#39;: &#39;test&#39;}], {})</span>
+<span class="sd">            # &gt;&gt; &#39;value&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="n">prompt</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">answer</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyboardInterrupt</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">answer</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">answer</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">arguments</span> <span class="ow">and</span> <span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">answer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">answer</span></div>
+
+
+<div class="viewcode-block" id="inq_prompt"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.inq_prompt">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">inq_prompt</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prompt the user for input, return the name field or the first field of the answer.</span>
+
+<span class="sd">    :param args: arguments to be passed to the prompt function</span>
+<span class="sd">    :param kwargs: keyword arguments to be passed to the prompt function</span>
+<span class="sd">    :return: the &#39;name&#39; field of the answer, or the first field if &#39;name&#39; does not exist</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            inq_prompt(question=&quot;What&#39;s your name?&quot;)</span>
+<span class="sd">            # &gt;&gt; &quot;John Doe&quot;</span>
+
+<span class="sd">            inq_prompt(questions=[{&quot;type&quot;: &quot;input&quot;, &quot;name&quot;: &quot;username&quot;, &quot;message&quot;: &quot;Enter your username&quot;}], style={&#39;input&#39;: &#39;green&#39;})</span>
+<span class="sd">            # &gt;&gt; &quot;johndoe&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="n">prompt</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;style&#39;</span><span class="p">):</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;style&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">):</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;input&quot;</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="n">prompt</span><span class="p">(</span><span class="n">questions</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">answer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">answer</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">answer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="simple_input_prompt"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.simple_input_prompt">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">simple_input_prompt</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">instruction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">long_instruction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     A simple input prompt function.</span>
+
+<span class="sd">     :param name: The name of the input prompt.</span>
+<span class="sd">     :param default: The default value for the input prompt.</span>
+<span class="sd">     :param type: The type of the input prompt.</span>
+<span class="sd">     :param choices: The choices for the input prompt.</span>
+<span class="sd">     :param instruction: The instruction for the input prompt.</span>
+<span class="sd">     :param long_instruction: The long instruction for the input prompt.</span>
+<span class="sd">     :param validate: The validation for the input prompt.</span>
+<span class="sd">     :param filter: The filter for the input prompt.</span>
+<span class="sd">     :param min_length: The minimum length for the input prompt.</span>
+<span class="sd">     :param max_length: The maximum length for the input prompt.</span>
+<span class="sd">     :return: The input prompt.</span>
+
+<span class="sd">     Example:</span>
+
+<span class="sd">         .. code-block:: python</span>
+
+<span class="sd">             simple_input_prompt(</span>
+<span class="sd">                 name=&quot;Your Name&quot;, default=&quot;John Doe&quot;, type=&quot;input&quot;, choices=None,</span>
+<span class="sd">                 instruction=&quot;Please enter your name.&quot;, long_instruction=&quot;Your name will be used for personalization purposes.&quot;,</span>
+<span class="sd">                 validate=None, filter=None, min_length=1, max_length=1000)</span>
+<span class="sd">             # &gt;&gt; &#39;John Doe&#39;</span>
+
+<span class="sd">             simple_input_prompt(</span>
+<span class="sd">                 name=&quot;Your Age&quot;, default=&quot;25&quot;, type=&quot;input&quot;, choices=None,</span>
+<span class="sd">                 instruction=&quot;Please enter your age.&quot;, long_instruction=&quot;Your age will be used for age verification purposes.&quot;,</span>
+<span class="sd">                 validate=None, filter=None, min_length=1, max_length=3)</span>
+<span class="sd">             # &gt;&gt; &#39;25&#39;</span>
+
+<span class="sd">     &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Required name for simple_input_prompt()&quot;</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+        <span class="n">_type_text</span> <span class="o">=</span> <span class="s2">&quot;select&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_type_text</span> <span class="o">=</span> <span class="nb">type</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+
+    <span class="n">_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">subparser_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">_type_text</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">_default_message</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
+        <span class="n">_default_message</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_message</span><span class="si">}{</span><span class="n">_default_message</span><span class="si">}</span><span class="s2">?&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">default</span><span class="p">),</span>
+        <span class="c1"># validate=lambda result: len(result) &gt;= min_length,</span>
+        <span class="c1"># validate=lambda result: min_length &lt;= len(result) &lt;= max_length,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="n">MinMaxValidator</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="n">min_length</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="n">max_length</span><span class="p">),</span>
+        <span class="n">invalid_message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;should be at least </span><span class="si">{</span><span class="n">min_length</span><span class="si">}</span><span class="s2"> , maximum </span><span class="si">{</span><span class="n">max_length</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">instruction</span><span class="o">=</span><span class="n">instruction</span><span class="p">,</span>
+        <span class="n">qmark</span><span class="o">=</span><span class="s2">&quot;[❓]&quot;</span><span class="p">,</span>
+        <span class="n">amark</span><span class="o">=</span><span class="s2">&quot;[❓]&quot;</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="p">{</span>
+            <span class="c1"># &quot;questionmark&quot;: &quot;#ffffff&quot;,</span>
+            <span class="c1"># &quot;answer&quot;: &quot;#000000&quot;,</span>
+            <span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="s2">&quot;#ffffff bold&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;#ffffff bold&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;#98c379 bold&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;long_instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;#96979A italic&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">options</span><span class="p">[</span><span class="s1">&#39;choices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">choices</span>
+        <span class="n">options</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;list&quot;</span>
+
+    <span class="k">if</span> <span class="n">instruction</span><span class="p">:</span>
+        <span class="n">options</span><span class="p">[</span><span class="s1">&#39;instruction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instruction</span>
+
+
+    <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
+        <span class="n">options</span><span class="p">[</span><span class="s1">&#39;validate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">validate</span>
+
+    <span class="k">if</span> <span class="nb">filter</span><span class="p">:</span>
+        <span class="n">options</span><span class="p">[</span><span class="s1">&#39;filter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">filter</span>
+
+    <span class="k">if</span> <span class="n">long_instruction</span><span class="p">:</span>
+        <span class="n">options</span><span class="p">[</span><span class="s1">&#39;long_instruction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;💡🤔 </span><span class="si">{</span><span class="n">long_instruction</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="n">inq_prompt</span><span class="p">(</span>
+        <span class="o">**</span><span class="n">options</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="change_select_pattern"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.change_select_pattern">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">change_select_pattern</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Change the select pattern of items.</span>
+
+<span class="sd">    :param items: The items to change the select pattern.</span>
+<span class="sd">    :return: The items with changed select pattern.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            items = {&#39;1&#39;: &#39;One&#39;, &#39;2&#39;: &#39;Two&#39;, &#39;3&#39;: &#39;Three&#39;}</span>
+<span class="sd">            change_select_pattern(items)</span>
+<span class="sd">            # &gt;&gt; [{&#39;name&#39;: &#39; 0) 1 (One)&#39;, &#39;value&#39;: &#39;1&#39;}, {&#39;name&#39;: &#39; 1) 2 (Two)&#39;, &#39;value&#39;: &#39;2&#39;}, {&#39;name&#39;: &#39; 2) 3 (Three)&#39;, &#39;value&#39;: &#39;3&#39;}]</span>
+
+<span class="sd">            items = [1, 2, 3]</span>
+<span class="sd">            change_select_pattern(items)</span>
+<span class="sd">            # &gt;&gt; [1, 2, 3]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">FlatDict</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">items</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">count</span><span class="si">:</span><span class="s2">&gt;2</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">items</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="tk_prompt"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.tk_prompt">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">tk_prompt</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">toolkit_prompt</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="fuzzy_prompt"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.fuzzy_prompt">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">fuzzy_prompt</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;style&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_style</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;bold #ffffff&quot;</span><span class="p">,</span>
+                <span class="c1"># &quot;questionmark&quot;: &quot;#ffffff&quot;,</span>
+                <span class="c1"># &quot;answer&quot;: &quot;#000000&quot;,</span>
+                <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;italic bold #b6b8ba&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="s2">&quot;#61afef bold&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;#98c379 bold&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuzzy_info&quot;</span><span class="p">:</span> <span class="s2">&quot;#474747&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">style_override</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;invalid_message&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;invalid_message&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;minimum 1 selection&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;validate&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;validate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="n">inquirer</span><span class="o">.</span><span class="n">fuzzy</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">answer</span></div>
+
+
+<div class="viewcode-block" id="fuzzy_prompt_to_argument"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.fuzzy_prompt_to_argument">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">fuzzy_prompt_to_argument</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">_pconf</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span>
+    <span class="n">_arg_missing_word</span> <span class="o">=</span> <span class="s2">&quot;DO_NOT_SET_THE_ARG&quot;</span>
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;argument&quot;</span><span class="p">):</span>
+        <span class="n">argument</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;argument&quot;</span><span class="p">)</span>
+        <span class="n">_argument_name</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="n">_argument_value</span> <span class="o">=</span> <span class="n">pawn</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">_arg_missing_word</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_arg_missing_word</span> <span class="o">==</span> <span class="n">_argument_value</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">Could not find the argument in args.&quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot; argument:&#39;</span><span class="si">{</span><span class="n">argument</span><span class="si">}</span><span class="s2">&#39; , &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;_argument_name: &#39;</span><span class="si">{</span><span class="n">_argument_name</span><span class="si">}</span><span class="s2">&#39;,&quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot; _argument_value: &#39;</span><span class="si">{</span><span class="n">_argument_value</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                             <span class="p">)</span>
+        <span class="n">_default_value</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;instruction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;instruction&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;( --</span><span class="si">{</span><span class="n">_argument_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">_default_value</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_argument_value</span> <span class="ow">and</span> <span class="n">argument</span><span class="p">:</span>
+            <span class="n">response_value</span> <span class="o">=</span> <span class="n">fuzzy_prompt</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">_pconf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">argument</span><span class="p">,</span> <span class="n">response_value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response_value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Required argument, </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_undefined_dict_key</span><span class="p">(</span><span class="n">dict_item</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dict_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;__NOT_DEFINED__KEY__&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;__NOT_DEFINED__KEY__&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="is_args_namespace"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.is_args_namespace">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">is_args_namespace</span><span class="p">():</span>
+    <span class="n">_pconf</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_pconf</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="is_data_args_namespace"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.is_data_args_namespace">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">is_data_args_namespace</span><span class="p">():</span>
+    <span class="n">_pconf</span> <span class="o">=</span> <span class="n">pconf</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_pconf</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_pconf</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="select_file_prompt"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.select_file_prompt">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">select_file_prompt</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Select a file: &quot;</span><span class="p">,</span>
+                       <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prompts the user to select a file from a given directory.</span>
+
+<span class="sd">    :param path: The directory to list files from. Default is current directory.</span>
+<span class="sd">    :param pattern: The pattern to match files. Default is all files.</span>
+<span class="sd">    :param message: The message to display to the user. Default is &quot;Select a file: &quot;.</span>
+<span class="sd">    :param recursive: Whether to recursively search directories. Default is False.</span>
+<span class="sd">    :param kwargs: Additional keyword arguments.</span>
+
+<span class="sd">    :return: The selected file.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            select_file_prompt(path=&quot;./my_directory&quot;, pattern=&quot;*.txt&quot;, message=&quot;Select a text file: &quot;, recursive=True)</span>
+<span class="sd">            # User is prompted with a list of .txt files in &#39;my_directory&#39; and any subdirectories.</span>
+<span class="sd">            # Returns the file selected by the user.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_list</span> <span class="o">=</span> <span class="n">get_file_list</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">pattern</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">PromptWithArgument</span><span class="p">(</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">file_list</span><span class="p">,</span>
+        <span class="n">instruction</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> files available]&quot;</span><span class="p">,</span>
+        <span class="n">max_height</span><span class="o">=</span><span class="s2">&quot;40%&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">fuzzy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="parse_list"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.parse_list">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">parse_list</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse a comma-separated string into a Python list.</span>
+
+<span class="sd">    :param value: A string to be parsed into a list</span>
+<span class="sd">    :type value: str</span>
+<span class="sd">    :return: A list of parsed items or the original value if not a string</span>
+<span class="sd">    :rtype: list or any</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            parse_list(&quot;apple, banana, orange&quot;)</span>
+<span class="sd">            # &gt;&gt; [&#39;apple&#39;, &#39;banana&#39;, &#39;orange&#39;]</span>
+
+<span class="sd">            parse_list(42)</span>
+<span class="sd">            # &gt;&gt; 42</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># If the value looks like a list (comma-separated), parse it into a Python list</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">all_special_characters</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="c1"># If the value is not a string, return it as-is</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="get_environment"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.get_environment">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_environment</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the value of an environment variable, optionally applying a transformation function.</span>
+
+<span class="sd">    :param key: The key of the environment variable</span>
+<span class="sd">    :param default: The default value to use if the environment variable is not set, default is an empty string</span>
+<span class="sd">    :param func: A function to apply to the environment variable value, default is no function (identity)</span>
+<span class="sd">    :type key: str</span>
+<span class="sd">    :type default: Any</span>
+<span class="sd">    :type func: Callable</span>
+<span class="sd">    :return: The value of the environment variable after applying the transformation function</span>
+<span class="sd">    :rtype: Any</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            os.environ[&quot;EXAMPLE_VARIABLE&quot;] = &quot;1,2,3&quot;</span>
+
+<span class="sd">            get_environment(&quot;EXAMPLE_VARIABLE&quot;)</span>
+<span class="sd">            # &gt;&gt; &#39;1,2,3&#39;</span>
+
+<span class="sd">            get_environment(&quot;EXAMPLE_VARIABLE&quot;, func=lambda x: x.split(&#39;,&#39;))</span>
+<span class="sd">            # &gt;&gt; [&#39;1&#39;, &#39;2&#39;, &#39;3&#39;]</span>
+
+<span class="sd">            get_environment(&quot;NON_EXISTENT_VARIABLE&quot;, default=&quot;default_value&quot;)</span>
+<span class="sd">            # &gt;&gt; &#39;default_value&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">env_raw_value</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">env_raw_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Environment variables must be strings. - </span><span class="si">{</span><span class="n">env_raw_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">env_value</span> <span class="o">=</span> <span class="n">env_raw_value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">all_special_characters</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">func</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">env_value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">env_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">env_value</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">parse_list</span><span class="p">(</span><span class="n">env_value</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">env_value</span></div>
+
+
+<div class="viewcode-block" id="json_input_prompt"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.json_input_prompt">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">json_input_prompt</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">{},</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Edit Transaction JSON&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prompts the user to edit a JSON file.</span>
+
+<span class="sd">    :param default: default JSON to be edited, default is an empty dictionary.</span>
+<span class="sd">    :param message: message to be displayed while editing, default is &quot;transaction&quot;.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            default_json = {&quot;key&quot;: &quot;value&quot;}</span>
+<span class="sd">            message = &quot;Edit JSON&quot;</span>
+<span class="sd">            json_input_prompt(default=default_json, message=message)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">default</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">_default_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_default_json</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="n">json_text</span> <span class="o">=</span> <span class="n">inq_prompt</span><span class="p">(</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2"> :&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">_default_json</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">long_instruction</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Move the arrows to edit the </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="n">JsonValidator</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_text</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NewlineHelpFormatter"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.NewlineHelpFormatter">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NewlineHelpFormatter</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">HelpFormatter</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fill_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">indent</span><span class="p">):</span>
+        <span class="c1"># 각 줄을 분리하여 리스트로 생성</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+        <span class="n">formatted_lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">formatted_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indented_line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">indent</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="n">formatted_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indented_line</span><span class="p">)</span>
+
+        <span class="n">formatted_text</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted_lines</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">formatted_text</span></div>
+
+
+<div class="viewcode-block" id="ColoredHelpFormatter"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.ColoredHelpFormatter">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ColoredHelpFormatter</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_original_epilog</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;epilog&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_multi_line</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="ColoredHelpFormatter.force_adjust_parts"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.ColoredHelpFormatter.force_adjust_parts">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">force_adjust_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parts</span><span class="p">,</span> <span class="n">_sep_space</span><span class="p">):</span>
+        <span class="n">combined_string</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+        <span class="c1"># Find the position of the second space</span>
+        <span class="n">second_space_pos</span> <span class="o">=</span> <span class="n">combined_string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_sep_space</span><span class="p">,</span> <span class="n">combined_string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">argument</span> <span class="o">=</span> <span class="n">combined_string</span><span class="p">[:</span><span class="n">second_space_pos</span><span class="p">]</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">combined_string</span><span class="p">[</span><span class="n">second_space_pos</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">argument</span><span class="p">,</span> <span class="n">description</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_multi_line</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[blue]</span><span class="si">{</span><span class="n">parts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">parts</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="n">formatted_action</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_format_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="n">_sep_space</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="mi">3</span>
+
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">formatted_action</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># pawn.console.log(parts)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_multi_line</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># parts = self.force_adjust_parts(parts, _sep_space)</span>
+        <span class="c1"># pawn.console.log(parts)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">formatted_action</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">_sep_space</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_multi_line</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">OKBLUE</span> <span class="o">+</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">RESET</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">CYAN</span> <span class="o">+</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">RESET</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_multi_line</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_sep_space</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ColoredHelpFormatter.format_help"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.ColoredHelpFormatter.format_help">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">help_text</span> <span class="o">=</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">RESET</span> <span class="o">+</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">format_help</span><span class="p">()</span>
+        <span class="n">epilog_prefix</span> <span class="o">=</span> <span class="s2">&quot;Usage examples:&quot;</span>
+
+        <span class="k">if</span> <span class="n">epilog_prefix</span> <span class="ow">in</span> <span class="n">help_text</span><span class="p">:</span>
+            <span class="n">epilog_content_indicator</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">epilog_prefix</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_original_epilog</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">help_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">epilog_content_indicator</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">epilog_prefix_title</span> <span class="o">=</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">UNDERLINE</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">epilog_prefix</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span><span class="n">bcolors</span><span class="o">.</span><span class="n">RESET</span>
+            <span class="n">help_text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">rf</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">epilog_prefix</span><span class="si">}</span><span class="s1">(.|\n)*&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">epilog_prefix_title</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">help_text</span><span class="p">)</span>
+
+        <span class="n">formatted_epilog_lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_original_epilog</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;pawns &quot;</span><span class="p">):</span>
+                <span class="n">formatted_epilog_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bcolors</span><span class="o">.</span><span class="n">OKBLUE</span> <span class="o">+</span> <span class="n">line</span> <span class="o">+</span> <span class="n">bcolors</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">formatted_epilog_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="n">formatted_epilog</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted_epilog_lines</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">help_text</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">formatted_epilog</span></div></div>
+
+<div class="viewcode-block" id="CustomArgumentParser"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.CustomArgumentParser">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CustomArgumentParser</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+<div class="viewcode-block" id="CustomArgumentParser.error"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.CustomArgumentParser.error">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="n">sys_exit</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="get_default_arguments"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.get_default_arguments">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_default_arguments</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract all default values from an ArgumentParser, including any subparsers.</span>
+
+<span class="sd">    :param parser: The ArgumentParser instance to extract defaults from.</span>
+<span class="sd">                   If None, an exception will be raised.</span>
+<span class="sd">    :return: A dictionary containing argument names as keys and their default values.</span>
+<span class="sd">    :raises ValueError: If no parser is provided.</span>
+
+<span class="sd">    This function iterates through the main parser&#39;s actions to collect default values.</span>
+<span class="sd">    If the parser has subparsers, it recursively collects their defaults as well.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.input import get_default_arguments</span>
+
+<span class="sd">            parser = get_parser()</span>
+<span class="sd">            defaults = get_default_arguments(parser)</span>
+<span class="sd">            pawn.console.log(defaults)</span>
+<span class="sd">            # &gt;&gt; {&#39;command&#39;: None, &#39;file&#39;: [&#39;/var/log/system.log&#39;], &#39;base_dir&#39;: &#39;.&#39;, &#39;log_type&#39;: &#39;console&#39;, &#39;log_file&#39;: None}</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid parser. Please provide a valid ArgumentParser instance.&quot;</span><span class="p">)</span>
+
+    <span class="n">defaults</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">_actions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">dest</span> <span class="o">!=</span> <span class="s1">&#39;help&#39;</span> <span class="ow">and</span> <span class="n">action</span><span class="o">.</span><span class="n">default</span> <span class="o">!=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span><span class="p">:</span>
+            <span class="n">defaults</span><span class="p">[</span><span class="n">action</span><span class="o">.</span><span class="n">dest</span><span class="p">]</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">default</span>
+
+    <span class="n">subparsers</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;_subparsers&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">subparsers</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">subparser_action</span> <span class="ow">in</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">_group_actions</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">choice</span><span class="p">,</span> <span class="n">subparser</span> <span class="ow">in</span> <span class="n">subparser_action</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">sub_defaults</span> <span class="o">=</span> <span class="n">get_default_arguments</span><span class="p">(</span><span class="n">subparser</span><span class="p">)</span>
+                <span class="n">defaults</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_defaults</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">defaults</span></div>
+
+
+<div class="viewcode-block" id="get_service_specific_arguments"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.get_service_specific_arguments">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_service_specific_arguments</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts the arguments for a specific service from the argparse parser.</span>
+
+<span class="sd">    :param parser: The top-level argparse parser.</span>
+<span class="sd">    :param service_name: The name of the service to extract arguments for (&#39;ssh&#39; or &#39;wallet&#39;).</span>
+<span class="sd">    :return: Dictionary of argument names and their default values for the specified service.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid parser. Please provide a valid ArgumentParser instance.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">service_name</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid service_name. Please provide a service_name.&quot;</span><span class="p">)</span>
+
+    <span class="n">subparsers_actions</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">action</span> <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">_actions</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">argparse</span><span class="o">.</span><span class="n">_SubParsersAction</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Iterate through subparsers and get the one for the specific service</span>
+    <span class="k">for</span> <span class="n">subparsers_action</span> <span class="ow">in</span> <span class="n">subparsers_actions</span><span class="p">:</span>
+        <span class="c1"># Get the service-specific parser</span>
+        <span class="n">service_parser</span> <span class="o">=</span> <span class="n">subparsers_action</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">service_parser</span><span class="p">:</span>
+            <span class="c1"># Extract the arguments and their defaults from the service-specific parser</span>
+            <span class="n">service_args</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">service_parser</span><span class="o">.</span><span class="n">_actions</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">dest</span> <span class="o">!=</span> <span class="s1">&#39;help&#39;</span><span class="p">:</span>
+                    <span class="n">service_args</span><span class="p">[</span><span class="n">action</span><span class="o">.</span><span class="n">dest</span><span class="p">]</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">default</span>
+            <span class="k">return</span> <span class="n">service_args</span>
+
+    <span class="k">return</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="ask_yes_no"><a class="viewcode-back" href="../../../module/pawnlib.input.html#pawnlib.input.prompt.ask_yes_no">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">ask_yes_no</span><span class="p">(</span>
+        <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">console</span><span class="p">:</span> <span class="n">Console</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">yes_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span>
+        <span class="n">no_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span>
+        <span class="n">dim_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dim white&quot;</span><span class="p">,</span>
+        <span class="n">emoji</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Asks a yes/no question using Rich, placing the default option first and highlighting it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        question (str): The question to ask the user.</span>
+<span class="sd">        default (Optional[bool]): The default answer if the user just presses Enter.</span>
+<span class="sd">                                   If None, user must explicitly answer.</span>
+<span class="sd">        console (Console, optional): Rich Console object for printing.</span>
+<span class="sd">        yes_color (str, optional): Color for the &quot;Yes&quot; option. Defaults to &quot;green&quot;.</span>
+<span class="sd">        no_color (str, optional): Color for the &quot;No&quot; option. Defaults to &quot;red&quot;.</span>
+<span class="sd">        dim_color (str, optional): Color for dimmed text. Defaults to &quot;dim white&quot;.</span>
+<span class="sd">        emoji (bool, optional): If True, includes emojis in the prompt.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the user answers yes, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">console</span> <span class="o">=</span> <span class="n">console</span> <span class="ow">or</span> <span class="n">Console</span><span class="p">()</span>
+
+    <span class="c1"># Define Yes/No options with emojis and colors</span>
+    <span class="n">yes_option</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;✅ &#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">emoji</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">[bold </span><span class="si">{</span><span class="n">yes_color</span><span class="si">}</span><span class="s2">]Yes[/bold </span><span class="si">{</span><span class="n">yes_color</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="n">no_option</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;❌ &#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">emoji</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">[bold </span><span class="si">{</span><span class="n">no_color</span><span class="si">}</span><span class="s2">]No[/bold </span><span class="si">{</span><span class="n">no_color</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="n">dimmed_yes</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">emoji</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">dim_color</span><span class="si">}</span><span class="s2">]Yes[/</span><span class="si">{</span><span class="n">dim_color</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="n">dimmed_no</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">emoji</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">dim_color</span><span class="si">}</span><span class="s2">]No[/</span><span class="si">{</span><span class="n">dim_color</span><span class="si">}</span><span class="s2">]&quot;</span>
+
+    <span class="c1"># Adjust prompt based on default value</span>
+    <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">question</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">yes_option</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dimmed_no</span><span class="si">}</span><span class="s2">): &quot;</span>
+    <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">question</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">no_option</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dimmed_yes</span><span class="si">}</span><span class="s2">): &quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">question</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">dimmed_yes</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dimmed_no</span><span class="si">}</span><span class="s2">): &quot;</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">console</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="p">:</span>  <span class="c1"># User pressed Enter</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;❌ [bold red]You must explicitly answer &#39;yes&#39; or &#39;no&#39;.[/bold red]&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">return</span> <span class="n">default</span>
+        <span class="k">elif</span> <span class="n">response</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;yes&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">response</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;❌ [bold red]Invalid input.[/bold red] Please enter &#39;yes&#39;, &#39;no&#39;, or press Enter.&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

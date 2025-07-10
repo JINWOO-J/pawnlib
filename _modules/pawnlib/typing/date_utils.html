@@ -1,0 +1,520 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.typing.date_utils &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.typing.date_utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.typing.date_utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing.converter</span><span class="w"> </span><span class="kn">import</span> <span class="n">append_zero</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">const</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">zoneinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZoneInfo</span><span class="p">,</span> <span class="n">ZoneInfoNotFoundError</span>
+    <span class="n">USE_ZONEINFO</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">USE_ZONEINFO</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">pytz</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">pytz</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="TimeCalculator"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TimeCalculator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to convert seconds into various human-readable string formats.</span>
+
+<span class="sd">    :param seconds: The time in seconds to be converted (integer or float).</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            tc = TimeCalculator(1224411.5)</span>
+<span class="sd">            print(tc.to_strings())  # &quot;14 days, 04:06:51&quot;</span>
+<span class="sd">            print(tc.to_strings(include_ms=True))  # &quot;14 days, 04:06:51.500&quot;</span>
+<span class="sd">            print(tc.to_minutes())  # 20406</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seconds</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_days</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hours</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_minutes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remaining_seconds</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hhmmss</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_seconds</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TimeCalculator.set_seconds"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.set_seconds">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">set_seconds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the seconds value and recalculate the time components.</span>
+
+<span class="sd">        :param seconds: The time in seconds (integer or float).</span>
+<span class="sd">        :raises TypeError: If seconds is not an int or float.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;seconds must be an int or float, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seconds</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>  <span class="c1"># Convert to float to handle decimals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TimeCalculator.calculate"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.calculate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the days, hours, minutes, and remaining seconds from the given seconds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seconds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_days</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">seconds</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">DAY_IN_SECONDS</span><span class="p">)</span>
+        <span class="n">seconds</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_days</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">DAY_IN_SECONDS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hours</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">seconds</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">HOUR_IN_SECONDS</span><span class="p">)</span>
+        <span class="n">seconds</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hours</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">HOUR_IN_SECONDS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_minutes</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">seconds</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">MINUTE_IN_SECONDS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remaining_seconds</span> <span class="o">=</span> <span class="n">seconds</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minutes</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">MINUTE_IN_SECONDS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hhmmss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_hhmmss</span><span class="p">()</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_hhmmss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_ms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Format the time components into a string.</span>
+
+<span class="sd">        :param include_ms: Whether to include milliseconds in the output.</span>
+<span class="sd">        :return: The formatted time string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">include_ms</span><span class="p">:</span>
+            <span class="n">ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_remaining_seconds</span> <span class="o">%</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+            <span class="n">sec</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_remaining_seconds</span><span class="p">)</span>
+            <span class="n">hhmmss</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_hours</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_minutes</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">sec</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ms</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hhmmss</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_hours</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_minutes</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_remaining_seconds</span><span class="p">)</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_days</span><span class="p">:</span>
+            <span class="n">day_unit</span> <span class="o">=</span> <span class="s2">&quot;day&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_days</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;days&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_days</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">day_unit</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">hhmmss</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">hhmmss</span>
+
+<div class="viewcode-block" id="TimeCalculator.to_strings"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_strings">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_strings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;detailed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">include_ms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the calculated time as a string.</span>
+
+<span class="sd">        :param format_type: &quot;default&quot; for &quot;days HH:MM:SS&quot;, &quot;detailed&quot; for &quot;X days Y hours Z minutes W seconds&quot;.</span>
+<span class="sd">        :param include_ms: Whether to include milliseconds.</span>
+<span class="sd">        :return: The formatted time string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">format_type</span> <span class="o">==</span> <span class="s2">&quot;detailed&quot;</span><span class="p">:</span>
+            <span class="n">ms_part</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_remaining_seconds</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">include_ms</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_days</span><span class="si">}</span><span class="s2"> days </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_hours</span><span class="si">}</span><span class="s2"> hours </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_minutes</span><span class="si">}</span><span class="s2"> minutes &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_remaining_seconds</span><span class="p">)</span><span class="si">}{</span><span class="n">ms_part</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_hhmmss</span><span class="p">(</span><span class="n">include_ms</span><span class="p">)</span></div>
+<div class="viewcode-block" id="TimeCalculator.to_seconds"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_seconds">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_seconds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert seconds to total seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seconds</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TimeCalculator.to_minutes"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_minutes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_minutes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert seconds to total minutes.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seconds</span> <span class="o">//</span> <span class="n">const</span><span class="o">.</span><span class="n">MINUTE_IN_SECONDS</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TimeCalculator.to_hours"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_hours">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_hours</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert seconds to total hours.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seconds</span> <span class="o">//</span> <span class="n">const</span><span class="o">.</span><span class="n">HOUR_IN_SECONDS</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TimeCalculator.to_days"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_days">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_days</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert seconds to total days.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seconds</span> <span class="o">//</span> <span class="n">const</span><span class="o">.</span><span class="n">DAY_IN_SECONDS</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TimeCalculator.to_weeks"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.to_weeks">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_weeks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert seconds to total weeks.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seconds</span> <span class="o">//</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">DAY_IN_SECONDS</span> <span class="o">*</span> <span class="mi">7</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TimeCalculator.from_hhmmss"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.TimeCalculator.from_hhmmss">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_hhmmss</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">hhmmss</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;TimeCalculator&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a TimeCalculator object from an &quot;HH:MM:SS&quot; string.</span>
+
+<span class="sd">        :param hhmmss: Time string in &quot;HH:MM:SS&quot; format.</span>
+<span class="sd">        :return: A TimeCalculator object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">hhmmss</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">))</span>
+        <span class="n">seconds</span> <span class="o">=</span> <span class="n">h</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">HOUR_IN_SECONDS</span> <span class="o">+</span> <span class="n">m</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">MINUTE_IN_SECONDS</span> <span class="o">+</span> <span class="n">s</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_strings</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;TimeCalculator(seconds=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_seconds</span><span class="si">}</span><span class="s2">, hhmmss=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hhmmss</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>   </div>
+
+
+<div class="viewcode-block" id="convert_unix_timestamp"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.convert_unix_timestamp">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">convert_unix_timestamp</span><span class="p">(</span><span class="n">date_param</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a date parameter to a Unix timestamp.</span>
+
+<span class="sd">    :param date_param: A date parameter to be converted to a Unix timestamp.</span>
+<span class="sd">    :type date_param: datetime.datetime or int</span>
+<span class="sd">    :return: A Unix timestamp.</span>
+<span class="sd">    :rtype: int</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            import datetime</span>
+
+<span class="sd">            # Convert a datetime object to a Unix timestamp.</span>
+<span class="sd">            date = datetime.datetime(2022, 1, 1, 0, 0, 0)</span>
+<span class="sd">            convert_unix_timestamp(date)</span>
+<span class="sd">            # &gt;&gt; 1640995200</span>
+
+<span class="sd">            # Convert an integer to a Unix timestamp.</span>
+<span class="sd">            date = 1640995200</span>
+<span class="sd">            convert_unix_timestamp(date)</span>
+<span class="sd">            # &gt;&gt; 1640995200</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">date_param</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">date_param</span><span class="o">.</span><span class="n">timestamp</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">date_param</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">date_param</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="get_range_day_of_month"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.get_range_day_of_month">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_range_day_of_month</span><span class="p">(</span><span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">return_unix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This functions will be returned first_day and last_day in parameter.</span>
+
+<span class="sd">    :param year:</span>
+<span class="sd">    :param month:</span>
+<span class="sd">    :param return_unix:</span>
+<span class="sd">    :return: (1646060400, 1648738799)</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing import date_utils</span>
+
+<span class="sd">            date_utils.get_range_day_of_month(year=2022, month=3, return_unix=False)</span>
+
+<span class="sd">            # &gt;&gt; (&#39;2022-3-01 00:00:00&#39;, &#39;2022-03-31 23:59:59&#39;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dst_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">next_month</span> <span class="o">=</span> <span class="n">dst_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">day</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">first_day</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">month</span><span class="si">}</span><span class="s2">-01 00:00:00&quot;</span>
+    <span class="n">last_day</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">next_month</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">next_month</span><span class="o">.</span><span class="n">day</span><span class="p">)</span><span class="si">}</span><span class="s2"> 23:59:59&quot;</span>
+    <span class="k">if</span> <span class="n">return_unix</span><span class="p">:</span>
+        <span class="n">first_day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">first_day</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()))</span>
+        <span class="n">last_day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">last_day</span><span class="p">),</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()))</span>
+
+    <span class="k">return</span> <span class="n">first_day</span><span class="p">,</span> <span class="n">last_day</span></div>
+
+
+<div class="viewcode-block" id="get_timezone"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.get_timezone">[docs]</a><span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_timezone</span><span class="p">(</span><span class="n">timezone</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cache timezone objects for performance.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">USE_ZONEINFO</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ZoneInfo</span><span class="p">(</span><span class="n">timezone</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">pytz</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="n">timezone</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">pytz</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">UnknownTimeZoneError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown timezone: </span><span class="si">{</span><span class="n">timezone</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="todaydate"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.todaydate">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">todaydate</span><span class="p">(</span>
+    <span class="n">date_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span>
+        <span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;md&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;time_sec&quot;</span><span class="p">,</span> <span class="s2">&quot;hour&quot;</span><span class="p">,</span> <span class="s2">&quot;ms&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;log_ms&quot;</span><span class="p">,</span> <span class="s2">&quot;ms_text&quot;</span><span class="p">,</span> <span class="s2">&quot;unix&quot;</span><span class="p">,</span> <span class="s2">&quot;ms_unix&quot;</span>
+    <span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+    <span class="n">target_datetime</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">timezone</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span><span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns today&#39;s date as a formatted string based on the specified type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        date_type: Optional format type. Options are:</span>
+<span class="sd">            - None: &quot;YYYYMMDD&quot; (default)</span>
+<span class="sd">            - &quot;file&quot;: &quot;YYYYMMDD_HHMM&quot;</span>
+<span class="sd">            - &quot;md&quot;: &quot;MMDD&quot;</span>
+<span class="sd">            - &quot;time&quot;: &quot;HH:MM:SS.sss&quot;</span>
+<span class="sd">            - &quot;time_sec&quot;: &quot;HH:MM:SS&quot;</span>
+<span class="sd">            - &quot;hour&quot;: &quot;HHMM&quot;</span>
+<span class="sd">            - &quot;ms&quot; or &quot;log&quot; or &quot;log_ms&quot;: &quot;YYYY-MM-DD HH:MM:SS.sss&quot;</span>
+<span class="sd">            - &quot;ms_text&quot;: &quot;YYYYMMDD-HHMMSSsss&quot;</span>
+<span class="sd">            - &quot;unix&quot;: Hexadecimal Unix timestamp (seconds)</span>
+<span class="sd">            - &quot;ms_unix&quot;: Hexadecimal Unix timestamp (microseconds)</span>
+
+<span class="sd">        target_datetime: Optional datetime object. Defaults to current time if None.</span>
+<span class="sd">        timezone: Optional timezone name (e.g., &quot;Asia/Seoul&quot;). Uses system timezone if None or unsupported.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Formatted date string.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; todaydate(&quot;ms_unix&quot;)</span>
+<span class="sd">        &#39;0x5e66be4a93496&#39;</span>
+<span class="sd">        &gt;&gt;&gt; todaydate(&quot;log&quot;)</span>
+<span class="sd">        &#39;2025-03-25 12:34:56.789&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tz</span> <span class="o">=</span> <span class="n">get_timezone</span><span class="p">(</span><span class="n">timezone</span><span class="p">)</span> <span class="k">if</span> <span class="n">timezone</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">target_datetime</span> <span class="k">if</span> <span class="n">target_datetime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="p">)</span>
+
+    <span class="n">formats</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="kc">None</span><span class="p">:</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;md&quot;</span><span class="p">:</span> <span class="s2">&quot;%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">_%H%M&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="s2">&quot;%H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time_sec&quot;</span><span class="p">:</span> <span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hour&quot;</span><span class="p">:</span> <span class="s2">&quot;%H%M&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ms&quot;</span><span class="p">:</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;log&quot;</span><span class="p">:</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;log_ms&quot;</span><span class="p">:</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ms_text&quot;</span><span class="p">:</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">-%H%M%S</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">now</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;target_datetime must be a datetime object, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">now</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>    
+
+    <span class="k">if</span> <span class="n">date_type</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">formats</span><span class="p">[</span><span class="n">date_type</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="k">if</span> <span class="n">date_type</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;ms&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;log_ms&quot;</span><span class="p">,</span> <span class="s2">&quot;ms_text&quot;</span><span class="p">}</span> <span class="k">else</span> <span class="n">result</span>
+
+    <span class="k">if</span> <span class="n">date_type</span> <span class="o">==</span> <span class="s2">&quot;unix&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">now</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()))</span>
+    <span class="k">if</span> <span class="n">date_type</span> <span class="o">==</span> <span class="s2">&quot;ms_unix&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">now</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1_000_000</span><span class="p">))</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported date_type: </span><span class="si">{</span><span class="n">date_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="format_seconds_to_hhmmss"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.format_seconds_to_hhmmss">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">format_seconds_to_hhmmss</span><span class="p">(</span><span class="n">seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    This functions will be returned seconds to hh:mm:ss format</span>
+
+<span class="sd">    :param seconds:</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing import date_utils</span>
+
+<span class="sd">            date_utils.format_seconds_to_hhmmss(2323)</span>
+<span class="sd">            # &gt;&gt; &#39;00:38:43&#39;</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+        <span class="n">hours</span> <span class="o">=</span> <span class="n">seconds</span> <span class="o">//</span> <span class="n">const</span><span class="o">.</span><span class="n">HOUR_IN_SECONDS</span>
+        <span class="n">seconds</span> <span class="o">%=</span> <span class="n">const</span><span class="o">.</span><span class="n">HOUR_IN_SECONDS</span>
+        <span class="n">minutes</span> <span class="o">=</span> <span class="n">seconds</span> <span class="o">//</span> <span class="n">const</span><span class="o">.</span><span class="n">MINUTE_IN_SECONDS</span>
+        <span class="n">seconds</span> <span class="o">%=</span> <span class="n">const</span><span class="o">.</span><span class="n">MINUTE_IN_SECONDS</span>
+        <span class="n">hhmmss</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%02i</span><span class="s2">:</span><span class="si">%02i</span><span class="s2">:</span><span class="si">%02i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hours</span><span class="p">,</span> <span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hhmmss</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">seconds</span></div>
+
+
+<div class="viewcode-block" id="timestamp_to_string"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.timestamp_to_string">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">timestamp_to_string</span><span class="p">(</span><span class="n">unix_timestamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">str_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span> <span class="n">tz</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a Unix timestamp to a formatted string based on local timezone or specified timezone.</span>
+
+<span class="sd">    :param unix_timestamp: Unix timestamp (seconds, milliseconds, or microseconds)</span>
+<span class="sd">    :param str_format: Output string format (default: &#39;%Y-%m-%d %H:%M:%S&#39;)</span>
+<span class="sd">    :param tz: Timezone as string (e.g., &#39;UTC&#39;, &#39;Asia/Seoul&#39;) or tzinfo object (default: None, uses local timezone)</span>
+<span class="sd">    :return: Formatted datetime string</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">            from pawnlib.typing import date_utils</span>
+
+<span class="sd">            # Local timezone (default)</span>
+<span class="sd">            date_utils.timestamp_to_string(12323232323)</span>
+<span class="sd">            # &gt;&gt; &#39;2360-07-05 09:05:23&#39; (local timezone, e.g., KST)</span>
+
+<span class="sd">            # UTC timezone</span>
+<span class="sd">            date_utils.timestamp_to_string(12323232323, tz=&#39;UTC&#39;)</span>
+<span class="sd">            # &gt;&gt; &#39;2360-07-05 00:05:23&#39; (UTC)</span>
+
+<span class="sd">            # Asia/Seoul timezone</span>
+<span class="sd">            date_utils.timestamp_to_string(12323232323, tz=&#39;Asia/Seoul&#39;)</span>
+<span class="sd">            # &gt;&gt; &#39;2360-07-05 09:05:23&#39; (Asia/Seoul)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">unix_timestamp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">unix_timestamp</span> <span class="o">=</span> <span class="n">unix_timestamp</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">unix_timestamp</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid timestamp format: </span><span class="si">{</span><span class="n">unix_timestamp</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">unix_timestamp</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+    <span class="n">ts_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">unix_timestamp</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">ts_length</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">SECONDS_DIGITS</span><span class="p">:</span>
+        <span class="n">timestamp_in_seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">unix_timestamp</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ts_length</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">MILLI_SECONDS_DIGITS</span><span class="p">:</span>
+        <span class="n">timestamp_in_seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">unix_timestamp</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1_000</span>
+    <span class="k">elif</span> <span class="n">ts_length</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">MICRO_SECONDS_DIGITS</span><span class="p">:</span>
+        <span class="n">timestamp_in_seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">unix_timestamp</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1_000_000</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid timestamp length - length=</span><span class="si">{</span><span class="n">ts_length</span><span class="si">}</span><span class="s1">, timestamp=</span><span class="si">{</span><span class="n">unix_timestamp</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tz</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">timezone</span> <span class="o">=</span> <span class="n">get_timezone</span><span class="p">(</span><span class="n">tz</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ZoneInfoNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported timezone: </span><span class="si">{</span><span class="n">tz</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">timezone</span> <span class="o">=</span> <span class="n">tz</span>
+
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">timestamp_in_seconds</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">str_format</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="second_to_dayhhmm"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.date_utils.second_to_dayhhmm">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">second_to_dayhhmm</span><span class="p">(</span><span class="n">seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    This functions will be returned unix timestamp to days hh:mm:ss format</span>
+
+<span class="sd">    :param seconds:</span>
+<span class="sd">    :return:</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.typing import date_utils</span>
+
+<span class="sd">            date_utils.second_to_dayhhmm(2132323)</span>
+
+<span class="sd">            # &gt;&gt; &#39;24 days 16:18:43&#39;</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span> <span class="o">//</span> <span class="n">const</span><span class="o">.</span><span class="n">DAY_IN_SECONDS</span><span class="p">)</span>
+    <span class="n">input_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span> <span class="o">%</span> <span class="n">const</span><span class="o">.</span><span class="n">DAY_IN_SECONDS</span><span class="p">)</span>
+    <span class="n">hour</span> <span class="o">=</span> <span class="n">input_time</span> <span class="o">//</span> <span class="n">const</span><span class="o">.</span><span class="n">HOUR_IN_SECONDS</span>
+    <span class="n">input_time</span> <span class="o">%=</span> <span class="n">const</span><span class="o">.</span><span class="n">HOUR_IN_SECONDS</span>
+    <span class="n">minutes</span> <span class="o">=</span> <span class="n">input_time</span> <span class="o">//</span> <span class="n">const</span><span class="o">.</span><span class="n">MINUTE_IN_SECONDS</span>
+    <span class="n">input_time</span> <span class="o">%=</span> <span class="n">const</span><span class="o">.</span><span class="n">MINUTE_IN_SECONDS</span>
+    <span class="n">sec</span> <span class="o">=</span> <span class="n">input_time</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">day</span><span class="si">}</span><span class="s2"> days </span><span class="si">{</span><span class="n">append_zero</span><span class="p">(</span><span class="n">hour</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">append_zero</span><span class="p">(</span><span class="n">minutes</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">append_zero</span><span class="p">(</span><span class="n">sec</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

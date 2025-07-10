@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.cli.docker &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.cli.docker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.cli.docker</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_number_list</span><span class="p">,</span> <span class="n">Counter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config.globalconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigSectionMap</span><span class="p">,</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_file</span><span class="p">,</span> <span class="n">check_file_overwrite</span><span class="p">,</span> <span class="n">write_file</span><span class="p">,</span> <span class="n">is_file</span><span class="p">,</span> <span class="n">dump</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncTasks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">flatten_list</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.docker</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncDocker</span><span class="p">,</span> <span class="n">run_container</span><span class="p">,</span> <span class="n">run_dyn_container</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">InquirerPy</span><span class="w"> </span><span class="kn">import</span> <span class="n">prompt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.prompt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Confirm</span><span class="p">,</span> <span class="n">FloatPrompt</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">,</span> <span class="n">PromptBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.syntax</span><span class="w"> </span><span class="kn">import</span> <span class="n">Syntax</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.machinery</span><span class="w"> </span><span class="kn">import</span> <span class="n">SourceFileLoader</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">configparser</span>
+
+
+<span class="n">__description__</span> <span class="o">=</span> <span class="s1">&#39;Command Line Interface for managing Docker containers. This tool supports initialization, running, starting, stopping, and removing Docker containers.&#39;</span>
+
+<span class="n">__epilog__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;This script provides various commands for Docker container management.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Usage examples:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;    - Initialize configuration and generate sample files:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;        `$ pawns docker init`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;    - Run containers based on provided targets:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;        `$ pawns docker run --count 10 --name my_container --image my_image`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;    - Start, stop, or remove containers:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;        `$ pawns docker start --name my_container`</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;        `$ pawns docker stop --name my_container`</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;        `$ pawns docker delete --name my_container`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;For more information, visit the project repository or consult the documentation.&quot;</span>
+<span class="p">)</span>
+
+<span class="n">EXEC_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.docker.get_parser">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Command Line Interface for docker&#39;</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span>
+    <span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="get_arguments"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.docker.get_arguments">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;command&#39;</span><span class="p">,</span>
+        <span class="c1"># choices=[&#39;init&#39;, &#39;run&#39;, &#39;create&#39;, &#39;create_or_replace&#39;, &#39;delete&#39;, &#39;start&#39;, &#39;stop&#39;],</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="s1">&#39;run&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;stop&#39;</span><span class="p">,</span> <span class="s2">&quot;ls&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--unixsocket&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;unixsocket&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;unix domain socket path (default: /var/run/docker.sock)&#39;</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;/var/run/docker.sock&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;debug mode. &#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--count&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;container count&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;container count (default: 30)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--max-at-once&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;max_at_once count&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;max_at_once count (default: 30)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--max-per-second&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;max_per_second count&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;max_per_second count (default: 50)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;--name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;container name&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;container prefix name &#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="s1">&#39;--image&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;image name&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;docker image name &#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># parser.add_argument(&#39;-f&#39;, &#39;--file&#39;, type=argparse.FileType(&#39;r&#39;), help=&quot;container source code&quot;)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;--file&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;import the container source code&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--force&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;run force mode without confirm&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--config&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;import the config file&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">EXEC_PATH</span><span class="si">}</span><span class="s1">/config.ini&#39;</span><span class="p">)</span>
+    <span class="c1"># parser.add_argument(&#39;-t&#39;, &#39;--target&#39;, type=str, help=&quot;target&quot;, default=None)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="s1">&#39;--target&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-log&#39;</span><span class="p">,</span> <span class="s1">&#39;--show-container-log&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">str2bool</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;show last container log (default: False)&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="initialize"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.docker.initialize">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">PAWN_CONFIG_FILE</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;os.cwd =&gt; </span><span class="si">{</span><span class="n">EXEC_PATH</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">pwn</span> <span class="o">=</span> <span class="n">pawn</span><span class="o">.</span><span class="n">conf</span><span class="p">()</span>
+    <span class="n">pawn_config</span> <span class="o">=</span> <span class="n">pawn</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PAWN_CONFIG&#39;</span><span class="p">)</span>
+
+    <span class="n">default_image</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;docker_planet&quot;</span><span class="p">:</span> <span class="s2">&quot;jinwoo/planet&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;docker_echo&quot;</span><span class="p">:</span> <span class="s2">&quot;jmalloc/echo-server&quot;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;init&quot;</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Generate the sample files for docker container&quot;</span><span class="p">)</span>
+        <span class="n">template_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">/templates&quot;</span>
+
+        <span class="n">template_question</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;What do you want to template?&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;choices&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">tmpl_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.tmpl&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">tmpl_file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">template_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">tmpl_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.tmpl&#39;</span><span class="p">)],</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;input&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;target_list&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;What</span><span class="se">\&#39;</span><span class="s1">s the target(access_code) list?&#39;</span><span class="p">,</span>
+                <span class="c1"># &#39;default&#39;: &quot;[]&quot;</span>
+                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Counter(start=10000, stop=10000+args.count, convert_func=str)&#39;</span> <span class="k">if</span> <span class="s2">&quot;docker_echo&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;[]&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;input&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;filename&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;What</span><span class="se">\&#39;</span><span class="s1">s the filename?&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;input&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;What</span><span class="se">\&#39;</span><span class="s1">s your image name?&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">default_image</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">])</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;input&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;container_name&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;What</span><span class="se">\&#39;</span><span class="s1">s your container name?&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span>
+            <span class="p">},</span>
+        <span class="p">]</span>
+
+        <span class="n">answers</span> <span class="o">=</span> <span class="n">prompt</span><span class="p">(</span><span class="n">template_question</span><span class="p">)</span>
+        <span class="n">template_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">template_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">answers</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.tmpl&quot;</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">open_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">template_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">templated_dict</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">template</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">answers</span>
+        <span class="p">)</span>
+
+        <span class="n">syntax</span> <span class="o">=</span> <span class="n">Syntax</span><span class="p">(</span><span class="n">templated_dict</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="n">answers</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">])</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">check_file_overwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">answers</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.py&quot;</span><span class="p">)</span>
+        <span class="n">write_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">answers</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.py&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">templated_dict</span><span class="p">,</span> <span class="n">permit</span><span class="o">=</span><span class="s2">&quot;660&quot;</span><span class="p">)</span>
+
+        <span class="n">check_file_overwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">answers</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">],</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">answers</span><span class="p">[</span><span class="s1">&#39;container_name&#39;</span><span class="p">],</span>
+            <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">EXEC_PATH</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">answers</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.py&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="n">answers</span><span class="p">[</span><span class="s1">&#39;target_list&#39;</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">configfile</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pawn_config</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found config file =&gt; &#39;</span><span class="si">{</span><span class="n">pwn</span><span class="o">.</span><span class="n">PAWN_CONFIG_FILE</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;config=&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pawn_config</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">pawn_config</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;image&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">pawn_config</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+        <span class="c1"># if not args.target and pawn_config[&#39;default&#39;].get(&#39;target_list&#39;):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">pawn_config</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">pawn_config</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">image</span> <span class="ow">and</span> <span class="s2">&quot;:&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">:latest&quot;</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span> <span class="ow">and</span> <span class="n">is_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">):</span>
+        <span class="n">_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">module_name</span> <span class="o">=</span> <span class="n">_file</span><span class="o">.</span><span class="n">stem</span>
+        <span class="c1"># module_name = args.file.replace(&quot;.py&quot;, &quot;&quot;)</span>
+        <span class="c1"># pawn.console.debug(f&quot;module_name={module_name}, file={args.file}&quot;)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">module</span> <span class="o">=</span> <span class="n">SourceFileLoader</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">load_module</span><span class="p">()</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold]Load module from &#39;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;from </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">module</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">args</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_async_task</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_list</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="k">if</span> <span class="n">function</span><span class="p">:</span>
+        <span class="n">_function</span> <span class="o">=</span> <span class="n">function</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_function</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">main</span>
+
+    <span class="n">async_tasks</span> <span class="o">=</span> <span class="n">AsyncTasks</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">max_at_once</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_at_once</span><span class="p">,</span> <span class="n">max_per_second</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_per_second</span><span class="p">)</span>
+    <span class="n">async_tasks</span><span class="o">.</span><span class="n">generate_tasks</span><span class="p">(</span>
+        <span class="n">target_list</span><span class="o">=</span><span class="n">target_list</span><span class="p">,</span>
+        <span class="n">function</span><span class="o">=</span><span class="n">_function</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">{</span><span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">,</span> <span class="s2">&quot;_config&quot;</span><span class="p">:</span> <span class="n">pawn</span><span class="o">.</span><span class="n">conf</span><span class="p">()}</span>
+    <span class="p">)</span>
+    <span class="n">async_tasks</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_download_image_if_not_exist</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">docker</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">docker</span><span class="o">.</span><span class="n">find_image</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">):</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[green][OK] Find Docker Image: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[yellow]Pulling Image: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">docker</span><span class="o">.</span><span class="n">pull_image</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red] Image argument not found - </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_needless_string</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">needless</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="k">for</span> <span class="n">target_string</span> <span class="ow">in</span> <span class="n">needless</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">target_string</span><span class="p">)</span><span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">target_string</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_needless_list</span><span class="p">(</span><span class="n">string_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">needless</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">string</span> <span class="ow">in</span> <span class="n">string_list</span><span class="p">:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_remove_needless_string</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">string</span><span class="p">,</span> <span class="n">needless</span><span class="o">=</span><span class="n">needless</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_flatten_string_list</span><span class="p">(</span><span class="n">string_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">string</span> <span class="ow">in</span> <span class="n">string_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_string_to_list</span><span class="p">(</span><span class="n">string_list</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;[&quot;</span> <span class="ow">in</span> <span class="n">string_list</span> <span class="ow">and</span> <span class="s2">&quot;]&quot;</span> <span class="ow">in</span> <span class="n">string_list</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">string_list</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">string_list</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red] error json load = </span><span class="si">{</span><span class="n">string_list</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">string_list</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">target_list</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">string_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">target_list</span> <span class="o">=</span> <span class="n">_flatten_string_list</span><span class="p">(</span><span class="n">string_list</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">target_list</span> <span class="o">=</span> <span class="n">string_list</span>
+    <span class="n">target_list</span> <span class="o">=</span> <span class="n">_remove_needless_list</span><span class="p">(</span><span class="n">target_list</span><span class="p">,</span> <span class="n">needless</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">target_list</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_target_list</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+        <span class="n">target_list</span> <span class="o">=</span> <span class="n">_convert_string_to_list</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">target_list</span> <span class="o">=</span> <span class="n">_convert_string_to_list</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">target_list</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">target_list</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.docker.main">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">initialize</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;args=</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">, unknown=</span><span class="si">{</span><span class="n">unknown</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">module</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module=</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">module</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]Cannot load module - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Did you initialize or Did you installed the </span><span class="se">\&quot;</span><span class="s2">aiodocker</span><span class="se">\&quot;</span><span class="s2">? ( pawns docker init )&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">AsyncDocker</span><span class="p">(</span>
+            <span class="n">client_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;unix://</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">unixsocket</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+            <span class="n">max_at_once</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_at_once</span><span class="p">,</span>
+            <span class="n">max_per_second</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_per_second</span><span class="p">,</span>
+            <span class="n">count</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">count</span><span class="p">,</span>
+            <span class="n">container_name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">name</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">docker</span><span class="p">:</span>
+        <span class="n">_download_image_if_not_exist</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">docker</span><span class="p">)</span>
+        <span class="n">target_list</span> <span class="o">=</span> <span class="n">_make_target_list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;run&quot;</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target=</span><span class="si">{</span><span class="n">target_list</span><span class="si">}</span><span class="s2">, Target length=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">target_list</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">Confirm</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Are you sure to </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s1">&#39;run&#39;</span><span class="p">:</span>
+            <span class="n">_run_async_task</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">target_list</span><span class="o">=</span><span class="n">target_list</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;create&quot;</span><span class="p">:</span>
+            <span class="n">async_tasks</span> <span class="o">=</span> <span class="n">AsyncTasks</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">max_at_once</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_at_once</span><span class="p">,</span> <span class="n">max_per_second</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_per_second</span><span class="p">)</span>
+            <span class="n">async_tasks</span><span class="o">.</span><span class="n">generate_tasks</span><span class="p">(</span>
+                <span class="n">target_list</span><span class="o">=</span><span class="n">Counter</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="mi">10000</span><span class="o">+</span><span class="n">args</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">convert_func</span><span class="o">=</span><span class="nb">str</span><span class="p">),</span>
+                <span class="n">function</span><span class="o">=</span><span class="n">run_container</span><span class="p">,</span>
+                <span class="o">**</span><span class="p">{</span><span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">async_tasks</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">docker</span><span class="o">.</span><span class="n">control_container</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">command</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Names&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.*&quot;</span><span class="p">},</span> <span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<span class="n">main</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__description__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__epilog__</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

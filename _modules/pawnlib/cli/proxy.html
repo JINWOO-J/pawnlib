@@ -1,0 +1,538 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.cli.proxy &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.cli.proxy</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.cli.proxy</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">select</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.builder.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_banner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.__version__</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.utils.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">remove_http</span><span class="p">,</span> <span class="n">ALLOWS_HTTP_METHOD</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">is_int</span><span class="p">,</span> <span class="n">is_valid_ipv4</span><span class="p">,</span> <span class="n">detect_encoding</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ssl</span>
+
+<span class="n">__description__</span> <span class="o">=</span> <span class="s2">&quot;A Proxy Reflector Tool&quot;</span>
+<span class="n">__epilog__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;This script acts as a proxy reflector, forwarding traffic between a listening address and a forwarding address.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Usage examples:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  1. To start proxying with default settings (listening on 0.0.0.0:8080):</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - This forwards traffic from the default listening address to the specified forward address.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns proxy --forward ip_address:port`</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  2. To specify a listening address and port:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Listens on 127.0.0.1:9090 and forwards traffic to the specified forward address.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns proxy --listen 127.0.0.1:9090 --forward ip_address:port`</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  3. To adjust buffer size and delay for socket operations:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Uses a buffer size of 5120 bytes and a delay of 0.001 seconds for socket operations.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns proxy --listen ip_address:port --forward ip_address:port --buffer-size 5120 --delay 0.001`</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  4. To set a timeout for the proxy connections:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Sets a timeout of 5 seconds for the proxy connections.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns proxy --listen ip_address:port --forward ip_address:port --timeout 5`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;For more detailed information on command options, use the -h or --help flag.&quot;</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.get_parser">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Proxy Reflector&#39;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="get_arguments"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.get_arguments">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--listen&quot;</span><span class="p">,</span> <span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Listen  ip_address:port&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;0.0.0.0:8080&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--forward&quot;</span><span class="p">,</span> <span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Forward ip_address:port&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--buffer-size&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;buffer size for socket&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4096</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--delay&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;buffer delay for socket&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--timeout&quot;</span><span class="p">,</span> <span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;timeout for socket&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="Forward"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.Forward">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_forwarder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_secure_forwarder</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Forward.start"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.Forward.start">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">is_ssl</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hostname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_forwarder</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_forwarder</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_forwarder</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">is_ssl</span><span class="p">:</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">Purpose</span><span class="o">.</span><span class="n">CLIENT_AUTH</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_secure_forwarder</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">wrap_socket</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_forwarder</span><span class="p">,</span> <span class="n">server_hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_secure_forwarder</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forwarder</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red][Forward ERROR] Connect to </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="EchoWebServer"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.EchoWebServer">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">EchoWebServer</span><span class="p">:</span>
+    <span class="n">input_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">channel</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="p">,</span> <span class="n">forward</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">,</span> <span class="n">delay</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">listen</span> <span class="o">=</span> <span class="n">listen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward</span> <span class="o">=</span> <span class="n">forward</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_host</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_port</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_host</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_port</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_ssl</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer_size</span> <span class="o">=</span> <span class="n">buffer_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="n">delay</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_ip_port</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listen_server</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http_headers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ongoing_response</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_request</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_ip_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_parsed_listen</span> <span class="o">=</span> <span class="n">parse_ip_port</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">listen</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_host</span> <span class="o">=</span> <span class="n">_parsed_listen</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ip_or_domain&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_port</span> <span class="o">=</span> <span class="n">_parsed_listen</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;port&#39;</span><span class="p">)</span>
+        <span class="n">_parsed_forward</span> <span class="o">=</span> <span class="n">parse_ip_port</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_host</span> <span class="o">=</span> <span class="n">_parsed_forward</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ip_or_domain&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_port</span> <span class="o">=</span> <span class="n">_parsed_forward</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;port&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_hostname</span> <span class="o">=</span> <span class="n">_parsed_forward</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hostname&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_ssl</span> <span class="o">=</span> <span class="n">_parsed_forward</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;is_ssl&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;forward=</span><span class="si">{</span><span class="n">_parsed_forward</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Listen </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_port</span><span class="si">}</span><span class="s2"> =&gt; Forward </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f_hostname</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f_host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f_port</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_listen_server</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">l_host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_port</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Server started on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error starting server: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">ipaddr</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">l_host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_host</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_ipv4</span><span class="p">(</span><span class="n">ipaddr</span><span class="p">):</span>
+                <span class="c1"># pawn.console.print(f&quot;[bold red]Invalid IP address - {ipaddr}, {is_valid_ipv4(ipaddr)}&quot;)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid IP address - &#39;</span><span class="si">{</span><span class="n">ipaddr</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EchoWebServer.main_loop"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.EchoWebServer.main_loop">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">main_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delay</span><span class="p">)</span>
+            <span class="n">ss</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span>
+            <span class="n">input_ready</span><span class="p">,</span> <span class="n">output_ready</span><span class="p">,</span> <span class="n">except_ready</span> <span class="o">=</span> <span class="n">ss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+            <span class="k">for</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="ow">in</span> <span class="n">input_ready</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">on_accept</span><span class="p">()</span>
+                    <span class="k">break</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red bold] </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> data=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">on_close</span><span class="p">()</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">on_recv</span><span class="p">()</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http_headers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode_data</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lines</span> <span class="ow">and</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">lines_arr</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines_arr</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines_arr</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                    <span class="k">if</span> <span class="n">line</span> <span class="ow">and</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                        <span class="n">header_kv</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                        <span class="n">header_key</span> <span class="o">=</span> <span class="n">header_kv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">header_value</span> <span class="o">=</span> <span class="n">header_kv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_http_headers</span><span class="p">[</span><span class="n">header_key</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">header_value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_decode_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_encode</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">):</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">encoding</span> <span class="o">=</span> <span class="n">detect_encoding</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">default_encode</span><span class="o">=</span><span class="n">default_encode</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;encoding=</span><span class="si">{</span><span class="n">encoding</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red] [Exception] </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> data=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">lines</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_decoded_data_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode_data</span><span class="p">()</span>
+        <span class="n">data_arr</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_arr</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_inject_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_headers</span><span class="p">()</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode_data</span><span class="p">()</span>
+        <span class="c1"># if lines and self.f_hostname and self._http_headers.get(&#39;Host&#39;):</span>
+        <span class="k">if</span> <span class="n">lines</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_hostname</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http_headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Host&#39;</span><span class="p">):</span>
+
+            <span class="n">request_line</span><span class="p">,</span> <span class="n">_headers</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">request_line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;HTTP&#39;</span><span class="p">):</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;START injection&quot;</span><span class="p">)</span>
+                <span class="n">headers_list</span> <span class="o">=</span><span class="n">_headers</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># exclude the last two elements as they are empty</span>
+                <span class="n">headers_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">headers_list</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">header_k</span><span class="p">,</span> <span class="n">header_v</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">header_k</span> <span class="ow">and</span> <span class="n">header_v</span><span class="p">:</span>
+                        <span class="n">headers_dict</span><span class="p">[</span><span class="n">header_k</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_v</span>
+                <span class="n">headers_string</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">headers_dict</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+                <span class="c1"># Add the request line and the final two &#39;\r\n&#39; back in</span>
+                <span class="n">headers</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">request_line</span><span class="si">}</span><span class="se">\r\n</span><span class="si">{</span><span class="n">headers_string</span><span class="si">}</span><span class="se">\r\n\r\n</span><span class="s1">&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;raw_data = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode_data</span><span class="p">()</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;lines=</span><span class="si">{</span><span class="n">lines</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">_request_line</span><span class="p">,</span> <span class="n">_headers_body</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">_headers</span><span class="p">,</span> <span class="n">_body</span> <span class="o">=</span> <span class="n">_headers_body</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n\r\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;request_line=</span><span class="si">{</span><span class="n">_request_line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;headers=</span><span class="si">{</span><span class="n">_headers</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;body=</span><span class="si">{</span><span class="n">_body</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EchoWebServer.parse_http_request"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.EchoWebServer.parse_http_request">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">parse_http_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Split the request into lines</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode_data</span><span class="p">()</span>
+        <span class="n">lines</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r\n\r\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">_headers</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_headers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_request</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="c1"># The first line contains the request method, path, and protocol version</span>
+            <span class="n">method</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">protocol</span> <span class="o">=</span> <span class="n">_headers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+            <span class="c1"># Parse the headers</span>
+            <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">_headers</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">if</span> <span class="n">header</span> <span class="ow">and</span> <span class="s2">&quot;: &quot;</span> <span class="ow">in</span> <span class="n">header</span><span class="p">:</span>
+                    <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;: &#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">and</span> <span class="n">value</span><span class="p">:</span>
+                        <span class="n">headers</span><span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_request</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="n">method</span><span class="p">,</span>
+                <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span>
+                <span class="s1">&#39;protocol&#39;</span><span class="p">:</span> <span class="n">protocol</span><span class="p">,</span>
+                <span class="s1">&#39;headers&#39;</span><span class="p">:</span> <span class="n">headers</span><span class="p">,</span>
+                <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="n">body</span>
+            <span class="p">}</span></div>
+
+<div class="viewcode-block" id="EchoWebServer.parse_http_response"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.EchoWebServer.parse_http_response">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">parse_http_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EchoWebServer.convert_to_request_raw"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.EchoWebServer.convert_to_request_raw">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">convert_to_request_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_raw</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">:</span>
+            <span class="n">_raw</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;protocol&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;headers&#39;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">_raw</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&quot;</span>
+            <span class="n">_raw</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">_raw</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EchoWebServer.modify_http_request_headers"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.EchoWebServer.modify_http_request_headers">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">modify_http_request_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;headers&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">headers</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[yellow] modified header =&gt; </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">convert_to_request_raw</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EchoWebServer.on_accept"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.EchoWebServer.on_accept">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">on_accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">forward</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_port</span><span class="p">,</span> <span class="n">is_ssl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_ssl</span><span class="p">,</span> <span class="n">hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">f_hostname</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red]on_accept [/bold red] forward=</span><span class="si">{</span><span class="n">forward</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">clientsock</span><span class="p">,</span> <span class="n">client_addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+            <span class="n">client_ip</span><span class="p">,</span> <span class="n">client_port</span> <span class="o">=</span> <span class="n">client_addr</span>
+            <span class="k">if</span> <span class="n">forward</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">client_ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">client_port</span><span class="si">}</span><span class="s2"> has connected&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;spring_green2&quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clientsock</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">forward</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="n">clientsock</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="n">forward</span><span class="p">]</span> <span class="o">=</span> <span class="n">clientsock</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can&#39;t establish connection with remote server. &quot;</span>
+                                 <span class="sa">f</span><span class="s2">&quot;Closing connection with client side: </span><span class="si">{</span><span class="n">client_ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">client_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">clientsock</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error handling connection: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+<div class="viewcode-block" id="EchoWebServer.on_close"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.EchoWebServer.on_close">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ongoing_response</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># pawn.console.log(f&quot;{self._return_ip_port(self.s.getpeername())}&quot;, &quot;has disconnected&quot;)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_return_ip_port</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">getpeername</span><span class="p">())</span><span class="si">}</span><span class="s2"> has disconnected&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;spring_green2&quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+
+            <span class="c1"># remove objects from input_list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">])</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">]</span>
+            <span class="c1"># close the connection with client</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="n">out</span><span class="p">]</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># equivalent to do self.s.close()</span>
+            <span class="c1"># close the connection with remote server</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">]</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="c1"># delete both objects from channel dict</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="n">out</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error closing connection: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_http_method</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">ALLOWS_HTTP_METHOD</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="EchoWebServer.on_recv"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.EchoWebServer.on_recv">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">on_recv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode_data</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lines</span> <span class="ow">and</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">data_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_decoded_data_lines</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">data_arr</span> <span class="ow">and</span> <span class="n">data_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;HTTP&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_hostname</span><span class="p">:</span>
+                    <span class="n">_forward_host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f_hostname</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f_host</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_forward_host</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f_host</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold blue]Response from </span><span class="si">{</span><span class="n">_forward_host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold blue] &quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">data_arr</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_http_method</span><span class="p">(</span><span class="n">data_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold blue]Request from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[green] request-&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parse_http_request</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">modify_http_request_headers</span><span class="p">(</span><span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Host&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_hostname</span><span class="p">})</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold blue] </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">data_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_decoded_data_lines</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ongoing_response</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[green] request-&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold blue]Request from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold blue] &quot;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ongoing_response</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data_arr</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">]</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_return_ip_port</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="resolve_domain_to_ip"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.resolve_domain_to_ip">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">resolve_domain_to_ip</span><span class="p">(</span><span class="n">domain</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ip</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ip</span>
+    <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">gaierror</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="is_valid_ip"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.is_valid_ip">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">is_valid_ip</span><span class="p">(</span><span class="n">ip</span><span class="p">):</span>
+    <span class="c1"># Regular expression pattern for IP address validation</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;^((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.)</span><span class="si">{3}</span><span class="s1">(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$&#39;</span>
+
+    <span class="c1"># Match IP address using regex</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">ip</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="parse_ip_port"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.parse_ip_port">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">parse_ip_port</span><span class="p">(</span><span class="n">input_str</span><span class="p">):</span>
+    <span class="c1"># Regular expression pattern to match IP address, domain name, and port</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(?:(?:http|https)://)?(?:([\w_-]+(?:\.[\w_-]+)*|\d{1,3}(?:\.\d{1,3})</span><span class="si">{3}</span><span class="s1">))(?::(\d+))?(?:/|$)&#39;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">input_str</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">ip_or_domain</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">ip_or_domain</span><span class="o">=</span><span class="n">resolve_domain_to_ip</span><span class="p">(</span><span class="n">ip_or_domain</span><span class="p">),</span>
+            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span> <span class="k">if</span> <span class="n">port</span> <span class="k">else</span> <span class="mi">443</span> <span class="k">if</span> <span class="s1">&#39;https&#39;</span> <span class="ow">in</span> <span class="n">input_str</span> <span class="k">else</span> <span class="mi">80</span><span class="p">,</span>
+            <span class="n">hostname</span><span class="o">=</span><span class="n">ip_or_domain</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_ip</span><span class="p">(</span><span class="n">ip_or_domain</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">is_ssl</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">input_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;https://&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.proxy.main">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+
+    <span class="n">banner</span> <span class="o">=</span> <span class="n">generate_banner</span><span class="p">(</span>
+        <span class="n">app_name</span><span class="o">=</span><span class="s2">&quot;proxy reflector&quot;</span><span class="p">,</span>
+        <span class="n">author</span><span class="o">=</span><span class="s2">&quot;jinwoo&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;proxy reflector&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="s2">&quot;graffiti&quot;</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">_version</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">banner</span><span class="p">)</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">forward</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;forward not found&quot;</span><span class="p">)</span>
+
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;args = </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">server</span> <span class="o">=</span> <span class="n">EchoWebServer</span><span class="p">(</span>
+        <span class="n">listen</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">listen</span><span class="p">,</span>
+        <span class="n">forward</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">forward</span><span class="p">,</span>
+        <span class="n">buffer_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">,</span>
+        <span class="n">delay</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">delay</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">server</span><span class="o">.</span><span class="n">main_loop</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ctrl C - Stopping server&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<span class="n">main</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__description__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__epilog__</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

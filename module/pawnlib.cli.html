@@ -1,0 +1,1820 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.cli package &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+
+  
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pawnlib.config package" href="pawnlib.config.html" />
+    <link rel="prev" title="pawnlib.builder package" href="pawnlib.builder.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pawnlib.cli package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-aws-module">pawnlib.cli.aws module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-banner-module">pawnlib.cli.banner module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.banner.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.banner.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.banner.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-compose-module">pawnlib.cli.compose module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.compose.non_empty_validator"><code class="docutils literal notranslate"><span class="pre">non_empty_validator()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.compose.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.compose.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.compose.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-docker-module">pawnlib.cli.docker module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.docker.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.docker.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.docker.initialize"><code class="docutils literal notranslate"><span class="pre">initialize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.docker.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-gs-module">pawnlib.cli.gs module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.gs.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.gs.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.gs.print_hex_value"><code class="docutils literal notranslate"><span class="pre">print_hex_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.gs.get_hex_value"><code class="docutils literal notranslate"><span class="pre">get_hex_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.gs.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-http-module">pawnlib.cli.http module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.SuccessCriteria"><code class="docutils literal notranslate"><span class="pre">SuccessCriteria</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.SuccessCriteria.from_string"><code class="docutils literal notranslate"><span class="pre">SuccessCriteria.from_string()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.AppConfig"><code class="docutils literal notranslate"><span class="pre">AppConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.url"><code class="docutils literal notranslate"><span class="pre">AppConfig.url</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.config_file"><code class="docutils literal notranslate"><span class="pre">AppConfig.config_file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.verbose"><code class="docutils literal notranslate"><span class="pre">AppConfig.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.quiet"><code class="docutils literal notranslate"><span class="pre">AppConfig.quiet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.interval"><code class="docutils literal notranslate"><span class="pre">AppConfig.interval</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.method"><code class="docutils literal notranslate"><span class="pre">AppConfig.method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.timeout"><code class="docutils literal notranslate"><span class="pre">AppConfig.timeout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.base_dir"><code class="docutils literal notranslate"><span class="pre">AppConfig.base_dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.success"><code class="docutils literal notranslate"><span class="pre">AppConfig.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.logical_operator"><code class="docutils literal notranslate"><span class="pre">AppConfig.logical_operator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.ignore_ssl"><code class="docutils literal notranslate"><span class="pre">AppConfig.ignore_ssl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.data"><code class="docutils literal notranslate"><span class="pre">AppConfig.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.headers"><code class="docutils literal notranslate"><span class="pre">AppConfig.headers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.workers"><code class="docutils literal notranslate"><span class="pre">AppConfig.workers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.stack_limit"><code class="docutils literal notranslate"><span class="pre">AppConfig.stack_limit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.section_name"><code class="docutils literal notranslate"><span class="pre">AppConfig.section_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.total_count"><code class="docutils literal notranslate"><span class="pre">AppConfig.total_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.error_stack_count"><code class="docutils literal notranslate"><span class="pre">AppConfig.error_stack_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.fail_count"><code class="docutils literal notranslate"><span class="pre">AppConfig.fail_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.response_time"><code class="docutils literal notranslate"><span class="pre">AppConfig.response_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.dynamic_increase_stack_limit"><code class="docutils literal notranslate"><span class="pre">AppConfig.dynamic_increase_stack_limit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.slack_url"><code class="docutils literal notranslate"><span class="pre">AppConfig.slack_url</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.blockheight_key"><code class="docutils literal notranslate"><span class="pre">AppConfig.blockheight_key</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.AppConfig.blockheight_stack"><code class="docutils literal notranslate"><span class="pre">AppConfig.blockheight_stack</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.CustomArgumentParser"><code class="docutils literal notranslate"><span class="pre">CustomArgumentParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.http.CustomArgumentParser.error"><code class="docutils literal notranslate"><span class="pre">CustomArgumentParser.error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.convert_type"><code class="docutils literal notranslate"><span class="pre">convert_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.convert_value"><code class="docutils literal notranslate"><span class="pre">convert_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.check_url_process"><code class="docutils literal notranslate"><span class="pre">check_url_process()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.print_response_if_verbose"><code class="docutils literal notranslate"><span class="pre">print_response_if_verbose()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.handle_failure_on_check_url"><code class="docutils literal notranslate"><span class="pre">handle_failure_on_check_url()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.set_default_counter"><code class="docutils literal notranslate"><span class="pre">set_default_counter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.apply_config_values"><code class="docutils literal notranslate"><span class="pre">apply_config_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.load_and_verify_config"><code class="docutils literal notranslate"><span class="pre">load_and_verify_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.generate_task_from_config"><code class="docutils literal notranslate"><span class="pre">generate_task_from_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.fill_default_config_values"><code class="docutils literal notranslate"><span class="pre">fill_default_config_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.print_banner"><code class="docutils literal notranslate"><span class="pre">print_banner()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.validate_task_exit_on_failure"><code class="docutils literal notranslate"><span class="pre">validate_task_exit_on_failure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.http.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-icon-module">pawnlib.cli.icon module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-info-module">pawnlib.cli.info module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.info.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.info.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.info.print_banner"><code class="docutils literal notranslate"><span class="pre">print_banner()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.info.print_unless_quiet_mode"><code class="docutils literal notranslate"><span class="pre">print_unless_quiet_mode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.info.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-init-module">pawnlib.cli.init module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.init.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.init.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.init.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-net-module">pawnlib.cli.net module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-rpc-module">pawnlib.cli.rpc module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.rpc.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.rpc.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.rpc.get_methods"><code class="docutils literal notranslate"><span class="pre">get_methods()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.rpc.get_required"><code class="docutils literal notranslate"><span class="pre">get_required()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.rpc.fetch_environments_to_args"><code class="docutils literal notranslate"><span class="pre">fetch_environments_to_args()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.rpc.print_banner"><code class="docutils literal notranslate"><span class="pre">print_banner()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.rpc.fill_sign_params_from_args"><code class="docutils literal notranslate"><span class="pre">fill_sign_params_from_args()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.rpc.network_info_to_args"><code class="docutils literal notranslate"><span class="pre">network_info_to_args()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand"><code class="docutils literal notranslate"><span class="pre">RpcCommand</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.initialize_arguments"><code class="docutils literal notranslate"><span class="pre">RpcCommand.initialize_arguments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.load_network_config"><code class="docutils literal notranslate"><span class="pre">RpcCommand.load_network_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.load_config_file"><code class="docutils literal notranslate"><span class="pre">RpcCommand.load_config_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.set_network_info"><code class="docutils literal notranslate"><span class="pre">RpcCommand.set_network_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.generate_tx_payload"><code class="docutils literal notranslate"><span class="pre">RpcCommand.generate_tx_payload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.load_wallet_and_prepare_for_sign"><code class="docutils literal notranslate"><span class="pre">RpcCommand.load_wallet_and_prepare_for_sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.print_balance"><code class="docutils literal notranslate"><span class="pre">RpcCommand.print_balance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.prepare_signature"><code class="docutils literal notranslate"><span class="pre">RpcCommand.prepare_signature()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.write_config_file"><code class="docutils literal notranslate"><span class="pre">RpcCommand.write_config_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.call_raw_rpc"><code class="docutils literal notranslate"><span class="pre">RpcCommand.call_raw_rpc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.deploy_score"><code class="docutils literal notranslate"><span class="pre">RpcCommand.deploy_score()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.create_json_rpc_request_from_dot_command"><code class="docutils literal notranslate"><span class="pre">RpcCommand.create_json_rpc_request_from_dot_command()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.rpc.RpcCommand.run"><code class="docutils literal notranslate"><span class="pre">RpcCommand.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.rpc.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-proxy-module">pawnlib.cli.proxy module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.proxy.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.proxy.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.proxy.Forward"><code class="docutils literal notranslate"><span class="pre">Forward</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.Forward.start"><code class="docutils literal notranslate"><span class="pre">Forward.start()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer"><code class="docutils literal notranslate"><span class="pre">EchoWebServer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer.input_list"><code class="docutils literal notranslate"><span class="pre">EchoWebServer.input_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer.channel"><code class="docutils literal notranslate"><span class="pre">EchoWebServer.channel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer.main_loop"><code class="docutils literal notranslate"><span class="pre">EchoWebServer.main_loop()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer.parse_http_request"><code class="docutils literal notranslate"><span class="pre">EchoWebServer.parse_http_request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer.parse_http_response"><code class="docutils literal notranslate"><span class="pre">EchoWebServer.parse_http_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer.convert_to_request_raw"><code class="docutils literal notranslate"><span class="pre">EchoWebServer.convert_to_request_raw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer.modify_http_request_headers"><code class="docutils literal notranslate"><span class="pre">EchoWebServer.modify_http_request_headers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer.on_accept"><code class="docutils literal notranslate"><span class="pre">EchoWebServer.on_accept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer.on_close"><code class="docutils literal notranslate"><span class="pre">EchoWebServer.on_close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.proxy.EchoWebServer.on_recv"><code class="docutils literal notranslate"><span class="pre">EchoWebServer.on_recv()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.proxy.resolve_domain_to_ip"><code class="docutils literal notranslate"><span class="pre">resolve_domain_to_ip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.proxy.is_valid_ip"><code class="docutils literal notranslate"><span class="pre">is_valid_ip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.proxy.parse_ip_port"><code class="docutils literal notranslate"><span class="pre">parse_ip_port()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.proxy.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-s3-module">pawnlib.cli.s3 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-server-module">pawnlib.cli.server module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.print_banner"><code class="docutils literal notranslate"><span class="pre">print_banner()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.find_all_arguments"><code class="docutils literal notranslate"><span class="pre">find_all_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.create_argument_dict"><code class="docutils literal notranslate"><span class="pre">create_argument_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.print_unless_quiet_mode"><code class="docutils literal notranslate"><span class="pre">print_unless_quiet_mode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.run_disk_performance_test"><code class="docutils literal notranslate"><span class="pre">run_disk_performance_test()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.run_filesystem_performance_test"><code class="docutils literal notranslate"><span class="pre">run_filesystem_performance_test()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.display_system_info"><code class="docutils literal notranslate"><span class="pre">display_system_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.display_performance_results"><code class="docutils literal notranslate"><span class="pre">display_performance_results()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.server.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-top-module">pawnlib.cli.top module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.top.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.top.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.top.print_banner"><code class="docutils literal notranslate"><span class="pre">print_banner()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.top.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.top.print_simple_line_type_status"><code class="docutils literal notranslate"><span class="pre">print_simple_line_type_status()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.top.print_line_status"><code class="docutils literal notranslate"><span class="pre">print_line_status()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.top.print_rich_live_type_status"><code class="docutils literal notranslate"><span class="pre">print_rich_live_type_status()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.top.print_rich_layout_type_status"><code class="docutils literal notranslate"><span class="pre">print_rich_layout_type_status()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.top.get_resources_status"><code class="docutils literal notranslate"><span class="pre">get_resources_status()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-wallet-module">pawnlib.cli.wallet module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.wallet.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.wallet.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.wallet.private_key_validator"><code class="docutils literal notranslate"><span class="pre">private_key_validator()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.wallet.least_length_validator"><code class="docutils literal notranslate"><span class="pre">least_length_validator()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.wallet.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-websocket-module">pawnlib.cli.websocket module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.websocket.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.websocket.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.websocket.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pawnlib-cli-mon-module">pawnlib.cli.mon module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.ComposeDefaultSettings"><code class="docutils literal notranslate"><span class="pre">ComposeDefaultSettings</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.mon.ComposeDefaultSettings.BASE_DIR"><code class="docutils literal notranslate"><span class="pre">ComposeDefaultSettings.BASE_DIR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.mon.ComposeDefaultSettings.LOG_FILE"><code class="docutils literal notranslate"><span class="pre">ComposeDefaultSettings.LOG_FILE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.mon.ComposeDefaultSettings.VERBOSE"><code class="docutils literal notranslate"><span class="pre">ComposeDefaultSettings.VERBOSE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.mon.ComposeDefaultSettings.LOG_TYPE"><code class="docutils literal notranslate"><span class="pre">ComposeDefaultSettings.LOG_TYPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.mon.ComposeDefaultSettings.PRIORITY"><code class="docutils literal notranslate"><span class="pre">ComposeDefaultSettings.PRIORITY</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.parse_address_list"><code class="docutils literal notranslate"><span class="pre">parse_address_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.add_common_arguments"><code class="docutils literal notranslate"><span class="pre">add_common_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.get_arguments"><code class="docutils literal notranslate"><span class="pre">get_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.load_environment_settings"><code class="docutils literal notranslate"><span class="pre">load_environment_settings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.merge_environment_settings"><code class="docutils literal notranslate"><span class="pre">merge_environment_settings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.run_monitor_ssh"><code class="docutils literal notranslate"><span class="pre">run_monitor_ssh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.WalletStateTracker"><code class="docutils literal notranslate"><span class="pre">WalletStateTracker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.mon.WalletStateTracker.get"><code class="docutils literal notranslate"><span class="pre">WalletStateTracker.get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.mon.WalletStateTracker.update"><code class="docutils literal notranslate"><span class="pre">WalletStateTracker.update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.mon.WalletStateTracker.load_from_file"><code class="docutils literal notranslate"><span class="pre">WalletStateTracker.load_from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pawnlib.cli.mon.WalletStateTracker.track_changes"><code class="docutils literal notranslate"><span class="pre">WalletStateTracker.track_changes()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.worker"><code class="docutils literal notranslate"><span class="pre">worker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.deep_filter_ignored"><code class="docutils literal notranslate"><span class="pre">deep_filter_ignored()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.format_balance_change"><code class="docutils literal notranslate"><span class="pre">format_balance_change()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.format_changes"><code class="docutils literal notranslate"><span class="pre">format_changes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.detect_changes"><code class="docutils literal notranslate"><span class="pre">detect_changes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.run_continuous_monitoring"><code class="docutils literal notranslate"><span class="pre">run_continuous_monitoring()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.run_multi_wallet_monitoring"><code class="docutils literal notranslate"><span class="pre">run_multi_wallet_monitoring()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.run_wallet_client_with_websocket"><code class="docutils literal notranslate"><span class="pre">run_wallet_client_with_websocket()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.select_service_name"><code class="docutils literal notranslate"><span class="pre">select_service_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.prompt_for_env_variables"><code class="docutils literal notranslate"><span class="pre">prompt_for_env_variables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.run_compose_init"><code class="docutils literal notranslate"><span class="pre">run_compose_init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pawnlib.cli.mon.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pawnlib.cli package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/module/pawnlib.cli.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pawnlib-cli-package">
+<h1>pawnlib.cli package<a class="headerlink" href="#pawnlib-cli-package" title="Permalink to this heading"></a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="pawnlib-cli-aws-module">
+<h2>pawnlib.cli.aws module<a class="headerlink" href="#pawnlib-cli-aws-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">aws</span>
+</pre></div>
+</div>
+</section>
+<section id="pawnlib-cli-banner-module">
+<h2>pawnlib.cli.banner module<a class="headerlink" href="#pawnlib-cli-banner-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">banner</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.banner"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.banner.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/banner.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.banner.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.banner.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/banner.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.banner.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.banner.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/banner.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.banner.main" title="Permalink to this definition"></a></dt>
+<dd><p>Command to test the banner.
+This script generates text banners using various fonts.</p>
+<dl class="simple">
+<dt>Usage examples:</dt><dd><ol class="arabic simple">
+<li><dl class="simple">
+<dt>Generate a banner with default font:</dt><dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">$</span> <span class="pre">pawns</span> <span class="pre">banner</span> <span class="pre">--text</span> <span class="pre">&quot;Hello</span> <span class="pre">World&quot;</span></code></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>List all available fonts and generate banners:</dt><dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">$</span> <span class="pre">pawns</span> <span class="pre">banner</span> <span class="pre">--text</span> <span class="pre">&quot;Sample</span> <span class="pre">Text&quot;</span></code></p>
+</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+<p>For more information, visit the project repository or consult the documentation.</p>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-compose-module">
+<h2>pawnlib.cli.compose module<a class="headerlink" href="#pawnlib-cli-compose-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">compose</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.compose"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.compose.non_empty_validator">
+<span class="sig-name descname"><span class="pre">non_empty_validator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/compose.html#non_empty_validator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.compose.non_empty_validator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.compose.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/compose.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.compose.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.compose.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/compose.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.compose.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.compose.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/compose.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.compose.main" title="Permalink to this definition"></a></dt>
+<dd><p>An interactive Docker Compose builder for creating and managing services.
+This tool helps to build a Docker Compose file interactively. You can add multiple services, configure ports, environment variables, and volumes.</p>
+<dl>
+<dt>Usage examples:</dt><dd><ol class="arabic">
+<li><p>Create a Docker Compose file:
+- This will start the interactive wizard to create a docker-compose.yml file.</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pawns</span> <span class="pre">compose</span>&#160; <span class="pre">init</span></code></p>
+</li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-docker-module">
+<h2>pawnlib.cli.docker module<a class="headerlink" href="#pawnlib-cli-docker-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">docker</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.docker"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.docker.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/docker.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.docker.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.docker.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/docker.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.docker.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.docker.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/docker.html#initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.docker.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.docker.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/docker.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.docker.main" title="Permalink to this definition"></a></dt>
+<dd><p>Command Line Interface for managing Docker containers. This tool supports initialization, running, starting, stopping, and removing Docker containers.
+This script provides various commands for Docker container management.</p>
+<p>Usage examples:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Initialize configuration and generate sample files:</dt><dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">$</span> <span class="pre">pawns</span> <span class="pre">docker</span> <span class="pre">init</span></code></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Run containers based on provided targets:</dt><dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">$</span> <span class="pre">pawns</span> <span class="pre">docker</span> <span class="pre">run</span> <span class="pre">--count</span> <span class="pre">10</span> <span class="pre">--name</span> <span class="pre">my_container</span> <span class="pre">--image</span> <span class="pre">my_image</span></code></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Start, stop, or remove containers:</dt><dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">$</span> <span class="pre">pawns</span> <span class="pre">docker</span> <span class="pre">start</span> <span class="pre">--name</span> <span class="pre">my_container</span></code>
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">$</span> <span class="pre">pawns</span> <span class="pre">docker</span> <span class="pre">stop</span> <span class="pre">--name</span> <span class="pre">my_container</span></code>
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">$</span> <span class="pre">pawns</span> <span class="pre">docker</span> <span class="pre">delete</span> <span class="pre">--name</span> <span class="pre">my_container</span></code></p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>For more information, visit the project repository or consult the documentation.</p>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-gs-module">
+<h2>pawnlib.cli.gs module<a class="headerlink" href="#pawnlib-cli-gs-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">gs</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.gs"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.gs.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/gs.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.gs.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.gs.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/gs.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.gs.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.gs.print_hex_value">
+<span class="sig-name descname"><span class="pre">print_hex_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/gs.html#print_hex_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.gs.print_hex_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.gs.get_hex_value">
+<span class="sig-name descname"><span class="pre">get_hex_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/gs.html#get_hex_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.gs.get_hex_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.gs.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/gs.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.gs.main" title="Permalink to this definition"></a></dt>
+<dd><p>Genesis Tool</p>
+<p>Usage examples:</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>Generate a genesis file from a genesis.json file:</dt><dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pawns</span> <span class="pre">gs</span> <span class="pre">gen</span> <span class="pre">-i</span> <span class="pre">genesis.json</span> <span class="pre">-o</span> <span class="pre">icon_genesis.zip</span></code></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Display information about a genesis zip file:</dt><dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pawns</span> <span class="pre">gs</span> <span class="pre">info</span> <span class="pre">genesis.zip</span></code></p>
+</dd>
+</dl>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The ‘gen’ command generates a genesis file based on a provided genesis.json file.
+The ‘info’ command displays information from a given genesis.zip file.</p>
+</div>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-http-module">
+<h2>pawnlib.cli.http module<a class="headerlink" href="#pawnlib-cli-http-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">http</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.http"></span><dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.cli.http.SuccessCriteria">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SuccessCriteria</span></span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#SuccessCriteria"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.SuccessCriteria" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.http.SuccessCriteria.from_string">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">criteria_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#SuccessCriteria.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.SuccessCriteria.from_string" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AppConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file='config.ini'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout=10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_dir=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logical_operator='and'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_ssl=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workers=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack_limit=5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_name='default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_count=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_stack_count=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fail_count=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_time=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_increase_stack_limit=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slack_url=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blockheight_key=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blockheight_stack=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#AppConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.AppConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.url">
+<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.url" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.config_file">
+<span class="sig-name descname"><span class="pre">config_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'config.ini'</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.config_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.verbose" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.quiet">
+<span class="sig-name descname"><span class="pre">quiet</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.quiet" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.interval">
+<span class="sig-name descname"><span class="pre">interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.interval" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.method">
+<span class="sig-name descname"><span class="pre">method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.method" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10.0</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.timeout" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.base_dir">
+<span class="sig-name descname"><span class="pre">base_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.base_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.success">
+<span class="sig-name descname"><span class="pre">success</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.success" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.logical_operator">
+<span class="sig-name descname"><span class="pre">logical_operator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'and'</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.logical_operator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.ignore_ssl">
+<span class="sig-name descname"><span class="pre">ignore_ssl</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.ignore_ssl" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.data">
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.data" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.headers">
+<span class="sig-name descname"><span class="pre">headers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.headers" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.workers">
+<span class="sig-name descname"><span class="pre">workers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.workers" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.stack_limit">
+<span class="sig-name descname"><span class="pre">stack_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.stack_limit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.section_name">
+<span class="sig-name descname"><span class="pre">section_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'default'</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.section_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.total_count">
+<span class="sig-name descname"><span class="pre">total_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.total_count" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.error_stack_count">
+<span class="sig-name descname"><span class="pre">error_stack_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.error_stack_count" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.fail_count">
+<span class="sig-name descname"><span class="pre">fail_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.fail_count" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.response_time">
+<span class="sig-name descname"><span class="pre">response_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.response_time" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.dynamic_increase_stack_limit">
+<span class="sig-name descname"><span class="pre">dynamic_increase_stack_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.dynamic_increase_stack_limit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.slack_url">
+<span class="sig-name descname"><span class="pre">slack_url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.slack_url" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.blockheight_key">
+<span class="sig-name descname"><span class="pre">blockheight_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.blockheight_key" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.http.AppConfig.blockheight_stack">
+<span class="sig-name descname"><span class="pre">blockheight_stack</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><a class="headerlink" href="#pawnlib.cli.http.AppConfig.blockheight_stack" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.cli.http.CustomArgumentParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CustomArgumentParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epilog=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parents=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formatter_class=&lt;class</span> <span class="pre">'argparse.HelpFormatter'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix_chars='-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fromfile_prefix_chars=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argument_default=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conflict_handler='error'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_help=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_abbrev=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_on_error=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#CustomArgumentParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.CustomArgumentParser" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ArgumentParser</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.http.CustomArgumentParser.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#CustomArgumentParser.error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.CustomArgumentParser.error" title="Permalink to this definition"></a></dt>
+<dd><p>Prints a usage message incorporating the message to stderr and
+exits.</p>
+<p>If you override this in a subclass, it should not return – it
+should either exit or raise an exception.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.convert_type">
+<span class="sig-name descname"><span class="pre">convert_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#convert_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.convert_type" title="Permalink to this definition"></a></dt>
+<dd><p>주어진 값을 to_type 타입으로 변환합니다.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.convert_value">
+<span class="sig-name descname"><span class="pre">convert_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#convert_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.convert_value" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.check_url_process">
+<span class="sig-name descname"><span class="pre">check_url_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#check_url_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.check_url_process" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.print_response_if_verbose">
+<span class="sig-name descname"><span class="pre">print_response_if_verbose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#print_response_if_verbose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.print_response_if_verbose" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.handle_failure_on_check_url">
+<span class="sig-name descname"><span class="pre">handle_failure_on_check_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#handle_failure_on_check_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.handle_failure_on_check_url" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.set_default_counter">
+<span class="sig-name descname"><span class="pre">set_default_counter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#set_default_counter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.set_default_counter" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.apply_config_values">
+<span class="sig-name descname"><span class="pre">apply_config_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#apply_config_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.apply_config_values" title="Permalink to this definition"></a></dt>
+<dd><p>섹션 값들을 AppConfig 인스턴스에 적용합니다.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.load_and_verify_config">
+<span class="sig-name descname"><span class="pre">load_and_verify_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#load_and_verify_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.load_and_verify_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.generate_task_from_config">
+<span class="sig-name descname"><span class="pre">generate_task_from_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#generate_task_from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.generate_task_from_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.fill_default_config_values">
+<span class="sig-name descname"><span class="pre">fill_default_config_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#fill_default_config_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.fill_default_config_values" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.print_banner">
+<span class="sig-name descname"><span class="pre">print_banner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#print_banner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.print_banner" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.validate_task_exit_on_failure">
+<span class="sig-name descname"><span class="pre">validate_task_exit_on_failure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#validate_task_exit_on_failure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.validate_task_exit_on_failure" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.http.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/http.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.http.main" title="Permalink to this definition"></a></dt>
+<dd><p>This is a tool to measure RTT on HTTP/S requests.
+This script provides various options to check the HTTP status of URLs.</p>
+<dl>
+<dt>Usage examples:</dt><dd><blockquote>
+<div><ol class="arabic simple">
+<li><dl class="simple">
+<dt>Basic usage:</dt><dd><p><cite>pawns http https://example.com</cite></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Verbose mode:</dt><dd><p><cite>pawns http https://example.com -v</cite></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Using custom headers and POST method:</dt><dd><p><cite>pawns http https://example.com -m POST –headers ‘{“Content-Type”: “application/json”}’ –data ‘{“param”: “value”}’</cite></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Ignoring SSL verification and setting a custom timeout:</dt><dd><p><cite>pawns http https://example.com –ignore-ssl True –timeout 5</cite></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Checking with specific success criteria and logical operator:</dt><dd><p><cite>pawns http https://example.com –success ‘status_code==200’ ‘response_time&lt;2’ –logical-operator and</cite></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Running with a custom config file and interval:</dt><dd><p><cite>pawns http https://example.com -c http_config.ini -i 3</cite></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Setting maximum workers and stack limit:</dt><dd><p>pawns http <a class="reference external" href="https://example.com">https://example.com</a> -w 5 –stack-limit 10</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Dry run without actual HTTP request:</dt><dd><p>pawns http <a class="reference external" href="https://example.com">https://example.com</a> –dry-run</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Sending notifications to a Slack URL on failure:</dt><dd><p>pawns http <a class="reference external" href="https://example.com">https://example.com</a> –slack-url ‘<a class="reference external" href="https://hooks.slack.com/services/">https://hooks.slack.com/services/</a>…’</p>
+</dd>
+</dl>
+</li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="10">
+<li><dl class="simple">
+<dt>Checking blockheight increase:</dt><dd><p><cite>pawns http http://test-node-01:26657/status –blockheight-key “result.sync_info.latest_block_height” -i 5</cite></p>
+</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line"># The configuration options are provided below. You can customize these settings in the ‘http_config.ini’ file.</div>
+<div class="line"><br /></div>
+<div class="line">[default]</div>
+<div class="line">success = status_code==200</div>
+<div class="line">slack_url =</div>
+<div class="line">interval = 3</div>
+<div class="line">method = get</div>
+<div class="line">; data = sdsd</div>
+<div class="line">data = {“sdsd”: “sd222sd”}</div>
+<div class="line"><br /></div>
+<div class="line">[post]</div>
+<div class="line">url = <a class="reference external" href="http://httpbin.org/post">http://httpbin.org/post</a></div>
+<div class="line">method = post</div>
+<div class="line"><br /></div>
+<div class="line">[http_200_ok]</div>
+<div class="line">url = <a class="reference external" href="http://httpbin.org/status/200">http://httpbin.org/status/200</a></div>
+<div class="line">success = status_code==200</div>
+<div class="line"><br /></div>
+<div class="line">[http_300_ok_and_2ms_time]</div>
+<div class="line">url = <a class="reference external" href="http://httpbin.org/status/400">http://httpbin.org/status/400</a></div>
+<div class="line">success = [‘status_code==300’, ‘response_time&lt;0.02’]</div>
+<div class="line"><br /></div>
+<div class="line">[http_400_ok]</div>
+<div class="line">url = <a class="reference external" href="http://httpbin.org/status/400">http://httpbin.org/status/400</a></div>
+<div class="line">success = [“status_code==400”]</div>
+</div>
+</div>
+<p>For more details, use the -h or –help flag.</p>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-icon-module">
+<h2>pawnlib.cli.icon module<a class="headerlink" href="#pawnlib-cli-icon-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">icon</span>
+</pre></div>
+</div>
+</section>
+<section id="pawnlib-cli-info-module">
+<h2>pawnlib.cli.info module<a class="headerlink" href="#pawnlib-cli-info-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">info</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.info"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.info.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/info.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.info.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.info.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/info.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.info.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.info.print_banner">
+<span class="sig-name descname"><span class="pre">print_banner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/info.html#print_banner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.info.print_banner" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.info.print_unless_quiet_mode">
+<span class="sig-name descname"><span class="pre">print_unless_quiet_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/info.html#print_unless_quiet_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.info.print_unless_quiet_mode" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.info.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/info.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.info.main" title="Permalink to this definition"></a></dt>
+<dd><p>This command displays server resource information.
+This tool provides a detailed overview of your server’s system and network resources.</p>
+<dl>
+<dt>Usage examples:</dt><dd><ol class="arabic">
+<li><p>Display all resource information in verbose mode:
+- Displays detailed information about system and network resources.</p>
+<p><cite>pawns info -v</cite></p>
+</li>
+<li><p>Run in quiet mode without displaying any output:
+- Executes the script without showing any output, useful for logging purposes.</p>
+<p><cite>pawns info -q</cite></p>
+</li>
+<li><p>Specify a custom base directory and configuration file:
+- Uses the specified base directory and configuration file for operations.</p>
+<p><cite>pawns info -b /path/to/base/dir –config-file my_config.ini</cite></p>
+</li>
+<li><p>Write output to a specified file in quiet mode without displaying any output:
+- Writes the collected resource information to ‘output.json’.</p></li>
+</ol>
+<blockquote>
+<div><p><cite>pawns info -q –output-file output.json</cite></p>
+</div></blockquote>
+</dd>
+</dl>
+<p>For more detailed command usage and options, refer to the help documentation by running ‘pawns info –help’.</p>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-init-module">
+<h2>pawnlib.cli.init module<a class="headerlink" href="#pawnlib-cli-init-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">init</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.init"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.init.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/init.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.init.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.init.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/init.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.init.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.init.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/init.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.init.main" title="Permalink to this definition"></a></dt>
+<dd><p>Advanced Python application builder:
+Easily initialize your Python development environment with customizable templates and best practices.
+This script provides advanced features for building Python applications.</p>
+<p>The script will generate a new application with default settings and print the generated code to the console.
+Make sure to adjust the generated code according to your project’s needs.</p>
+<dl>
+<dt>Usage examples:</dt><dd><ol class="arabic">
+<li><p>Initialize a new Python application with default settings:</p>
+<p><cite>$ pawns init</cite></p>
+</li>
+</ol>
+</dd>
+</dl>
+<p>For more details on available commands and options, use the <cite>-h</cite> or <cite>–help</cite> flag.
+For additional support and documentation, visit the project repository or consult the documentation.</p>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-net-module">
+<h2>pawnlib.cli.net module<a class="headerlink" href="#pawnlib-cli-net-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">net</span>
+</pre></div>
+</div>
+</section>
+<section id="pawnlib-cli-rpc-module">
+<h2>pawnlib.cli.rpc module<a class="headerlink" href="#pawnlib-cli-rpc-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">rpc</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.rpc"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.get_methods">
+<span class="sig-name descname"><span class="pre">get_methods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">answers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#get_methods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.get_methods" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.get_required">
+<span class="sig-name descname"><span class="pre">get_required</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">answers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#get_required"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.get_required" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.fetch_environments_to_args">
+<span class="sig-name descname"><span class="pre">fetch_environments_to_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#fetch_environments_to_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.fetch_environments_to_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.print_banner">
+<span class="sig-name descname"><span class="pre">print_banner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#print_banner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.print_banner" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.fill_sign_params_from_args">
+<span class="sig-name descname"><span class="pre">fill_sign_params_from_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#fill_sign_params_from_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.fill_sign_params_from_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.network_info_to_args">
+<span class="sig-name descname"><span class="pre">network_info_to_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network_info</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#network_info_to_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.network_info_to_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RpcCommand</span></span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.initialize_arguments">
+<span class="sig-name descname"><span class="pre">initialize_arguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.initialize_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.initialize_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.load_network_config">
+<span class="sig-name descname"><span class="pre">load_network_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.load_network_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.load_network_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.load_config_file">
+<span class="sig-name descname"><span class="pre">load_config_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.load_config_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.load_config_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.set_network_info">
+<span class="sig-name descname"><span class="pre">set_network_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.set_network_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.set_network_info" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.generate_tx_payload">
+<span class="sig-name descname"><span class="pre">generate_tx_payload</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.generate_tx_payload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.generate_tx_payload" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.load_wallet_and_prepare_for_sign">
+<span class="sig-name descname"><span class="pre">load_wallet_and_prepare_for_sign</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.load_wallet_and_prepare_for_sign"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.load_wallet_and_prepare_for_sign" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.print_balance">
+<span class="sig-name descname"><span class="pre">print_balance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.print_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.print_balance" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.prepare_signature">
+<span class="sig-name descname"><span class="pre">prepare_signature</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.prepare_signature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.prepare_signature" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.write_config_file">
+<span class="sig-name descname"><span class="pre">write_config_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.write_config_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.write_config_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.call_raw_rpc">
+<span class="sig-name descname"><span class="pre">call_raw_rpc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.call_raw_rpc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.call_raw_rpc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.deploy_score">
+<span class="sig-name descname"><span class="pre">deploy_score</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.deploy_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.deploy_score" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.create_json_rpc_request_from_dot_command">
+<span class="sig-name descname"><span class="pre">create_json_rpc_request_from_dot_command</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.create_json_rpc_request_from_dot_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.create_json_rpc_request_from_dot_command" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.RpcCommand.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#RpcCommand.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.RpcCommand.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.rpc.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/rpc.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.rpc.main" title="Permalink to this definition"></a></dt>
+<dd><p>This tool uses JSON remote procedure calls, or RPCs, commonly used on the ICON blockchain.
+This utility offers a comprehensive suite for interacting with the ICON blockchain, leveraging JSON-RPC for efficient communication.</p>
+<dl>
+<dt>Usage examples:</dt><dd><ol class="arabic">
+<li><p>Query network information:</p>
+<ul class="simple">
+<li><p>Fetches block information by height.</p></li>
+</ul>
+<p><cite>pawns rpc –url &lt;RPC_ENDPOINT&gt; –method icx_getBlockByHeight –params ‘{“height”:”0x1”}’</cite></p>
+</li>
+<li><p>Send ICX transaction:</p>
+<ul class="simple">
+<li><p>Sends an ICX transaction to the network.</p></li>
+</ul>
+<p><cite>pawns rpc –url &lt;RPC_ENDPOINT&gt; –method icx_sendTransaction –params &lt;TRANSACTION_PARAMETERS&gt;</cite></p>
+</li>
+<li><p>Configure network settings:</p>
+<ul class="simple">
+<li><p>Sets the network configuration for subsequent operations.</p></li>
+</ul>
+<p><cite>pawns rpc –platform icon –network mainnet</cite></p>
+</li>
+<li><p>Configure custom network settings:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If you want to edit network information, create config.yaml with a parameter called config and then change it.</p></li>
+</ul>
+</div></blockquote>
+<p><cite>pawns rpc config</cite></p>
+</li>
+</ol>
+</dd>
+</dl>
+<p>For detailed command usage and options, refer to the help documentation by running ‘pawns rpc –help’.</p>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-proxy-module">
+<h2>pawnlib.cli.proxy module<a class="headerlink" href="#pawnlib-cli-proxy-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">proxy</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.proxy"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.Forward">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Forward</span></span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#Forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.Forward" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.Forward.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_ssl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#Forward.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.Forward.start" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EchoWebServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#EchoWebServer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer.input_list">
+<span class="sig-name descname"><span class="pre">input_list</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer.input_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer.channel">
+<span class="sig-name descname"><span class="pre">channel</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer.channel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer.main_loop">
+<span class="sig-name descname"><span class="pre">main_loop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#EchoWebServer.main_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer.main_loop" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer.parse_http_request">
+<span class="sig-name descname"><span class="pre">parse_http_request</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#EchoWebServer.parse_http_request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer.parse_http_request" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer.parse_http_response">
+<span class="sig-name descname"><span class="pre">parse_http_response</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#EchoWebServer.parse_http_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer.parse_http_response" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer.convert_to_request_raw">
+<span class="sig-name descname"><span class="pre">convert_to_request_raw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#EchoWebServer.convert_to_request_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer.convert_to_request_raw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer.modify_http_request_headers">
+<span class="sig-name descname"><span class="pre">modify_http_request_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#EchoWebServer.modify_http_request_headers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer.modify_http_request_headers" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer.on_accept">
+<span class="sig-name descname"><span class="pre">on_accept</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#EchoWebServer.on_accept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer.on_accept" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer.on_close">
+<span class="sig-name descname"><span class="pre">on_close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#EchoWebServer.on_close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer.on_close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.EchoWebServer.on_recv">
+<span class="sig-name descname"><span class="pre">on_recv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#EchoWebServer.on_recv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.EchoWebServer.on_recv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.resolve_domain_to_ip">
+<span class="sig-name descname"><span class="pre">resolve_domain_to_ip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">domain</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#resolve_domain_to_ip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.resolve_domain_to_ip" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.is_valid_ip">
+<span class="sig-name descname"><span class="pre">is_valid_ip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#is_valid_ip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.is_valid_ip" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.parse_ip_port">
+<span class="sig-name descname"><span class="pre">parse_ip_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#parse_ip_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.parse_ip_port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.proxy.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/proxy.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.proxy.main" title="Permalink to this definition"></a></dt>
+<dd><p>A Proxy Reflector Tool
+This script acts as a proxy reflector, forwarding traffic between a listening address and a forwarding address.</p>
+<dl>
+<dt>Usage examples:</dt><dd><ol class="arabic">
+<li><p>To start proxying with default settings (listening on 0.0.0.0:8080):</p>
+<ul class="simple">
+<li><p>This forwards traffic from the default listening address to the specified forward address.</p></li>
+</ul>
+<p><cite>pawns proxy –forward ip_address:port</cite></p>
+</li>
+<li><p>To specify a listening address and port:</p>
+<ul class="simple">
+<li><p>Listens on 127.0.0.1:9090 and forwards traffic to the specified forward address.</p></li>
+</ul>
+<p><cite>pawns proxy –listen 127.0.0.1:9090 –forward ip_address:port</cite></p>
+</li>
+<li><p>To adjust buffer size and delay for socket operations:</p>
+<ul class="simple">
+<li><p>Uses a buffer size of 5120 bytes and a delay of 0.001 seconds for socket operations.</p></li>
+</ul>
+<p><cite>pawns proxy –listen ip_address:port –forward ip_address:port –buffer-size 5120 –delay 0.001</cite></p>
+</li>
+<li><p>To set a timeout for the proxy connections:
+- Sets a timeout of 5 seconds for the proxy connections.</p>
+<p><cite>pawns proxy –listen ip_address:port –forward ip_address:port –timeout 5</cite></p>
+</li>
+</ol>
+</dd>
+</dl>
+<p>For more detailed information on command options, use the -h or –help flag.</p>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-s3-module">
+<h2>pawnlib.cli.s3 module<a class="headerlink" href="#pawnlib-cli-s3-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">s3</span>
+</pre></div>
+</div>
+</section>
+<section id="pawnlib-cli-server-module">
+<h2>pawnlib.cli.server module<a class="headerlink" href="#pawnlib-cli-server-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">server</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.server"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.print_banner">
+<span class="sig-name descname"><span class="pre">print_banner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#print_banner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.print_banner" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.find_all_arguments">
+<span class="sig-name descname"><span class="pre">find_all_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#find_all_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.find_all_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.create_argument_dict">
+<span class="sig-name descname"><span class="pre">create_argument_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_arguments</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#create_argument_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.create_argument_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.print_unless_quiet_mode">
+<span class="sig-name descname"><span class="pre">print_unless_quiet_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#print_unless_quiet_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.print_unless_quiet_mode" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.run_disk_performance_test">
+<span class="sig-name descname"><span class="pre">run_disk_performance_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#run_disk_performance_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.run_disk_performance_test" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.run_filesystem_performance_test">
+<span class="sig-name descname"><span class="pre">run_filesystem_performance_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#run_filesystem_performance_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.run_filesystem_performance_test" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.display_system_info">
+<span class="sig-name descname"><span class="pre">display_system_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system_info</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#display_system_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.display_system_info" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.display_performance_results">
+<span class="sig-name descname"><span class="pre">display_performance_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disk_performance_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filesystem_performance_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#display_performance_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.display_performance_results" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.server.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/server.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.server.main" title="Permalink to this definition"></a></dt>
+<dd><p>This command is used to measure server performance and verify specifications.
+This tool is intended for checking and validating server resources.</p>
+<dl>
+<dt>Usage examples:</dt><dd><ol class="arabic">
+<li><p>Measure disk performance:</p>
+<ul class="simple">
+<li><p>Measures write and read speed for a test file with specified parameters.</p></li>
+</ul>
+<p><cite>pawns server disk –file-path /path/to/testfile –file-size-mb 1024 –iterations 5 –block-size-kb 1024 –num-threads 1 –io-pattern sequential</cite></p>
+</li>
+<li><p>Measure filesystem performance:</p>
+<ul class="simple">
+<li><p>Measure the filesystem performance 5 times with 2,000 files.</p></li>
+</ul>
+<p><cite>pawns server fs server fs -i 5 –count 2000</cite></p>
+</li>
+</ol>
+</dd>
+</dl>
+<p>For more detailed command usage and options, refer to the help documentation by running ‘pawns server –help’.</p>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-top-module">
+<h2>pawnlib.cli.top module<a class="headerlink" href="#pawnlib-cli-top-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">top</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.top"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.top.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/top.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.top.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.top.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/top.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.top.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.top.print_banner">
+<span class="sig-name descname"><span class="pre">print_banner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/top.html#print_banner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.top.print_banner" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.top.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/top.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.top.main" title="Permalink to this definition"></a></dt>
+<dd><p>A simple and powerful tool for monitoring server resources in real time.
+This tool is a comprehensive solution for monitoring your server’s resource usage.</p>
+<p>Features include real-time tracking of network traffic, CPU, memory, and disk usage,
+making it an indispensable tool for system administrators and DevOps professionals.</p>
+<p>Here are some usage examples to get you started:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><strong>Basic Monitoring:</strong> Monitor system resources with default settings.
+Example: <cite>pawns top</cite></p></li>
+<li><p><strong>Detailed View:</strong> Use <cite>-v</cite> to increase verbosity and get more detailed logs.
+Example: <cite>pawns top -v</cite></p></li>
+<li><p><strong>Minimal Output:</strong> Use <cite>-q</cite> for quiet mode to suppress standard output.
+Example: <cite>pawns top -q</cite></p></li>
+<li><p><strong>Custom Update Interval:</strong> Adjust the refresh rate with <cite>-i</cite> to set the interval in seconds.
+Example: <cite>pawns top -i 5</cite></p></li>
+<li><p><strong>Output Formats:</strong> Choose between ‘live’ and ‘line’ output styles with <cite>-t</cite>.
+Example: <cite>pawns top -t live</cite></p></li>
+<li><p><strong>Network-Specific Monitoring:</strong> Focus solely on network traffic and protocols.
+Example: <cite>pawns top net</cite></p></li>
+<li><p><strong>Advanced Filters:</strong> Use advanced options to filter processes by PID, name, or network protocols.
+Example: <cite>pawns top proc –pid-filter 1234 –protocols tcp udp</cite></p></li>
+</ol>
+</div></blockquote>
+<dl>
+<dt>Key options:</dt><dd><dl class="option-list">
+<dt><kbd><span class="option">--top-n</span></kbd></dt>
+<dd><p>Specify the number of top processes to display.</p>
+</dd>
+<dt><kbd><span class="option">--refresh-rate</span></kbd></dt>
+<dd><p>Set the data refresh rate in seconds.</p>
+</dd>
+<dt><kbd><span class="option">--unit</span></kbd></dt>
+<dd><p>Choose the unit for network traffic (e.g., Mbps, Gbps).</p>
+</dd>
+<dt><kbd><span class="option">--group-by</span></kbd></dt>
+<dd><p>Group processes by PID or name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>This flexibility allows you to tailor the tool to your specific needs.
+For more detailed usage, run <cite>–help</cite> or refer to the documentation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.top.print_simple_line_type_status">
+<span class="sig-name descname"><span class="pre">print_simple_line_type_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_monitor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/top.html#print_simple_line_type_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.top.print_simple_line_type_status" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.top.print_line_status">
+<span class="sig-name descname"><span class="pre">print_line_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/top.html#print_line_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.top.print_line_status" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.top.print_rich_live_type_status">
+<span class="sig-name descname"><span class="pre">print_rich_live_type_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/top.html#print_rich_live_type_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.top.print_rich_live_type_status" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.top.print_rich_layout_type_status">
+<span class="sig-name descname"><span class="pre">print_rich_layout_type_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/top.html#print_rich_layout_type_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.top.print_rich_layout_type_status" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.top.get_resources_status">
+<span class="sig-name descname"><span class="pre">get_resources_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system_monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/top.html#get_resources_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.top.get_resources_status" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="pawnlib-cli-wallet-module">
+<h2>pawnlib.cli.wallet module<a class="headerlink" href="#pawnlib-cli-wallet-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">wallet</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.wallet"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.wallet.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/wallet.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.wallet.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.wallet.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/wallet.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.wallet.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.wallet.private_key_validator">
+<span class="sig-name descname"><span class="pre">private_key_validator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">private_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/wallet.html#private_key_validator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.wallet.private_key_validator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.wallet.least_length_validator">
+<span class="sig-name descname"><span class="pre">least_length_validator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/wallet.html#least_length_validator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.wallet.least_length_validator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.wallet.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/wallet.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.wallet.main" title="Permalink to this definition"></a></dt>
+<dd><p>A tool for managing ICON wallets. It supports creating new wallets and loading existing ones.
+This command-line interface offers various options for interacting with ICON wallets. You can easily create a new wallet or load an existing one using a private key or a keystore file.</p>
+<dl>
+<dt>Usage examples:</dt><dd><ol class="arabic">
+<li><p>Create a new wallet:</p>
+<ul class="simple">
+<li><p>This command creates a new wallet and outputs the keystore file and address.</p></li>
+</ul>
+<p><cite>pawns wallet create</cite></p>
+</li>
+<li><p>Load an existing wallet using a private key:</p>
+<ul class="simple">
+<li><p>Loads a wallet from the provided private key.</p></li>
+</ul>
+<p><cite>pawns wallet load –private-key YOUR_PRIVATE_KEY</cite></p>
+</li>
+<li><p>Load an existing wallet from a keystore file:</p>
+<ul class="simple">
+<li><p>Loads a wallet from a keystore file with the provided password.</p></li>
+</ul>
+<p><cite>pawns wallet load –keystore /path/to/keystore –password YOUR_PASSWORD</cite></p>
+</li>
+</ol>
+</dd>
+<dt>Options:</dt><dd><ul class="simple">
+<li><p>Use ‘–debug’ to enable debug mode for more detailed logs.</p></li>
+<li><p>Use ‘–no-store’ with the ‘create’ command to avoid saving the wallet keystore file.</p></li>
+</ul>
+</dd>
+</dl>
+<p>For more detailed information on command options, use the -h or –help flag.</p>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-websocket-module">
+<h2>pawnlib.cli.websocket module<a class="headerlink" href="#pawnlib-cli-websocket-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">websocket</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.websocket"></span><dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.websocket.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/websocket.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.websocket.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.websocket.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/websocket.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.websocket.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.websocket.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/websocket.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.websocket.main" title="Permalink to this definition"></a></dt>
+<dd><p>Connect to the Goloop network with WebSocket to receive blocks.
+This script allows you to connect to the Goloop network via WebSocket and receive real-time block information.</p>
+<dl>
+<dt>Usage examples:</dt><dd><ol class="arabic">
+<li><p>Connect to Goloop network via WebSocket:
+- Connects to the Goloop network via WebSocket using the specified URL.</p>
+<p><cite>pawns websocket http://example.com/ws</cite></p>
+</li>
+<li><p>Specify the starting block height:
+- Specifies the starting block height as 1000.</p>
+<p><cite>pawns websocket https://example.com/ws -b 1000</cite></p>
+</li>
+<li><p>Adjust verbosity level:
+- Increases verbosity level for more detailed output.</p>
+<p><cite>pawns websocket http://example.com/ws -v</cite></p>
+</li>
+</ol>
+</dd>
+</dl>
+<p>For more information and options, use the -h or –help flag.</p>
+</dd></dl>
+
+</section>
+<section id="pawnlib-cli-mon-module">
+<h2>pawnlib.cli.mon module<a class="headerlink" href="#pawnlib-cli-mon-module" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">mon</span>
+</pre></div>
+</div>
+<span class="target" id="module-pawnlib.cli.mon"></span><dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.ComposeDefaultSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ComposeDefaultSettings</span></span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#ComposeDefaultSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.ComposeDefaultSettings" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.ComposeDefaultSettings.BASE_DIR">
+<span class="sig-name descname"><span class="pre">BASE_DIR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/pawnlib'</span></em><a class="headerlink" href="#pawnlib.cli.mon.ComposeDefaultSettings.BASE_DIR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.ComposeDefaultSettings.LOG_FILE">
+<span class="sig-name descname"><span class="pre">LOG_FILE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/pawnlib/logs'</span></em><a class="headerlink" href="#pawnlib.cli.mon.ComposeDefaultSettings.LOG_FILE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.ComposeDefaultSettings.VERBOSE">
+<span class="sig-name descname"><span class="pre">VERBOSE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pawnlib.cli.mon.ComposeDefaultSettings.VERBOSE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.ComposeDefaultSettings.LOG_TYPE">
+<span class="sig-name descname"><span class="pre">LOG_TYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'file'</span></em><a class="headerlink" href="#pawnlib.cli.mon.ComposeDefaultSettings.LOG_TYPE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.ComposeDefaultSettings.PRIORITY">
+<span class="sig-name descname"><span class="pre">PRIORITY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'env'</span></em><a class="headerlink" href="#pawnlib.cli.mon.ComposeDefaultSettings.PRIORITY" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.parse_address_list">
+<span class="sig-name descname"><span class="pre">parse_address_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#parse_address_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.parse_address_list" title="Permalink to this definition"></a></dt>
+<dd><p>Comma-separated string to list, removing whitespace.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.add_common_arguments">
+<span class="sig-name descname"><span class="pre">add_common_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#add_common_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.add_common_arguments" title="Permalink to this definition"></a></dt>
+<dd><p>Add common arguments to both SSH and Wallet parsers.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.get_arguments">
+<span class="sig-name descname"><span class="pre">get_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#get_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.get_arguments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.load_environment_settings">
+<span class="sig-name descname"><span class="pre">load_environment_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#load_environment_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.load_environment_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Load environment settings from command-line arguments or environment variables,
+prioritizing args if provided, otherwise using environment variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.merge_environment_settings">
+<span class="sig-name descname"><span class="pre">merge_environment_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#merge_environment_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.merge_environment_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Merge environment settings with command-line arguments based on the selected priority.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.run_monitor_ssh">
+<span class="sig-name descname"><span class="pre">run_monitor_ssh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#run_monitor_ssh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.run_monitor_ssh" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.WalletStateTracker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">WalletStateTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">persist_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#WalletStateTracker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.WalletStateTracker" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.WalletStateTracker.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#WalletStateTracker.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.WalletStateTracker.get" title="Permalink to this definition"></a></dt>
+<dd><p>주소별 캐시 데이터 반환</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.WalletStateTracker.update">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#WalletStateTracker.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.WalletStateTracker.update" title="Permalink to this definition"></a></dt>
+<dd><p>변경 감지 및 업데이트 수행</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.WalletStateTracker.load_from_file">
+<em class="property"><span class="pre">async</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#WalletStateTracker.load_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.WalletStateTracker.load_from_file" title="Permalink to this definition"></a></dt>
+<dd><p>파일에서 상태 복구</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pawnlib.cli.mon.WalletStateTracker" title="pawnlib.cli.mon.WalletStateTracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">WalletStateTracker</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.WalletStateTracker.track_changes">
+<span class="sig-name descname"><span class="pre">track_changes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#WalletStateTracker.track_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.WalletStateTracker.track_changes" title="Permalink to this definition"></a></dt>
+<dd><p>변경 필드 식별 로직 분리</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.worker">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.worker" title="Permalink to this definition"></a></dt>
+<dd><p>지갑 전체 데이터 반환</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.deep_filter_ignored">
+<span class="sig-name descname"><span class="pre">deep_filter_ignored</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#deep_filter_ignored"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.deep_filter_ignored" title="Permalink to this definition"></a></dt>
+<dd><p>중첩 구조에서 특정 키 재귀적으로 제거 (검색 결과 [3] 확장)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.format_balance_change">
+<span class="sig-name descname"><span class="pre">format_balance_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_decimal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#format_balance_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.format_balance_change" title="Permalink to this definition"></a></dt>
+<dd><ul class="simple">
+<li><p>ignore_decimal=True 이면,
+소숫점 이하를 아예 무시(정수 변환).</p></li>
+<li><p>ignore_decimal=False 이면,
+소숫점 4자리까지 반올림하되, 실질적으로 정수면 정수 형태로.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.format_changes">
+<span class="sig-name descname"><span class="pre">format_changes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">changed_fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#format_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.format_changes" title="Permalink to this definition"></a></dt>
+<dd><p>변경 사항을 여러 줄 문자열로 포매팅</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.detect_changes">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect_changes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_decimal_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_send_slack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#detect_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.detect_changes" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.run_continuous_monitoring">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_continuous_monitoring</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addresses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_decimal_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_send_slack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#run_continuous_monitoring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.run_continuous_monitoring" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.run_multi_wallet_monitoring">
+<span class="sig-name descname"><span class="pre">run_multi_wallet_monitoring</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#run_multi_wallet_monitoring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.run_multi_wallet_monitoring" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.run_wallet_client_with_websocket">
+<span class="sig-name descname"><span class="pre">run_wallet_client_with_websocket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#run_wallet_client_with_websocket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.run_wallet_client_with_websocket" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.select_service_name">
+<span class="sig-name descname"><span class="pre">select_service_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#select_service_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.select_service_name" title="Permalink to this definition"></a></dt>
+<dd><p>Show a simple menu to select between SSH and Wallet for docker-compose generation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.prompt_for_env_variables">
+<span class="sig-name descname"><span class="pre">prompt_for_env_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#prompt_for_env_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.prompt_for_env_variables" title="Permalink to this definition"></a></dt>
+<dd><p>Prompt user to input values for settings. Use default values if provided.
+If a value is a list, it will be converted to a comma-separated string.
+Special handling for BASE_DIR and LOG_FILE defaults from ComposeDefaultSettings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>dict</em>) – Dictionary containing key-value pairs of settings.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with user-provided or default values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.run_compose_init">
+<span class="sig-name descname"><span class="pre">run_compose_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#run_compose_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.run_compose_init" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pawnlib.cli.mon.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pawnlib/cli/mon.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pawnlib.cli.mon.main" title="Permalink to this definition"></a></dt>
+<dd><p>SSH and Wallet Monitoring Tool</p>
+<p>Usage examples:</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>Start monitoring SSH log files:</dt><dd><p><cite>pawns mon ssh -f /var/log/secure /var/log/auth.log</cite></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Start the wallet client:</dt><dd><p><cite>pawns mon wallet –url https://example.com -vvv</cite></p>
+</dd>
+</dl>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can monitor multiple log files by providing multiple <cite>-f</cite> arguments.</p>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pawnlib.builder.html" class="btn btn-neutral float-left" title="pawnlib.builder package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pawnlib.config.html" class="btn btn-neutral float-right" title="pawnlib.config package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

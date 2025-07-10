@@ -1,0 +1,1070 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.metrics.tracker &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.metrics.tracker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.metrics.tracker</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+
+<div class="viewcode-block" id="TPSCalculator"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TPSCalculator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TPSCalculator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to calculate Transactions Per Second (TPS) based on block height changes over time.</span>
+
+<span class="sd">    This class tracks the block height and calculates TPS over a configurable history size.</span>
+<span class="sd">    It supports both fixed interval calculations and variable time-based calculations.</span>
+
+<span class="sd">    :param history_size: Number of recent TPS values to keep for averaging.</span>
+<span class="sd">    :type history_size: int</span>
+<span class="sd">    :param sleep_time: Fixed interval between API calls in seconds.</span>
+<span class="sd">    :type sleep_time: int</span>
+<span class="sd">    :param variable_time: If True, calculate TPS based on actual elapsed time.</span>
+<span class="sd">    :type variable_time: bool</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize TPSCalculator with default parameters</span>
+<span class="sd">            tps_calculator = TPSCalculator()</span>
+
+<span class="sd">            # Simulate block height updates</span>
+<span class="sd">            current_height = 100</span>
+<span class="sd">            current_time = time.time()</span>
+
+<span class="sd">            # Calculate TPS with a new block height</span>
+<span class="sd">            current_tps, average_tps = tps_calculator.calculate_tps(current_height, current_time)</span>
+
+<span class="sd">            print(f&quot;Current TPS: {current_tps}, Average TPS: {average_tps}&quot;)</span>
+
+<span class="sd">            # Reset the calculator if needed</span>
+<span class="sd">            tps_calculator.reset()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TPSCalculator.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TPSCalculator.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">variable_time</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the TPSCalculator.</span>
+
+<span class="sd">        :param history_size: Number of recent TPS values to keep for averaging.</span>
+<span class="sd">        :type history_size: int</span>
+<span class="sd">        :param sleep_time: Fixed interval between API calls in seconds.</span>
+<span class="sd">        :type sleep_time: int</span>
+<span class="sd">        :param variable_time: If True, calculate TPS based on actual elapsed time.</span>
+<span class="sd">        :type variable_time: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_height</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tps_history</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">history_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">call_count</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># To track the number of API calls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span> <span class="o">=</span> <span class="n">sleep_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variable_time</span> <span class="o">=</span> <span class="n">variable_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_transactions</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="TPSCalculator.calculate_tps"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TPSCalculator.calculate_tps">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_tps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_height</span><span class="p">,</span> <span class="n">current_time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the current TPS and updates the TPS history.</span>
+
+<span class="sd">        :param current_height: The current block height.</span>
+<span class="sd">        :type current_height: int</span>
+<span class="sd">        :param current_time: The current timestamp. If None and variable_time is False, uses fixed sleep_time.</span>
+<span class="sd">        :type current_time: float, optional</span>
+<span class="sd">        :return: Tuple of (current_tps, average_tps)</span>
+<span class="sd">        :rtype: tuple(float, float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_time</span><span class="p">:</span>
+            <span class="n">time_diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">current_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">time_diff</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span>
+
+                <span class="c1"># Validate time_diff</span>
+                <span class="k">if</span> <span class="n">time_diff</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Non-positive time_diff (</span><span class="si">{</span><span class="n">time_diff</span><span class="si">}</span><span class="s2">). Skipping TPS calculation.&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_average_tps</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="n">time_diff</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Very small time_diff (</span><span class="si">{</span><span class="n">time_diff</span><span class="si">}</span><span class="s2">). Adjusting to minimum threshold.&quot;</span><span class="p">)</span>
+                    <span class="n">time_diff</span> <span class="o">=</span> <span class="mf">0.1</span>  <span class="c1"># Set to minimum threshold to prevent inflated TPS</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">time_diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">height_diff</span> <span class="o">=</span> <span class="n">current_height</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_height</span>
+
+            <span class="c1"># Validate height_diff</span>
+            <span class="k">if</span> <span class="n">height_diff</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Negative height_diff (</span><span class="si">{</span><span class="n">height_diff</span><span class="si">}</span><span class="s2">). Resetting TPS calculator.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_average_tps</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">height_diff</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">current_tps</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">current_tps</span> <span class="o">=</span> <span class="n">height_diff</span> <span class="o">/</span> <span class="n">time_diff</span>
+                <span class="n">max_tps</span> <span class="o">=</span> <span class="mi">1000</span>  <span class="c1"># Define a maximum reasonable TPS</span>
+                <span class="k">if</span> <span class="n">current_tps</span> <span class="o">&gt;</span> <span class="n">max_tps</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Unusually high TPS (</span><span class="si">{</span><span class="n">current_tps</span><span class="si">}</span><span class="s2">). Capping to </span><span class="si">{</span><span class="n">max_tps</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                    <span class="n">current_tps</span> <span class="o">=</span> <span class="n">max_tps</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">tps_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_tps</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">total_transactions</span> <span class="o">+=</span> <span class="n">height_diff</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">current_tps</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_height</span> <span class="o">=</span> <span class="n">current_height</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_time</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span> <span class="o">=</span> <span class="n">current_time</span>
+
+        <span class="n">average_tps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_average_tps</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">call_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">current_tps</span><span class="p">,</span> <span class="n">average_tps</span></div>
+
+<div class="viewcode-block" id="TPSCalculator.get_average_tps"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TPSCalculator.get_average_tps">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_average_tps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the average TPS from the history.</span>
+
+<span class="sd">        :return: The average TPS.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tps_history</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tps_history</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tps_history</span> <span class="k">else</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="TPSCalculator.processed_tx"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TPSCalculator.processed_tx">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">processed_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the total number of transactions since monitoring started.</span>
+
+<span class="sd">        :return: Total transactions as integer.</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_transactions</span></div>
+
+<div class="viewcode-block" id="TPSCalculator.last_n_tx"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TPSCalculator.last_n_tx">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">last_n_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of transactions in the last n seconds (sleep_time).</span>
+
+<span class="sd">        :return: Transactions count in last n seconds.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tps_history</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tps_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="TPSCalculator.reset"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TPSCalculator.reset">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resets the TPSCalculator to its initial state.</span>
+
+<span class="sd">        This clears all stored data and resets counters.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_height</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tps_history</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">call_count</span> <span class="o">=</span> <span class="mi">0</span></div></div>
+
+
+<div class="viewcode-block" id="SyncSpeedTracker"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.SyncSpeedTracker">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SyncSpeedTracker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to track the synchronization speed of a blockchain node.</span>
+
+<span class="sd">    This class calculates the average number of blocks synchronized per second</span>
+<span class="sd">    using a moving average approach based on recent block height and time differences.</span>
+
+<span class="sd">    :param history_size: The number of records to keep for calculating the moving average.</span>
+<span class="sd">    :type history_size: int</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize the tracker with a history size of 10</span>
+<span class="sd">            sync_tracker = SyncSpeedTracker(history_size=10)</span>
+
+<span class="sd">            # Update the tracker with new block height and timestamp</span>
+<span class="sd">            current_height = 150</span>
+<span class="sd">            current_time = time.time()</span>
+<span class="sd">            sync_tracker.update(current_height, current_time)</span>
+
+<span class="sd">            # Get the average synchronization speed (blocks per second)</span>
+<span class="sd">            avg_sync_speed = sync_tracker.get_average_sync_speed()</span>
+<span class="sd">            print(f&quot;Average Sync Speed: {avg_sync_speed} blocks/second&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SyncSpeedTracker.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.SyncSpeedTracker.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the SyncSpeedTracker.</span>
+
+<span class="sd">        :param history_size: The number of records to store for calculating the moving average.</span>
+<span class="sd">        :type history_size: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history_size</span> <span class="o">=</span> <span class="n">history_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_differences</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">history_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_differences</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">history_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_height</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="SyncSpeedTracker.update"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.SyncSpeedTracker.update">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_height</span><span class="p">,</span> <span class="n">current_time</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the synchronization speed tracker with new block height and timestamp.</span>
+
+<span class="sd">        :param current_height: The current block height.</span>
+<span class="sd">        :type current_height: int</span>
+<span class="sd">        :param current_time: The current timestamp.</span>
+<span class="sd">        :type current_time: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">block_diff</span> <span class="o">=</span> <span class="n">current_height</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_height</span>
+            <span class="n">time_diff</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span>
+
+            <span class="k">if</span> <span class="n">block_diff</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">time_diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">block_differences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block_diff</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">time_differences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_diff</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_height</span> <span class="o">=</span> <span class="n">current_height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_time</span> <span class="o">=</span> <span class="n">current_time</span></div>
+
+<div class="viewcode-block" id="SyncSpeedTracker.get_average_sync_speed"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.SyncSpeedTracker.get_average_sync_speed">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_average_sync_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the average number of blocks synchronized per second using a moving average.</span>
+
+<span class="sd">        :return: The average synchronization speed in blocks per second. Returns None if insufficient data.</span>
+<span class="sd">        :rtype: float or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_differences</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_differences</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Insufficient data</span>
+
+        <span class="n">total_blocks</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">block_differences</span><span class="p">)</span>
+        <span class="n">total_time</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_differences</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">total_time</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">total_blocks</span> <span class="o">/</span> <span class="n">total_time</span>  <span class="c1"># Blocks per second</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="BlockDifferenceTracker"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.BlockDifferenceTracker">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">BlockDifferenceTracker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to track and calculate the average block difference over a configurable history size.</span>
+
+<span class="sd">    This class is useful for monitoring the difference in block heights between nodes or systems.</span>
+
+<span class="sd">    :param history_size: The number of recent block differences to track.</span>
+<span class="sd">    :type history_size: int</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize the tracker with a history size of 50</span>
+<span class="sd">            block_tracker = BlockDifferenceTracker(history_size=50)</span>
+
+<span class="sd">            # Add block differences</span>
+<span class="sd">            block_tracker.add_difference(5)</span>
+<span class="sd">            block_tracker.add_difference(3)</span>
+
+<span class="sd">            # Get the average block difference</span>
+<span class="sd">            avg_difference = block_tracker.get_average_difference()</span>
+<span class="sd">            print(f&quot;Average Block Difference: {avg_difference}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BlockDifferenceTracker.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.BlockDifferenceTracker.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the BlockDifferenceTracker.</span>
+
+<span class="sd">        :param history_size: Number of recent block differences to track.</span>
+<span class="sd">        :type history_size: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">differences</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">history_size</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockDifferenceTracker.add_difference"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.BlockDifferenceTracker.add_difference">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_difference</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new block difference to the tracker.</span>
+
+<span class="sd">        :param block_difference: The current block difference.</span>
+<span class="sd">        :type block_difference: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">differences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block_difference</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockDifferenceTracker.get_average_difference"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.BlockDifferenceTracker.get_average_difference">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_average_difference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the average block difference.</span>
+
+<span class="sd">        :return: The average of the tracked block differences.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">differences</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">differences</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">differences</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LatencyTracker"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.LatencyTracker">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">LatencyTracker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to track and analyze latency measurements.</span>
+
+<span class="sd">    This class stores latency values and provides methods to calculate average, minimum, and maximum latencies.</span>
+
+<span class="sd">    :param history_size: The number of recent latency measurements to track.</span>
+<span class="sd">    :type history_size: int</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize the tracker with a history size of 100</span>
+<span class="sd">            latency_tracker = LatencyTracker(history_size=100)</span>
+
+<span class="sd">            # Add latency measurements</span>
+<span class="sd">            latency_tracker.add_latency(120)</span>
+<span class="sd">            latency_tracker.add_latency(150)</span>
+
+<span class="sd">            # Get latency statistics</span>
+<span class="sd">            avg_latency = latency_tracker.get_average_latency()</span>
+<span class="sd">            min_latency = latency_tracker.get_min_latency()</span>
+<span class="sd">            max_latency = latency_tracker.get_max_latency()</span>
+
+<span class="sd">            print(f&quot;Average Latency: {avg_latency} ms&quot;)</span>
+<span class="sd">            print(f&quot;Min Latency: {min_latency} ms&quot;)</span>
+<span class="sd">            print(f&quot;Max Latency: {max_latency} ms&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LatencyTracker.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.LatencyTracker.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the LatencyTracker.</span>
+
+<span class="sd">        :param history_size: The number of recent latency measurements to track.</span>
+<span class="sd">        :type history_size: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latencies</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">history_size</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LatencyTracker.add_latency"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.LatencyTracker.add_latency">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_latency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latency</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new latency measurement to the tracker.</span>
+
+<span class="sd">        :param latency: The measured latency in milliseconds.</span>
+<span class="sd">        :type latency: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latencies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">latency</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LatencyTracker.get_average_latency"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.LatencyTracker.get_average_latency">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_average_latency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the average latency from the tracked measurements.</span>
+
+<span class="sd">        :return: The average latency in milliseconds.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latencies</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latencies</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">latencies</span> <span class="k">else</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="LatencyTracker.get_min_latency"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.LatencyTracker.get_min_latency">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_min_latency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the minimum recorded latency.</span>
+
+<span class="sd">        :return: The minimum latency in milliseconds, or None if no data is available.</span>
+<span class="sd">        :rtype: float or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latencies</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">latencies</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="LatencyTracker.get_max_latency"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.LatencyTracker.get_max_latency">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_max_latency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the maximum recorded latency.</span>
+
+<span class="sd">        :return: The maximum latency in milliseconds, or None if no data is available.</span>
+<span class="sd">        :rtype: float or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latencies</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">latencies</span> <span class="k">else</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="ErrorRateTracker"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ErrorRateTracker">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ErrorRateTracker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to track and calculate error rates for API requests or operations.</span>
+
+<span class="sd">    This class monitors total requests and failed requests to compute an error rate percentage.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize the tracker</span>
+<span class="sd">            error_tracker = ErrorRateTracker()</span>
+
+<span class="sd">            # Record requests (success=True for successful requests)</span>
+<span class="sd">            error_tracker.record_request(success=True)</span>
+<span class="sd">            error_tracker.record_request(success=False)</span>
+
+<span class="sd">            # Get the current error rate</span>
+<span class="sd">            error_rate = error_tracker.get_error_rate()</span>
+<span class="sd">            print(f&quot;Error Rate: {error_rate:.2f}%&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ErrorRateTracker.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ErrorRateTracker.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the ErrorRateTracker.</span>
+
+<span class="sd">        Tracks total and failed requests for calculating error rates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_requests</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed_requests</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="ErrorRateTracker.record_request"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ErrorRateTracker.record_request">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">record_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Records a request and whether it was successful or not.</span>
+
+<span class="sd">        :param success: True if the request was successful; False otherwise.</span>
+<span class="sd">                        Defaults to True.</span>
+<span class="sd">        :type success: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_requests</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">failed_requests</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="ErrorRateTracker.get_error_rate"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ErrorRateTracker.get_error_rate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_error_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the error rate as a percentage of failed requests over total requests.</span>
+
+<span class="sd">        :return: The error rate percentage. Returns 0 if no requests have been recorded.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_requests</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">failed_requests</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_requests</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span></div></div>
+
+
+<div class="viewcode-block" id="ThroughputTracker"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ThroughputTracker">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ThroughputTracker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to track and calculate throughput (requests per second).</span>
+
+<span class="sd">    This class records timestamps of requests and calculates the throughput</span>
+<span class="sd">    over a configurable history size.</span>
+
+<span class="sd">    :param history_size: The number of recent timestamps to track.</span>
+<span class="sd">    :type history_size: int</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize the tracker with a history size of 100</span>
+<span class="sd">            throughput_tracker = ThroughputTracker(history_size=100)</span>
+
+<span class="sd">            # Record requests with timestamps</span>
+<span class="sd">            throughput_tracker.record_request()</span>
+<span class="sd">            time.sleep(1)</span>
+<span class="sd">            throughput_tracker.record_request()</span>
+
+<span class="sd">            # Get the current throughput</span>
+<span class="sd">            throughput = throughput_tracker.get_throughput()</span>
+<span class="sd">            print(f&quot;Throughput: {throughput} requests/second&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ThroughputTracker.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ThroughputTracker.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the ThroughputTracker.</span>
+
+<span class="sd">        :param history_size: The number of recent timestamps to track.</span>
+<span class="sd">        :type history_size: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">history_size</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ThroughputTracker.record_request"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ThroughputTracker.record_request">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">record_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Records the timestamp of a request.</span>
+
+<span class="sd">        :param timestamp: The timestamp of the request. Defaults to the current time.</span>
+<span class="sd">        :type timestamp: float, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timestamp</span> <span class="ow">or</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="ThroughputTracker.get_throughput"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ThroughputTracker.get_throughput">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_throughput</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the throughput (requests per second).</span>
+
+<span class="sd">        :return: The calculated throughput. Returns 0 if insufficient data.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span><span class="p">)</span> <span class="o">/</span> <span class="n">duration</span> <span class="k">if</span> <span class="n">duration</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span></div></div>
+
+
+<div class="viewcode-block" id="PeriodicMetricLogger"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.PeriodicMetricLogger">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PeriodicMetricLogger</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for logging metrics at regular intervals.</span>
+
+<span class="sd">    This class logs provided metrics only if a specified interval has passed since the last log.</span>
+
+<span class="sd">    :param interval: The logging interval in seconds.</span>
+<span class="sd">    :type interval: int</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize the logger with a 10-second interval</span>
+<span class="sd">            metric_logger = PeriodicMetricLogger(interval=10)</span>
+
+<span class="sd">            # Log metrics periodically</span>
+<span class="sd">            metrics = {&quot;TPS&quot;: 50.5, &quot;Latency&quot;: 120}</span>
+<span class="sd">            metric_logger.log_metrics(metrics)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PeriodicMetricLogger.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.PeriodicMetricLogger.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the PeriodicMetricLogger.</span>
+
+<span class="sd">        :param interval: The logging interval in seconds.</span>
+<span class="sd">        :type interval: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_logged</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PeriodicMetricLogger.log_metrics"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.PeriodicMetricLogger.log_metrics">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Logs the provided metrics if the logging interval has passed.</span>
+
+<span class="sd">        :param metrics: A dictionary of metric names and their values.</span>
+<span class="sd">        :type metrics: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_logged</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_logged</span> <span class="o">=</span> <span class="n">current_time</span></div></div>
+
+
+<div class="viewcode-block" id="SpikeDetector"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.SpikeDetector">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SpikeDetector</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to detect spikes in a series of values.</span>
+
+<span class="sd">    A spike is detected when the difference between consecutive values exceeds a specified threshold.</span>
+
+<span class="sd">    :param threshold: The change amount considered as a spike.</span>
+<span class="sd">    :type threshold: float</span>
+<span class="sd">    :param history_size: The maximum number of recent values to store.</span>
+<span class="sd">    :type history_size: int</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize the spike detector with a threshold of 10</span>
+<span class="sd">            spike_detector = SpikeDetector(threshold=10, history_size=5)</span>
+
+<span class="sd">            # Add values and detect spikes</span>
+<span class="sd">            spike_detector.add_value(50)</span>
+<span class="sd">            spike_detector.add_value(65)</span>
+
+<span class="sd">            is_spike = spike_detector.detect_spike()</span>
+<span class="sd">            print(f&quot;Spike Detected: {is_spike}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SpikeDetector.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.SpikeDetector.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">history_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the SpikeDetector.</span>
+
+<span class="sd">        :param threshold: The change amount considered as a spike.</span>
+<span class="sd">        :type threshold: float</span>
+<span class="sd">        :param history_size: The maximum number of recent values to store.</span>
+<span class="sd">        :type history_size: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">history_size</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpikeDetector.add_value"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.SpikeDetector.add_value">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new value to the tracker.</span>
+
+<span class="sd">        :param value: The new value to track.</span>
+<span class="sd">        :type value: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpikeDetector.detect_spike"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.SpikeDetector.detect_spike">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">detect_spike</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Detects whether a spike occurred based on recent values.</span>
+
+<span class="sd">        :return: True if a spike is detected; False otherwise.</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">last_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">prev_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">last_value</span> <span class="o">-</span> <span class="n">prev_value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span></div></div>
+
+
+<div class="viewcode-block" id="AnomalyDetector"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.AnomalyDetector">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AnomalyDetector</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to detect anomalies in data based on a baseline and tolerance.</span>
+
+<span class="sd">    An anomaly is detected when a value deviates from the baseline by more than the allowed tolerance.</span>
+
+<span class="sd">    :param baseline: The reference value for normal data (e.g., average TPS).</span>
+<span class="sd">    :type baseline: float</span>
+<span class="sd">    :param tolerance: The acceptable deviation from the baseline as a fraction (e.g., 0.2 for ±20%).</span>
+<span class="sd">                      Defaults to 0.2 (±20%).</span>
+<span class="sd">    :type tolerance: float</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize the anomaly detector with a baseline of 50 and tolerance of 20%</span>
+<span class="sd">            anomaly_detector = AnomalyDetector(baseline=50, tolerance=0.2)</span>
+
+<span class="sd">            # Detect anomalies in new values</span>
+<span class="sd">            is_anomaly = anomaly_detector.detect_anomaly(65)</span>
+<span class="sd">            print(f&quot;Anomaly Detected: {is_anomaly}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AnomalyDetector.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.AnomalyDetector.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">baseline</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the AnomalyDetector.</span>
+
+<span class="sd">        :param baseline: The reference value for normal data (e.g., average TPS).</span>
+<span class="sd">        :type baseline: float</span>
+<span class="sd">        :param tolerance: The acceptable deviation from the baseline as a fraction.</span>
+<span class="sd">                          Defaults to 0.2 (±20%).</span>
+<span class="sd">        :type tolerance: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span> <span class="o">=</span> <span class="n">baseline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">tolerance</span></div>
+
+<div class="viewcode-block" id="AnomalyDetector.detect_anomaly"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.AnomalyDetector.detect_anomaly">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">detect_anomaly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Detects whether a given value is an anomaly based on the baseline and tolerance.</span>
+
+<span class="sd">        :param value: The value to check for anomalies.</span>
+<span class="sd">        :type value: float</span>
+<span class="sd">        :return: True if the value is an anomaly; False otherwise.</span>
+<span class="sd">        :rtype: bool</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                # Check if a value is an anomaly</span>
+<span class="sd">                is_anomaly = anomaly_detector.detect_anomaly(75)</span>
+<span class="sd">                print(f&quot;Anomaly Detected: {is_anomaly}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lower_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">)</span>
+        <span class="n">upper_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="n">lower_bound</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="n">upper_bound</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="TrendAnalyzer"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TrendAnalyzer">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TrendAnalyzer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to analyze trends in a series of values.</span>
+
+<span class="sd">    This class tracks a series of values and determines whether the trend is upward, downward, or stable.</span>
+
+<span class="sd">    :param history_size: The maximum number of recent values to store for trend analysis.</span>
+<span class="sd">    :type history_size: int</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize the trend analyzer with a history size of 5</span>
+<span class="sd">            trend_analyzer = TrendAnalyzer(history_size=5)</span>
+
+<span class="sd">            # Add values to the trend analyzer</span>
+<span class="sd">            trend_analyzer.add_value(10)</span>
+<span class="sd">            trend_analyzer.add_value(15)</span>
+<span class="sd">            trend_analyzer.add_value(20)</span>
+
+<span class="sd">            # Get the current trend</span>
+<span class="sd">            trend = trend_analyzer.get_trend()</span>
+<span class="sd">            print(f&quot;Current Trend: {trend}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TrendAnalyzer.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TrendAnalyzer.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the TrendAnalyzer.</span>
+
+<span class="sd">        :param history_size: The maximum number of recent values to store for trend analysis.</span>
+<span class="sd">        :type history_size: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">history_size</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TrendAnalyzer.add_value"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TrendAnalyzer.add_value">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new value to the tracker.</span>
+
+<span class="sd">        :param value: The new value to track.</span>
+<span class="sd">        :type value: float or int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TrendAnalyzer.get_trend"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.TrendAnalyzer.get_trend">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_trend</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the trend based on the stored values.</span>
+
+<span class="sd">        The trend is determined as:</span>
+<span class="sd">        - &quot;upward&quot;: If all differences between consecutive values are positive.</span>
+<span class="sd">        - &quot;downward&quot;: If all differences between consecutive values are negative.</span>
+<span class="sd">        - &quot;stable&quot;: If there is no consistent upward or downward pattern.</span>
+
+<span class="sd">        :return: The calculated trend (&quot;upward&quot;, &quot;downward&quot;, or &quot;stable&quot;).</span>
+<span class="sd">        :rtype: str</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                # Analyze the trend</span>
+<span class="sd">                trend = trend_analyzer.get_trend()</span>
+<span class="sd">                print(f&quot;Current Trend: {trend}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;stable&quot;</span>
+
+        <span class="n">diffs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">diffs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;upward&quot;</span>
+        <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="n">d</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">diffs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;downward&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;stable&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="RollingAverageCalculator"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.RollingAverageCalculator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RollingAverageCalculator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to calculate the rolling (moving) average of a series of values.</span>
+
+<span class="sd">    This class maintains a fixed-size window of recent values and calculates the average</span>
+<span class="sd">    of the values within the window.</span>
+
+<span class="sd">    :param window_size: The size of the rolling window.</span>
+<span class="sd">    :type window_size: int</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize the rolling average calculator with a window size of 5</span>
+<span class="sd">            avg_calculator = RollingAverageCalculator(window_size=5)</span>
+
+<span class="sd">            # Add values to the calculator</span>
+<span class="sd">            avg_calculator.add_value(10)</span>
+<span class="sd">            avg_calculator.add_value(20)</span>
+<span class="sd">            avg_calculator.add_value(30)</span>
+
+<span class="sd">            # Get the current rolling average</span>
+<span class="sd">            average = avg_calculator.get_average()</span>
+<span class="sd">            print(f&quot;Rolling Average: {average}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RollingAverageCalculator.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.RollingAverageCalculator.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the RollingAverageCalculator.</span>
+
+<span class="sd">        :param window_size: The size of the rolling window.</span>
+<span class="sd">        :type window_size: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span> <span class="o">=</span> <span class="n">window_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">window_size</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RollingAverageCalculator.add_value"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.RollingAverageCalculator.add_value">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new value to the rolling window.</span>
+
+<span class="sd">        :param value: The new value to add.</span>
+<span class="sd">        :type value: float or int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RollingAverageCalculator.get_average"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.RollingAverageCalculator.get_average">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_average</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates and returns the rolling average of the stored values.</span>
+
+<span class="sd">        :return: The rolling average. Returns 0 if no values are stored.</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                # Calculate the rolling average</span>
+<span class="sd">                average = avg_calculator.get_average()</span>
+<span class="sd">                print(f&quot;Rolling Average: {average}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="k">else</span> <span class="mi">0</span></div></div>
+
+
+<div class="viewcode-block" id="ThresholdNotifier"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ThresholdNotifier">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ThresholdNotifier</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to monitor values and trigger a notification when a threshold is exceeded.</span>
+
+<span class="sd">    This class checks if a given value exceeds a predefined threshold and executes</span>
+<span class="sd">    a callback function when the threshold is crossed.</span>
+
+<span class="sd">    :param threshold: The threshold value to monitor.</span>
+<span class="sd">    :type threshold: float or int</span>
+<span class="sd">    :param alert_callback: A callback function to execute when the threshold is exceeded.</span>
+<span class="sd">    :type alert_callback: callable</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Define an alert callback function</span>
+<span class="sd">            def alert(value):</span>
+<span class="sd">                print(f&quot;Alert! Value exceeded: {value}&quot;)</span>
+
+<span class="sd">            # Initialize the notifier with a threshold of 100</span>
+<span class="sd">            notifier = ThresholdNotifier(threshold=100, alert_callback=alert)</span>
+
+<span class="sd">            # Check values and trigger alerts if necessary</span>
+<span class="sd">            notifier.check_and_notify(120)  # This will trigger the alert</span>
+<span class="sd">            notifier.check_and_notify(80)   # This will not trigger the alert</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ThresholdNotifier.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ThresholdNotifier.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">alert_callback</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the ThresholdNotifier.</span>
+
+<span class="sd">        :param threshold: The threshold value to monitor.</span>
+<span class="sd">        :type threshold: float or int</span>
+<span class="sd">        :param alert_callback: A callback function to execute when the threshold is exceeded.</span>
+<span class="sd">        :type alert_callback: callable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alert_callback</span> <span class="o">=</span> <span class="n">alert_callback</span></div>
+
+<div class="viewcode-block" id="ThresholdNotifier.check_and_notify"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.ThresholdNotifier.check_and_notify">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">check_and_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the given value exceeds the threshold and triggers the callback if it does.</span>
+
+<span class="sd">        :param value: The value to check against the threshold.</span>
+<span class="sd">        :type value: float or int</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                notifier.check_and_notify(150)  # Triggers the callback if value &gt; threshold</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alert_callback</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RateLimiter"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.RateLimiter">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RateLimiter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to enforce rate limits on operations.</span>
+
+<span class="sd">    This class ensures that a maximum number of calls can be made within a specified time period.</span>
+<span class="sd">    If the limit is exceeded, further calls are not allowed until the time window resets.</span>
+
+<span class="sd">    :param max_calls: The maximum number of calls allowed within the time period.</span>
+<span class="sd">    :type max_calls: int</span>
+<span class="sd">    :param time_period: The time period (in seconds) for rate limiting.</span>
+<span class="sd">    :type time_period: float or int</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Initialize a rate limiter allowing 5 calls per 10 seconds</span>
+<span class="sd">            rate_limiter = RateLimiter(max_calls=5, time_period=10)</span>
+
+<span class="sd">            # Check if calls are allowed</span>
+<span class="sd">            for i in range(10):</span>
+<span class="sd">                if rate_limiter.is_allowed():</span>
+<span class="sd">                    print(f&quot;Call {i + 1}: Allowed&quot;)</span>
+<span class="sd">                else:</span>
+<span class="sd">                    print(f&quot;Call {i + 1}: Rate limit exceeded&quot;)</span>
+<span class="sd">                time.sleep(1)  # Simulate time delay between calls</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RateLimiter.__init__"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.RateLimiter.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_calls</span><span class="p">,</span> <span class="n">time_period</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the RateLimiter.</span>
+
+<span class="sd">        :param max_calls: The maximum number of calls allowed within the time period.</span>
+<span class="sd">        :type max_calls: int</span>
+<span class="sd">        :param time_period: The time period (in seconds) for rate limiting.</span>
+<span class="sd">        :type time_period: float or int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_calls</span> <span class="o">=</span> <span class="n">max_calls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_period</span> <span class="o">=</span> <span class="n">time_period</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calls</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="RateLimiter.is_allowed"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.RateLimiter.is_allowed">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_allowed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if a new call is allowed under the rate limit.</span>
+
+<span class="sd">        Removes expired calls from the queue based on the current time and time period,</span>
+<span class="sd">        then determines if another call can be made.</span>
+
+<span class="sd">        :return: True if the call is allowed; False otherwise.</span>
+<span class="sd">        :rtype: bool</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                if rate_limiter.is_allowed():</span>
+<span class="sd">                    print(&quot;Call allowed&quot;)</span>
+<span class="sd">                else:</span>
+<span class="sd">                    print(&quot;Rate limit exceeded&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Remove timestamps outside of the current time window</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">calls</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_period</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+
+        <span class="c1"># Check if we can allow another call</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_calls</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_time</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="calculate_reset_percentage"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.calculate_reset_percentage">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">calculate_reset_percentage</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;height=(\d+) resolved=(\d+) unresolved=(\d+)&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>         <span class="c1"># height</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>       <span class="c1"># resolved</span>
+        <span class="n">unresolved</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>     <span class="c1"># unresolved</span>
+        <span class="n">reset_percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">resolved</span> <span class="o">/</span> <span class="n">height</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+            <span class="s2">&quot;resolved&quot;</span><span class="p">:</span> <span class="n">resolved</span><span class="p">,</span>
+            <span class="s2">&quot;unresolved&quot;</span><span class="p">:</span> <span class="n">unresolved</span><span class="p">,</span>
+            <span class="s2">&quot;progress&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">reset_percentage</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cant parsing data&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="calculate_pruning_percentage"><a class="viewcode-back" href="../../../module/pawnlib.metrics.html#pawnlib.metrics.tracker.calculate_pruning_percentage">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">calculate_pruning_percentage</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;pruning (\d+)/(\d+)\s+resolved=(\d+) unresolved=(\d+)&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">unresolved</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+        <span class="n">progress_percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">current</span> <span class="o">/</span> <span class="n">total</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">resolve_progress_percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">resolved</span> <span class="o">/</span> <span class="n">total</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="c1"># progress_percentage = (resolved / (resolved + unresolved)) * 100</span>
+        <span class="c1"># 전체 처리해야 할 항목 수 추정</span>
+        <span class="c1"># estimated_total = resolved + unresolved</span>
+
+        <span class="c1"># 진행률 계산</span>
+        <span class="c1"># progress_percentage = (resolved / estimated_total) * 100</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;current&quot;</span><span class="p">:</span> <span class="n">current</span><span class="p">,</span>
+            <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">total</span><span class="p">,</span>
+            <span class="s2">&quot;resolved&quot;</span><span class="p">:</span> <span class="n">resolved</span><span class="p">,</span>
+            <span class="s2">&quot;unresolved&quot;</span><span class="p">:</span> <span class="n">unresolved</span><span class="p">,</span>
+            <span class="s2">&quot;resolve_progress_percentage&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">resolve_progress_percentage</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s2">&quot;progress&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">progress_percentage</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cant parsing data&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

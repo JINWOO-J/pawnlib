@@ -1,0 +1,989 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.utils.icx_signer &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.utils.icx_signer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.utils.icx_signer</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">coincurve</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrivateKey</span><span class="p">,</span> <span class="n">PublicKey</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">check</span><span class="p">,</span> <span class="n">date_utils</span><span class="p">,</span> <span class="n">random_private_key</span><span class="p">,</span> <span class="n">fill_required_data_arguments</span><span class="p">,</span> <span class="n">is_hex</span><span class="p">,</span> <span class="n">format_hex</span><span class="p">,</span> <span class="n">is_valid_icon_keystore_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_file</span><span class="p">,</span> <span class="n">is_json_file</span><span class="p">,</span> <span class="n">open_json</span><span class="p">,</span> <span class="n">check_file_overwrite</span><span class="p">,</span> <span class="n">NoTraceBackException</span><span class="p">,</span> <span class="n">print_json</span><span class="p">,</span> <span class="n">print_var</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawn</span><span class="p">,</span>  <span class="n">NestedNamespace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.input</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptWithArgument</span><span class="p">,</span> <span class="n">PrivateKeyValidator</span><span class="p">,</span> <span class="n">StringCompareValidator</span><span class="p">,</span> <span class="n">PrivateKeyOrJsonValidator</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">eth_keyfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_keyfile_json</span><span class="p">,</span> <span class="n">extract_key_from_keyfile</span><span class="p">,</span> <span class="n">decode_keyfile_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">InquirerPy</span><span class="w"> </span><span class="kn">import</span> <span class="n">inquirer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">InquirerPy.validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathValidator</span>
+
+<span class="n">compressed</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">translator</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">({</span>
+    <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;{&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">{&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;}&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">}&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;[&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">[&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;]&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">]&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;.&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">.&quot;</span>
+<span class="p">})</span>
+
+
+<div class="viewcode-block" id="guess_wallet_type"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.guess_wallet_type">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">guess_wallet_type</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Guesses the type of wallet based on the provided data.</span>
+
+<span class="sd">    :param data: The data to analyze and determine the wallet type.</span>
+<span class="sd">    :type data: str or object</span>
+
+<span class="sd">    :return: The guessed wallet type. It can be &quot;private_key&quot; for a private key wallet, &quot;json&quot; for a JSON wallet, or None if the type cannot be determined.</span>
+<span class="sd">    :rtype: str or None</span>
+
+<span class="sd">    This function attempts to determine the type of a wallet based on the provided data.</span>
+<span class="sd">    If the `data` parameter is a string and its length is either 66 or 64 characters, it is considered a PrivateKey wallet type.</span>
+<span class="sd">    If the `data` parameter is a valid JSON object, it is considered a JSON wallet type.</span>
+<span class="sd">    If the wallet type cannot be determined, None is returned.</span>
+
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.utils.icx_signer import guess_wallet_type</span>
+
+<span class="sd">            #Example 1: PrivateKey wallet type</span>
+<span class="sd">            wallet_data = &quot;0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef&quot;</span>
+<span class="sd">            wallet_type = guess_wallet_type(wallet_data)</span>
+<span class="sd">            # wallet_type = &quot;private_key&quot;</span>
+
+<span class="sd">            #Example 2: JSON wallet type</span>
+<span class="sd">            wallet_data = &#39;{&quot;address&quot;: &quot;0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef&quot;}&#39;</span>
+<span class="sd">            wallet_type = guess_wallet_type(wallet_data)</span>
+<span class="sd">            # wallet_type = &quot;json&quot;</span>
+
+<span class="sd">            #Example 3: Unknown wallet type</span>
+<span class="sd">            wallet_data = 12345</span>
+<span class="sd">            wallet_type = guess_wallet_type(wallet_data)</span>
+<span class="sd">            # wallet_type = None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">66</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Wallet type is PrivateKey&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;private_key&quot;</span>
+    <span class="k">elif</span> <span class="n">is_json_file</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Wallet type is JSON&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;json&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Unknown wallet type&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="WalletCli"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.WalletCli">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">WalletCli</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">required_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">load_type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">keystore</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">base_dir</span><span class="o">=</span><span class="s2">&quot;./&quot;</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">fill_required_data_arguments</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="n">required_args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="WalletCli.load"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.WalletCli.load">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">keystore_json</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="s2">&quot;keystore&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">keystore</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">load_type</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">load_type</span> <span class="o">=</span> <span class="s2">&quot;file&quot;</span>
+            <span class="n">load_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">load_type</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">load_type</span> <span class="o">=</span> <span class="n">PromptWithArgument</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;How to load the keystore ?&quot;</span><span class="p">,</span>
+                <span class="n">choices</span><span class="o">=</span>
+                <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;[file] From JSON file&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;file&quot;</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;[text] From text (Copy&amp;Paste)&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">},</span>
+                <span class="p">],</span>
+                <span class="n">long_instruction</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Use the up/down keys to select&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">,</span>
+                <span class="n">max_height</span><span class="o">=</span><span class="s2">&quot;60%&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;load_type&quot;</span><span class="p">,</span>
+                <span class="c1"># verbose=True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+
+        <span class="n">_required_password</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">_keystore</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">_password</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">base_dir</span> <span class="o">=</span> <span class="n">inquirer</span><span class="o">.</span><span class="n">filepath</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Enter the default directory where the keystore file is located:&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">base_dir</span><span class="p">,</span>
+                <span class="n">validate</span><span class="o">=</span><span class="n">PathValidator</span><span class="p">(</span><span class="n">is_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Input is not a directory&quot;</span><span class="p">),</span>
+                <span class="n">only_directories</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+            <span class="c1"># src_path = inquirer.filepath(</span>
+            <span class="c1">#     message=&quot;Enter keystore file to sign:&quot;,</span>
+            <span class="c1">#     default=self._args.base_dir,</span>
+            <span class="c1">#     validate=PathValidator(is_file=True, message=&quot;Input is not a file&quot;),</span>
+            <span class="c1">#     only_files=True,</span>
+            <span class="c1"># ).execute()</span>
+
+            <span class="n">regex_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">/*.json&quot;</span>
+            <span class="n">json_file_list</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">regex_file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">json_file_list</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red] Cannot found JSON file - &#39;</span><span class="si">{</span><span class="n">regex_file</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+            <span class="n">_keystore</span> <span class="o">=</span> <span class="n">PromptWithArgument</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Select the keystore file&quot;</span><span class="p">,</span>
+                <span class="n">choices</span><span class="o">=</span><span class="n">json_file_list</span><span class="p">,</span>
+                <span class="n">long_instruction</span><span class="o">=</span><span class="s2">&quot;Use the up/down keys to select&quot;</span><span class="p">,</span>
+                <span class="n">instruction</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;(base_dir=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;keystore&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fuzzy</span><span class="p">()</span>
+            <span class="n">_required_password</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
+            <span class="n">_keystore</span> <span class="o">=</span> <span class="n">PromptWithArgument</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Input the keystore json or private key text&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;keystore&quot;</span><span class="p">,</span>
+                <span class="n">validate</span><span class="o">=</span><span class="n">StringCompareValidator</span><span class="p">(</span><span class="n">operator</span><span class="o">=</span><span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">prompt</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">_keystore</span><span class="p">:</span>
+            <span class="n">keystore</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">_keystore</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">is_file</span><span class="p">(</span><span class="n">keystore</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_json_file</span><span class="p">(</span><span class="n">keystore</span><span class="p">):</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found Keystore JSON file - </span><span class="si">{</span><span class="n">keystore</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">keystore_json</span> <span class="o">=</span> <span class="n">open_json</span><span class="p">(</span><span class="n">keystore</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]Invalid JSON file - </span><span class="si">{</span><span class="n">keystore</span><span class="si">}</span><span class="s2">, Exception: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">_required_password</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_icon_keystore_file</span><span class="p">(</span><span class="n">keystore_json</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid keystore file - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">keystore</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">is_hex</span><span class="p">(</span><span class="n">keystore</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">is_private_key</span><span class="p">(</span><span class="n">keystore</span><span class="p">):</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Found Private key&quot;</span><span class="p">)</span>
+                    <span class="n">keystore_json</span> <span class="o">=</span> <span class="n">keystore</span>
+                    <span class="n">_required_password</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]Invalid Private key len=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">keystore</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">exit</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">keystore_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">keystore</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keystore_json</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;[green][OK] Loaded keystore file - JSON object&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid JSON or Keystore text&quot;</span><span class="p">)</span>
+                    <span class="n">_required_password</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red][Error][/red] Failed to load file &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">keystore</span><span class="si">}</span><span class="s2">&#39;. JSON parsing error at: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">_required_password</span><span class="p">:</span>
+            <span class="n">_password</span> <span class="o">=</span> <span class="n">PromptWithArgument</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Enter password for private key&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="p">,</span>
+                <span class="n">invalid_message</span><span class="o">=</span><span class="s2">&quot;Requires at least one character.&quot;</span><span class="p">,</span>
+                <span class="n">validate</span><span class="o">=</span><span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">prompt</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">keystore_json</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span> <span class="o">=</span> <span class="n">load_wallet_key</span><span class="p">(</span><span class="n">keystore_json</span><span class="p">,</span> <span class="n">_password</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">print_wallet</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red][ERROR] Not Loaded wallet&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span></div>
+
+<div class="viewcode-block" id="WalletCli.create"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.WalletCli.create">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_store_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handle_password_prompt</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">private_key</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">private_key</span> <span class="o">=</span> <span class="n">random_private_key</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span> <span class="o">=</span> <span class="n">load_wallet_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">private_key</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">password</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_wallet</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">is_store_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_wallet_to_file</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_generate_wallet</span><span class="p">(</span><span class="n">is_store_file</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_password_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+            <span class="n">PromptWithArgument</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Enter your private key (default: empty is random)&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;private_key&quot;</span><span class="p">,</span>
+                <span class="n">validate</span><span class="o">=</span><span class="n">PrivateKeyValidator</span><span class="p">(</span><span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">prompt</span><span class="p">()</span>
+
+        <span class="n">PromptWithArgument</span><span class="p">(</span>
+            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Enter password for private key&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="p">,</span>
+            <span class="n">invalid_message</span><span class="o">=</span><span class="s2">&quot;Requires at least one character.&quot;</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">prompt</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_wallet_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">default_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;address&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">date_utils</span><span class="o">.</span><span class="n">todaydate</span><span class="p">(</span><span class="s1">&#39;ms_text&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.json&quot;</span>
+        <span class="n">PromptWithArgument</span><span class="p">(</span>
+            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Enter the name of JSON file to be saved.&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">default_filename</span><span class="p">,</span>
+            <span class="n">argument</span><span class="o">=</span><span class="s2">&quot;keystore&quot;</span><span class="p">,</span>
+            <span class="n">invalid_message</span><span class="o">=</span><span class="s2">&quot;Requires at least one character.&quot;</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">prompt</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">check_file_overwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">keystore</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_generate_wallet</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_wallet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_store_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">wallet</span> <span class="o">=</span> <span class="n">generate_wallet</span><span class="p">(</span>
+                <span class="n">file_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">keystore</span><span class="p">,</span>
+                <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>
+                <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">private_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">private_key</span><span class="p">,</span>
+                <span class="n">expected_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;address&#39;</span><span class="p">),</span>
+                <span class="n">is_store_file</span><span class="o">=</span><span class="n">is_store_file</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_store_file</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generate Wallet - </span><span class="si">{</span><span class="n">wallet</span><span class="o">.</span><span class="n">get_hx_address</span><span class="p">()</span><span class="si">}</span><span class="s2"> to &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">keystore</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot; 🔑 keystore content&quot;</span><span class="p">)</span>
+                <span class="n">print_json</span><span class="p">(</span><span class="n">wallet</span><span class="o">.</span><span class="n">key_store_content</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red][ERROR] Generate wallet - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WalletCli.print_wallet"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.WalletCli.print_wallet">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_wallet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                               <span class="sa">f</span><span class="s2">&quot; 🔑 address=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;address&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                               <span class="sa">f</span><span class="s2">&quot; 🔑 public_key=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;public_key&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pawn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PAWN_DEBUG&#39;</span><span class="p">):</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; 🔑 public_key_long=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;public_key_long&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; 🔑 private_key=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_wallet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;private_key&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="store_keystore_file_on_the_path"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.store_keystore_file_on_the_path">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">store_keystore_file_on_the_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">json_string</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stores a created keystore string data which is JSON format on the file path.</span>
+<span class="sd">    :param file_path: The path where the file will be saved. type(str)</span>
+<span class="sd">    :param json_string: Contents of the keystore.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileExistsError</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json_string</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="generate_wallet"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.generate_wallet">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">generate_wallet</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">private_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">expected_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_store_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">singer</span> <span class="o">=</span> <span class="n">IcxSigner</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">private_key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="p">:</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">singer</span><span class="o">.</span><span class="n">get_hx_address</span><span class="p">()</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">date_utils</span><span class="o">.</span><span class="n">todaydate</span><span class="p">(</span><span class="s1">&#39;ms_text&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.json&quot;</span>
+
+    <span class="k">if</span> <span class="n">is_store_file</span><span class="p">:</span>
+        <span class="n">singer</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">,</span> <span class="n">expected_address</span><span class="o">=</span><span class="n">expected_address</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">singer</span><span class="o">.</span><span class="n">create_key_store_content</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">singer</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_keystore_key</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">private_key_hex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_namespace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">private_key_hex</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">private_key_hex</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;0x&quot;</span><span class="p">):</span>
+            <span class="n">private_key_hex</span> <span class="o">=</span> <span class="n">private_key_hex</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="n">private_key</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">private_key_hex</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">password</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid password -&gt; &#39;</span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="n">private_key</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">decode_keyfile_json</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;MAC mismatch&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="s2">&quot;Wrong password&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="n">_private_key</span> <span class="o">=</span> <span class="n">PrivateKey</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span>
+    <span class="n">_public_key_long</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">_private_key</span><span class="o">.</span><span class="n">public_key</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">compressed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_public_key</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">_private_key</span><span class="o">.</span><span class="n">public_key</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">compressed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">address</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;hx</span><span class="si">{</span><span class="n">get_address</span><span class="p">(</span><span class="n">pubkey_bytes</span><span class="o">=</span><span class="n">_public_key_long</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">wallet_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># &quot;private_key&quot;: &quot;0x&quot; + private_key.hex(),</span>
+        <span class="s2">&quot;private_key&quot;</span><span class="p">:</span> <span class="n">private_key</span><span class="o">.</span><span class="n">hex</span><span class="p">(),</span>
+        <span class="s2">&quot;address&quot;</span><span class="p">:</span> <span class="n">address</span><span class="p">,</span>
+        <span class="s2">&quot;public_key&quot;</span><span class="p">:</span> <span class="n">_public_key</span><span class="o">.</span><span class="n">hex</span><span class="p">(),</span>
+        <span class="s2">&quot;public_key_long&quot;</span><span class="p">:</span> <span class="n">_public_key_long</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">wallet_dict</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_namespace</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">NestedNamespace</span><span class="p">(</span><span class="o">**</span><span class="n">wallet_dict</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wallet_dict</span>
+
+
+<div class="viewcode-block" id="is_private_key"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.is_private_key">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">is_private_key</span><span class="p">(</span><span class="n">private_key</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">private_key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">64</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">private_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">66</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="o">.</span><span class="n">is_hex</span><span class="p">(</span><span class="n">private_key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="exit_on_failure"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.exit_on_failure">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">exit_on_failure</span><span class="p">(</span><span class="n">raise_on_failure</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">raise_on_failure</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">NoTraceBackException</span><span class="p">(</span><span class="n">exception</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red][ERROR][/red] </span><span class="si">{</span><span class="n">exception</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_wallet_key"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.load_wallet_key">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">load_wallet_key</span><span class="p">(</span><span class="n">file_or_object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raise_on_failure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_namespace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrong password type =&gt; </span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">password</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+    <span class="n">_keystore_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_or_object</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Loading wallet from keystore file - JSON dict&quot;</span><span class="p">)</span>
+        <span class="n">_keystore_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">file</span><span class="o">=</span><span class="n">file_or_object</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">is_file</span><span class="p">(</span><span class="n">file_or_object</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading wallet from keystore file : </span><span class="si">{</span><span class="n">file_or_object</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">_keystore_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">file</span><span class="o">=</span><span class="n">open_json</span><span class="p">(</span><span class="n">file_or_object</span><span class="p">),</span>
+                <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red] Open File - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">is_private_key</span><span class="p">(</span><span class="n">file_or_object</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Loading wallet from a Private Key&quot;</span><span class="p">)</span>
+        <span class="n">_keystore_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">private_key_hex</span><span class="o">=</span><span class="n">file_or_object</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Loading wallet from JSON data&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">file_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">file_or_object</span><span class="p">)</span>
+            <span class="n">_keystore_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">file</span><span class="o">=</span><span class="n">file_json</span><span class="p">,</span>
+                <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red] Failed to load JSON data - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">_keystore_params</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_parse_keystore_key</span><span class="p">(</span><span class="n">use_namespace</span><span class="o">=</span><span class="n">use_namespace</span><span class="p">,</span> <span class="o">**</span><span class="n">_keystore_params</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">exit_on_failure</span><span class="p">(</span><span class="n">raise_on_failure</span><span class="o">=</span><span class="n">raise_on_failure</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="generate_keys"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.generate_keys">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">generate_keys</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;generate privkey and pubkey pair using coincurve.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: privkey(bytes, 32), pubkey(bytes, 65)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">privkey</span> <span class="o">=</span> <span class="n">PrivateKey</span><span class="p">()</span>
+    <span class="n">privkey_bytes</span> <span class="o">=</span> <span class="n">privkey</span><span class="o">.</span><span class="n">secret</span>
+    <span class="n">pubkey_bytes</span> <span class="o">=</span> <span class="n">privkey</span><span class="o">.</span><span class="n">public_key</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">compressed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">privkey_bytes</span><span class="p">,</span> <span class="n">pubkey_bytes</span></div>
+
+
+<div class="viewcode-block" id="get_address"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.get_address">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_address</span><span class="p">(</span><span class="n">pubkey_bytes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;generate address from public key.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pubkey_bytes(bytes): public key bytes</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bytes: icx address (20bytes)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Remove the first byte(0x04) of pubkey</span>
+    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha3_256</span><span class="p">(</span><span class="n">pubkey_bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">digest</span><span class="p">()[</span><span class="o">-</span><span class="mi">20</span><span class="p">:]</span></div>
+
+
+<div class="viewcode-block" id="verify_recoverable_signature"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.verify_recoverable_signature">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">verify_recoverable_signature</span><span class="p">(</span><span class="n">msg_hash</span><span class="p">,</span> <span class="n">signature_bytes</span><span class="p">,</span> <span class="n">recovery_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        msg_hash(bytes): 256bit hash value</span>
+<span class="sd">        signature_bytes(bytes):</span>
+<span class="sd">        recovery_id(int):</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pubkey</span><span class="p">,</span> <span class="n">signature</span> <span class="o">=</span> \
+        <span class="n">recover_signature</span><span class="p">(</span><span class="n">msg_hash</span><span class="p">,</span> <span class="n">signature_bytes</span><span class="p">,</span> <span class="n">recovery_id</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pubkey</span><span class="o">.</span><span class="n">ecdsa_verify</span><span class="p">(</span><span class="n">msg_hash</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="recover_signature"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.recover_signature">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">recover_signature</span><span class="p">(</span><span class="n">msg_hash</span><span class="p">,</span> <span class="n">signature_bytes</span><span class="p">,</span> <span class="n">recovery_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        msg_hash(bytes): sha3 256bit hash value</span>
+<span class="sd">        signature_bytes(bytes):</span>
+<span class="sd">        recovery_id(int):</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pubkey(PublicKey):</span>
+<span class="sd">        signature(bytes):</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">recoverable_signature</span> <span class="o">=</span> <span class="n">signature_bytes</span> <span class="o">+</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">recovery_id</span><span class="p">])</span>
+    <span class="n">public_key</span> <span class="o">=</span> <span class="n">PublicKey</span><span class="o">.</span><span class="n">from_signature_and_message</span><span class="p">(</span><span class="n">recoverable_signature</span><span class="p">,</span> <span class="n">msg_hash</span><span class="p">,</span> <span class="n">hasher</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">signature</span> <span class="o">=</span> <span class="n">PublicKey</span><span class="o">.</span><span class="n">from_signature_and_message</span><span class="p">(</span><span class="n">recoverable_signature</span><span class="p">,</span> <span class="n">msg_hash</span><span class="p">,</span> <span class="n">hasher</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">public_key</span><span class="p">,</span> <span class="n">signature</span></div>
+
+
+<div class="viewcode-block" id="IcxSigner"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">IcxSigner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Digital Signing  using coincurve</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IcxSigner.__init__"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data(object): bytes or der</span>
+<span class="sd">            raw(bool): True(bytes) False(der)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_private_key_hex</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_private_key_bytes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_store_content</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_private_key</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__privkey</span> <span class="o">=</span> <span class="n">PrivateKey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_private_key_bytes</span><span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_private_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">private_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">private_key</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_private_key_hex</span> <span class="o">=</span> <span class="n">private_key</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">check</span><span class="o">.</span><span class="n">is_hex</span><span class="p">(</span><span class="n">private_key</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_private_key_hex</span> <span class="o">=</span> <span class="n">private_key</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid Private Key - </span><span class="si">{</span><span class="n">private_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_private_key_hex</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;0x&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_private_key_hex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_private_key_hex</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_private_key_bytes</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_private_key_hex</span><span class="p">)</span>
+        <span class="c1"># pawn.console.debug(f&quot;[green] {self._private_key_bytes}&quot;)</span>
+
+<div class="viewcode-block" id="IcxSigner.set_privkey_bytes"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.set_privkey_bytes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">set_privkey_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set private key using private key data in bytes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data(bytes): private key data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__privkey</span> <span class="o">=</span> <span class="n">PrivateKey</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IcxSigner.get_privkey_bytes"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.get_privkey_bytes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_privkey_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get private key data in bytes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bytes: private key data (32 bytes)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__privkey</span><span class="o">.</span><span class="n">secret</span></div>
+
+<div class="viewcode-block" id="IcxSigner.get_pubkey_bytes"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.get_pubkey_bytes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_pubkey_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__privkey</span><span class="o">.</span><span class="n">public_key</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">compressed</span><span class="o">=</span><span class="n">compressed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IcxSigner.get_address"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.get_address">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_address</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an address with pubkey.</span>
+<span class="sd">        address is made from pubkey.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: address represented in hexadecimal string starting with &#39;0x&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pubkey_bytes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pubkey_bytes</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">get_address</span><span class="p">(</span><span class="n">pubkey_bytes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IcxSigner.get_hx_address"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.get_hx_address">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_hx_address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an address with pubkey.</span>
+<span class="sd">        address is made from pubkey.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: address represented in hexadecimal string starting with &#39;0x&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;hx</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_address</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+<div class="viewcode-block" id="IcxSigner.sign_tx"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.sign_tx">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">sign_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tx</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">):</span>
+            <span class="n">tx_hash_bytes</span> <span class="o">=</span> <span class="n">get_tx_hash</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">tx</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">])</span>
+            <span class="n">signature_bytes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sign_recoverable</span><span class="p">(</span><span class="n">tx_hash_bytes</span><span class="p">)</span>
+            <span class="n">signature</span> <span class="o">=</span> <span class="n">signature_bytes</span><span class="p">[:</span><span class="mi">64</span><span class="p">]</span>
+            <span class="n">recovery_id</span> <span class="o">=</span> <span class="n">signature_bytes</span><span class="p">[</span><span class="mi">64</span><span class="p">:]</span>
+            <span class="n">signature_bytes_big</span> <span class="o">=</span> <span class="n">signature</span> <span class="o">+</span> <span class="n">recovery_id</span>
+            <span class="n">tx</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;signature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">signature_bytes_big</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">tx</span></div>
+
+<div class="viewcode-block" id="IcxSigner.sign"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.sign">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_hash</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make a signature using the hash value of msg.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            msg_hash(bytes): msg_hash = sha3_256(msg)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bytes: signature bytes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">privkey</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__privkey</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">privkey</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">msg_hash</span><span class="p">,</span> <span class="n">hasher</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">signature</span></div>
+
+<div class="viewcode-block" id="IcxSigner.create_key_store_content"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.create_key_store_content">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">create_key_store_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">16384</span><span class="p">,</span> <span class="n">kdf</span><span class="o">=</span><span class="s2">&quot;scrypt&quot;</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key_store_content</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key_store_content</span> <span class="o">=</span> <span class="n">create_keyfile_json</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_privkey_bytes</span><span class="p">(),</span>
+                <span class="nb">bytes</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">),</span>
+                <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span><span class="p">,</span>
+                <span class="n">kdf</span><span class="o">=</span><span class="n">kdf</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key_store_content</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hx_address</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key_store_content</span><span class="p">[</span><span class="s1">&#39;coinType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;icx&#39;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_store_content</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IcxSigner.store"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.store">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">expected_address</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># key_store_contents = create_keyfile_json(</span>
+            <span class="c1">#     self.get_privkey_bytes(),</span>
+            <span class="c1">#     bytes(password, &#39;utf-8&#39;),</span>
+            <span class="c1">#     iterations=16384,</span>
+            <span class="c1">#     kdf=&quot;scrypt&quot;</span>
+            <span class="c1"># )</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">key_store_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_key_store_content</span><span class="p">(</span>
+                <span class="n">password</span><span class="p">,</span>
+                <span class="n">iterations</span><span class="o">=</span><span class="mi">16384</span><span class="p">,</span>
+                <span class="n">kdf</span><span class="o">=</span><span class="s2">&quot;scrypt&quot;</span>
+            <span class="p">)</span>
+            <span class="c1"># validate the  contents of a keystore file.</span>
+            <span class="k">if</span> <span class="n">expected_address</span> <span class="ow">and</span> <span class="n">expected_address</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hx_address</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not expected address =&gt; expected(</span><span class="si">{</span><span class="n">expected_address</span><span class="si">}</span><span class="s2">) != real(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_hx_address</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_store_content</span><span class="p">:</span>
+                <span class="n">json_string_keystore_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_store_content</span><span class="p">)</span>
+                <span class="n">store_keystore_file_on_the_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">json_string_keystore_data</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stored Wallet. Address: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_hx_address</span><span class="p">()</span><span class="si">}</span><span class="s2">, File path: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;File already exists.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">PermissionError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not enough permission.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;File not found.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IsADirectoryError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Directory is invalid.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IcxSigner.sign_recoverable"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.sign_recoverable">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">sign_recoverable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_hash</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make a recoverable signature using message hash data</span>
+<span class="sd">        We can extract public key from recoverable signature.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            msg_hash(bytes): hash data of message</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple:</span>
+<span class="sd">                bytes: 65 bytes data</span>
+<span class="sd">                int: recovery id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">privkey</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__privkey</span>
+        <span class="n">signature_bytes</span> <span class="o">=</span> <span class="n">privkey</span><span class="o">.</span><span class="n">sign_recoverable</span><span class="p">(</span><span class="n">msg_hash</span><span class="p">,</span> <span class="n">hasher</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">signature_bytes</span></div>
+<div class="viewcode-block" id="IcxSigner.from_bytes"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.from_bytes">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">IcxSigner</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IcxSigner.from_der"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSigner.from_der">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_der</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">IcxSigner</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="IcxSignVerifier"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSignVerifier">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">IcxSignVerifier</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Digital signature verification</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IcxSignVerifier.__init__"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSignVerifier.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data(bytes): 65 bytes data which PublicKey.serialize() returns</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__pubkey</span> <span class="o">=</span> <span class="n">PublicKey</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IcxSignVerifier.get_address"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSignVerifier.get_address">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an address with pubkey.</span>
+<span class="sd">        address is made from pubkey.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: address represented in hexadecimal string starting with &#39;0x&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pubkey_bytes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pubkey</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">compressed</span><span class="o">=</span><span class="n">compressed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_address</span><span class="p">(</span><span class="n">pubkey_bytes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IcxSignVerifier.verify"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSignVerifier.verify">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_hash</span><span class="p">,</span> <span class="n">signature_bytes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether signature is valid or not.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pubkey_bytes(bytes): byte data of pubkey</span>
+<span class="sd">            msg_hash(bytes): hash value of msg</span>
+<span class="sd">            signature_bytes(bytes): signature data</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: the result of signature verification</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pubkey</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">signature_bytes</span><span class="p">,</span> <span class="n">msg_hash</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IcxSignVerifier.from_bytes"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.IcxSignVerifier.from_bytes">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data(bytes): bytes data which PublicKey.serialize() returns</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">IcxSignVerifier</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="get_timestamp_us"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.get_timestamp_us">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_timestamp_us</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get epoch time in us.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">6</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="icx_to_wei"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.icx_to_wei">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">icx_to_wei</span><span class="p">(</span><span class="n">icx</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert amount in icx unitt to wei unit.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        icx(float): float value in icx unit</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: int value in wei unit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">icx</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">18</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_string_decimal"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.get_string_decimal">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_string_decimal</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">place</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;value를 10의 place 제곱으로 나눈 값을 string으로 변환하여 반환</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value(int)</span>
+<span class="sd">        place : 10의 몇 제곱을 나눌지 입력받음</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">str_value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">place</span><span class="p">:</span>
+        <span class="n">str_int</span> <span class="o">=</span> <span class="n">str_value</span><span class="p">[:</span><span class="o">-</span><span class="n">place</span><span class="p">]</span>
+        <span class="n">str_decimal</span> <span class="o">=</span> <span class="n">str_value</span><span class="p">[</span><span class="o">-</span><span class="n">place</span><span class="p">:]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">str_int</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">str_decimal</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">zero_prefix</span> <span class="o">=</span> <span class="s2">&quot;0.&quot;</span>
+        <span class="n">value_digits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">str_value</span><span class="p">)</span>  <span class="c1"># value_digits : 몇자릿수인지 계산</span>
+        <span class="n">zero_padding</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">place</span> <span class="o">-</span> <span class="n">value_digits</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">zero_prefix</span><span class="si">}{</span><span class="n">zero_padding</span><span class="si">}{</span><span class="n">value</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="sha3_256"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.sha3_256">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">sha3_256</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get hash value using sha3_256 hash function</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data(bytes): data to hash</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bytes: 256bit hash value (32 bytes)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha3_256</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span></div>
+
+<span class="c1">#</span>
+<div class="viewcode-block" id="get_tx_hash"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.get_tx_hash">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_tx_hash</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create tx_hash from params object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        params(dict): the value of &#39;params&#39; key in jsonrpc</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bytes: sha3_256 hash value</span>
+<span class="sd">        :param params:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tx_phrase</span> <span class="o">=</span> <span class="n">serialize</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;serialize tx=</span><span class="si">{</span><span class="n">tx_phrase</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sha3_256</span><span class="p">(</span><span class="n">tx_phrase</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_tx_phrase"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.get_tx_phrase">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_tx_phrase</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create tx phrase from method and params.</span>
+<span class="sd">    tx_phrase means input text to create tx_hash.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        params(dict): the value of &#39;params&#39; key in jsonrpc</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: sha3_256 hash format without &#39;0x&#39; prefix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
+    <span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="n">key_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">key_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">method</span>
+
+    <span class="n">phrase</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">params</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">key_count</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">phrase</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phrase</span><span class="si">}</span><span class="s1">&#39;</span></div>
+
+
+<div class="viewcode-block" id="sign_recoverable"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.sign_recoverable">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">sign_recoverable</span><span class="p">(</span><span class="n">privkey_bytes</span><span class="p">,</span> <span class="n">tx_hash_bytes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        tx_hash(bytes): 32byte tx_hash data</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bytes: signature_bytes + recovery_id(1)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">signer</span> <span class="o">=</span> <span class="n">IcxSigner</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">privkey_bytes</span><span class="p">)</span>
+    <span class="n">signature_bytes</span><span class="p">,</span> <span class="n">recovery_id</span> <span class="o">=</span> <span class="n">signer</span><span class="o">.</span><span class="n">sign_recoverable</span><span class="p">(</span><span class="n">tx_hash_bytes</span><span class="p">)</span>
+
+    <span class="c1"># append recover_id(1 byte) to signature_bytes.</span>
+    <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">signature_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">recovery_id</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;big&#39;</span><span class="p">))</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">__make_params_serialized</span><span class="p">(</span><span class="n">json_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">encode_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">encode_list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">escape</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_encode_dict</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="n">result</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_encode_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">yield</span> <span class="n">key</span>
+            <span class="k">yield</span> <span class="n">encode</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode_list</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_encode_list</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="n">result</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_encode_list</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">encode</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">escape</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">0&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">translator</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_encode_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="serialize"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.serialize">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serialized params of an original JSON request starting with `icx_sendTransaction`</span>
+<span class="sd">    to generate a message hash for a signature.</span>
+<span class="sd">    :param params: params in a original JSON request for transaction.</span>
+<span class="sd">    :return: serialized params.</span>
+<span class="sd">    For example, data like `icx_sendTransaction.&lt;key1&gt;.&lt;value1&gt;.&lt;key2&gt;.&lt;value2&gt;` is converted to bytes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">copy_tx</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">key_name_for_tx_hash</span> <span class="o">=</span> <span class="n">__get_key_name_for_tx_hash</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">key_name_for_tx_hash</span> <span class="ow">in</span> <span class="n">copy_tx</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">copy_tx</span><span class="p">[</span><span class="n">key_name_for_tx_hash</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="s1">&#39;signature&#39;</span> <span class="ow">in</span> <span class="n">copy_tx</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">copy_tx</span><span class="p">[</span><span class="s1">&#39;signature&#39;</span><span class="p">]</span>
+
+    <span class="n">partial_serialized_params</span> <span class="o">=</span> <span class="n">__make_params_serialized</span><span class="p">(</span><span class="n">copy_tx</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;icx_sendTransaction.</span><span class="si">{</span><span class="n">partial_serialized_params</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="generate_message"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.icx_signer.generate_message">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">generate_message</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates transaction&#39;s message hash from params in request for transaction.</span>
+<span class="sd">    :param params: params in request for transaction.</span>
+<span class="sd">    :return: the 256 bit hash digest of a message. Hexadecimal encoded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bytes_message_hash</span> <span class="o">=</span> <span class="n">serialize</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sha3_256</span><span class="p">(</span><span class="n">bytes_message_hash</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">__get_key_name_for_tx_hash</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">__get_tx_version</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="nb">hex</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;tx_hash&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">__get_tx_version</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">&#39;version&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">hex</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

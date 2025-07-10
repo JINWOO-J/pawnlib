@@ -1,0 +1,190 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.exceptions.notifier &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.exceptions.notifier</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.exceptions.notifier</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggerMixin</span>
+
+
+<div class="viewcode-block" id="ExceptionNotifier"><a class="viewcode-back" href="../../../module/pawnlib.exceptions.html#pawnlib.exceptions.notifier.ExceptionNotifier">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ExceptionNotifier</span><span class="p">(</span><span class="n">LoggerMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="ExceptionNotifier.__init__"><a class="viewcode-back" href="../../../module/pawnlib.exceptions.html#pawnlib.exceptions.notifier.ExceptionNotifier.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slack_status</span><span class="o">=</span><span class="s2">&quot;failed&quot;</span><span class="p">,</span> <span class="n">slack_msg_level</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="n">slack_icon</span><span class="o">=</span><span class="s2">&quot;:alert:&quot;</span><span class="p">,</span> <span class="n">slack_url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the ExceptionNotifier with logging and Slack notification settings.</span>
+
+<span class="sd">        :param logger: Logger instance to log the error.</span>
+<span class="sd">        :param slack_status: Status type for Slack notification (default: &#39;error&#39;).</span>
+<span class="sd">        :param slack_msg_level: Message level for Slack (default: &#39;error&#39;).</span>
+<span class="sd">        :param slack_icon: Emoji icon for Slack message (default: &#39;:alert:&#39;).</span>
+<span class="sd">        :param slack_url: The Slack webhook URL. If None, it will use the environment variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slack_status</span> <span class="o">=</span> <span class="n">slack_status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slack_msg_level</span> <span class="o">=</span> <span class="n">slack_msg_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slack_icon</span> <span class="o">=</span> <span class="n">slack_icon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slack_url</span> <span class="o">=</span> <span class="n">slack_url</span></div>
+
+<div class="viewcode-block" id="ExceptionNotifier.notify"><a class="viewcode-back" href="../../../module/pawnlib.exceptions.html#pawnlib.exceptions.notifier.ExceptionNotifier.notify">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">notify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">additional_message</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Logs the exception and sends a notification to Slack with detailed traceback.</span>
+
+<span class="sd">        :param e: Exception object.</span>
+<span class="sd">        :param additional_message: Additional message to send along with the exception details (optional).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Log the error with the logger</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.utils.notify</span><span class="w"> </span><span class="kn">import</span> <span class="n">send_slack</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Capture the full traceback as a string</span>
+        <span class="n">tb_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">e</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">__traceback__</span><span class="p">))</span>
+
+        <span class="c1"># Combine additional message with traceback if provided</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">slack_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">Traceback:</span><span class="se">\n</span><span class="si">{</span><span class="n">tb_str</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">additional_message</span><span class="p">:</span>
+            <span class="n">slack_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">additional_message</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">slack_message</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Send Slack notification with detailed traceback</span>
+        <span class="n">send_slack</span><span class="p">(</span>
+            <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">slack_url</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">msg_text</span><span class="o">=</span><span class="n">slack_message</span><span class="p">,</span>
+            <span class="n">status</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">slack_status</span><span class="p">,</span>
+            <span class="n">msg_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">slack_msg_level</span><span class="p">,</span>
+            <span class="n">icon_emoji</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">slack_icon</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="notify_exception"><a class="viewcode-back" href="../../../module/pawnlib.exceptions.html#pawnlib.exceptions.notifier.notify_exception">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">notify_exception</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">additional_message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slack_status</span><span class="o">=</span><span class="s2">&quot;failed&quot;</span><span class="p">,</span> <span class="n">slack_msg_level</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="n">slack_icon</span><span class="o">=</span><span class="s2">&quot;:alert:&quot;</span><span class="p">,</span> <span class="n">slack_url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper function to quickly notify an exception using the ExceptionNotifier.</span>
+
+<span class="sd">    :param e: Exception object.</span>
+<span class="sd">    :param logger: Logger instance (optional).</span>
+<span class="sd">    :param additional_message: Additional message to send along with the exception details (optional).</span>
+<span class="sd">    :param slack_status: Status type for Slack notification (default: &#39;error&#39;).</span>
+<span class="sd">    :param slack_msg_level: Message level for Slack (default: &#39;error&#39;).</span>
+<span class="sd">    :param slack_icon: Emoji icon for Slack message (default: &#39;:alert:&#39;).</span>
+<span class="sd">    :param slack_url: Slack webhook URL. If None, it will use the environment variable (optional).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">notifier</span> <span class="o">=</span> <span class="n">ExceptionNotifier</span><span class="p">(</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="n">slack_status</span><span class="o">=</span><span class="n">slack_status</span><span class="p">,</span>
+        <span class="n">slack_msg_level</span><span class="o">=</span><span class="n">slack_msg_level</span><span class="p">,</span>
+        <span class="n">slack_icon</span><span class="o">=</span><span class="n">slack_icon</span><span class="p">,</span>
+        <span class="n">slack_url</span><span class="o">=</span><span class="n">slack_url</span>
+    <span class="p">)</span>
+    <span class="n">notifier</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">additional_message</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

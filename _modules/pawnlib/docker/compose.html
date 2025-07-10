@@ -1,0 +1,338 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.docker.compose &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.docker.compose</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.docker.compose</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.prompt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Prompt</span><span class="p">,</span> <span class="n">Confirm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_file_overwrite</span><span class="p">,</span> <span class="n">print_syntax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+
+
+<div class="viewcode-block" id="DockerComposeBuilder"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">DockerComposeBuilder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to build and manage Docker Compose files interactively.</span>
+
+<span class="sd">    :param compose_file: Name of the Docker Compose file to be created or modified (default: &quot;docker-compose.yml&quot;).</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            dcb = DockerComposeBuilder()</span>
+
+<span class="sd">            dcb.create_docker_compose()</span>
+<span class="sd">            # Starts an interactive session to create a Docker Compose file.</span>
+
+<span class="sd">            dcb.save_docker_compose()</span>
+<span class="sd">            # Saves the created Docker Compose data to a file.</span>
+
+<span class="sd">            data = dcb.get_docker_compose_data()</span>
+<span class="sd">            # Returns the Docker Compose data as a dictionary.</span>
+
+<span class="sd">            dcb.remove_service()</span>
+<span class="sd">            # Removes a service from the Docker Compose configuration.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compose_file</span><span class="o">=</span><span class="s2">&quot;docker-compose.yml&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compose_file</span> <span class="o">=</span> <span class="n">compose_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;3.8&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_loop</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port_asked</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env_asked</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vol_asked</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="DockerComposeBuilder.create_docker_compose"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.create_docker_compose">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">create_docker_compose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold blue]Docker Compose File Creation Wizard[/bold blue]&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="s2">&quot;Enter the Docker Compose version&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;3.8&quot;</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">service_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_valid_input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Enter the service name&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_valid_input</span><span class="p">(</span><span class="s2">&quot;Enter the image name&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;jinwoo/pawnlib&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_docker_image</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red]Docker image &#39;</span><span class="si">{</span><span class="n">image</span><span class="si">}</span><span class="s2">&#39; does not exist locally or in Docker Hub! Please enter a valid image.[/bold red]&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">image</span><span class="p">}</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirm_with_min_once</span><span class="p">(</span><span class="s2">&quot;Would you like to map ports?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port_asked</span><span class="p">):</span>
+                <span class="n">service</span><span class="p">[</span><span class="s2">&quot;ports&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ports</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">port_asked</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirm_with_min_once</span><span class="p">(</span><span class="s2">&quot;Would you like to add environment variables?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_asked</span><span class="p">):</span>
+                <span class="n">service</span><span class="p">[</span><span class="s2">&quot;environment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_environment_variables</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">env_asked</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirm_with_min_once</span><span class="p">(</span><span class="s2">&quot;Would you like to mount volumes?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol_asked</span><span class="p">):</span>
+                <span class="n">service</span><span class="p">[</span><span class="s2">&quot;volumes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_volumes</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vol_asked</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="n">service_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirm_with_default</span><span class="p">(</span><span class="s2">&quot;Would you like to remove a service?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">remove_service</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirm_with_default</span><span class="p">(</span><span class="s2">&quot;Would you like to define another service?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="k">break</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.confirm_with_min_once"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.confirm_with_min_once">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">confirm_with_min_once</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">already_asked</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the default value to ‘yes’ at least once, and then set it to ‘no’ afterwards.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_loop</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">already_asked</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Confirm</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Confirm</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.confirm_with_default"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.confirm_with_default">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">confirm_with_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default confirm question logic&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Confirm</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.get_valid_input"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.get_valid_input">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_valid_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get valid non-empty input from the user, validate the input.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">user_input</span> <span class="o">=</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">user_input</span> <span class="ow">and</span> <span class="n">user_input</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">user_input</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red]Input cannot be empty. Please enter a valid value.[/bold red]&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.get_ports"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.get_ports">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get port mappings from the user.&quot;&quot;&quot;</span>
+        <span class="n">ports</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_valid_input</span><span class="p">(</span><span class="s2">&quot;Enter port mapping&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;80:80&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_port_mapping</span><span class="p">(</span><span class="n">port</span><span class="p">):</span>
+                <span class="n">ports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red]Invalid port format. Please use the format 8080:80.[/bold red]&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirm_with_default</span><span class="p">(</span><span class="s2">&quot;Would you like to add another port mapping?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">ports</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.is_valid_port_mapping"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.is_valid_port_mapping">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_port_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate port mapping format (e.g., 8080:80)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\d+:\d+$&quot;</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.get_environment_variables"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.get_environment_variables">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_environment_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get environment variables from the user.&quot;&quot;&quot;</span>
+        <span class="n">environment</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_valid_input</span><span class="p">(</span><span class="s2">&quot;Enter the environment variable key&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;TEST_KEY&quot;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_valid_input</span><span class="p">(</span><span class="s2">&quot;Enter the environment variable value&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;TEST_VALUE&quot;</span><span class="p">)</span>
+            <span class="n">environment</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirm_with_default</span><span class="p">(</span><span class="s2">&quot;Would you like to add another environment variable?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">environment</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.get_volumes"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.get_volumes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_volume</span><span class="o">=</span><span class="s2">&quot;./data:/data&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get volume mappings from the user and validate the format.&quot;&quot;&quot;</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_valid_input</span><span class="p">(</span><span class="s2">&quot;Enter the volume mount&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default_volume</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_volume_mapping</span><span class="p">(</span><span class="n">volume</span><span class="p">):</span>
+                <span class="n">volumes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red]Invalid volume format. Please use the format ./data:/app/data.[/bold red]&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">confirm_with_default</span><span class="p">(</span><span class="s2">&quot;Would you like to add another volume mount?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">volumes</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.is_valid_volume_mapping"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.is_valid_volume_mapping">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_volume_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate volume mapping format (e.g., ./data:/app/data)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[^:]+:[^:]+$&quot;</span><span class="p">,</span> <span class="n">volume</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.validate_docker_image"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.validate_docker_image">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate_docker_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate if the Docker image exists locally or in Docker Hub&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_image_in_local</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold green]Docker image &#39;</span><span class="si">{</span><span class="n">image</span><span class="si">}</span><span class="s2">&#39; found locally.[/bold green]&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_image_in_docker_hub</span><span class="p">(</span><span class="n">image</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.is_image_in_local"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.is_image_in_local">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_image_in_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the Docker image exists locally using docker images command&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;images&quot;</span><span class="p">,</span> <span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">],</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red]Error checking local Docker images: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/bold red]&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.is_image_in_docker_hub"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.is_image_in_docker_hub">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_image_in_docker_hub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate if the Docker image exists in Docker Hub&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">repo</span><span class="p">,</span> <span class="n">tag</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">image</span> <span class="k">else</span> <span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;latest&quot;</span><span class="p">)</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://hub.docker.com/v2/repositories/</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">/tags/</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="n">pawn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PAWN_SSL_CHECK&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold green]Docker image &#39;</span><span class="si">{</span><span class="n">image</span><span class="si">}</span><span class="s2">&#39; found in Docker Hub.[/bold green]</span><span class="se">\n</span><span class="s2">[grey74](</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">)[/grey74]&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red]Error checking Docker Hub: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/bold red]&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.add_service"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.add_service">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">service</span><span class="o">=</span><span class="p">{}):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="n">service_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.get_docker_compose_data"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.get_docker_compose_data">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_docker_compose_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the YAML data for Docker Compose.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="s2">&quot;services&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.remove_service"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.remove_service">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">remove_service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a service from the services list.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold red]No services to remove![/bold red]&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">service_to_remove</span> <span class="o">=</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Enter the service name to remove from: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">service_to_remove</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="n">service_to_remove</span><span class="p">]</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold green]</span><span class="si">{</span><span class="n">service_to_remove</span><span class="si">}</span><span class="s2"> has been removed![/bold green]&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red]</span><span class="si">{</span><span class="n">service_to_remove</span><span class="si">}</span><span class="s2"> does not exist![/bold red]&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DockerComposeBuilder.save_docker_compose"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.compose.DockerComposeBuilder.save_docker_compose">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">save_docker_compose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the Docker Compose data to a file, with confirmation.&quot;&quot;&quot;</span>
+        <span class="n">docker_compose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_docker_compose_data</span><span class="p">()</span>
+
+        <span class="c1"># [&#39;default&#39;, &#39;emacs&#39;, &#39;friendly&#39;, &#39;colorful&#39;, &#39;autumn&#39;, &#39;murphy&#39;, &#39;manni&#39;,</span>
+        <span class="c1"># &#39;material&#39;, &#39;monokai&#39;, &#39;perldoc&#39;, &#39;pastie&#39;, &#39;borland&#39;, &#39;trac&#39;, &#39;native&#39;,</span>
+        <span class="c1"># &#39;fruity&#39;, &#39;bw&#39;, &#39;vim&#39;, &#39;vs&#39;, &#39;tango&#39;, &#39;rrt&#39;, &#39;xcode&#39;, &#39;igor&#39;, &#39;paraiso-light&#39;,</span>
+        <span class="c1"># &#39;paraiso-dark&#39;, &#39;lovelace&#39;, &#39;algol&#39;, &#39;algol_nu&#39;, &#39;arduino&#39;, &#39;rainbow_dash&#39;,</span>
+        <span class="c1"># &#39;abap&#39;, &#39;solarized-dark&#39;, &#39;solarized-light&#39;, &#39;sas&#39;, &#39;stata&#39;, &#39;stata-light&#39;,</span>
+        <span class="c1"># &#39;stata-dark&#39;, &#39;inkpot&#39;, &#39;zenburn&#39;]</span>
+        <span class="n">print_syntax</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">docker_compose</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;yaml&quot;</span><span class="p">,</span>  <span class="n">rich</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">Confirm</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="s2">&quot;Would you like to save this configuration?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">check_file_overwrite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compose_file</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compose_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">docker_compose</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold green]docker-compose.yml file has been created![/bold green]&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold red]Error writing file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/bold red]&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold yellow]Save operation cancelled.[/bold yellow]&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,629 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.utils.genesis &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.utils.genesis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.utils.genesis</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.utils.icx_signer</span><span class="w"> </span><span class="kn">import</span> <span class="n">__make_params_serialized</span> <span class="k">as</span> <span class="n">make_params_serialized</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hashlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">sha3_256</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_hex</span><span class="p">,</span> <span class="n">keys_exists</span><span class="p">,</span> <span class="n">token_hex</span><span class="p">,</span> <span class="n">get_size</span><span class="p">,</span> <span class="n">sys_exit</span><span class="p">,</span> <span class="n">FlatDict</span><span class="p">,</span> <span class="n">error_and_exit</span><span class="p">,</span> <span class="n">get_file_detail</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output.file</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_json</span><span class="p">,</span> <span class="n">is_file</span><span class="p">,</span> <span class="n">is_directory</span><span class="p">,</span> <span class="n">is_json</span><span class="p">,</span> <span class="n">write_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.utils.in_memory_zip</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_file_from_zip</span><span class="p">,</span> <span class="n">read_genesis_dict_from_zip</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+
+<div class="viewcode-block" id="GenesisGenerator"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">GenesisGenerator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to generate and manage genesis files, including creating a temporary directory,</span>
+<span class="sd">    parsing JSON, creating CID, and writing the genesis zip file.</span>
+
+<span class="sd">    :param genesis_json_or_dict: A JSON dictionary or file path representing the genesis data.</span>
+<span class="sd">    :type genesis_json_or_dict: Union[dict, str]</span>
+<span class="sd">    :param base_dir: The base directory where the temporary files and final zip will be stored. Defaults to the pawnlib path.</span>
+<span class="sd">    :type base_dir: str</span>
+<span class="sd">    :param genesis_filename: The name of the genesis zip file to be created. Defaults to &#39;icon_genesis.zip&#39;.</span>
+<span class="sd">    :type genesis_filename: str</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from pawnlib.utils import GenesisGenerator</span>
+
+<span class="sd">            # Define a genesis JSON object</span>
+<span class="sd">            genesis_data = {</span>
+<span class="sd">                &quot;accounts&quot;: [</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;address&quot;: &quot;hx112759c9e5718c48527f0242887b7f9f852da29d&quot;,</span>
+<span class="sd">                        &quot;balance&quot;: &quot;0x2961fff8ca4a62327800000&quot;,</span>
+<span class="sd">                        &quot;name&quot;: &quot;god&quot;</span>
+<span class="sd">                    },</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;address&quot;: &quot;hx1000000000000000000000000000000000000000&quot;,</span>
+<span class="sd">                        &quot;balance&quot;: &quot;0x0&quot;,</span>
+<span class="sd">                        &quot;name&quot;: &quot;treasury&quot;</span>
+<span class="sd">                    },</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;address&quot;: &quot;cx0000000000000000000000000000000000000001&quot;,</span>
+<span class="sd">                        &quot;name&quot;: &quot;governance&quot;,</span>
+<span class="sd">                        &quot;score&quot;: {</span>
+<span class="sd">                            &quot;contentId&quot;: &quot;hash:{{hash:governance/governance-2.2.1-optimized.jar}}&quot;,</span>
+<span class="sd">                            &quot;contentType&quot;: &quot;application/java&quot;,</span>
+<span class="sd">                            &quot;owner&quot;: &quot;hx522759c9e5718c48527f0242887b7f9f852da29d&quot;</span>
+<span class="sd">                        }</span>
+<span class="sd">                    }</span>
+<span class="sd">                ],</span>
+<span class="sd">                &quot;chain&quot;: {</span>
+<span class="sd">                    &quot;revision&quot;: &quot;0x17&quot;,</span>
+<span class="sd">                    &quot;blockInterval&quot;: &quot;0x3e8&quot;,</span>
+<span class="sd">                    &quot;roundLimitFactor&quot;: &quot;0x10&quot;,</span>
+<span class="sd">                    &quot;fee&quot;: {</span>
+<span class="sd">                        &quot;stepPrice&quot;: &quot;0x2e90edd00&quot;,</span>
+<span class="sd">                        &quot;stepLimit&quot;: {</span>
+<span class="sd">                            &quot;invoke&quot;: &quot;0x9502f900&quot;,</span>
+<span class="sd">                            &quot;query&quot;: &quot;0x2faf080&quot;</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;stepCosts&quot;: {</span>
+<span class="sd">                            &quot;apiCall&quot;: &quot;0x2710&quot;,</span>
+<span class="sd">                            &quot;contractCall&quot;: &quot;0x61a8&quot;,</span>
+<span class="sd">                            &quot;contractCreate&quot;: &quot;0x3b9aca00&quot;,</span>
+<span class="sd">                            &quot;contractSet&quot;: &quot;0x3a98&quot;,</span>
+<span class="sd">                            &quot;contractUpdate&quot;: &quot;0x3b9aca00&quot;,</span>
+<span class="sd">                            &quot;default&quot;: &quot;0x186a0&quot;,</span>
+<span class="sd">                            &quot;delete&quot;: &quot;-0xf0&quot;,</span>
+<span class="sd">                            &quot;deleteBase&quot;: &quot;0xc8&quot;,</span>
+<span class="sd">                            &quot;get&quot;: &quot;0x19&quot;,</span>
+<span class="sd">                            &quot;getBase&quot;: &quot;0xbb8&quot;,</span>
+<span class="sd">                            &quot;input&quot;: &quot;0xc8&quot;,</span>
+<span class="sd">                            &quot;log&quot;: &quot;0x64&quot;,</span>
+<span class="sd">                            &quot;logBase&quot;: &quot;0x1388&quot;,</span>
+<span class="sd">                            &quot;schema&quot;: &quot;0x1&quot;,</span>
+<span class="sd">                            &quot;set&quot;: &quot;0x140&quot;,</span>
+<span class="sd">                            &quot;setBase&quot;: &quot;0x2710&quot;</span>
+<span class="sd">                        }</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;validatorList&quot;: [</span>
+<span class="sd">                        &quot;hx522759c9e5718c48527f0242887b7f9f852da29d&quot;</span>
+<span class="sd">                    ]</span>
+<span class="sd">                },</span>
+<span class="sd">                &quot;message&quot;: &quot;genesis for local node&quot;,</span>
+<span class="sd">                &quot;nid&quot;: &quot;0x99&quot;</span>
+<span class="sd">            }</span>
+
+<span class="sd">            # Create a GenesisGenerator object</span>
+<span class="sd">            generator = GenesisGenerator(genesis_json_or_dict=genesis_data)</span>
+
+<span class="sd">            # Run the generator to process and generate the genesis zip file</span>
+<span class="sd">            cid = generator.run()</span>
+<span class="sd">            print(f&quot;Generated CID: {cid}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GenesisGenerator.__init__"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genesis_json_or_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">genesis_filename</span><span class="o">=</span><span class="s2">&quot;icon_genesis.zip&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the GenesisGenerator with the given genesis data, base directory, and zip filename.</span>
+
+<span class="sd">        :param genesis_json_or_dict: Genesis data as a dictionary or file path.</span>
+<span class="sd">        :param base_dir: Base directory to store the files.</span>
+<span class="sd">        :param genesis_filename: Name of the final genesis zip file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">genesis_json_or_dict</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">genesis_json_or_dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="k">if</span> <span class="n">base_dir</span> <span class="k">else</span> <span class="n">pawn</span><span class="o">.</span><span class="n">get_path</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">genesis_filename</span> <span class="o">=</span> <span class="n">genesis_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepare_temp_dir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cid</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nid</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">genesis_zip_info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="GenesisGenerator.make_temp_dir"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.make_temp_dir">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">make_temp_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create temporary directories for preparing and finalizing the genesis file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepare_temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.initialize"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.initialize">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the genesis generator by loading the genesis JSON data from either a dictionary or a file.</span>
+<span class="sd">        If it&#39;s a file path, the data will be loaded from the file.</span>
+
+<span class="sd">        :raises ValueError: If the genesis data is neither a valid dictionary nor a valid file path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genesis_json_or_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genesis_json_or_dict</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genesis_json_or_dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genesis_json_or_dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span> <span class="o">=</span> <span class="n">open_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genesis_json_or_dict</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid genesis_json_or_dict: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_temp_dir</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.run"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.run">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genesis_json_or_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">genesis_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cleanup_after_run</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main method to execute the genesis generation process. It initializes the data, logs relevant information,</span>
+<span class="sd">        parses the genesis JSON, writes the zip file, and generates the CID.</span>
+
+<span class="sd">        :param genesis_json_or_dict: Optional genesis data as a dictionary or file path.</span>
+<span class="sd">        :param base_dir: Optional base directory to store the files.</span>
+<span class="sd">        :param genesis_filename: Optional name of the final genesis zip file.</span>
+<span class="sd">        :return: CID (content identifier) of the generated genesis file.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        :param cleanup_after_run: If True, cleanup temporary directories after run.</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">genesis_json_or_dict</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">genesis_json_or_dict</span> <span class="o">=</span> <span class="n">genesis_json_or_dict</span>
+        <span class="k">if</span> <span class="n">base_dir</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span> <span class="o">=</span> <span class="n">base_dir</span>
+        <span class="k">if</span> <span class="n">genesis_filename</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">genesis_filename</span> <span class="o">=</span> <span class="n">genesis_filename</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_initialization_info</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_content_id_and_write_genesis</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_cid</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_cid</span><span class="p">()</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cid = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_genesis_zip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">cleanup_after_run</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cid</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.cleanup"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.cleanup">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove temporary directories to cleanup the environment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_temp_dir</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prepare_temp_dir</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prepare_temp_dir</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removed directory </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prepare_temp_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removed directory </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.validate_cid"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.validate_cid">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate_cid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recalculate CID from the final genesis.json and compare with self.cid to ensure integrity.</span>
+<span class="sd">        Raises ValueError if CID does not match.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">genesis_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span><span class="p">,</span> <span class="s2">&quot;genesis.json&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">genesis_file</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;genesis.json file not found for CID validation.&quot;</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">open_json</span><span class="p">(</span><span class="n">genesis_file</span><span class="p">)</span>
+        <span class="n">serialized_data</span> <span class="o">=</span> <span class="n">make_params_serialized</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">encoded_data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;genesis_tx.</span><span class="si">{</span><span class="n">serialized_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+        <span class="n">new_cid_hash</span> <span class="o">=</span> <span class="n">sha3_256</span><span class="p">(</span><span class="n">encoded_data</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+        <span class="n">new_cid</span> <span class="o">=</span> <span class="n">format_hex</span><span class="p">(</span><span class="n">new_cid_hash</span><span class="p">[:</span><span class="mi">6</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">new_cid</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CID validation failed: expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cid</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">new_cid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;CID validation succeeded.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.write_metadata"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.write_metadata">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">write_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write metadata.json to final_temp_dir.</span>
+<span class="sd">        Include CID, NID, timestamp, and genesis_filename.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cid</span><span class="p">,</span>
+            <span class="s2">&quot;nid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nid</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span>
+            <span class="s2">&quot;genesis_filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">genesis_filename</span>
+        <span class="p">}</span>
+
+        <span class="n">metadata_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span><span class="p">,</span> <span class="s2">&quot;metadata.json&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">metadata_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Metadata written to </span><span class="si">{</span><span class="n">metadata_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.log_initialization_info"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.log_initialization_info">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_initialization_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Log the base directory and temporary directory information for debugging purposes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Base dir -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating prepare temporary -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prepare_temp_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating final temporary -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.create_cid"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.create_cid">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">create_cid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a CID (Content Identifier) by serializing the genesis data and calculating its hash.</span>
+
+<span class="sd">        :param data: Optional data to be serialized and used to create the CID. If not provided, it uses `genesis_json_or_dict`.</span>
+<span class="sd">        :return: The CID generated from the serialized data.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_content_id_in_accounts</span><span class="p">()</span>
+        <span class="n">serialized_data</span> <span class="o">=</span> <span class="n">make_params_serialized</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span><span class="p">)</span>
+        <span class="n">encoded_data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;genesis_tx.</span><span class="si">{</span><span class="n">serialized_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">encoded_data</span><span class="p">)</span>
+        <span class="n">cid_hash</span> <span class="o">=</span> <span class="n">sha3_256</span><span class="p">(</span><span class="n">encoded_data</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cid</span> <span class="o">=</span> <span class="n">format_hex</span><span class="p">(</span><span class="n">cid_hash</span><span class="p">[:</span><span class="mi">6</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cid</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.process_content_id_and_write_genesis"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.process_content_id_and_write_genesis">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">process_content_id_and_write_genesis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process accounts in `genesis_data` and write the resulting JSON to a temporary file.</span>
+
+<span class="sd">        Combines `update_content_id_in_accounts()` and `write_genesis_json()` functionality.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_content_id_in_accounts</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_genesis_json</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.update_content_id_in_accounts"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.update_content_id_in_accounts">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">update_content_id_in_accounts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process `genesis_data` accounts and replace `contentId` fields with processed results.</span>
+
+<span class="sd">        Updates `self.genesis_data` by transforming the `contentId` fields in accounts.</span>
+
+<span class="sd">        :raises ValueError: If `genesis_data` is not properly initialized.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No genesis data available to process.&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">account</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;accounts&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">if</span> <span class="n">keys_exists</span><span class="p">(</span><span class="n">account</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="s2">&quot;contentId&quot;</span><span class="p">):</span>
+                <span class="n">original_content_id</span> <span class="o">=</span> <span class="n">account</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">][</span><span class="s1">&#39;contentId&#39;</span><span class="p">]</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">original_content_id</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_already_hashed</span><span class="p">(</span><span class="n">original_content_id</span><span class="p">):</span>
+                    <span class="n">parsed_content_id</span> <span class="o">=</span> <span class="n">original_content_id</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">parsed_content_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_score_zip</span><span class="p">(</span><span class="n">original_content_id</span><span class="p">)</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;parsed_content_id=</span><span class="si">{</span><span class="n">parsed_content_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">account</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">][</span><span class="s1">&#39;contentId&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsed_content_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nid&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.is_already_hashed"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.is_already_hashed">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_already_hashed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the given content_id is already in a hashed form like:</span>
+<span class="sd">        hash:&lt;64-hexdigits&gt;.</span>
+
+<span class="sd">        :param content_id: The content ID string to check.</span>
+<span class="sd">        :return: True if it&#39;s already a processed hash form, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">content_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;hash:&quot;</span><span class="p">):</span>
+            <span class="n">possible_hash</span> <span class="o">=</span> <span class="n">content_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;hash:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possible_hash</span><span class="p">)</span> <span class="o">==</span> <span class="mi">64</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="s2">&quot;0123456789abcdef&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">possible_hash</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.write_genesis_json"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.write_genesis_json">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">write_genesis_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write `genesis_data` to a JSON file in the final temporary directory.</span>
+
+<span class="sd">        This method assumes `parse_genesis_json()` has already processed `genesis_data`.</span>
+
+<span class="sd">        :raises ValueError: If `genesis_data` is not properly initialized.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No genesis data available to write.&quot;</span><span class="p">)</span>
+
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span><span class="p">,</span> <span class="s2">&quot;genesis.json&quot;</span><span class="p">)</span>
+        <span class="n">write_json</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">output_file</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">genesis_data</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Genesis JSON written to </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_file</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.write_genesis_zip"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.write_genesis_zip">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">write_genesis_zip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the genesis JSON to a zip file.</span>
+
+<span class="sd">        :return: Information about the generated zip file, including its size and attributes.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">genesis_zip_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">genesis_filename</span>
+        <span class="n">make_zip_without</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span><span class="p">,</span> <span class="n">genesis_zip_file</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;tests&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">genesis_zip_info</span> <span class="o">=</span> <span class="n">get_file_detail</span><span class="p">(</span><span class="n">genesis_zip_file</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="n">genesis_zip_file</span><span class="si">}</span><span class="s2"> =&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">genesis_zip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;size_pretty&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">genesis_zip_info</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.extract_content_pattern"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.extract_content_pattern">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_content_pattern</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extracts a template key, template type, and template directory from the provided string using a regex pattern.</span>
+
+<span class="sd">        :param string: The string containing the content pattern.</span>
+<span class="sd">        :return: A tuple of the extracted template key, template type, and template directory.</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(.*?):{{([^:]*):(.*)}}&#39;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[yellow]Matched[/yellow] </span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="s2"> =&gt;  </span><span class="si">{</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]Pattern not matched score.contentId:[/red] pattern=</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2"> string=</span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.make_score_zip"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.make_score_zip">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">make_score_zip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a zip file or copy the file based on the content ID and its type (e.g., ziphash or hash).</span>
+
+<span class="sd">        :param content_id: The content ID that describes how to process the score directory.</span>
+<span class="sd">        :return: The resulting hash with the file type.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        :raises ValueError: If the file or directory described by the content ID cannot be found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">template_key</span><span class="p">,</span> <span class="n">template_type</span><span class="p">,</span> <span class="n">template_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_content_pattern</span><span class="p">(</span><span class="n">content_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">template_dir</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid content ID format: </span><span class="si">{</span><span class="n">content_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">score_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">template_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">template_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ziphash&quot;</span><span class="p">,</span> <span class="s2">&quot;hash&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">is_directory</span><span class="p">(</span><span class="n">score_dir</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_file</span><span class="p">(</span><span class="n">score_dir</span><span class="p">)):</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">template_type</span><span class="si">}</span><span class="s2"> =&gt;</span><span class="si">{</span><span class="n">score_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found &#39;</span><span class="si">{</span><span class="n">template_type</span><span class="si">}</span><span class="s2">&#39; directory -&gt; </span><span class="si">{</span><span class="n">score_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">_score_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_zip_or_copy_file</span><span class="p">(</span><span class="n">template_type</span><span class="p">,</span> <span class="n">score_dir</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;hash:</span><span class="si">{</span><span class="n">_score_file</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not found file  &gt;&gt; &#39;</span><span class="si">{</span><span class="n">score_dir</span><span class="si">}</span><span class="s2">&#39; for &#39;</span><span class="si">{</span><span class="n">content_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GenesisGenerator.make_zip_or_copy_file"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.GenesisGenerator.make_zip_or_copy_file">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">make_zip_or_copy_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_type</span><span class="p">,</span> <span class="n">score_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Either create a zip file or copy a file, depending on the template type, and return the hash of the result.</span>
+
+<span class="sd">        :param template_type: The type of the operation to perform (&quot;ziphash&quot; or &quot;hash&quot;).</span>
+<span class="sd">        :param score_dir: The directory or file to be processed.</span>
+<span class="sd">        :return: The hash of the resulting file.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_score_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prepare_temp_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">token_hex</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">template_type</span> <span class="o">==</span> <span class="s2">&quot;ziphash&quot;</span><span class="p">:</span>
+            <span class="n">make_zip_without</span><span class="p">(</span><span class="n">score_dir</span><span class="p">,</span> <span class="n">_score_file</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;tests&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">template_type</span> <span class="o">==</span> <span class="s2">&quot;hash&quot;</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">score_dir</span><span class="p">,</span> <span class="n">_score_file</span><span class="p">)</span>
+        <span class="n">_score_hash</span> <span class="o">=</span> <span class="n">calculate_hash</span><span class="p">(</span><span class="n">_score_file</span><span class="p">)</span>
+        <span class="n">_score_hash_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">final_temp_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">_score_hash</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">_score_file</span><span class="p">,</span> <span class="n">_score_hash_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_score_hash</span></div></div>
+
+
+<div class="viewcode-block" id="make_zip_without"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.make_zip_without">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">make_zip_without</span><span class="p">(</span><span class="n">src_dir</span><span class="p">,</span> <span class="n">dst_file</span><span class="p">,</span> <span class="n">exclude_dirs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a zip archive from the source directory, excluding specified subdirectories.</span>
+
+<span class="sd">    :param src_dir: The source directory to zip.</span>
+<span class="sd">    :type src_dir: str</span>
+<span class="sd">    :param dst_file: The output file path for the zip archive.</span>
+<span class="sd">    :type dst_file: str</span>
+<span class="sd">    :param exclude_dirs: List of directory names to exclude from the zip archive.</span>
+<span class="sd">    :type exclude_dirs: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">dst_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">compresslevel</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span> <span class="k">as</span> <span class="n">zipf</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">src_dir</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">exclude_dir</span> <span class="ow">in</span> <span class="n">root</span> <span class="k">for</span> <span class="n">exclude_dir</span> <span class="ow">in</span> <span class="n">exclude_dirs</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                    <span class="n">zip_info</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipInfo</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">src_dir</span><span class="p">))</span>
+                    <span class="n">zip_info</span><span class="o">.</span><span class="n">date_time</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1980</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># ZIP file format requires year &gt;= 1980</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">zipf</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">zip_info</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="calculate_hash"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.calculate_hash">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">calculate_hash</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the SHA-256 hash of a file.</span>
+
+<span class="sd">    :param file_path: Path to the file to be hashed.</span>
+<span class="sd">    :type file_path: str</span>
+<span class="sd">    :return: The SHA-256 hash of the file.</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">file_bytes</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">readable_hash</span> <span class="o">=</span> <span class="n">sha3_256</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">readable_hash</span></div>
+
+
+<div class="viewcode-block" id="create_cid"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.create_cid">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_cid</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a CID (Content Identifier) from a given dictionary by serializing the data and hashing it.</span>
+
+<span class="sd">    :param data: The dictionary containing the genesis data.</span>
+<span class="sd">    :type data: dict</span>
+<span class="sd">    :return: The CID created from the serialized data.</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_inner_data</span> <span class="o">=</span> <span class="n">make_params_serialized</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;genesis_tx.</span><span class="si">{</span><span class="n">_inner_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">cid_hash</span> <span class="o">=</span> <span class="n">sha3_256</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+    <span class="n">cid</span> <span class="o">=</span> <span class="n">format_hex</span><span class="p">(</span><span class="n">cid_hash</span><span class="p">[:</span><span class="mi">6</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">cid</span></div>
+
+
+<div class="viewcode-block" id="create_cid_from_genesis_file"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.create_cid_from_genesis_file">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_cid_from_genesis_file</span><span class="p">(</span><span class="n">genesis_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a CID from a genesis file by loading the file and generating the CID.</span>
+
+<span class="sd">    :param genesis_file: Path to the genesis JSON file.</span>
+<span class="sd">    :type genesis_file: str</span>
+<span class="sd">    :return: The CID created from the genesis file.</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    :raises FileNotFoundError: If the genesis file is not found.</span>
+<span class="sd">    :raises PermissionError: If there are permission issues with the file.</span>
+<span class="sd">    :raises Exception: If any other unexpected errors occur.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">file_dict</span> <span class="o">=</span> <span class="n">open_json</span><span class="p">(</span><span class="n">genesis_file</span><span class="p">)</span>
+        <span class="n">readable_hash</span> <span class="o">=</span> <span class="n">create_cid</span><span class="p">(</span><span class="n">file_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">readable_hash</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: File &#39;</span><span class="si">{</span><span class="n">genesis_file</span><span class="si">}</span><span class="s2">&#39; not found.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">PermissionError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: Permission denied for file &#39;</span><span class="si">{</span><span class="n">genesis_file</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: An unexpected error occurred - </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_cid_from_genesis_zip"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.create_cid_from_genesis_zip">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_cid_from_genesis_zip</span><span class="p">(</span><span class="n">zip_file_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a CID from a genesis zip file by extracting the JSON data from the zip and generating the CID.</span>
+
+<span class="sd">    :param zip_file_name: Path to the genesis zip file.</span>
+<span class="sd">    :type zip_file_name: str</span>
+<span class="sd">    :return: The CID created from the zip file.</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">create_cid</span><span class="p">(</span><span class="n">read_genesis_dict_from_zip</span><span class="p">(</span><span class="n">zip_file_name</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="validate_genesis_json"><a class="viewcode-back" href="../../../module/pawnlib.utils.html#pawnlib.utils.genesis.validate_genesis_json">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">validate_genesis_json</span><span class="p">(</span><span class="n">genesis_json</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate the structure of a genesis JSON object to ensure it contains all mandatory keys.</span>
+
+<span class="sd">    :param genesis_json: The genesis JSON object to validate.</span>
+<span class="sd">    :type genesis_json: dict</span>
+<span class="sd">    :return: True if the genesis JSON is valid.</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    :raises SystemExit: If the genesis JSON is missing mandatory keys or is not a dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">genesis_json</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">sys_exit</span><span class="p">(</span><span class="s2">&quot;genesis_json is not dict&quot;</span><span class="p">)</span>
+    <span class="n">flat_dict</span> <span class="o">=</span> <span class="n">FlatDict</span><span class="p">(</span><span class="n">genesis_json</span><span class="p">)</span>
+
+    <span class="n">mandatory_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;accounts&quot;</span><span class="p">,</span> <span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;chain.validatorList&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;nid&quot;</span><span class="p">]</span>
+    <span class="n">missing_keys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mandatory_keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">flat_dict</span><span class="p">:</span>
+            <span class="n">missing_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">missing_keys</span><span class="p">:</span>
+        <span class="n">error_and_exit</span><span class="p">(</span>
+            <span class="s2">&quot;Invalid genesis_json format. Missing mandatory keys.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;[bold red]Missing mandatory keys:[/bold red] </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_keys</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;[bold bright_white]Genesis JSON validation successful.[/bold bright_white]&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+<span class="n">genesis_generator</span> <span class="o">=</span> <span class="n">GenesisGenerator</span><span class="p">()</span><span class="o">.</span><span class="n">run</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

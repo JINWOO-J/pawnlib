@@ -1,0 +1,539 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.docker.async_docker &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.docker.async_docker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.docker.async_docker</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_number_list</span>
+<span class="c1"># from pawnlib.asyncio import AsyncTasks, async_partial</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">aiodocker</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">devtools</span><span class="w"> </span><span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">aiometer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawnlib_config</span> <span class="k">as</span> <span class="n">pawn</span>
+
+
+<div class="viewcode-block" id="AsyncDocker"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AsyncDocker</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">{},</span> <span class="n">client_options</span><span class="o">=</span><span class="p">{},</span> <span class="n">max_at_once</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_per_second</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">container_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">client</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">Docker</span><span class="p">(</span><span class="o">**</span><span class="n">client_options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_options</span> <span class="o">=</span> <span class="n">client_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_at_once</span> <span class="o">=</span> <span class="n">max_at_once</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_per_second</span> <span class="o">=</span> <span class="n">max_per_second</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container_name</span> <span class="o">=</span> <span class="n">container_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">count</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="n">filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop_state</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_control_option</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;delete&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;force&quot;</span><span class="p">:</span> <span class="kc">True</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;stats&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;stream&quot;</span><span class="p">:</span> <span class="kc">False</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;__exit__ :: before session: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">closed</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">())</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;__exit__ :: after session: </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> == session: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">closed</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AsyncDocker.close"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.close">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="c1"># @staticmethod</span>
+<div class="viewcode-block" id="AsyncDocker.run_async_loop"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.run_async_loop">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_async_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Execute function=</span><span class="si">{</span><span class="n">function</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">()&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="AsyncDocker.client_decorator"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.client_decorator">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">client_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="c1"># debug(f&quot;{func} decorator :: &quot;, f&quot;{skip}&quot;)</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;execute </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">() client_decorator() skip=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">skip</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[IN] Decorator args = </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red] session closed = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">closed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">Docker</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">client_options</span><span class="p">)</span>
+                <span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">docker_host</span><span class="p">)</span>
+
+            <span class="n">ret</span> <span class="o">=</span> <span class="k">await</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red] session closing =&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">closed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">return</span> <span class="n">ret</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span></div>
+
+    <span class="c1"># @client_decorator</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_async_pull_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red][ERROR] </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_async_get_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simple</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># print(f&quot;Simple = {simple}&quot;)</span>
+        <span class="c1"># pawn.console.log(f&quot;---&quot;)</span>
+        <span class="c1"># # self.client = aiodocker.Docker(**self.client_options)</span>
+        <span class="c1"># pawn.console.log(f&quot;---&gt; {self.client}&quot;)</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">list</span><span class="p">()):</span>
+            <span class="c1"># pawn.console.debug(image)</span>
+            <span class="c1"># tags = image[&#39;RepoTags&#39;][0] if image[&#39;RepoTags&#39;] else &#39;&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="s1">&#39;RepoTags&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">tags_list</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="s1">&#39;RepoTags&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tags_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">tags_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">simple</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">image_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">image</span><span class="p">[</span><span class="s1">&#39;Id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;sha256:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="mi">12</span><span class="p">],</span> <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">tags</span><span class="p">})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">image_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+        <span class="c1"># await self.client.close()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_list</span>
+
+<div class="viewcode-block" id="AsyncDocker.pull_image"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.pull_image">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">pull_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_async_loop</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_async_pull_image</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="AsyncDocker.get_images"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.get_images">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_async_loop</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_async_get_images</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="AsyncDocker.find_image"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.find_image">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">find_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_images</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_image</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_image</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tags&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">image</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="c1"># @client_decorator</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_async_get_containers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)):</span>
+            <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_container_dict</span><span class="p">(</span><span class="n">container</span><span class="p">)</span>
+            <span class="c1"># debug(f&quot;[get_containers]&quot;, container._container[&#39;Names&#39;])</span>
+            <span class="k">if</span> <span class="n">filters</span> <span class="o">==</span> <span class="p">{}</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">filtering_dict</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">_container</span><span class="p">,</span> <span class="n">filters</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">container_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">container</span><span class="p">)</span>
+
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[FILTER] condition regex=</span><span class="si">{</span><span class="n">filters</span><span class="si">}</span><span class="s2">, matched container=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">container_list</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">container_list</span>
+
+<div class="viewcode-block" id="AsyncDocker.filtering_dict"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.filtering_dict">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">filtering_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">matched</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">filters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">filter_key</span><span class="p">,</span> <span class="n">filter_value</span> <span class="ow">in</span> <span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">filtering_target</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filter_key</span><span class="p">,</span> <span class="s2">&quot;NNN&quot;</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span>
+                <span class="c1"># p = re.compile(filter_value)</span>
+                <span class="c1"># match_regex = re.match(filter_value, filtering_target)</span>
+                <span class="n">match_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">fr</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filter_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filtering_target</span><span class="p">)</span>
+                <span class="c1"># match_regex = re.fullmatch(pattern, filtering_target)</span>
+                <span class="k">if</span> <span class="n">match_regex</span><span class="p">:</span>
+                    <span class="c1"># cprint(f&quot;[Filter] filter_key={filter_value}, filter_value={filter_value}, &quot;</span>
+                    <span class="c1">#        f&quot;target={filtering_target}, {match_regex.groups()}&quot;)</span>
+                    <span class="n">matched</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">matched</span></div>
+
+<div class="viewcode-block" id="AsyncDocker.get_containers"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.get_containers">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_containers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_async_loop</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_async_get_containers</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="AsyncDocker.parse_container_dict"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.parse_container_dict">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">parse_container_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">):</span>
+        <span class="c1"># df = pandas.DataFrame(columns=container._container.keys())</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">DockerContainer</span><span class="p">):</span>
+            <span class="c1"># remove the first &#39;/&#39;</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;Names&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;^/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;Names&#39;</span><span class="p">]))</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;Id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;Id&#39;</span><span class="p">][:</span><span class="mi">12</span><span class="p">]</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;ImageID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;ImageID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;sha256:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="mi">12</span><span class="p">]</span>
+
+            <span class="c1"># debug(container._container)</span>
+        <span class="k">return</span> <span class="n">container</span></div>
+        <span class="c1"># container</span>
+        <span class="c1"># # df = df.append(container._container.__dict__, ignore_index=True)</span>
+
+<div class="viewcode-block" id="AsyncDocker.delete_container"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.delete_container">[docs]</a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete_container</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">container_total</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">container_total</span><span class="si">}</span><span class="s2">] Delete to </span><span class="si">{</span><span class="n">container</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">container</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;Names&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">container</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loop_state</span><span class="o">=</span><span class="p">{},</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_callback:: </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">container_info</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">loop_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;container&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loop_state</span><span class="p">[</span><span class="s1">&#39;container&#39;</span><span class="p">],</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">DockerContainer</span><span class="p">):</span>
+            <span class="n">container_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">loop_state</span><span class="p">[</span><span class="s1">&#39;container&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;Id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,&quot;</span> \
+                             <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">loop_state</span><span class="p">[</span><span class="s1">&#39;container&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;Names&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">loop_state</span><span class="p">:</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">loop_state</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;3</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">loop_state</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">function</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> the container </span><span class="si">{</span><span class="n">container_info</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># cprint(f&quot;[{loop_state[&#39;count&#39;]:&gt;3}/{loop_state[&#39;total&#39;]}]&quot;, &quot;white&quot;)</span>
+            <span class="c1"># f&quot;{function.__name__} the container {loop_state[&#39;container&#39;]._container[&#39;Id&#39;]},&quot;</span>
+            <span class="c1"># f&quot; {loop_state[&#39;container&#39;]._container[&#39;Names&#39;]}&quot;, &quot;white&quot;)</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_generate_echo_containers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">attach_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">numbering</span> <span class="ow">in</span> <span class="n">generate_number_list</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">convert_func</span><span class="o">=</span><span class="nb">str</span><span class="p">):</span>
+            <span class="n">container_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">container_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">numbering</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;Image&#39;</span><span class="p">:</span> <span class="s1">&#39;jmalloc/echo-server&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Hostname&#39;</span><span class="p">:</span> <span class="n">container_name</span><span class="p">,</span>
+                    <span class="s1">&#39;Env&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="sa">f</span><span class="s2">&quot;PORT=</span><span class="si">{</span><span class="n">numbering</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">],</span>
+                    <span class="s2">&quot;NetworkMode&quot;</span><span class="p">:</span> <span class="s2">&quot;host&quot;</span>
+                <span class="p">},</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">container_name</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">attach_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">attach_list</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_print_container_name_in_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">containers</span><span class="p">):</span>
+        <span class="n">_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">rule</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Container name in list&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="n">containers</span><span class="p">:</span>
+            <span class="n">container_info</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">_container</span>
+            <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">_count</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">container_info</span><span class="p">[</span><span class="s1">&#39;Id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">container_info</span><span class="p">[</span><span class="s1">&#39;Names&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">container_info</span><span class="p">[</span><span class="s1">&#39;Status&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_async_control_aiometer_container</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_async_control_aiometer_container() method=</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">, args=</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">, &quot;</span>
+                         <span class="sa">f</span><span class="s2">&quot;kwargs=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default_control_option</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method</span><span class="p">,</span><span class="w"> </span><span class="p">{})</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;create_or_replace&quot;</span><span class="p">:</span>
+            <span class="n">attach_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_echo_containers</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">attach_list</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_async_get_containers</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;ls&quot;</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_print_container_name_in_list</span><span class="p">(</span><span class="n">attach_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">attach_list</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">attach_list</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">loop_state</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">,</span>
+                    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">total</span><span class="p">,</span>
+                    <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="n">count</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">DockerContainer</span><span class="p">):</span>
+                    <span class="n">container</span> <span class="o">=</span> <span class="n">item</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_control_option</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="n">item</span>
+                    <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">containers</span>
+
+                <span class="n">_function</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span>
+                    <span class="n">function</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">method</span><span class="p">),</span>
+                    <span class="n">loop_state</span><span class="o">=</span><span class="n">loop_state</span><span class="p">,</span>
+                    <span class="c1"># **self.default_control_option.get(method, {})</span>
+                    <span class="o">**</span><span class="n">params</span>
+                <span class="p">)</span>
+
+                <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_function</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">aiometer</span><span class="o">.</span><span class="n">run_all</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">max_at_once</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_at_once</span><span class="p">,</span> <span class="n">max_per_second</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_per_second</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results</span>
+
+<div class="viewcode-block" id="AsyncDocker.control_container"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.AsyncDocker.control_container">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">control_container</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_async_loop</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_async_control_aiometer_container</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_async_await</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">container_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">DockerContainer</span><span class="p">):</span>
+            <span class="n">container_name</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;Names&#39;</span><span class="p">]</span>
+
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_async_await =&gt; </span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">() </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">Docker</span><span class="p">()</span>
+        <span class="n">function</span><span class="o">.</span><span class="n">docker</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="c1"># func = getattr(function, method)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">method</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># await client.close()</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_async_control_container</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">container_total</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># client = aiodocker.Docker().DockerContainer(container)</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">Docker</span><span class="p">()</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">container_total</span><span class="si">}</span><span class="s2">] Delete to </span><span class="si">{</span><span class="n">container</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">_query_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;containers/</span><span class="si">{</span><span class="n">container</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DELETE&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="delete_container"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.delete_container">[docs]</a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete_container</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">container_total</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">container_total</span><span class="si">}</span><span class="s2">] Delete to </span><span class="si">{</span><span class="n">container</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">container</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="list_things"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.list_things">[docs]</a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_things</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="n">debug</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+    <span class="n">image_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">container_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;== Images ==&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="p">(</span><span class="k">await</span> <span class="n">args</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">list</span><span class="p">()):</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="s1">&#39;RepoTags&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">image</span><span class="p">[</span><span class="s1">&#39;RepoTags&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># print(image[&#39;Id&#39;], tags)</span>
+        <span class="n">image_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">image</span><span class="p">[</span><span class="s1">&#39;Id&#39;</span><span class="p">],</span> <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">tags</span><span class="p">})</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;== Containers ==&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="p">(</span><span class="k">await</span> <span class="n">args</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">list</span><span class="p">()):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">container</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fk</span><span class="p">,</span> <span class="n">fv</span> <span class="ow">in</span> <span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">filtering_target</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">_container</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fk</span><span class="p">,</span> <span class="s2">&quot;NNN&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filtering_target</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">filtering_target</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filtering_target</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fv</span> <span class="ow">in</span> <span class="n">filtering_target</span><span class="p">:</span>
+                <span class="n">container_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">container</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image_list</span><span class="p">,</span> <span class="n">container_list</span></div>
+
+
+<div class="viewcode-block" id="rm_container"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.rm_container">[docs]</a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">rm_container</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">Docker</span><span class="p">()</span>
+    <span class="n">image_list</span><span class="p">,</span> <span class="n">container_list</span> <span class="o">=</span> <span class="k">await</span> <span class="n">list_things</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Names&quot;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">})</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">container_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">container_list</span><span class="p">)</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="n">container_list</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">container_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">_container</span><span class="p">[</span><span class="s1">&#39;Names&#39;</span><span class="p">])</span>
+        <span class="n">debug</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="n">container_name</span><span class="p">)</span>
+        <span class="c1"># tasks.append(asyncio.ensure_future(container.delete(force=True)))</span>
+        <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">delete_container</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">container_total</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">aiometer</span><span class="o">.</span><span class="n">run_all</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">max_at_once</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_at_once</span><span class="p">,</span> <span class="n">max_per_second</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_per_second</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">args</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="run_container"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.run_container">[docs]</a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_container</span><span class="p">(</span><span class="n">numbering</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">Docker</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">)</span>
+    <span class="n">container_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">numbering</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;env_key&#39;</span><span class="p">):</span>
+        <span class="n">env_key</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">env_key</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">env_key</span> <span class="o">=</span> <span class="s2">&quot;PORT&quot;</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
+        <span class="n">docker_image</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">image</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">docker_image</span> <span class="o">=</span> <span class="s2">&quot;jmalloc/echo-server&quot;</span>
+
+    <span class="n">container_config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;Image&#39;</span><span class="p">:</span> <span class="n">docker_image</span><span class="p">,</span>
+        <span class="s1">&#39;Hostname&#39;</span><span class="p">:</span> <span class="n">container_name</span><span class="p">,</span>
+        <span class="s1">&#39;Env&#39;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">env_key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">numbering</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">],</span>
+        <span class="c1"># &#39;Cmd&#39;: [&#39;/bin/ash&#39;, &#39;-c&#39;, &#39;echo &quot;hello world&quot;&#39;],</span>
+        <span class="c1"># &quot;Ports&quot;: {</span>
+        <span class="c1">#     &quot;8080&quot;: f&quot;1{numbering}/tcp&quot;</span>
+        <span class="c1"># },</span>
+        <span class="s2">&quot;NetworkMode&quot;</span><span class="p">:</span> <span class="s2">&quot;host&quot;</span>
+    <span class="p">}</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;== Running a &quot;</span><span class="si">{</span><span class="n">docker_image</span><span class="si">}</span><span class="s1">&quot; container =&gt; </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s1">, args=</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s1">, container_config=</span><span class="si">{</span><span class="n">container_config</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">container</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">create_or_replace</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">container_config</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">container_name</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">container</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">container</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">stdout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">container_name</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;_container&#39;</span><span class="p">][</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;container=</span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">, logs=</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># pawn.console.log(&#39;&#39;.join(logs))</span>
+
+    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+    <span class="c1"># await container.delete(force=True)</span>
+    <span class="c1"># await args.client.close()</span>
+
+
+<div class="viewcode-block" id="run_dyn_container"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.run_dyn_container">[docs]</a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_dyn_container</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">aiodocker</span><span class="o">.</span><span class="n">Docker</span><span class="p">()</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;config=</span><span class="si">{</span><span class="n">config</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;args=</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;kwargs=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">container_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;container_name&#39;</span><span class="p">)</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[CONTAINER][</span><span class="si">{</span><span class="n">pawn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">] Running container_name=</span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">container</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">create_or_replace</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">container_name</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">container</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">show_container_log</span><span class="p">:</span>
+        <span class="n">logs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">container</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">stdout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tail</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">container_name</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;_container&#39;</span><span class="p">][</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;container=</span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">, logs=</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+    <span class="c1">#</span>
+
+
+<div class="viewcode-block" id="extract_upper_key_to_env_list"><a class="viewcode-back" href="../../../module/pawnlib.docker.html#pawnlib.docker.async_docker.extract_upper_key_to_env_list">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">extract_upper_key_to_env_list</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">pawn</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PAWN_CONFIG&#39;</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

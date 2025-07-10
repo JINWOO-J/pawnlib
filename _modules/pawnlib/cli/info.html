@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.cli.info &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.cli.info</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.cli.info</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.builder.generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_banner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.__version__</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pawn</span><span class="p">,</span> <span class="n">pconf</span>
+
+<span class="c1"># pawn.console.log(pconf_legacy().PAWN_CONFIG)</span>
+<span class="c1"># pawn.console.log(pconf().PAWN_CONFIG)</span>
+<span class="c1"># exit()</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">StackList</span><span class="p">,</span> <span class="n">remove_tags</span><span class="p">,</span> <span class="n">dict_to_line</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_json</span><span class="p">,</span> <span class="n">get_color_by_threshold</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.resource</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_interface_ips</span><span class="p">,</span>
+    <span class="n">get_public_ip</span><span class="p">,</span>
+    <span class="n">get_hostname</span><span class="p">,</span>
+    <span class="n">get_platform_info</span><span class="p">,</span>
+    <span class="n">get_rlimit_nofile</span><span class="p">,</span>
+    <span class="n">get_mem_info</span><span class="p">,</span>
+    <span class="n">get_location</span><span class="p">,</span>
+    <span class="n">get_location_with_ip_api</span><span class="p">,</span>
+    <span class="n">DiskUsage</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pawnlib.resource.server</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_uptime</span><span class="p">,</span> <span class="n">get_swap_usage</span><span class="p">,</span> <span class="n">get_load_average</span>
+
+<span class="n">__description__</span> <span class="o">=</span> <span class="s2">&quot;This command displays server resource information.&quot;</span>
+
+<span class="n">__epilog__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;This tool provides a detailed overview of your server&#39;s system and network resources.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Usage examples:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;  1. Display all resource information in verbose mode:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Displays detailed information about system and network resources.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns info -v`</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+    <span class="s2">&quot;  2. Run in quiet mode without displaying any output:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Executes the script without showing any output, useful for logging purposes.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns info -q`</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+    <span class="s2">&quot;  3. Specify a custom base directory and configuration file:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Uses the specified base directory and configuration file for operations.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     `pawns info -b /path/to/base/dir --config-file my_config.ini`</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+    <span class="s2">&quot;  4. Write output to a specified file in quiet mode without displaying any output:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;     - Writes the collected resource information to &#39;output.json&#39;.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;    `pawns info -q --output-file output.json`</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+
+
+    <span class="s2">&quot;For more detailed command usage and options, refer to the help documentation by running &#39;pawns info --help&#39;.&quot;</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.info.get_parser">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;monitor&#39;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="get_arguments"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.info.get_arguments">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="c1"># parser.add_argument(&#39;url&#39;, help=&#39;url&#39;, type=str, nargs=&#39;?&#39;, default=&quot;&quot;)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--config-file&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;config.ini&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;verbose mode. view level (default: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-q&#39;</span><span class="p">,</span> <span class="s1">&#39;--quiet&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Quiet mode. Dont show any messages. (default: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="s1">&#39;--base-dir&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;base dir for httping (default: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--debug&#39;</span><span class="p">,</span>  <span class="n">action</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;base dir for httping (default: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--ip-api-provider&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;API provider to fetch public IP information (e.g., ip-api.com, another-api.com)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ip-api.com&quot;</span><span class="p">)</span>
+    <span class="c1"># parser.add_argument( &quot;-o&quot;, &quot;--output-file&quot;, type=str, help=&quot;The name of the file to write the output to.&quot;, default=&quot;&quot;, )</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="s1">&#39;--write-file&#39;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="s1">&#39;resource_info.json&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Write the output to a file. Default file is &quot;resource_info.json&quot;. If a filename is provided, it will be used instead.&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="print_banner"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.info.print_banner">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_banner</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
+        <span class="n">banner</span> <span class="o">=</span> <span class="n">generate_banner</span><span class="p">(</span>
+            <span class="n">app_name</span><span class="o">=</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">app_name</span><span class="p">,</span>
+            <span class="n">author</span><span class="o">=</span><span class="s2">&quot;jinwoo&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__description__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; - base_dir    : </span><span class="si">{</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">base_dir</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; - logs_dir    : </span><span class="si">{</span><span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">/logs </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">font</span><span class="o">=</span><span class="s2">&quot;graffiti&quot;</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="n">_version</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">banner</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_unless_quiet_mode"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.info.print_unless_quiet_mode">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">print_unless_quiet_mode</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pconf</span><span class="p">()</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../module/pawnlib.cli.html#pawnlib.cli.info.main">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">app_name</span> <span class="o">=</span> <span class="s1">&#39;Resource Information&#39;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">config_file</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">is_hide_line_number</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">2</span>
+    <span class="n">stdout</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span>
+
+    <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">PAWN_CONFIG_FILE</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
+        <span class="n">PAWN_PATH</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">base_dir</span><span class="p">,</span>
+        <span class="n">PAWN_CONSOLE</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">redirect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">log_path</span><span class="o">=</span><span class="n">is_hide_line_number</span><span class="p">,</span> <span class="c1"># hide line number on the right side</span>
+        <span class="p">),</span>
+        <span class="n">app_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">try_pass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">last_execute_point</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;response_time&quot;</span><span class="p">:</span> <span class="n">StackList</span><span class="p">(),</span>
+        <span class="p">},</span>
+        <span class="n">fail_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">total_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="n">PAWN_LOGGER</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+                <span class="n">stdout_level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">print_banner</span><span class="p">()</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;system&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;network&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;disk&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="p">}</span>
+
+
+    <span class="n">system_tree</span> <span class="o">=</span> <span class="n">Tree</span><span class="p">(</span><span class="s2">&quot;[bold]🖥️  System Information[/bold]&quot;</span><span class="p">)</span>
+    <span class="n">system_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hostname:  </span><span class="si">{</span><span class="n">get_hostname</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">get_platform_info</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">system_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">][</span><span class="s1">&#39;mem_total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_mem_info</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mem_total&#39;</span><span class="p">)</span>
+    <span class="n">system_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Memory: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">][</span><span class="s1">&#39;mem_total&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> GB&quot;</span><span class="p">)</span>
+
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">][</span><span class="s2">&quot;resource_limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_rlimit_nofile</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">))</span>
+
+    <span class="c1"># system_tree.add(f&quot;Resource limit: {result[&#39;system&#39;][&#39;resource_limit&#39;]}&quot;)</span>
+    <span class="n">resource_tree</span> <span class="o">=</span> <span class="n">system_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Resource limit&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">][</span><span class="s1">&#39;resource_limit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">resource_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">system_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Swap Usage : </span><span class="si">{</span><span class="n">get_swap_usage</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">system_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CPU Load : </span><span class="si">{</span><span class="n">get_load_average</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">system_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uptime: </span><span class="si">{</span><span class="n">get_uptime</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">print_unless_quiet_mode</span><span class="p">(</span><span class="n">system_tree</span><span class="p">)</span>
+    <span class="n">print_unless_quiet_mode</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">network_tree</span> <span class="o">=</span> <span class="n">Tree</span><span class="p">(</span><span class="s2">&quot;[bold]🛜 Network Interface[/bold]&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ip_api_provider</span> <span class="o">==</span> <span class="s2">&quot;ip-api.com&quot;</span><span class="p">:</span>
+        <span class="n">public_ip_info</span> <span class="o">=</span> <span class="n">get_location_with_ip_api</span><span class="p">()</span>
+        <span class="k">if</span>  <span class="n">public_ip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">):</span>
+            <span class="k">del</span> <span class="n">public_ip_info</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">][</span><span class="s1">&#39;public_ip&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ip&quot;</span><span class="p">:</span>  <span class="n">public_ip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">)}</span>
+        <span class="n">public_ip_tree</span> <span class="o">=</span> <span class="n">network_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold] Public IP[/bold]: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">][</span><span class="s1">&#39;public_ip&#39;</span><span class="p">][</span><span class="s1">&#39;ip&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">][</span><span class="s1">&#39;public_ip&#39;</span><span class="p">]:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">][</span><span class="s1">&#39;public_ip&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">public_ip_info</span><span class="p">)</span>
+            <span class="n">public_ip_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold] Region : </span><span class="si">{</span><span class="n">public_ip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;countryCode&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">public_ip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;regionName&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">public_ip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;city&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">, &quot;</span>
+                               <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">public_ip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;country&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">, Timezone=</span><span class="si">{</span><span class="n">public_ip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timezone&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">public_ip_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold] ASN : </span><span class="si">{</span><span class="n">public_ip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;as&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">, ISP: </span><span class="si">{</span><span class="n">public_ip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;isp&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">, ORG: </span><span class="si">{</span><span class="n">public_ip_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;org&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">][</span><span class="s1">&#39;public_ip&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ip&quot;</span><span class="p">:</span>  <span class="n">get_public_ip</span><span class="p">()}</span>
+        <span class="n">public_ip_tree</span><span class="o">=</span> <span class="n">network_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold] Public IP[/bold]: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">][</span><span class="s1">&#39;public_ip&#39;</span><span class="p">][</span><span class="s1">&#39;ip&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">][</span><span class="s1">&#39;public_ip&#39;</span><span class="p">]:</span>
+            <span class="n">_location</span> <span class="o">=</span> <span class="n">get_location</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">][</span><span class="s1">&#39;public_ip&#39;</span><span class="p">][</span><span class="s1">&#39;ip&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">_location</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">][</span><span class="s1">&#39;public_ip&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_location</span><span class="p">)</span>
+                <span class="n">public_ip_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold] Region : </span><span class="si">{</span><span class="n">_location</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;region&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">, Timezone=</span><span class="si">{</span><span class="n">_location</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timezone&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">public_ip_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold] ASN : </span><span class="si">{</span><span class="n">dict_to_line</span><span class="p">(</span><span class="n">_location</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;asn&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">end_separator</span><span class="o">=</span><span class="s1">&#39;, &#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">local_tree</span> <span class="o">=</span> <span class="n">network_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;[bold] Local IP[/bold]&quot;</span><span class="p">)</span>
+    <span class="n">interface_list</span> <span class="o">=</span> <span class="n">get_interface_ips</span><span class="p">(</span><span class="n">ignore_interfaces</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;lo0&#39;</span><span class="p">,</span> <span class="s1">&#39;lo&#39;</span><span class="p">],</span> <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">interface_list</span><span class="p">:</span>
+        <span class="n">longest_length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">interface_list</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">interface</span><span class="p">,</span> <span class="n">ipaddr</span> <span class="ow">in</span> <span class="n">interface_list</span><span class="p">:</span>
+            <span class="n">subnet_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; / </span><span class="si">{</span><span class="n">ipaddr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subnet&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">ipaddr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subnet&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">gateway_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;, G/W: </span><span class="si">{</span><span class="n">ipaddr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gateway&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">ipaddr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gateway&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">formatted_ipaddr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ipaddr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ip&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;10</span><span class="si">}{</span><span class="n">subnet_str</span><span class="si">}{</span><span class="n">gateway_str</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">][</span><span class="n">interface</span><span class="p">]</span> <span class="o">=</span> <span class="n">ipaddr</span>
+            <span class="k">if</span> <span class="s2">&quot;gateway&quot;</span> <span class="ow">in</span> <span class="n">ipaddr</span><span class="p">:</span>
+                <span class="n">interface</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[bold blue][on #050B27]</span><span class="si">{</span><span class="n">interface</span><span class="si">:</span><span class="s2">&lt;</span><span class="si">{</span><span class="n">longest_length</span><span class="si">}}</span><span class="s2"> [/bold blue]&quot;</span>
+                <span class="n">formatted_ipaddr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">formatted_ipaddr</span><span class="si">}</span><span class="s2">[/on #050B27]&quot;</span>
+            <span class="n">local_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold]</span><span class="si">{</span><span class="n">interface</span><span class="si">:</span><span class="s2">&lt;</span><span class="si">{</span><span class="n">longest_length</span><span class="o">+</span><span class="mi">1</span><span class="si">}}</span><span class="s2">[/bold]: </span><span class="si">{</span><span class="n">formatted_ipaddr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">print_unless_quiet_mode</span><span class="p">(</span><span class="n">network_tree</span><span class="p">)</span>
+        <span class="n">print_unless_quiet_mode</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">disk_usage</span> <span class="o">=</span> <span class="n">DiskUsage</span><span class="p">()</span>
+    <span class="n">disk_usage_result</span> <span class="o">=</span> <span class="n">disk_usage</span><span class="o">.</span><span class="n">get_disk_usage</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;disk&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">disk_usage_result</span>
+
+    <span class="n">disk_tree</span> <span class="o">=</span> <span class="n">Tree</span><span class="p">(</span><span class="s2">&quot;[bold]💾 Disk Usage[/bold]&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">mount_point</span><span class="p">,</span> <span class="n">usage</span> <span class="ow">in</span> <span class="n">disk_usage_result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">color</span><span class="p">,</span>  <span class="n">percent</span> <span class="o">=</span> <span class="n">get_color_by_threshold</span><span class="p">(</span><span class="n">usage</span><span class="p">[</span><span class="s1">&#39;percent&#39;</span><span class="p">],</span> <span class="n">return_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">color_unit</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[grey74]</span><span class="si">{</span><span class="n">usage</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">[/grey74]&quot;</span>
+        <span class="n">usage_line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="n">usage</span><span class="p">[</span><span class="s1">&#39;used&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;7</span><span class="si">}</span><span class="s2">[/</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">color_unit</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">] / </span><span class="si">{</span><span class="n">usage</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;7</span><span class="si">}</span><span class="s2">[/</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">color_unit</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">](</span><span class="si">{</span><span class="n">percent</span><span class="si">}</span><span class="s2">%)[/</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">] &quot;</span>
+        <span class="n">disk_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold blue]</span><span class="si">{</span><span class="n">mount_point</span><span class="si">:</span><span class="s2">&lt;11</span><span class="si">}</span><span class="s2">[/bold blue][dim]</span><span class="si">{</span><span class="n">usage</span><span class="p">[</span><span class="s1">&#39;device&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">[/dim]: </span><span class="si">{</span><span class="n">usage_line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">print_unless_quiet_mode</span><span class="p">(</span><span class="n">disk_tree</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">write_file</span><span class="p">:</span>
+        <span class="n">write_res</span> <span class="o">=</span> <span class="n">write_json</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">write_file</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">write_res</span><span class="p">)</span></div>
+
+
+<span class="n">main</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__description__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">__epilog__</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">pawn</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

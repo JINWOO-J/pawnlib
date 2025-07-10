@@ -1,0 +1,99 @@
+from pawnlib.config import pawnlib_config as pawn
+from pawnlib.output import *
+import argparse
+
+from glob import glob
+import os, importlib
+
+
+def load_submodule_parsers(parent_module, parser, help=None):
+    if help is None:
+        help = parent_module.__name__ + " modules"
+    modules = glob(os.path.join(parent_module.__path__, "*.py"))
+    subparsers = parser.add_subparsers(help=help)
+    for module_file in modules:
+        module_name = os.path.basename(module_file)[:-3]
+        if module == "__init__":
+            continue
+        module = importlib.import_module(module_name, package=parent_module.__name__)
+        if "define_arguments" not in module.__dict__:
+            raise ImportError(parent_module.__name__ + " submodule '" + module_name + "' does not have required 'define_arguments' function.")
+        parser = subparsers.add_parser(module_name)
+        module.define_arguments(parser)
+
+
+def get_module_name(name):
+    return os.path.basename(name)[:-3]
+
+
+def get_submodule_names():
+    module_list = glob(os.path.join(get_real_path(__file__), "*.py"))
+    main_cli_name = get_module_name(__file__)
+    exclude_module_names = ["__init__", main_cli_name]
+    modules = []
+    for module_file in module_list:
+        module_name = get_module_name(module_file)
+        if module_name not in exclude_module_names:
+            modules.append(module_name)
+    return modules
+
+
+def load_submodule():
+    for module_file in get_submodule_names():
+        module_name = module_file
+        pawn.console.log(module_name)
+        run_module(module_name)
+
+
+def run_module(module_name=None):
+    module = importlib.import_module(f"pawnlib.cli.{module_name}")
+    module.main()
+    pawn.console.log(f"load a {module_name}")
+    return module
+
+
+def remove_argument(parser, arg):
+    for action in parser._actions:
+        opts = action.option_strings
+        if (opts and opts[0] == arg) or action.dest == arg:
+            parser._remove_action(action)
+            pawn.console.log("ok remove")
+            break
+
+    for action in parser._action_groups:
+        for group_action in action._group_actions:
+            if group_action.dest == arg:
+                action._group_actions.remove(group_action)
+                pawn.console.log("ok remove")
+                return
+
+
+def get_parser():
+    parser = argparse.ArgumentParser(description='Proxy')
+    parser.add_argument('--module', '-m', type=str, help='command', choices=get_submodule_names(), default=None)
+    return parser
+
+
+def main():
+    pawn.console.log(f"main_cli wrapper")
+    pawn.console.log(get_submodule_names())
+
+    parser = get_parser()
+    # args, unknown = parser.parse_known_args()
+    args = parser.parse_args()
+
+    module = args.module
+    # remove_argument(parser, "module")
+    # remove_argument(parser, "help")
+
+    # run_module(module)
+
+
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        pawn.console.log("[red] KeyboardInterrupt")
+

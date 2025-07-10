@@ -1,0 +1,943 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pawnlib.typing.constants &mdash; Pawnlib v2.1.36</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pawnlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Welcome to pawnlib’s documentation!</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Packages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.asyncio.html">pawnlib.asyncio package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.builder.html">pawnlib.builder package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.cli.html">pawnlib.cli package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.config.html">pawnlib.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.docker.html">pawnlib.docker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.exceptions.html">pawnlib.exceptions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.input.html">pawnlib.input package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.metrics.html">pawnlib.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.output.html">pawnlib.output package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.resource.html">pawnlib.resource package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.typing.html">pawnlib.typing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module/pawnlib.utils.html">pawnlib.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pawnlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pawnlib.typing.constants</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pawnlib.typing.constants</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+
+<div class="viewcode-block" id="StatusType"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.StatusType">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">StatusType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">SUCCESS</span> <span class="o">=</span> <span class="s1">&#39;success&#39;</span>
+    <span class="n">FAILED</span> <span class="o">=</span> <span class="s1">&#39;failed&#39;</span>
+    <span class="n">WARNING</span> <span class="o">=</span> <span class="s1">&#39;warning&#39;</span>
+    <span class="n">INFO</span> <span class="o">=</span> <span class="s1">&#39;info&#39;</span>
+    <span class="n">CRITICAL</span> <span class="o">=</span> <span class="s1">&#39;critical&#39;</span>
+    <span class="n">IN_PROGRESS</span> <span class="o">=</span> <span class="s1">&#39;in_progress&#39;</span>
+    <span class="n">COMPLETE</span> <span class="o">=</span> <span class="s1">&#39;complete&#39;</span>
+    <span class="n">PAUSED</span> <span class="o">=</span> <span class="s1">&#39;paused&#39;</span>
+    <span class="n">RUNNING</span> <span class="o">=</span> <span class="s1">&#39;running&#39;</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="s1">&#39;error&#39;</span>
+    <span class="n">RETRYING</span> <span class="o">=</span> <span class="s1">&#39;retrying&#39;</span>
+    <span class="n">STOPPED</span> <span class="o">=</span> <span class="s1">&#39;stopped&#39;</span>
+    <span class="n">QUEUED</span> <span class="o">=</span> <span class="s1">&#39;queued&#39;</span>
+    <span class="n">CANCELED</span> <span class="o">=</span> <span class="s1">&#39;canceled&#39;</span>
+    <span class="n">APPROVED</span> <span class="o">=</span> <span class="s1">&#39;approved&#39;</span>
+    <span class="n">REJECTED</span> <span class="o">=</span> <span class="s1">&#39;rejected&#39;</span>
+    <span class="n">SCHEDULED</span> <span class="o">=</span> <span class="s1">&#39;scheduled&#39;</span>
+    <span class="n">MAINTENANCE</span> <span class="o">=</span> <span class="s1">&#39;maintenance&#39;</span>
+    <span class="n">UPDATE</span> <span class="o">=</span> <span class="s1">&#39;update&#39;</span></div>
+
+
+<div class="viewcode-block" id="ICONPRepStatus"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ICONPRepStatus</span><span class="p">:</span>
+    <span class="n">PREP_STATUS_ACTIVE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">PREP_STATUS_UNREGISTERED</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PREP_STATUS_DISQUALIFIED</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">PREP_LAST_STATE_NONE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">PREP_LAST_STATE_READY</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PREP_LAST_STATE_SUCCESS</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">PREP_LAST_STATE_FAILURE</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="n">PREP_STATUS_DESCRIPTIONS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">PREP_STATUS_ACTIVE</span><span class="p">:</span> <span class="s2">&quot;active&quot;</span><span class="p">,</span>
+        <span class="n">PREP_STATUS_UNREGISTERED</span><span class="p">:</span> <span class="s2">&quot;unregistered&quot;</span><span class="p">,</span>
+        <span class="n">PREP_STATUS_DISQUALIFIED</span><span class="p">:</span> <span class="s2">&quot;disqualified&quot;</span>
+    <span class="p">}</span>
+
+    <span class="n">PREP_LAST_STATE_DESCRIPTIONS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">PREP_LAST_STATE_NONE</span><span class="p">:</span>  <span class="kc">None</span><span class="p">,</span>
+        <span class="n">PREP_LAST_STATE_READY</span><span class="p">:</span> <span class="s2">&quot;Ready&quot;</span><span class="p">,</span>
+        <span class="n">PREP_LAST_STATE_SUCCESS</span><span class="p">:</span> <span class="s2">&quot;Success&quot;</span><span class="p">,</span>
+        <span class="n">PREP_LAST_STATE_FAILURE</span><span class="p">:</span> <span class="s2">&quot;Failure&quot;</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="ICONPRepStatus.get_status"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.get_status">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_status</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">status_type</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the description of the given P-Rep status type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">PREP_STATUS_DESCRIPTIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status_type</span><span class="p">,</span> <span class="s2">&quot;Unknown P-Rep status&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ICONPRepStatus.get_last_state"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.ICONPRepStatus.get_last_state">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_last_state</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the description of the given P-Rep last state type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">PREP_LAST_STATE_DESCRIPTIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;Unknown P-Rep last state&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ICONPenaltyType"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ICONPenaltyType</span><span class="p">:</span>
+    <span class="n">PENALTY_TYPE_NO_PENALTY</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">PENALTY_TYPE_PREP_DISQUALIFICATION</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">PENALTY_TYPE_VALIDATION_FAILURE</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">PENALTY_TYPE_DOUBLE_SIGN</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="n">PENALTY_TYPE_DESCRIPTIONS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">PENALTY_TYPE_NO_PENALTY</span><span class="p">:</span> <span class="s2">&quot;No penalty&quot;</span><span class="p">,</span>
+        <span class="n">PENALTY_TYPE_PREP_DISQUALIFICATION</span><span class="p">:</span> <span class="s2">&quot;P-Rep disqualification penalty&quot;</span><span class="p">,</span>
+        <span class="n">PENALTY_TYPE_ACCUMULATED_BLOCK_VALIDATION_FAILURE</span><span class="p">:</span> <span class="s2">&quot;Accumulated block validation failure penalty&quot;</span><span class="p">,</span>
+        <span class="n">PENALTY_TYPE_VALIDATION_FAILURE</span><span class="p">:</span> <span class="s2">&quot;Validation failure penalty&quot;</span><span class="p">,</span>
+        <span class="n">PENALTY_TYPE_MISSED_NETWORK_PROPOSAL_VOTE</span><span class="p">:</span> <span class="s2">&quot;Missed Network Proposal vote penalty&quot;</span><span class="p">,</span>
+        <span class="n">PENALTY_TYPE_DOUBLE_SIGN</span><span class="p">:</span> <span class="s2">&quot;Double sign penalty&quot;</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="ICONPenaltyType.get_penalty"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.get_penalty">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_penalty</span><span class="p">(</span><span class="n">penalty_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the description of the given penalty type.</span>
+<span class="sd">        :param penalty_type: The penalty type ID.</span>
+<span class="sd">        :return: Description string of the penalty type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">penalty_type</span> <span class="o">=</span> <span class="n">ICONPenaltyType</span><span class="o">.</span><span class="n">convert_to_int</span><span class="p">(</span><span class="n">penalty_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ICONPenaltyType</span><span class="o">.</span><span class="n">PENALTY_TYPE_DESCRIPTIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">penalty_type</span><span class="p">,</span> <span class="s2">&quot;Unknown penalty type&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ICONPenaltyType.convert_to_int"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.ICONPenaltyType.convert_to_int">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_to_int</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;0x&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div></div>
+
+
+<div class="viewcode-block" id="ICONJailFlags"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.ICONJailFlags">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ICONJailFlags</span><span class="p">:</span>
+    <span class="n">ICON_IN_JAIL</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ICON_UN_JAILING</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ICON_ACCUMULATED_VALIDATION_FAILURE</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">ICON_DOUBLE_SIGN</span> <span class="o">=</span> <span class="mi">8</span>
+
+    <span class="n">FLAGS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;inJail&#39;</span><span class="p">:</span> <span class="n">ICON_IN_JAIL</span><span class="p">,</span>
+        <span class="s1">&#39;unJailing&#39;</span><span class="p">:</span> <span class="n">ICON_UN_JAILING</span><span class="p">,</span>
+        <span class="s1">&#39;accumulatedValidationFailure&#39;</span><span class="p">:</span> <span class="n">ICON_ACCUMULATED_VALIDATION_FAILURE</span><span class="p">,</span>
+        <span class="s1">&#39;doubleSign&#39;</span><span class="p">:</span> <span class="n">ICON_DOUBLE_SIGN</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="ICONJailFlags.get_jail_flags"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.ICONJailFlags.get_jail_flags">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_jail_flags</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Analyze the given value for jail flags and return the result as a list or string.</span>
+
+<span class="sd">        :param value: Integer value representing the jail flags.</span>
+<span class="sd">        :param return_type: Return type, either &quot;list&quot; (default) or &quot;str&quot;.</span>
+<span class="sd">        :return: A list of flag names or a comma-separated string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">ICONPenaltyType</span><span class="o">.</span><span class="n">convert_to_int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">analysis_result</span> <span class="o">=</span> <span class="p">[</span><span class="n">flag_name</span> <span class="k">for</span> <span class="n">flag_name</span><span class="p">,</span> <span class="n">flag_value</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&amp;</span> <span class="n">flag_value</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">return_type</span> <span class="o">==</span> <span class="s2">&quot;str&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">analysis_result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">analysis_result</span></div></div>
+
+<div class="viewcode-block" id="SpecialCharacterConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.SpecialCharacterConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SpecialCharacterConstants</span><span class="p">:</span>
+    <span class="n">SPECIAL_CHARACTERS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;_*[]()~`&gt;#+-=|</span><span class="si">{}</span><span class="s2">.!</span><span class="se">\\</span><span class="s2">&quot;</span>
+    <span class="n">ALL_SPECIAL_CHARACTERS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;!@#$%^&amp;*()_+-=[]</span><span class="si">{}</span><span class="s2">|;:&#39;</span><span class="se">\&quot;</span><span class="s2">,.&lt;&gt;?/&quot;</span></div>
+
+
+<div class="viewcode-block" id="HTTPConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.HTTPConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">HTTPConstants</span><span class="p">:</span>
+<div class="viewcode-block" id="HTTPConstants.Headers"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.HTTPConstants.Headers">[docs]</a>    <span class="k">class</span><span class="w"> </span><span class="nc">Headers</span><span class="p">:</span>
+        <span class="n">CONTENT_TYPE</span> <span class="o">=</span> <span class="s2">&quot;Content-Type&quot;</span>
+        <span class="n">AUTHORIZATION</span> <span class="o">=</span> <span class="s2">&quot;Authorization&quot;</span>
+        <span class="n">USER_AGENT</span> <span class="o">=</span> <span class="s2">&quot;User-Agent&quot;</span>
+        <span class="n">ACCEPT</span> <span class="o">=</span> <span class="s2">&quot;Accept&quot;</span>
+        <span class="n">ACCEPT_LANGUAGE</span> <span class="o">=</span> <span class="s2">&quot;Accept-Language&quot;</span>
+        <span class="n">CACHE_CONTROL</span> <span class="o">=</span> <span class="s2">&quot;Cache-Control&quot;</span>
+        <span class="n">SET_COOKIE</span> <span class="o">=</span> <span class="s2">&quot;Set-Cookie&quot;</span>
+        <span class="n">REFERER</span> <span class="o">=</span> <span class="s2">&quot;Referer&quot;</span>
+        <span class="n">ORIGIN</span> <span class="o">=</span> <span class="s2">&quot;Origin&quot;</span>
+        <span class="n">HOST</span> <span class="o">=</span> <span class="s2">&quot;Host&quot;</span>
+        <span class="n">CONNECTION</span> <span class="o">=</span> <span class="s2">&quot;Connection&quot;</span></div>
+
+<div class="viewcode-block" id="HTTPConstants.MIMEType"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.HTTPConstants.MIMEType">[docs]</a>    <span class="k">class</span><span class="w"> </span><span class="nc">MIMEType</span><span class="p">:</span>
+        <span class="n">APPLICATION_JSON</span> <span class="o">=</span> <span class="s2">&quot;application/json&quot;</span>
+        <span class="n">APPLICATION_XML</span> <span class="o">=</span> <span class="s2">&quot;application/xml&quot;</span>
+        <span class="n">APPLICATION_PDF</span> <span class="o">=</span> <span class="s2">&quot;application/pdf&quot;</span>
+        <span class="n">APPLICATION_OCTET_STREAM</span> <span class="o">=</span> <span class="s2">&quot;application/octet-stream&quot;</span>
+
+        <span class="n">TEXT_PLAIN</span> <span class="o">=</span> <span class="s2">&quot;text/plain&quot;</span>
+        <span class="n">TEXT_HTML</span> <span class="o">=</span> <span class="s2">&quot;text/html&quot;</span>
+        <span class="n">TEXT_CSS</span> <span class="o">=</span> <span class="s2">&quot;text/css&quot;</span>
+        <span class="n">TEXT_JAVASCRIPT</span> <span class="o">=</span> <span class="s2">&quot;text/javascript&quot;</span>
+
+        <span class="n">IMAGE_JPEG</span> <span class="o">=</span> <span class="s2">&quot;image/jpeg&quot;</span>
+        <span class="n">IMAGE_PNG</span> <span class="o">=</span> <span class="s2">&quot;image/png&quot;</span>
+        <span class="n">IMAGE_GIF</span> <span class="o">=</span> <span class="s2">&quot;image/gif&quot;</span>
+        <span class="n">IMAGE_SVG</span> <span class="o">=</span> <span class="s2">&quot;image/svg+xml&quot;</span>
+
+        <span class="n">AUDIO_MP3</span> <span class="o">=</span> <span class="s2">&quot;audio/mpeg&quot;</span>
+        <span class="n">AUDIO_WAV</span> <span class="o">=</span> <span class="s2">&quot;audio/wav&quot;</span>
+
+        <span class="n">VIDEO_MP4</span> <span class="o">=</span> <span class="s2">&quot;video/mp4&quot;</span>
+        <span class="n">VIDEO_WEBM</span> <span class="o">=</span> <span class="s2">&quot;video/webm&quot;</span>
+
+        <span class="n">MULTIPART_FORM_DATA</span> <span class="o">=</span> <span class="s2">&quot;multipart/form-data&quot;</span>
+        <span class="n">APPLICATION_FORM_URLENCODED</span> <span class="o">=</span> <span class="s2">&quot;application/x-www-form-urlencoded&quot;</span></div>
+
+<div class="viewcode-block" id="HTTPConstants.HTTPStatusCodes"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.HTTPConstants.HTTPStatusCodes">[docs]</a>    <span class="k">class</span><span class="w"> </span><span class="nc">HTTPStatusCodes</span><span class="p">:</span>
+        <span class="n">OK</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="n">CREATED</span> <span class="o">=</span> <span class="mi">201</span>
+        <span class="n">ACCEPTED</span> <span class="o">=</span> <span class="mi">202</span>
+        <span class="n">NO_CONTENT</span> <span class="o">=</span> <span class="mi">204</span>
+        <span class="n">BAD_REQUEST</span> <span class="o">=</span> <span class="mi">400</span>
+        <span class="n">UNAUTHORIZED</span> <span class="o">=</span> <span class="mi">401</span>
+        <span class="n">FORBIDDEN</span> <span class="o">=</span> <span class="mi">403</span>
+        <span class="n">NOT_FOUND</span> <span class="o">=</span> <span class="mi">404</span>
+        <span class="n">METHOD_NOT_ALLOWED</span> <span class="o">=</span> <span class="mi">405</span>
+        <span class="n">CONFLICT</span> <span class="o">=</span> <span class="mi">409</span>
+        <span class="n">INTERNAL_SERVER_ERROR</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">BAD_GATEWAY</span> <span class="o">=</span> <span class="mi">502</span>
+        <span class="n">SERVICE_UNAVAILABLE</span> <span class="o">=</span> <span class="mi">503</span></div></div>
+
+
+<div class="viewcode-block" id="DateFormatConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.DateFormatConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">DateFormatConstants</span><span class="p">:</span>
+    <span class="n">ISO_8601</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span>       <span class="c1"># Standard ISO 8601 format (e.g., 2023-09-10T14:32:00)</span>
+    <span class="n">ISO_8601_WITH_MS</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span>  <span class="c1"># ISO 8601 with milliseconds (e.g., 2023-09-10T14:32:00.123456)</span>
+    <span class="n">ISO_8601_WITH_TZ</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S%z&quot;</span>  <span class="c1"># ISO 8601 with timezone (e.g., 2023-09-10T14:32:00+0200)</span>
+
+    <span class="n">HUMAN_READABLE</span> <span class="o">=</span> <span class="s2">&quot;%A, </span><span class="si">%d</span><span class="s2"> %B %Y %I:%M %p&quot;</span>  <span class="c1"># Human-readable format (e.g., Sunday, 10 September 2023 02:32 PM)</span>
+    <span class="n">SIMPLE_DATE</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span>              <span class="c1"># Simple date format (e.g., 2023-09-10)</span>
+    <span class="n">SIMPLE_TIME</span> <span class="o">=</span> <span class="s2">&quot;%H:%M:%S&quot;</span>              <span class="c1"># Simple time format (e.g., 14:32:00)</span>
+    <span class="n">SIMPLE_DATETIME</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span>  <span class="c1"># Simple date and time (e.g., 2023-09-10 14:32:00)</span>
+
+    <span class="n">DATE_WITHOUT_YEAR</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">-%m&quot;</span>           <span class="c1"># Date without the year (e.g., 10-09)</span>
+    <span class="n">TIME_WITHOUT_SECONDS</span> <span class="o">=</span> <span class="s2">&quot;%H:%M&quot;</span>        <span class="c1"># Time without seconds (e.g., 14:32)</span>
+
+    <span class="n">US_DATE</span> <span class="o">=</span> <span class="s2">&quot;%m/</span><span class="si">%d</span><span class="s2">/%Y&quot;</span>                  <span class="c1"># U.S. style date (e.g., 09/10/2023)</span>
+    <span class="n">US_DATE_TIME</span> <span class="o">=</span> <span class="s2">&quot;%m/</span><span class="si">%d</span><span class="s2">/%Y %I:%M %p&quot;</span>    <span class="c1"># U.S. style date with 12-hour time (e.g., 09/10/2023 02:32 PM)</span>
+
+    <span class="n">UK_DATE</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span>                  <span class="c1"># UK style date (e.g., 10/09/2023)</span>
+    <span class="n">UK_DATE_TIME</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y %H:%M:%S&quot;</span>    <span class="c1"># UK style date with time (e.g., 10/09/2023 14:32:00)</span>
+
+    <span class="c1"># Unix Timestamp Formats</span>
+    <span class="n">UNIX_TIMESTAMP_SECONDS</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span>         <span class="c1"># Unix timestamp (seconds since epoch)</span>
+    <span class="n">UNIX_TIMESTAMP_MS</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2">&quot;</span>              <span class="c1"># Unix timestamp with milliseconds</span>
+
+    <span class="c1"># Custom Formats</span>
+    <span class="n">YEAR_ONLY</span> <span class="o">=</span> <span class="s2">&quot;%Y&quot;</span>                      <span class="c1"># Year only (e.g., 2023)</span>
+    <span class="n">MONTH_YEAR</span> <span class="o">=</span> <span class="s2">&quot;%B %Y&quot;</span>                  <span class="c1"># Month and year (e.g., September 2023)</span>
+    <span class="n">DAY_MONTH</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %B&quot;</span>                   <span class="c1"># Day and month (e.g., 10 September)</span>
+    <span class="n">TIME_12_HOUR</span> <span class="o">=</span> <span class="s2">&quot;%I:%M %p&quot;</span>             <span class="c1"># 12-hour format time (e.g., 02:32 PM)</span>
+    <span class="n">TIME_24_HOUR</span> <span class="o">=</span> <span class="s2">&quot;%H:%M:%S&quot;</span>             <span class="c1"># 24-hour format time (e.g., 14:32:00)</span></div>
+
+
+<div class="viewcode-block" id="StringConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.StringConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">StringConstants</span><span class="p">:</span>
+    <span class="n">EMPTY_STRING</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">SPACE</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span>
+    <span class="n">UNDERSCORE</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span>
+    <span class="n">DASH</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span>
+    <span class="n">COLON</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span>
+    <span class="n">SEMICOLON</span> <span class="o">=</span> <span class="s2">&quot;;&quot;</span>
+    <span class="n">COMMA</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span>
+    <span class="n">PERIOD</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+    <span class="n">PIPE</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span>
+    <span class="n">NEWLINE</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">TAB</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="FilePermissionConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.FilePermissionConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">FilePermissionConstants</span><span class="p">:</span>
+    <span class="n">READ_ONLY</span> <span class="o">=</span> <span class="s2">&quot;r&quot;</span>
+    <span class="n">WRITE_ONLY</span> <span class="o">=</span> <span class="s2">&quot;w&quot;</span>
+    <span class="n">READ_WRITE</span> <span class="o">=</span> <span class="s2">&quot;r+&quot;</span>
+    <span class="n">APPEND</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span>
+    <span class="n">BINARY_READ</span> <span class="o">=</span> <span class="s2">&quot;rb&quot;</span>
+    <span class="n">BINARY_WRITE</span> <span class="o">=</span> <span class="s2">&quot;wb&quot;</span>
+    <span class="n">BINARY_READ_WRITE</span> <span class="o">=</span> <span class="s2">&quot;r+b&quot;</span>
+    <span class="n">BINARY_APPEND</span> <span class="o">=</span> <span class="s2">&quot;ab&quot;</span></div>
+
+
+<div class="viewcode-block" id="RegexPatternConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.RegexPatternConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RegexPatternConstants</span><span class="p">:</span>
+    <span class="n">PATTERN_EMAIL</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$&quot;</span>
+    <span class="n">PATTERN_URL</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^(https?|ftp)://[^\s/$.?#].[^\s]*$&quot;</span>
+    <span class="n">PATTERN_PHONE</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\+?1?\d{9,15}$&quot;</span>
+    <span class="n">PATTERN_POSTAL_CODE</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">(?:[-\s]\d</span><span class="si">{4}</span><span class="s2">)?$&quot;</span>
+    <span class="n">PATTERN_IP_ADDRESS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^(?!.*\.$)(25[0-5]|2[0-4]\d|1\d</span><span class="si">{2}</span><span class="s2">|[1-9]?\d|0)(\.(25[0-5]|2[0-4]\d|1\d</span><span class="si">{2}</span><span class="s2">|[1-9]?\d|0))</span><span class="si">{3}</span><span class="s2">$&quot;</span>
+    <span class="n">PATTERN_IP_ADDRESS_IN_LOG</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\b(?:[0-9]{1,3}\.)</span><span class="si">{3}</span><span class="s2">[0-9]{1,3}\b&quot;</span>
+    <span class="n">PATTERN_CREDIT_CARD</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^(?:4[0-9]</span><span class="si">{12}</span><span class="s2">(?:[0-9]</span><span class="si">{3}</span><span class="s2">)?|5[1-5][0-9]</span><span class="si">{14}</span><span class="s2">|3[47][0-9]</span><span class="si">{13}</span><span class="s2">)$&quot;</span>
+    <span class="n">PATTERN_IPV6_ADDRESS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^([0-9a-fA-F]{1,4}:)</span><span class="si">{7}</span><span class="s2">([0-9a-fA-F]{1,4}|:)$&quot;</span>
+    <span class="n">PATTERN_HTML_TAG</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&lt;(</span><span class="se">\&quot;</span><span class="s2">[^</span><span class="se">\&quot;</span><span class="s2">]*</span><span class="se">\&quot;</span><span class="s2">|&#39;[^&#39;]*&#39;|[^&#39;</span><span class="se">\&quot;</span><span class="s2">&gt;])*&gt;&quot;</span>
+    <span class="n">PATTERN_SLUG</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^[a-z0-9]+(?:-[a-z0-9]+)*$&quot;</span>  <span class="c1"># Matches URL slugs (e.g., valid-slug, another-slug)</span>
+    <span class="n">PATTERN_INTEGER</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^-?\d+$&quot;</span>  <span class="c1"># Matches integers, both positive and negative (e.g., 123, -456)</span>
+    <span class="n">PATTERN_FLOAT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^-?\d*(\.\d+)?$&quot;</span>  <span class="c1"># Matches floating point numbers, both positive and negative (e.g., 123.45, -678.90)</span>
+    <span class="n">PATTERN_DATE_YYYY_MM_DD</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">$&quot;</span>  <span class="c1"># Matches date format YYYY-MM-DD (e.g., 2023-09-10)</span>
+    <span class="n">PATTERN_TIME_HH_MM_SS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{2}</span><span class="s2">:\d</span><span class="si">{2}</span><span class="s2">:\d</span><span class="si">{2}</span><span class="s2">$&quot;</span>  <span class="c1"># Matches time format HH:MM:SS (e.g., 14:32:00)</span></div>
+
+
+<div class="viewcode-block" id="TimeConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.TimeConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TimeConstants</span><span class="p">:</span>
+    <span class="n">MINUTE_IN_SECONDS</span> <span class="o">=</span> <span class="mi">60</span>
+    <span class="n">HOUR_IN_SECONDS</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="n">MINUTE_IN_SECONDS</span>
+    <span class="n">DAY_IN_SECONDS</span> <span class="o">=</span> <span class="mi">24</span> <span class="o">*</span> <span class="n">HOUR_IN_SECONDS</span>
+    <span class="n">WEEK_IN_SECONDS</span> <span class="o">=</span> <span class="mi">7</span> <span class="o">*</span> <span class="n">DAY_IN_SECONDS</span>
+    <span class="n">MONTH_IN_SECONDS</span> <span class="o">=</span> <span class="mi">30</span> <span class="o">*</span> <span class="n">DAY_IN_SECONDS</span>
+    <span class="n">YEAR_IN_SECONDS</span> <span class="o">=</span> <span class="mi">365</span> <span class="o">*</span> <span class="n">DAY_IN_SECONDS</span>
+
+    <span class="n">MILLISECOND_IN_SECONDS</span> <span class="o">=</span> <span class="mf">0.001</span>
+    <span class="n">MICROSECOND_IN_SECONDS</span> <span class="o">=</span> <span class="mf">0.000001</span>
+    <span class="n">NANOSECOND_IN_SECONDS</span> <span class="o">=</span> <span class="mf">0.000000001</span>
+
+    <span class="n">HOUR_IN_MINUTES</span> <span class="o">=</span> <span class="mi">60</span>
+    <span class="n">DAY_IN_MINUTES</span> <span class="o">=</span> <span class="n">HOUR_IN_MINUTES</span> <span class="o">*</span> <span class="mi">24</span>
+    <span class="n">WEEK_IN_MINUTES</span> <span class="o">=</span> <span class="mi">7</span> <span class="o">*</span> <span class="n">DAY_IN_MINUTES</span>
+    <span class="n">MONTH_IN_MINUTES</span> <span class="o">=</span> <span class="mi">30</span> <span class="o">*</span> <span class="n">DAY_IN_MINUTES</span>
+    <span class="n">YEAR_IN_MINUTES</span> <span class="o">=</span> <span class="mi">365</span> <span class="o">*</span> <span class="n">DAY_IN_MINUTES</span></div>
+
+
+<div class="viewcode-block" id="BooleanConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.BooleanConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">BooleanConstants</span><span class="p">:</span>
+    <span class="n">TRUE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">FALSE</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="NumericConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.NumericConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NumericConstants</span><span class="p">:</span>
+    <span class="n">TINT</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">18</span>
+    <span class="n">ICX_IN_LOOP</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">18</span>
+    <span class="n">EXA</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">18</span>
+    <span class="n">PETA</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">15</span>
+    <span class="n">TERA</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">12</span>
+    <span class="n">GIGA</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">9</span>
+    <span class="n">MEGA</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">6</span>
+    <span class="n">KILO</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">3</span>
+    <span class="n">MILLI</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="o">-</span><span class="mi">3</span>
+    <span class="n">MICRO</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="o">-</span><span class="mi">6</span>
+    <span class="n">NANO</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="o">-</span><span class="mi">9</span>
+    <span class="n">SQRT_2</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="mf">0.5</span>
+    <span class="n">EULER_MASCHERONI</span> <span class="o">=</span> <span class="mf">0.57721</span>  <span class="c1"># Euler-Mascheroni</span>
+    <span class="n">PI</span> <span class="o">=</span> <span class="mf">3.14159</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="mf">2.71828</span>
+    <span class="n">GOLDEN_RATIO</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="UnitMultiplierConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.UnitMultiplierConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">UnitMultiplierConstants</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Constants for data transfer units with standardized multipliers for conversions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">BPS</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">KBPS</span> <span class="o">=</span> <span class="mi">1024</span>
+    <span class="n">MBPS</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">GBPS</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">**</span> <span class="mi">3</span>
+    <span class="n">TBPS</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">**</span> <span class="mi">4</span>
+    <span class="n">BITS_PER_SECOND</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">8</span>
+    <span class="n">KILOBITS_PER_SECOND</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">/</span> <span class="mi">8</span>
+    <span class="n">MEGABITS_PER_SECOND</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">8</span>
+    <span class="n">GIGABITS_PER_SECOND</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mi">8</span>
+    <span class="n">TERABITS_PER_SECOND</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="mi">8</span>
+
+    <span class="n">UNIT_MULTIPLIERS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;B/s&quot;</span><span class="p">:</span> <span class="n">BPS</span><span class="p">,</span>
+        <span class="s2">&quot;KB/s&quot;</span><span class="p">:</span> <span class="n">KBPS</span><span class="p">,</span>
+        <span class="s2">&quot;MB/s&quot;</span><span class="p">:</span> <span class="n">MBPS</span><span class="p">,</span>
+        <span class="s2">&quot;GB/s&quot;</span><span class="p">:</span> <span class="n">GBPS</span><span class="p">,</span>
+        <span class="s2">&quot;TB/s&quot;</span><span class="p">:</span> <span class="n">TBPS</span><span class="p">,</span>
+        <span class="s2">&quot;bps&quot;</span><span class="p">:</span> <span class="n">BITS_PER_SECOND</span><span class="p">,</span>
+        <span class="s2">&quot;Kbps&quot;</span><span class="p">:</span> <span class="n">KILOBITS_PER_SECOND</span><span class="p">,</span>
+        <span class="s2">&quot;Mbps&quot;</span><span class="p">:</span> <span class="n">MEGABITS_PER_SECOND</span><span class="p">,</span>
+        <span class="s2">&quot;Gbps&quot;</span><span class="p">:</span> <span class="n">GIGABITS_PER_SECOND</span><span class="p">,</span>
+        <span class="s2">&quot;Tbps&quot;</span><span class="p">:</span> <span class="n">TERABITS_PER_SECOND</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="UnitMultiplierConstants.get_unit_multiplier"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.UnitMultiplierConstants.get_unit_multiplier">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_unit_multiplier</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the multiplier for the specified unit.</span>
+
+<span class="sd">        :param unit: The unit (e.g., &quot;MB/s&quot;, &quot;Kbps&quot;).</span>
+<span class="sd">        :return: Multiplier for converting to bytes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">UNIT_MULTIPLIERS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">BPS</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="AddressConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.AddressConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AddressConstants</span><span class="p">:</span>
+    <span class="n">ICON_ADDRESS</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">ICON_ADDRESS_WITHOUT_PREFIX</span> <span class="o">=</span> <span class="mi">40</span>
+    <span class="c1"># CHAIN_SCORE_ADDRESS = f&quot;cx{&#39;0&#39;*39}0&quot;</span>
+    <span class="c1"># GOVERNANCE_ADDRESS = f&quot;cx{&#39;0&#39;*39}1&quot;</span>
+    <span class="n">CHAIN_SCORE_ADDRESS</span> <span class="o">=</span> <span class="s2">&quot;cx0000000000000000000000000000000000000000&quot;</span>
+    <span class="n">GOVERNANCE_ADDRESS</span> <span class="o">=</span> <span class="s2">&quot;cx0000000000000000000000000000000000000001&quot;</span>
+    <span class="n">ETH_ADDRESS</span> <span class="o">=</span> <span class="mi">40</span>  <span class="c1"># Ethereum address length without &#39;0x&#39; prefix</span>
+    <span class="n">ETH_ADDRESS_WITH_PREFIX</span> <span class="o">=</span> <span class="mi">42</span>  <span class="c1"># Ethereum address length with &#39;0x&#39; prefix</span>
+    <span class="n">BTC_ADDRESS_P2PKH</span> <span class="o">=</span> <span class="mi">34</span>  <span class="c1"># Bitcoin P2PKH address length</span>
+    <span class="n">BTC_ADDRESS_BECH32</span> <span class="o">=</span> <span class="mi">42</span>  <span class="c1"># Bitcoin Bech32 address length</span></div>
+
+
+<div class="viewcode-block" id="TimeStampDigits"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.TimeStampDigits">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TimeStampDigits</span><span class="p">:</span>
+    <span class="n">SECONDS_DIGITS</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">MILLI_SECONDS_DIGITS</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">MICRO_SECONDS_DIGITS</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">NANO_SECONDS_DIGITS</span> <span class="o">=</span> <span class="mi">19</span>
+    <span class="n">PICO_SECONDS_DIGITS</span> <span class="o">=</span> <span class="mi">22</span>
+    <span class="n">FEMTO_SECONDS_DIGITS</span> <span class="o">=</span> <span class="mi">25</span></div>
+
+
+<div class="viewcode-block" id="ICONConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.ICONConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ICONConstants</span><span class="p">:</span>
+    <span class="n">ICON_METHODS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;cx0000000000000000000000000000000000000001&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;getRevision&quot;</span><span class="p">,</span> <span class="s2">&quot;getVersion&quot;</span><span class="p">,</span> <span class="s2">&quot;getStepPrice&quot;</span><span class="p">,</span> <span class="s2">&quot;getStepCosts&quot;</span><span class="p">,</span> <span class="s2">&quot;getMaxStepLimit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getScoreStatus&quot;</span><span class="p">,</span> <span class="s2">&quot;acceptScore&quot;</span><span class="p">,</span> <span class="s2">&quot;rejectScore&quot;</span><span class="p">,</span> <span class="s2">&quot;addAuditor&quot;</span><span class="p">,</span> <span class="s2">&quot;removeAuditor&quot;</span><span class="p">,</span> <span class="s2">&quot;isInScoreBlackList&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getProposal&quot;</span><span class="p">,</span> <span class="s2">&quot;getProposals&quot;</span><span class="p">,</span> <span class="s2">&quot;registerProposal&quot;</span><span class="p">,</span> <span class="s2">&quot;voteProposal&quot;</span><span class="p">,</span> <span class="s2">&quot;applyProposal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cancelProposal&quot;</span><span class="p">,</span> <span class="s2">&quot;onTimer&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;cx0000000000000000000000000000000000000000&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;disableScore&quot;</span><span class="p">,</span> <span class="s2">&quot;enableScore&quot;</span><span class="p">,</span> <span class="s2">&quot;acceptScore&quot;</span><span class="p">,</span> <span class="s2">&quot;rejectScore&quot;</span><span class="p">,</span> <span class="s2">&quot;blockScore&quot;</span><span class="p">,</span> <span class="s2">&quot;unblockScore&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getBlockedScores&quot;</span><span class="p">,</span> <span class="s2">&quot;blockAccount&quot;</span><span class="p">,</span> <span class="s2">&quot;unblockAccount&quot;</span><span class="p">,</span> <span class="s2">&quot;isBlocked&quot;</span><span class="p">,</span> <span class="s2">&quot;setRevision&quot;</span><span class="p">,</span> <span class="s2">&quot;setStepPrice&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setStepCost&quot;</span><span class="p">,</span> <span class="s2">&quot;setMaxStepLimit&quot;</span><span class="p">,</span> <span class="s2">&quot;getRevision&quot;</span><span class="p">,</span> <span class="s2">&quot;getStepPrice&quot;</span><span class="p">,</span> <span class="s2">&quot;getStepCost&quot;</span><span class="p">,</span> <span class="s2">&quot;getStepCosts&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getMaxStepLimit&quot;</span><span class="p">,</span> <span class="s2">&quot;getScoreStatus&quot;</span><span class="p">,</span> <span class="s2">&quot;getServiceConfig&quot;</span><span class="p">,</span> <span class="s2">&quot;getFeeSharingConfig&quot;</span><span class="p">,</span> <span class="s2">&quot;getNetworkInfo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getIISSInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;setStake&quot;</span><span class="p">,</span> <span class="s2">&quot;getStake&quot;</span><span class="p">,</span> <span class="s2">&quot;setDelegation&quot;</span><span class="p">,</span> <span class="s2">&quot;getDelegation&quot;</span><span class="p">,</span> <span class="s2">&quot;claimIScore&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;queryIScore&quot;</span><span class="p">,</span> <span class="s2">&quot;registerPRep&quot;</span><span class="p">,</span> <span class="s2">&quot;getPRep&quot;</span><span class="p">,</span> <span class="s2">&quot;unregisterPRep&quot;</span><span class="p">,</span> <span class="s2">&quot;setPRep&quot;</span><span class="p">,</span> <span class="s2">&quot;getPReps&quot;</span><span class="p">,</span> <span class="s2">&quot;getMainPReps&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getSubPReps&quot;</span><span class="p">,</span> <span class="s2">&quot;setBond&quot;</span><span class="p">,</span> <span class="s2">&quot;getBond&quot;</span><span class="p">,</span> <span class="s2">&quot;setBonderList&quot;</span><span class="p">,</span> <span class="s2">&quot;getBonderList&quot;</span><span class="p">,</span> <span class="s2">&quot;estimateUnstakeLockPeriod&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getPRepTerm&quot;</span><span class="p">,</span> <span class="s2">&quot;getPRepStats&quot;</span><span class="p">,</span> <span class="s2">&quot;getPRepStatsOf&quot;</span><span class="p">,</span> <span class="s2">&quot;disqualifyPRep&quot;</span><span class="p">,</span> <span class="s2">&quot;burn&quot;</span><span class="p">,</span> <span class="s2">&quot;validateRewardFund&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setRewardFund&quot;</span><span class="p">,</span> <span class="s2">&quot;setRewardFundAllocation2&quot;</span><span class="p">,</span> <span class="s2">&quot;getScoreOwner&quot;</span><span class="p">,</span> <span class="s2">&quot;setScoreOwner&quot;</span><span class="p">,</span> <span class="s2">&quot;setNetworkScore&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getNetworkScores&quot;</span><span class="p">,</span> <span class="s2">&quot;addTimer&quot;</span><span class="p">,</span> <span class="s2">&quot;removeTimer&quot;</span><span class="p">,</span> <span class="s2">&quot;penalizeNonvoters&quot;</span><span class="p">,</span> <span class="s2">&quot;setSlashingRates&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getSlashingRates&quot;</span><span class="p">,</span> <span class="s2">&quot;setUseSystemDeposit&quot;</span><span class="p">,</span> <span class="s2">&quot;getUseSystemDeposit&quot;</span><span class="p">,</span> <span class="s2">&quot;getBTPNetworkTypeID&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getPRepNodePublicKey&quot;</span><span class="p">,</span> <span class="s2">&quot;setPRepNodePublicKey&quot;</span><span class="p">,</span> <span class="s2">&quot;registerPRepNodePublicKey&quot;</span><span class="p">,</span> <span class="s2">&quot;openBTPNetwork&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;closeBTPNetwork&quot;</span><span class="p">,</span> <span class="s2">&quot;sendBTPMessage&quot;</span><span class="p">,</span> <span class="s2">&quot;getMinimumBond&quot;</span><span class="p">,</span> <span class="s2">&quot;setMinimumBond&quot;</span><span class="p">,</span> <span class="s2">&quot;initCommissionRate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setCommissionRate&quot;</span><span class="p">,</span> <span class="s2">&quot;requestUnjail&quot;</span><span class="p">,</span> <span class="s2">&quot;handleDoubleSignReport&quot;</span><span class="p">,</span> <span class="s2">&quot;setPRepCountConfig&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getPRepCountConfig&quot;</span><span class="p">,</span> <span class="s2">&quot;setBondRequirementRate&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="HAVAHConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.HAVAHConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">HAVAHConstants</span><span class="p">:</span>
+    <span class="n">HAVAH_METHODS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;cx0000000000000000000000000000000000000001&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;setRevision&quot;</span><span class="p">,</span> <span class="s2">&quot;setStepPrice&quot;</span><span class="p">,</span> <span class="s2">&quot;setStepCost&quot;</span><span class="p">,</span> <span class="s2">&quot;setMaxStepLimit&quot;</span><span class="p">,</span> <span class="s2">&quot;grantValidator&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;revokeValidator&quot;</span><span class="p">,</span> <span class="s2">&quot;setTimestampThreshold&quot;</span><span class="p">,</span> <span class="s2">&quot;setRoundLimitFactor&quot;</span><span class="p">,</span> <span class="s2">&quot;setUSDTPrice&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setUSDTPriceOracle&quot;</span><span class="p">,</span> <span class="s2">&quot;getUSDTPriceOracle&quot;</span><span class="p">,</span> <span class="s2">&quot;addPlanetManager&quot;</span><span class="p">,</span> <span class="s2">&quot;removePlanetManager&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;startRewardIssue&quot;</span><span class="p">,</span> <span class="s2">&quot;setPrivateClaimableRate&quot;</span><span class="p">,</span> <span class="s2">&quot;withdrawLostTo&quot;</span><span class="p">,</span> <span class="s2">&quot;registerValidator&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;enableValidator&quot;</span><span class="p">,</span> <span class="s2">&quot;unregisterValidator&quot;</span><span class="p">,</span> <span class="s2">&quot;setBlockVoteCheckParameters&quot;</span><span class="p">,</span> <span class="s2">&quot;setActiveValidatorCount&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;openBTPNetwork&quot;</span><span class="p">,</span> <span class="s2">&quot;delegate&quot;</span><span class="p">,</span> <span class="s2">&quot;setDelegate&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;cx0000000000000000000000000000000000000000&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;setRevision&quot;</span><span class="p">,</span> <span class="s2">&quot;setStepPrice&quot;</span><span class="p">,</span> <span class="s2">&quot;setStepCost&quot;</span><span class="p">,</span> <span class="s2">&quot;setMaxStepLimit&quot;</span><span class="p">,</span> <span class="s2">&quot;getRevision&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getStepPrice&quot;</span><span class="p">,</span> <span class="s2">&quot;getStepCost&quot;</span><span class="p">,</span> <span class="s2">&quot;getStepCosts&quot;</span><span class="p">,</span> <span class="s2">&quot;getMaxStepLimit&quot;</span><span class="p">,</span> <span class="s2">&quot;getServiceConfig&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getScoreOwner&quot;</span><span class="p">,</span> <span class="s2">&quot;setScoreOwner&quot;</span><span class="p">,</span> <span class="s2">&quot;setRoundLimitFactor&quot;</span><span class="p">,</span> <span class="s2">&quot;getRoundLimitFactor&quot;</span><span class="p">,</span> <span class="s2">&quot;setUSDTPrice&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getUSDTPrice&quot;</span><span class="p">,</span> <span class="s2">&quot;getIssueInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;startRewardIssue&quot;</span><span class="p">,</span> <span class="s2">&quot;addPlanetManager&quot;</span><span class="p">,</span> <span class="s2">&quot;removePlanetManager&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;isPlanetManager&quot;</span><span class="p">,</span> <span class="s2">&quot;registerPlanet&quot;</span><span class="p">,</span> <span class="s2">&quot;unregisterPlanet&quot;</span><span class="p">,</span> <span class="s2">&quot;setPlanetOwner&quot;</span><span class="p">,</span> <span class="s2">&quot;getPlanetInfo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reportPlanetWork&quot;</span><span class="p">,</span> <span class="s2">&quot;claimPlanetReward&quot;</span><span class="p">,</span> <span class="s2">&quot;getRewardInfoOf&quot;</span><span class="p">,</span> <span class="s2">&quot;getRewardInfo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setPrivateClaimableRate&quot;</span><span class="p">,</span> <span class="s2">&quot;getPrivateClaimableRate&quot;</span><span class="p">,</span> <span class="s2">&quot;addDeployer&quot;</span><span class="p">,</span> <span class="s2">&quot;removeDeployer&quot;</span><span class="p">,</span> <span class="s2">&quot;isDeployer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getDeployers&quot;</span><span class="p">,</span> <span class="s2">&quot;setTimestampThreshold&quot;</span><span class="p">,</span> <span class="s2">&quot;getTimestampThreshold&quot;</span><span class="p">,</span> <span class="s2">&quot;grantValidator&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;revokeValidator&quot;</span><span class="p">,</span> <span class="s2">&quot;getValidators&quot;</span><span class="p">,</span> <span class="s2">&quot;getRewardInfosOf&quot;</span><span class="p">,</span> <span class="s2">&quot;withdrawLostTo&quot;</span><span class="p">,</span> <span class="s2">&quot;getLost&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getBTPNetworkTypeID&quot;</span><span class="p">,</span> <span class="s2">&quot;getBTPPublicKey&quot;</span><span class="p">,</span> <span class="s2">&quot;openBTPNetwork&quot;</span><span class="p">,</span> <span class="s2">&quot;closeBTPNetwork&quot;</span><span class="p">,</span> <span class="s2">&quot;sendBTPMessage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setBTPPublicKey&quot;</span><span class="p">,</span> <span class="s2">&quot;setBlockVoteCheckParameters&quot;</span><span class="p">,</span> <span class="s2">&quot;getBlockVoteCheckParameters&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;registerValidator&quot;</span><span class="p">,</span> <span class="s2">&quot;unregisterValidator&quot;</span><span class="p">,</span> <span class="s2">&quot;getNetworkStatus&quot;</span><span class="p">,</span> <span class="s2">&quot;setValidatorInfo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setNodePublicKey&quot;</span><span class="p">,</span> <span class="s2">&quot;enableValidator&quot;</span><span class="p">,</span> <span class="s2">&quot;getValidatorInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;getValidatorStatus&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setActiveValidatorCount&quot;</span><span class="p">,</span> <span class="s2">&quot;getActiveValidatorCount&quot;</span><span class="p">,</span> <span class="s2">&quot;getValidatorsOf&quot;</span><span class="p">,</span> <span class="s2">&quot;getValidatorsInfo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getDisqualifiedValidatorsInfo&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="CryptographicConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.CryptographicConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CryptographicConstants</span><span class="p">:</span>
+    <span class="n">SHA256_DIGEST_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">SHA3_256_DIGEST_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">KECCAK_256_DIGEST_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">SECP256K1_PRIVATE_KEY_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">SECP256K1_PUBLIC_KEY_SIZE</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">SECP256K1_SIGNATURE_SIZE</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">ED25519_PRIVATE_KEY_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">ED25519_PUBLIC_KEY_SIZE</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">ED25519_SIGNATURE_SIZE</span> <span class="o">=</span> <span class="mi">64</span></div>
+
+
+<div class="viewcode-block" id="NetworkConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.NetworkConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NetworkConstants</span><span class="p">:</span>
+    <span class="n">DEFAULT_HTTP_PORT</span> <span class="o">=</span> <span class="mi">80</span>
+    <span class="n">DEFAULT_HTTPS_PORT</span> <span class="o">=</span> <span class="mi">443</span>
+    <span class="n">DEFAULT_ICON_RPC_PORT</span> <span class="o">=</span> <span class="mi">9000</span>
+    <span class="n">DEFAULT_ICON_P2P_PORT</span> <span class="o">=</span> <span class="mi">7100</span>
+    <span class="n">DEFAULT_ETHEREUM_PORT</span> <span class="o">=</span> <span class="mi">8545</span>
+    <span class="n">DEFAULT_BITCOIN_PORT</span> <span class="o">=</span> <span class="mi">8333</span>
+    <span class="n">LOCALHOST</span> <span class="o">=</span> <span class="s2">&quot;127.0.0.1&quot;</span>
+    <span class="n">LOCALHOST_IPV6</span> <span class="o">=</span> <span class="s2">&quot;::1&quot;</span>
+    <span class="n">IPV4_LOOPBACK</span> <span class="o">=</span> <span class="s2">&quot;127.0.0.1&quot;</span>
+    <span class="n">IPV6_LOOPBACK</span> <span class="o">=</span> <span class="s2">&quot;::1&quot;</span>
+    <span class="n">IPV4_BROADCAST</span> <span class="o">=</span> <span class="s2">&quot;255.255.255.255&quot;</span>
+    <span class="n">IPV6_BROADCAST</span> <span class="o">=</span> <span class="s2">&quot;ff02::1&quot;</span>
+    <span class="n">MAC_ADDRESS_BROADCAST</span> <span class="o">=</span> <span class="s2">&quot;ff:ff:ff:ff:ff:ff&quot;</span>
+    <span class="n">METADATA_IP</span> <span class="o">=</span> <span class="s2">&quot;169.254.169.254&quot;</span></div>
+
+
+<div class="viewcode-block" id="AWSRegionConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.AWSRegionConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AWSRegionConstants</span><span class="p">:</span>
+    <span class="n">REGIONS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;us-east-1&quot;</span><span class="p">:</span> <span class="s2">&quot;US East (N. Virginia)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;us-east-2&quot;</span><span class="p">:</span> <span class="s2">&quot;US East (Ohio)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;us-west-1&quot;</span><span class="p">:</span> <span class="s2">&quot;US West (N. California)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;us-west-2&quot;</span><span class="p">:</span> <span class="s2">&quot;US West (Oregon)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ca-central-1&quot;</span><span class="p">:</span> <span class="s2">&quot;Canada (Central)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eu-west-1&quot;</span><span class="p">:</span> <span class="s2">&quot;EU (Ireland)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eu-west-2&quot;</span><span class="p">:</span> <span class="s2">&quot;EU (London)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eu-west-3&quot;</span><span class="p">:</span> <span class="s2">&quot;EU (Paris)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eu-central-1&quot;</span><span class="p">:</span> <span class="s2">&quot;EU (Frankfurt)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eu-north-1&quot;</span><span class="p">:</span> <span class="s2">&quot;EU (Stockholm)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eu-south-1&quot;</span><span class="p">:</span> <span class="s2">&quot;EU (Milan)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ap-southeast-1&quot;</span><span class="p">:</span> <span class="s2">&quot;Asia Pacific (Singapore)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ap-southeast-2&quot;</span><span class="p">:</span> <span class="s2">&quot;Asia Pacific (Sydney)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ap-northeast-1&quot;</span><span class="p">:</span> <span class="s2">&quot;Asia Pacific (Tokyo)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ap-northeast-2&quot;</span><span class="p">:</span> <span class="s2">&quot;Asia Pacific (Seoul)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ap-northeast-3&quot;</span><span class="p">:</span> <span class="s2">&quot;Asia Pacific (Osaka)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ap-east-1&quot;</span><span class="p">:</span> <span class="s2">&quot;Asia Pacific (Hong Kong)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ap-south-1&quot;</span><span class="p">:</span> <span class="s2">&quot;Asia Pacific (Mumbai)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sa-east-1&quot;</span><span class="p">:</span> <span class="s2">&quot;South America (São Paulo)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;me-south-1&quot;</span><span class="p">:</span> <span class="s2">&quot;Middle East (Bahrain)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;af-south-1&quot;</span><span class="p">:</span> <span class="s2">&quot;Africa (Cape Town)&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="AWSRegionConstants.region_name"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.AWSRegionConstants.region_name">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">region_name</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the human-readable name of an AWS region based on its code.</span>
+
+<span class="sd">        :param code: AWS region code (e.g., &quot;us-east-1&quot;).</span>
+<span class="sd">        :return: Human-readable region name (e.g., &quot;US East (N. Virginia)&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AWSRegionConstants</span><span class="o">.</span><span class="n">REGIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="s2">&quot;Unknown region&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AWSRegionConstants.region_list"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.AWSRegionConstants.region_list">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">region_list</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of all AWS region codes.</span>
+
+<span class="sd">        :return: List of AWS region codes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">AWSRegionConstants</span><span class="o">.</span><span class="n">REGIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">AWSRegionConstants</span><span class="o">.</span><span class="n">REGIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div></div>
+
+
+<div class="viewcode-block" id="GradeMappingConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.GradeMappingConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">GradeMappingConstants</span><span class="p">:</span>
+    <span class="n">GRADE_MAPPING</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;0x0&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Main&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;[blue]\[Main][/blue]&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;0x1&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sub&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;[green]\[Sub][/green]&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;0x2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Cand&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;[Cand]&quot;</span><span class="p">}</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="GradeMappingConstants.grade_name"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.GradeMappingConstants.grade_name">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grade_name</span><span class="p">(</span><span class="n">grade_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the name associated with the grade code.</span>
+<span class="sd">        :param grade_code: Grade code (e.g., &quot;0x0&quot;).</span>
+<span class="sd">        :return: Grade name (e.g., &quot;Main&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">GradeMappingConstants</span><span class="o">.</span><span class="n">GRADE_MAPPING</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">grade_code</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown grade&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GradeMappingConstants.grade_color"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.GradeMappingConstants.grade_color">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grade_color</span><span class="p">(</span><span class="n">grade_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the color representation associated with the grade code.</span>
+<span class="sd">        :param grade_code: Grade code (e.g., &quot;0x0&quot;).</span>
+<span class="sd">        :return: Color representation (e.g., &quot;[blue]\\[Main][/blue]&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">GradeMappingConstants</span><span class="o">.</span><span class="n">GRADE_MAPPING</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">grade_code</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown color&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="YesNoConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.YesNoConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">YesNoConstants</span><span class="p">:</span>
+    <span class="n">YES_NO_MAPPING</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;0x0&quot;</span><span class="p">:</span> <span class="s2">&quot;no&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;0x1&quot;</span><span class="p">:</span> <span class="s2">&quot;yes&quot;</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="YesNoConstants.yes_no"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.YesNoConstants.yes_no">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">yes_no</span><span class="p">(</span><span class="n">grade_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get &#39;yes&#39; or &#39;no&#39; based on the grade code.</span>
+<span class="sd">        :param grade_code: Grade code (e.g., &quot;0x0&quot; for &#39;no&#39;, &quot;0x1&quot; for &#39;yes&#39;).</span>
+<span class="sd">        :return: &#39;yes&#39; or &#39;no&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">YesNoConstants</span><span class="o">.</span><span class="n">YES_NO_MAPPING</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">grade_code</span><span class="p">,</span> <span class="s2">&quot;Unknown code&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LoggingConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.LoggingConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">LoggingConstants</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Constants related to logging levels and verbosity mappings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">VERBOSE_LEVELS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># 0: logging.CRITICAL,</span>
+        <span class="c1"># 1: logging.ERROR,</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="mi">5</span>
+    <span class="p">}</span>
+
+    <span class="n">VERBOSE_LEVEL_STRINGS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># 0: logging.CRITICAL,</span>
+        <span class="c1"># 1: logging.ERROR,</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;TRACE&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">LOG_LEVELS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+        <span class="s2">&quot;INFO&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+        <span class="s2">&quot;WARNING&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+        <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+        <span class="s2">&quot;CRITICAL&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">,</span>
+        <span class="s2">&quot;TRACE&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">LEVEL_NAMES</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">LOG_LEVELS</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<div class="viewcode-block" id="LoggingConstants.get_level"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.LoggingConstants.get_level">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_level</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LoggingConstants</span><span class="o">.</span><span class="n">LOG_LEVELS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="LoggingConstants.get_level_keys"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.LoggingConstants.get_level_keys">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_level_keys</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">LoggingConstants</span><span class="o">.</span><span class="n">LOG_LEVELS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+    <span class="c1"># @staticmethod</span>
+    <span class="c1"># def get_level_name(level: int) -&gt; str:</span>
+    <span class="c1">#     &quot;&quot;&quot;Return the string representation of a log level.&quot;&quot;&quot;</span>
+    <span class="c1">#     return LoggingConstants.LEVEL_NAMES.get(level, &quot;UNKNOWN&quot;)</span>
+
+<div class="viewcode-block" id="LoggingConstants.get_level_name"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.LoggingConstants.get_level_name">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_level_name</span><span class="p">(</span><span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the log level string for a given verbosity level.</span>
+<span class="sd">        - If the key is less than 0 or not found, return the 0&#39;s value.</span>
+<span class="sd">        - If the key exceeds the maximum, return the maximum key&#39;s value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log_level_string</span> <span class="o">=</span> <span class="n">LoggingConstants</span><span class="o">.</span><span class="n">VERBOSE_LEVEL_STRINGS</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">log_level_string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">max_key</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">log_level_string</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">log_level_string</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">verbose</span><span class="p">,</span> <span class="n">log_level_string</span><span class="p">[</span><span class="n">max_key</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="TerminalColor"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.TerminalColor">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TerminalColor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extended ANSI escape sequences for coloring terminal text with more color options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">HEADER</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[95m&#39;</span>
+    <span class="n">OKBLUE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span>
+    <span class="n">OKGREEN</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92m&#39;</span>
+    <span class="n">GREEN</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[32;40m&#39;</span>
+    <span class="n">CYAN</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[96m&#39;</span>
+    <span class="n">WARNING</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span>
+    <span class="n">FAIL</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[91m&#39;</span>
+    <span class="n">RESET</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span>
+    <span class="n">ENDC</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span>
+    <span class="n">BOLD</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[1m&#39;</span>
+    <span class="n">ITALIC</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[1;3m&#39;</span>
+    <span class="n">UNDERLINE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[4m&#39;</span>
+    <span class="n">WHITE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[97m&#39;</span>
+    <span class="n">DARK_GREY</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[38;5;243m&#39;</span>
+    <span class="n">LIGHT_GREY</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[37m&#39;</span>
+
+    <span class="c1"># More colorful options</span>
+    <span class="n">RED</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[31m&#39;</span>
+    <span class="n">BLUE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[34m&#39;</span>
+    <span class="n">YELLOW</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[33m&#39;</span>
+    <span class="n">MAGENTA</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[35m&#39;</span>
+    <span class="n">PURPLE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[35;1m&#39;</span>
+    <span class="n">ORANGE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[38;5;214m&#39;</span>
+    <span class="n">BRIGHT_GREEN</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92;1m&#39;</span>
+    <span class="n">BRIGHT_CYAN</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[96;1m&#39;</span>
+    <span class="n">BRIGHT_MAGENTA</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[95;1m&#39;</span>
+    <span class="n">DARK_BLUE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[34;2m&#39;</span>
+    <span class="n">LIGHT_BLUE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94;1m&#39;</span>
+    <span class="n">LIGHT_YELLOW</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span>
+
+<div class="viewcode-block" id="TerminalColor.get_color"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.TerminalColor.get_color">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_color</span><span class="p">(</span><span class="n">color_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the color escape sequence based on the given color name.</span>
+<span class="sd">        :param color_name: The name of the color (as a string).</span>
+<span class="sd">        :return: The ANSI color code string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">TerminalColor</span><span class="p">,</span> <span class="n">color_name</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">TerminalColor</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="apply_terminal_color"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.apply_terminal_color">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">apply_terminal_color</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;WHITE&quot;</span><span class="p">,</span> <span class="n">bold</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">underline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply the given color and style to the text and return the formatted string.</span>
+
+<span class="sd">    :param text: The text to be styled.</span>
+<span class="sd">    :param color: The color to apply (e.g., &#39;GREEN&#39;, &#39;RED&#39;, etc.).</span>
+<span class="sd">    :param bold: Whether to apply bold formatting.</span>
+<span class="sd">    :param underline: Whether to apply underline formatting.</span>
+<span class="sd">    :param width: The width to center the text (optional).</span>
+<span class="sd">    :return: The styled text as a string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">width</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">width</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+
+    <span class="n">color_code</span> <span class="o">=</span> <span class="n">TerminalColor</span><span class="o">.</span><span class="n">get_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">bold</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">TerminalColor</span><span class="o">.</span><span class="n">BOLD</span><span class="si">}{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">underline</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">TerminalColor</span><span class="o">.</span><span class="n">UNDERLINE</span><span class="si">}{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">color_code</span><span class="si">}{</span><span class="n">text</span><span class="si">}{</span><span class="n">TerminalColor</span><span class="o">.</span><span class="n">ENDC</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="HTTPMethodConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.HTTPMethodConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">HTTPMethodConstants</span><span class="p">:</span>
+    <span class="n">ALLOWS_HTTP_METHOD</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="s2">&quot;PATCH&quot;</span><span class="p">,</span> <span class="s2">&quot;DELETE&quot;</span><span class="p">,</span> <span class="s2">&quot;HEAD&quot;</span><span class="p">,</span> <span class="s2">&quot;PUT&quot;</span><span class="p">,</span> <span class="s2">&quot;CONNECT&quot;</span><span class="p">,</span> <span class="s2">&quot;OPTIONS&quot;</span><span class="p">,</span> <span class="s2">&quot;TRACE&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="HTTPMethodConstants.get_http_methods"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.HTTPMethodConstants.get_http_methods">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_http_methods</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lowercase</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the list of allowed HTTP methods.</span>
+<span class="sd">        :param lowercase: If True, return methods in lowercase.</span>
+<span class="sd">        :return: List of allowed HTTP methods in uppercase or lowercase.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">lowercase</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ALLOWS_HTTP_METHOD</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ALLOWS_HTTP_METHOD</span></div>
+
+<div class="viewcode-block" id="HTTPMethodConstants.is_valid_http_method"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.HTTPMethodConstants.is_valid_http_method">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_http_method</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the given method is a valid HTTP method (case-insensitive).</span>
+<span class="sd">        :param method: HTTP method to validate.</span>
+<span class="sd">        :return: True if the method is valid, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ALLOWS_HTTP_METHOD</span></div></div>
+
+
+<div class="viewcode-block" id="OperatorConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.OperatorConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">OperatorConstants</span><span class="p">:</span>
+    <span class="n">ALLOW_OPERATOR</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;!=&quot;</span><span class="p">,</span> <span class="s2">&quot;==&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="s2">&quot;include&quot;</span><span class="p">,</span> <span class="s2">&quot;exclude&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="OperatorConstants.get_allowed_operators"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.OperatorConstants.get_allowed_operators">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_allowed_operators</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the list of allowed operators.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ALLOW_OPERATOR</span></div>
+
+<div class="viewcode-block" id="OperatorConstants.is_valid_operator"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.OperatorConstants.is_valid_operator">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_operator</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">operator</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the given operator is valid.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">operator</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ALLOW_OPERATOR</span></div></div>
+
+
+<div class="viewcode-block" id="SecretPatternConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.SecretPatternConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SecretPatternConstants</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constants for detecting secret keys and tokens in text.&quot;&quot;&quot;</span>
+    <span class="n">SECRET_PATTERNS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;slack_token&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;xox[bp]-[0-9]{10,}-[a-zA-Z0-9]{20,}&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;aws_access_key&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;AKIA[0-9A-Z]</span><span class="si">{16}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;aws_secret_key&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;\b[A-Za-z0-9+/]</span><span class="si">{40}</span><span class="s2">\b&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;generic_key&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;(?:key|token|secret)\s*=\s*[&#39;</span><span class="se">\&quot;</span><span class="s2">]?[a-zA-Z0-9\-]{20,}[&#39;</span><span class="se">\&quot;</span><span class="s2">]?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;github_pat&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;ghp_[0-9A-Za-z]</span><span class="si">{36}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;google_api_key&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;AIza[0-9A-Za-z-_]</span><span class="si">{35}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;stripe_api_key&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;(sk|pk|rk)_[live|test]_[0-9A-Za-z]</span><span class="si">{24}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jwt_token&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ssh_private_key&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;-----BEGIN (RSA|OPENSSH|EC) PRIVATE KEY-----[\s\S]+-----END (RSA|OPENSSH|EC) PRIVATE KEY-----&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;db_connection_string&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;(mysql|postgres|mongodb|redis)://[a-zA-Z0-9_]+:[a-zA-Z0-9_]+@[a-zA-Z0-9\-.]+:\d+(/[a-zA-Z0-9_]+)?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;discord_bot_token&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;[A-Za-z0-9]</span><span class="si">{24}</span><span class="s2">\.[A-Za-z0-9]</span><span class="si">{6}</span><span class="s2">\.[A-Za-z0-9-_]</span><span class="si">{27}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;twilio_api_key&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;SK[0-9a-f]</span><span class="si">{32}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="c1"># &quot;general_api_key&quot;: r&quot;[A-Za-z0-9]{32,64}&quot;,</span>
+        <span class="s2">&quot;general_api_key&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;(?!hx|cx)[A-Za-z0-9]{32,64}&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;env_style_key&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;[A-Z_]+_KEY=[A-Za-z0-9\-]{20,}&quot;</span>
+    <span class="p">}</span>
+
+    <span class="n">SECRET_DESCRIPTIONS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;slack_token&quot;</span><span class="p">:</span> <span class="s2">&quot;Slack API Token (Bot or User)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;aws_access_key&quot;</span><span class="p">:</span> <span class="s2">&quot;AWS Access Key ID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;aws_secret_key&quot;</span><span class="p">:</span> <span class="s2">&quot;AWS Secret Access Key&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;generic_key&quot;</span><span class="p">:</span> <span class="s2">&quot;Generic key, token, or secret pattern&quot;</span><span class="p">,</span>
+
+        <span class="s2">&quot;github_pat&quot;</span><span class="p">:</span> <span class="s2">&quot;GitHub Personal Access Token&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;google_api_key&quot;</span><span class="p">:</span> <span class="s2">&quot;Google API Key&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;stripe_api_key&quot;</span><span class="p">:</span> <span class="s2">&quot;Stripe API Key (Secret, Publishable, or Restricted)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jwt_token&quot;</span><span class="p">:</span> <span class="s2">&quot;JSON Web Token (JWT)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ssh_private_key&quot;</span><span class="p">:</span> <span class="s2">&quot;SSH Private Key (RSA, OpenSSH, or EC)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;db_connection_string&quot;</span><span class="p">:</span> <span class="s2">&quot;Database Connection String (MySQL, PostgreSQL, MongoDB, Redis)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;discord_bot_token&quot;</span><span class="p">:</span> <span class="s2">&quot;Discord Bot Token&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;twilio_api_key&quot;</span><span class="p">:</span> <span class="s2">&quot;Twilio API Secret Key&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;general_api_key&quot;</span><span class="p">:</span> <span class="s2">&quot;General-purpose API Key (32-64 characters)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;env_style_key&quot;</span><span class="p">:</span> <span class="s2">&quot;Environment Variable Style Key (e.g., API_KEY=xxx)&quot;</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="SecretPatternConstants.get_pattern"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.SecretPatternConstants.get_pattern">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pattern</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">secret_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the regex pattern for the specified secret type.</span>
+<span class="sd">        :param secret_type: Type of secret (e.g., &#39;slack_token&#39;).</span>
+<span class="sd">        :return: Regex pattern string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">SECRET_PATTERNS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">secret_type</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SecretPatternConstants.get_description"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.SecretPatternConstants.get_description">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_description</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">secret_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the description for the specified secret type.</span>
+<span class="sd">        :param secret_type: Type of secret (e.g., &#39;slack_token&#39;).</span>
+<span class="sd">        :return: Description string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">SECRET_DESCRIPTIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">secret_type</span><span class="p">,</span> <span class="s2">&quot;Unknown secret type&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SecretPatternConstants.list_patterns"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.SecretPatternConstants.list_patterns">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_patterns</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all secret patterns and their descriptions.</span>
+<span class="sd">        :return: Dictionary of patterns and descriptions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">SECRET_PATTERNS</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">SECRET_DESCRIPTIONS</span><span class="p">[</span><span class="n">key</span><span class="p">]}</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">SECRET_PATTERNS</span><span class="p">}</span></div></div>
+
+<div class="viewcode-block" id="AllConstants"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.AllConstants">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AllConstants</span><span class="p">(</span>
+    <span class="n">ICONPRepStatus</span><span class="p">,</span>
+    <span class="n">ICONJailFlags</span><span class="p">,</span>
+    <span class="n">SpecialCharacterConstants</span><span class="p">,</span>
+    <span class="c1"># HTTPStatusCodes,</span>
+    <span class="n">RegexPatternConstants</span><span class="p">,</span>
+    <span class="n">HTTPConstants</span><span class="p">,</span>
+    <span class="n">DateFormatConstants</span><span class="p">,</span>
+    <span class="n">StringConstants</span><span class="p">,</span>
+    <span class="n">FilePermissionConstants</span><span class="p">,</span>
+    <span class="n">TimeConstants</span><span class="p">,</span>
+    <span class="c1"># MediaTypeConstants,</span>
+    <span class="n">BooleanConstants</span><span class="p">,</span>
+    <span class="n">NumericConstants</span><span class="p">,</span>
+    <span class="n">UnitMultiplierConstants</span><span class="p">,</span>
+    <span class="n">AddressConstants</span><span class="p">,</span>
+    <span class="n">TimeStampDigits</span><span class="p">,</span>
+    <span class="n">ICONConstants</span><span class="p">,</span>
+    <span class="n">HAVAHConstants</span><span class="p">,</span>
+    <span class="n">CryptographicConstants</span><span class="p">,</span>
+    <span class="n">NetworkConstants</span><span class="p">,</span>
+    <span class="n">AWSRegionConstants</span><span class="p">,</span>
+    <span class="n">GradeMappingConstants</span><span class="p">,</span>
+    <span class="n">YesNoConstants</span><span class="p">,</span>
+    <span class="n">LoggingConstants</span><span class="p">,</span>
+    <span class="n">HTTPMethodConstants</span><span class="p">,</span>
+    <span class="n">OperatorConstants</span><span class="p">,</span>
+    <span class="n">SecretPatternConstants</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Constants are read-only&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
+            <span class="k">return</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; object has no attribute &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AllConstants.get_aws_region_name"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.AllConstants.get_aws_region_name">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_aws_region_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">region_name</span><span class="p">(</span><span class="n">code</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AllConstants.get_aws_region_list"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.AllConstants.get_aws_region_list">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_aws_region_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">region_list</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AllConstants.get_colored_text"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.AllConstants.get_colored_text">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_colored_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;WHITE&quot;</span><span class="p">,</span> <span class="n">bold</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">underline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method to get colored text using the ANSI color codes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">apply_terminal_color</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">bold</span><span class="p">,</span> <span class="n">underline</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AllConstants.available_colors"><a class="viewcode-back" href="../../../module/pawnlib.typing.html#pawnlib.typing.constants.AllConstants.available_colors">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">available_colors</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of all available color names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">color</span> <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">TerminalColor</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">color</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">color</span><span class="o">.</span><span class="n">isupper</span><span class="p">()]</span></div></div>
+
+<span class="n">const</span> <span class="o">=</span> <span class="n">AllConstants</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, jinwoo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
