@@ -1214,7 +1214,6 @@ def setup_app_logger(
             logging.getLogger("catch_all_app").info("My app's info.")
             logging.getLogger("any_library_name").debug("Debug from any library, will show because log_all_third_party is True and root is DEBUG.")
     """
-    # 1. 로그 레벨 결정
     if log_level is not None:
         effective_log_level = log_level.upper() if isinstance(log_level, str) else log_level
     else:
@@ -1222,76 +1221,63 @@ def setup_app_logger(
 
     app_prefixes = [app_name] if isinstance(app_name, str) else app_name
 
-    # 2. `configure_root` 값에 따라 모드 분기
+    target_logger = logging.getLogger() if configure_root else logging.getLogger(app_prefixes[0])
+
     if configure_root:
-        # === [모드 1] 중앙 제어 모드 (권장) ===
-        target_logger = logging.getLogger()
         target_logger.handlers.clear()
         target_logger.setLevel(logging.DEBUG)
-
-        logging.getLogger(app_prefixes[0]).setLevel(effective_log_level)
-        for prefix in app_prefixes[1:]:
-             logging.getLogger(prefix).setLevel(effective_log_level)
-
+        for prefix in app_prefixes:
+            logging.getLogger(prefix).setLevel(effective_log_level)
     else:
-        # === [모드 2] 하위 호환성 모드 ===
-        target_logger = logging.getLogger(app_prefixes[0])
         target_logger.propagate = propagate
         if clear_existing_handlers:
             target_logger.handlers.clear()
-
-        # [중복 출력 방지] 전파가 켜져 있을 때, 루트의 기본 핸들러를 제거
         if propagate:
+
             root_logger = logging.getLogger()
             for handler in root_logger.handlers[:]:
                 is_console_conflict = (log_type in ('console', 'both') and isinstance(handler, logging.StreamHandler))
                 is_file_conflict = (log_type in ('file', 'both') and isinstance(handler, logging.FileHandler))
                 if is_console_conflict or is_file_conflict:
                     root_logger.removeHandler(handler)
-
         target_logger.setLevel(effective_log_level)
 
-    # 3. 핸들러 생성 (pawnlib 커스텀 핸들러 사용)
-    handlers_to_add = []
     if log_type in ('console', 'both'):
-        console_handler = ConsoleLoggerHandler(
-            verbose=verbose, stdout=True, log_level_short=log_level_short,
-            simple_format=simple_format, exc_info=exc_info
-        )
-        console_formatter = CleanAndDetailTimeFormatter(
-            datefmt=date_format, log_level_short=log_level_short,
-            simple_format=simple_format
-        )
-        console_handler.setFormatter(console_formatter)
-        handlers_to_add.append(console_handler)
+        if not any(isinstance(h, ConsoleLoggerHandler) for h in target_logger.handlers):
+            console_handler = ConsoleLoggerHandler(
+                verbose=verbose, stdout=True, log_level_short=log_level_short,
+                simple_format=simple_format, exc_info=exc_info
+            )
+            console_formatter = CleanAndDetailTimeFormatter( # fmt 인자 없이 호출
+                datefmt=date_format, log_level_short=log_level_short,
+                simple_format=simple_format, precision=3,
+            )
+            console_handler.setFormatter(console_formatter)
+            target_logger.addHandler(console_handler)
 
     if log_type in ('file', 'both'):
-        os.makedirs(log_path, exist_ok=True)
-        log_filename = os.path.join(log_path, f"{app_prefixes[0]}.log")
-        file_handler = TimedRotatingFileHandler(
-            filename=log_filename, when=rotate_time, interval=rotate_interval,
-            backupCount=backup_count, encoding='utf-8'
-        )
-        file_formatter = CleanAndDetailTimeFormatter(
-            fmt=log_format, datefmt=date_format, log_level_short=log_level_short,
-            simple_format=simple_format
-        )
-        file_handler.setFormatter(file_formatter)
-        handlers_to_add.append(file_handler)
+        if not any(isinstance(h, TimedRotatingFileHandler) for h in target_logger.handlers):
+            if not log_format: # 파일 포맷 기본값 설정
+                log_format = '[%(asctime)s] %(levelname)s - %(name)s:%(lineno)d - %(message)s'
+            file_formatter = CleanAndDetailTimeFormatter( # fmt 인자를 포함하여 호출
+                fmt=log_format, datefmt=date_format, log_level_short=log_level_short,
+                simple_format=simple_format, precision=3,
+            )
+            os.makedirs(log_path, exist_ok=True)
+            log_filename = os.path.join(log_path, f"{app_prefixes[0]}.log")
+            file_handler = TimedRotatingFileHandler(
+                filename=log_filename, when=rotate_time, interval=rotate_interval,
+                backupCount=backup_count, encoding='utf-8'
+            )
+            file_handler.setFormatter(file_formatter)
+            target_logger.addHandler(file_handler)
 
-    # 4. 필터 적용 (중앙 제어 모드에서만 의미 있음)
     if configure_root and not log_all_third_party:
         app_filter = AppOrEnabledFilter(app_prefixes, enabled_third_party_loggers)
-        for handler in handlers_to_add:
+        for handler in target_logger.handlers:
+            # 모든 핸들러에 필터를 동일하게 적용
             handler.addFilter(app_filter)
 
-    # 5. 준비된 핸들러를 타겟 로거에 추가
-    for handler in handlers_to_add:
-        # 핸들러 중복 추가 방지 (이미 같은 타입의 핸들러가 있다면 추가하지 않음)
-        if not any(isinstance(h, type(handler)) for h in target_logger.handlers):
-            target_logger.addHandler(handler)
-
-    # 6. 기타 설정 (기존 로직 유지)
     if handle_propagate:
         change_propagate_setting(
             propagate=propagate, propagate_scope=propagate_scope,

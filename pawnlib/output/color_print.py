@@ -28,7 +28,8 @@ from rich.tree import Tree
 from rich.text import Text
 from rich import print as rprint
 from typing import Union, Callable
-from datetime import datetime
+from datetime import datetime, timedelta, date
+from uuid import UUID
 import textwrap
 from requests.structures import CaseInsensitiveDict
 
@@ -1187,58 +1188,58 @@ def print_syntax(data, name="json", indent=4, style="material", oneline_list=Tru
         print(syntax_highlight(data, name, indent, style, oneline_list, line_indent))
 
 
-def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, word_wrap=True, **kwargs):
-    """
-    Syntax highlighting function
+# def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, word_wrap=True, **kwargs):
+#     """
+#     Syntax highlighting function
 
-    :param data: The data to be highlighted.
-    :param name: The name of the lexer to use for highlighting.
-    :param indent: The number of spaces to use for indentation.
-    :param style: The style to use for highlighting.
-    :param oneline_list: Whether to compact lists into one line.
-    :param line_indent: The string to use for line indentation.
-    :param rich: Whether to use rich text formatting.
-    :param word_wrap: Whether to enable word wrapping.
-    :return: The highlighted code as a string.
+#     :param data: The data to be highlighted.
+#     :param name: The name of the lexer to use for highlighting.
+#     :param indent: The number of spaces to use for indentation.
+#     :param style: The style to use for highlighting.
+#     :param oneline_list: Whether to compact lists into one line.
+#     :param line_indent: The string to use for line indentation.
+#     :param rich: Whether to use rich text formatting.
+#     :param word_wrap: Whether to enable word wrapping.
+#     :return: The highlighted code as a string.
 
-    Example:
+#     Example:
 
-        .. code-block:: python
+#         .. code-block:: python
 
-            from pawnlib import output
+#             from pawnlib import output
 
-            print(output.syntax_highlight("<html><head><meta name='viewport' content='width'>", "html", style=style))
+#             print(output.syntax_highlight("<html><head><meta name='viewport' content='width'>", "html", style=style))
 
-    """
-    # styles available as of pygments 2.8.1.
-    # ['default', 'emacs', 'friendly', 'colorful', 'autumn', 'murphy', 'manni',
-    # 'material', 'monokai', 'perldoc', 'pastie', 'borland', 'trac', 'native',
-    # 'fruity', 'bw', 'vim', 'vs', 'tango', 'rrt', 'xcode', 'igor', 'paraiso-light',
-    # 'paraiso-dark', 'lovelace', 'algol', 'algol_nu', 'arduino', 'rainbow_dash',
-    # 'abap', 'solarized-dark', 'solarized-light', 'sas', 'stata', 'stata-light',
-    # 'stata-dark', 'inkpot', 'zenburn']
-    print(data)
-    if name == "json" and isinstance(data, (dict, list)):
-        data = data_clean(data)
-        code_data = json_compact_dumps(data, indent=indent, monkey_patch=oneline_list)
-    elif data:
-        code_data = data
-    else:
-        code_data = ""
+#     """
+#     # styles available as of pygments 2.8.1.
+#     # ['default', 'emacs', 'friendly', 'colorful', 'autumn', 'murphy', 'manni',
+#     # 'material', 'monokai', 'perldoc', 'pastie', 'borland', 'trac', 'native',
+#     # 'fruity', 'bw', 'vim', 'vs', 'tango', 'rrt', 'xcode', 'igor', 'paraiso-light',
+#     # 'paraiso-dark', 'lovelace', 'algol', 'algol_nu', 'arduino', 'rainbow_dash',
+#     # 'abap', 'solarized-dark', 'solarized-light', 'sas', 'stata', 'stata-light',
+#     # 'stata-dark', 'inkpot', 'zenburn']
+#     print(data)
+#     if name == "json" and isinstance(data, (dict, list)):
+#         data = data_clean(data)
+#         code_data = json_compact_dumps(data, indent=indent, monkey_patch=oneline_list)
+#     elif data:
+#         code_data = data
+#     else:
+#         code_data = ""
 
-    if line_indent:
-        code_data = textwrap.indent(code_data, line_indent)
+#     if line_indent:
+#         code_data = textwrap.indent(code_data, line_indent)
 
-    if rich:
-        return Syntax(code_data, name, theme=style, word_wrap=word_wrap, **kwargs)
-    else:
-        return highlight(
-            code=code_data,
-            lexer=get_lexer_by_name(name),
-            formatter=Terminal256Formatter(style=style))
+#     if rich:
+#         return Syntax(code_data, name, theme=style, word_wrap=word_wrap, **kwargs)
+#     else:
+#         return highlight(
+#             code=code_data,
+#             lexer=get_lexer_by_name(name),
+#             formatter=Terminal256Formatter(style=style))
 
 
-def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, word_wrap=True, **kwargs):
+def syntax_highlight(data, name="json", indent=4, style="material", oneline_list=True, line_indent='', rich=False, word_wrap=True, format_config=None, **kwargs):
     """
     Syntax highlighting function with support for class instance representation instead of serialization.
 
@@ -1250,25 +1251,63 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
     :param line_indent: The string to use for line indentation.
     :param rich: Whether to use rich text formatting.
     :param word_wrap: Whether to enable word wrapping.
+    :param format_config: Configuration for formatting.
     :return: The highlighted code as a string.
     """
 
-    def convert_non_serializable(obj):
+    def convert_non_serializable(obj, format_config={}, seen=None) :
         """
-        Convert non-serializable objects to a debug-friendly representation.
-        """
-        if hasattr(obj, '__class__'):
-            return f"<{obj.__class__.__name__}> {obj.__dict__}"
-        return str(obj)
+        Convert non-serializable objects to a debug-friendly string representation.
 
-    # JSON serialization with custom handling of non-serializable objects
+        :param obj: The object to convert.
+        :param format_config: Configuration for formatting.
+        :param seen: Set of object IDs to track recursion (default: None).
+        :return: A string representation of the object.
+        """
+        if seen is None:
+            seen = set()
+
+        obj_id = id(obj)
+        if obj_id in seen:
+            return f"<{obj.__class__.__name__} (recursive reference)>"
+        seen.add(obj_id)
+        format_config = format_config or {}
+        try:
+            if isinstance(obj, (datetime, date)):
+                fmt = format_config.get("datetime")
+                if callable(fmt):
+                    return fmt(obj)
+                elif isinstance(fmt, str):
+                    return obj.strftime(fmt)
+                return str(obj)
+
+            elif isinstance(obj, timedelta):
+                return str(obj)
+            elif isinstance(obj, UUID):
+                return str(obj)
+            elif isinstance(obj, bytes):
+                return obj.decode("utf-8", errors="replace")
+            elif hasattr(obj, '__dict__'):
+                if obj.__class__.__module__ != 'builtins':
+                    attrs = {k: convert_non_serializable(v, format_config=format_config) if isinstance(v, (dict, list, object)) else v
+                            for k, v in vars(obj).items()}
+                    return f"<{obj.__class__.__name__}> {attrs}"
+                return repr(obj)
+            else:
+                return repr(obj)
+        except Exception as e:
+            print(f"Failed to convert {type(obj).__name__}: {e}")
+            return repr(obj)
+        finally:
+            seen.discard(obj_id)
+
     if name == "json" and isinstance(data, (dict, list)):
         try:
-            # Using json.dumps with a custom default converter to keep classes represented by their type and attributes.
-            code_data = json.dumps(data, indent=indent, default=convert_non_serializable)
+            code_data = json.dumps(data, indent=indent, default=lambda o: convert_non_serializable(o, format_config=format_config))
+            print(code_data)
         except TypeError as e:
             print(f"Serialization error: {e}")
-            code_data = json.dumps(data, indent=indent, default=convert_non_serializable)
+            code_data = json.dumps(data, indent=indent, default=lambda o: convert_non_serializable(o, format_config=format_config))
     elif data:
         code_data = data
     else:
