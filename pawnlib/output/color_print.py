@@ -1304,7 +1304,6 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
     if name == "json" and isinstance(data, (dict, list)):
         try:
             code_data = json.dumps(data, indent=indent, default=lambda o: convert_non_serializable(o, format_config=format_config))
-            print(code_data)
         except TypeError as e:
             print(f"Serialization error: {e}")
             code_data = json.dumps(data, indent=indent, default=lambda o: convert_non_serializable(o, format_config=format_config))
