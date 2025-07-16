@@ -1303,10 +1303,10 @@ def syntax_highlight(data, name="json", indent=4, style="material", oneline_list
 
     if name == "json" and isinstance(data, (dict, list)):
         try:
-            code_data = json.dumps(data, indent=indent, default=lambda o: convert_non_serializable(o, format_config=format_config))
+            code_data = json.dumps(data, ensure_ascii=False, indent=indent, default=lambda o: convert_non_serializable(o, format_config=format_config))
         except TypeError as e:
             print(f"Serialization error: {e}")
-            code_data = json.dumps(data, indent=indent, default=lambda o: convert_non_serializable(o, format_config=format_config))
+            code_data = json.dumps(data, ensure_ascii=False, indent=indent, default=lambda o: convert_non_serializable(o, format_config=format_config))
     elif data:
         code_data = data
     else:
