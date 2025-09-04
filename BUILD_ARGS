@@ -1,6 +1,6 @@
 
 --build-arg BASE_IMAGE=python:3.10.16-slim-bookworm  
---build-arg BUILD_DATE=2025-06-20T06:27:52UTC  
+--build-arg BUILD_DATE=2025-07-10T15:02:26UTC  
 --build-arg DOCKER_BUILD_OPTION=--no-cache --rm=true  
 --build-arg ECHO_OPTION=  
 --build-arg GIT_USER=JINWOO-J  
@@ -11,4 +11,4 @@
 --build-arg REPO_HUB=jinwoo  
 --build-arg SED_OPTION=''  
 --build-arg UNAME_S=Darwin  
---build-arg VERSION=2.1.36  
+--build-arg VERSION=2.1.37  
