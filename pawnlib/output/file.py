@@ -430,12 +430,13 @@ def check_path(path, detailed=False):
     return path_info if detailed else path_info["type"]
 
 
-def check_file_overwrite(filename, answer=None) -> bool:
+def check_file_overwrite(filename, answer=None, exit_on_deny: bool = True) -> bool:
     """
     Checks the existence of a file.
 
-    :param filename:
-    :param answer:
+    :param filename: filename to check
+    :param answer: answer to the question
+    :param exit_on_deny: exit the program if the answer is no
     :return:
 
     Example:
@@ -463,8 +464,10 @@ def check_file_overwrite(filename, answer=None) -> bool:
             color_print.cprint(f"Removing the existing file => {filename}", "green")
             os.remove(filename)
         else:
-            color_print.cprint("Operation stopped.", "red")
-            sys.exit(1)
+            if exit_on_deny:
+                color_print.cprint("Operation stopped.", "red")
+                sys.exit(1)
+            return False
     return True
 
 
@@ -619,15 +622,15 @@ def get_script_path(run_path=None):
             # >> '/path/to/script/directory'
 
     """
-    
+
     if run_path:
         return os.path.dirname(run_path)
 
     if getattr(sys, 'frozen', False):
-        return os.path.dirname(os.path.abspath(sys.executable))    
+        return os.path.dirname(os.path.abspath(sys.executable))
     if sys.argv[0]:
         return os.path.dirname(os.path.abspath(sys.argv[0]))
-    
+
     return os.getcwd()
 
 
@@ -977,5 +980,3 @@ def write_yaml(filename: str, data: Union[dict, list], option: str = 'w', permit
         return "Write json file -> %s, %s" % (filename, converter.get_size(filename))
     else:
         return "write_json() can not write to json"
-
-
