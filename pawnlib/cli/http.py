@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 import argparse
-from pawnlib.builder.generator import generate_banner
-from pawnlib.__version__ import __version__ as _version
-from pawnlib.config import pawn, pconf, one_time_run
-from pawnlib.typing import str2bool, StackList, ErrorCounter,  is_json, is_valid_url, sys_exit, Null, remove_tags, FlatDict
-from pawnlib.utils.http import CallHttp, disable_ssl_warnings, ALLOW_OPERATOR, HttpInspect, CheckSSL, parse_auth, parse_headers
-from pawnlib.utils import ThreadPoolRunner, send_slack
-from pawnlib.output import bcolors, print_json, is_file
-from dataclasses import dataclass, field
-from pawnlib.input import ColoredHelpFormatter
 import copy
-import os
 import json
-from typing import List, Dict, Union, Type, get_type_hints, Any
+import os
 import re
 import time
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Type, Union, get_type_hints
+
+from pawnlib.__version__ import __version__ as _version
+from pawnlib.builder.generator import generate_banner
+from pawnlib.config import one_time_run, pawn, pconf
+from pawnlib.input import ColoredHelpFormatter
+from pawnlib.output import bcolors, is_file, print_json
+from pawnlib.typing import FlatDict, StackList, remove_tags, str2bool, sys_exit
+from pawnlib.utils import ThreadPoolRunner, send_slack
+from pawnlib.utils.http import CallHttp, disable_ssl_warnings
 
 script_name = "pawns"
 
@@ -289,8 +290,8 @@ def check_url_process(config):
               f"(avg: {avg_response_time}, max: {max_response_time}, min: {min_response_time})"
 
     if pconf().args.verbose > 0:
-        if status_code != 999:
-            if pconf().args.verbose > 2:
+        if status_code != 999:            
+            if pconf().args.verbose > 3:
                 detail = f" 📄[i]{check_url.response}, criteria: {config.success}, operator: {config.logical_operator}[/i]"
             else:
                 detail = ""
@@ -299,7 +300,13 @@ def check_url_process(config):
             message = f"{message} 😞 "
 
     if check_url.is_success():
-        pawn.app_logger.info(remove_tags(f"[ OK ] {message}"))
+        
+        if pconf().args.verbose > 2 or pconf().args.dry_run and hasattr(check_url, "response"):
+            resp = f"📄{check_url.response.text.strip()}"
+        else:
+            resp = ""
+
+        pawn.app_logger.info(remove_tags(f"[ OK ] {message} {resp}"))
         print_response_if_verbose(check_url)
     else:
         handle_failure_on_check_url(config, message, check_url)
@@ -309,12 +316,12 @@ def check_url_process(config):
         time.sleep(config.interval)
     return "ok"
 
+   
 def print_response_if_verbose(check_url):
-    if (pconf().args.verbose > 3 or pconf().args.dry_run)  and hasattr(check_url, "response"):
+    if (pconf().args.verbose > 3 or pconf().args.dry_run) and hasattr(check_url, "response"):
         check_url.response.json = FlatDict(check_url.response.json).to_dict()
-        check_url.print_http_response()
-
-
+        check_url.print_http_response()        
+        
 def handle_failure_on_check_url(args, message, check_url):
     args.fail_count += 1
     args.error_stack_count += 1
@@ -510,6 +517,10 @@ def main():
             PAWN_LOGGER=dict(
                 log_level="DEBUG",
                 stdout_level="DEBUG",
+                log_path=f"{args.base_dir}/logs",
+                stdout=stdout,
+                use_hook_exception=True,
+                show_path=False,
             )
         )
     print_banner()
