@@ -310,12 +310,28 @@ async def main():
             ip_to_hx_map = await parser.run()
 
             pawn.console.rule("[bold blue]P2P Network Analysis[/bold blue]")
-            total_peer_ip_count = len(ip_to_hx_map.get('ip_to_hx'))
-            pawn.console.log(f"Total Peer Count = {total_peer_ip_count}")
+            ip_to_hx = ip_to_hx_map.get('ip_to_hx', {})
+            hx_to_ip = ip_to_hx_map.get('hx_to_ip', {})
+            total_peer_ip_count = len(ip_to_hx)
+            total_peer_hx_count = len(hx_to_ip)
+            
+            pawn.console.log(f"[bold green]Total Peer IPs:[/bold green] {total_peer_ip_count}")
+            pawn.console.log(f"[bold green]Total Peer HX addresses:[/bold green] {total_peer_hx_count}")
+            pawn.console.log("")
 
-            for hx_address, peer_info in ip_to_hx_map['hx_to_ip'].items():
+            # 여러 IP를 가진 노드만 출력
+            multi_ip_nodes = []
+            for hx_address, peer_info in hx_to_ip.items():
                 if peer_info.ip_count > 1 and peer_info.hx:
+                    multi_ip_nodes.append(peer_info)
+            
+            if multi_ip_nodes:
+                pawn.console.rule("[bold yellow]Nodes with Multiple IPs[/bold yellow]")
+                pawn.console.log(f"Found {len(multi_ip_nodes)} nodes with multiple IP addresses:")
+                for peer_info in multi_ip_nodes:
                     pawn.console.log(peer_info)
+            else:
+                pawn.console.log("[dim]No nodes with multiple IPs found.[/dim]")
         except Exception as e:
             pawn.console.log(f"[red]Error during P2P analysis:[/red] {e}")
 
