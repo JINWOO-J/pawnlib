@@ -136,6 +136,13 @@ def get_arguments(parser=None):
         default=[SSHLogPathResolver().get_path()]
     )
     
+    ssh_parser.add_argument(
+        '--os-type',
+        choices=['ubuntu', 'centos', 'auto'],
+        default='auto',
+        help='Operating system type for log pattern matching (default: auto-detect)'
+    )
+    
     add_common_arguments(ssh_parser)
 
     wallet_parser = subparsers.add_parser('wallet', help='Run the Async Goloop Websocket Client')
@@ -309,6 +316,7 @@ def load_environment_settings(args) -> dict:
         # 'state_cache_file': os.environ.get('STATE_CACHE_FILE', args.state_cache_file),
         'check_interval': get_setting('check_interval', 'CHECK_INTERVAL', default=10, value_type=int),
         'ignore_decimal': get_setting('ignore_decimal', 'IGNORE_DECIMAL', default=False, value_type=bool),
+        'os_type': get_setting('os_type', 'OS_TYPE', default=None, value_type=str),
     }
     return settings
 
@@ -394,14 +402,16 @@ def run_monitor_ssh(args, logger):
     settings = merge_environment_settings(args)
     print_var(settings)
 
+    # 운영체제 타입을 환경변수나 인자로 받을 수 있도록 지원
+    os_type = settings.get('os_type') or os.environ.get('OS_TYPE')
+
     ssh_monitor = SSHMonitor(
         log_file_path=settings.get('file'),
         slack_webhook_url=settings.get('slack_webhook_url'),
         alert_interval=60,
         verbose=settings.get('verbose', 1),
-        # verbose=0,
         logger=logger,
-        # stdout=True
+        os_type=os_type  # Ubuntu/CentOS 자동 감지 또는 수동 설정
     )
 
     async def run_async_monitor():

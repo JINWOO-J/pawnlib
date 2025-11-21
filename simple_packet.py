@@ -15,7 +15,9 @@ def parse_http_request(payload: bytes):
     """
     try:
         text = payload.decode('utf-8', errors='replace')
-    except:
+    except (UnicodeDecodeError, AttributeError) as e:
+        # 로깅 추가로 디버깅 개선
+        print(f"패킷 디코딩 실패: {e}")
         return None
 
     lines = text.split("\r\n")
