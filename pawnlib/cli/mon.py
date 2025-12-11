@@ -695,26 +695,30 @@ def run_wallet_client_with_websocket(args, logger):
             pawn.console.log(f"Changed endpoint url  to {network_info}")
     else:
         network_info = None
-    # Initialize AsyncGoloopWebsocket client
+
+    address_filter = settings.get("address_filter", '')
+    if not address_filter or all(not x.strip() for x in address_filter):
+        address_filter = None
+
     async def run_client():
         async with ClientSession() as session:
             websocket_client = AsyncGoloopWebsocket(
-                url=settings['endpoint_url'],
-                verbose=int(settings['verbose']) > 2,
-                ignore_data_types=settings['ignore_data_types'],
-                check_tx_result_enabled=settings['check_tx_result_enabled'],
-                address_filter=settings['address_filter'],
-                send_slack=settings['send_slack'],
-                max_transaction_attempts=int(settings['max_transaction_attempts']),
-                slack_webhook_url=settings['slack_webhook_url'],
-                # logger=logger,
+                url=settings["endpoint_url"],
+                # verbose=int(settings["verbose"]) > 2,
+                verbose=settings["verbose"],
+                ignore_data_types=settings["ignore_data_types"],
+                check_tx_result_enabled=settings["check_tx_result_enabled"],
+                address_filter=address_filter,
+                send_slack=settings["send_slack"],
+                max_transaction_attempts=int(settings["max_transaction_attempts"]),
+                slack_webhook_url=settings["slack_webhook_url"],
+                logger=logger,
                 session=session,
                 network_info=network_info,
-                max_retries=settings['max_retries'],
-                bps_interval=settings['bps_interval'],
-                skip_until=settings['skip_until'],
-                base_dir=settings['base_dir'],
-
+                max_retries=settings["max_retries"],
+                bps_interval=settings["bps_interval"],
+                skip_until=settings["skip_until"],
+                base_dir=settings["base_dir"],
             )
             await websocket_client.initialize()
             await websocket_client.run_from_blockheight(blockheight=args.blockheight)
@@ -869,6 +873,11 @@ def main():
 
     print_var(settings)
 
+    # if settings.get('verbose', 0) > 3:
+    #     log_level = "debug"
+    # else:
+    #     log_level = "info"
+
     if settings.get('command'):
         # logger = initialize_logger(settings)
         logger = create_app_logger(
@@ -876,6 +885,7 @@ def main():
             log_type=settings.get('log_type'),
             verbose=settings.get('verbose'),
             propagate=False,
+            # log_level=log_level
         )
         logger.info(f"Running command: '{settings['command']}'")
 

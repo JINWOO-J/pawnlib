@@ -4513,7 +4513,7 @@ class AsyncGoloopWebsocket(AsyncCallWebsocket):
             to_prep_label = self.get_prep_info(to_address)
 
             if not from_address in self.address_filter and not to_address in self.address_filter:
-                self.logger.debug(f"Transaction passed: {from_address}{from_prep_label} 👉{to_address}{to_prep_label}")
+                self.logger.debug(f"Transaction passed: {from_address}{from_prep_label} 👉{to_address}{to_prep_label}")                
                 return
 
             method = tx_data.get("method", "Send") if tx_data and isinstance(tx_data, dict) else "Send"
