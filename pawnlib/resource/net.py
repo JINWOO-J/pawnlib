@@ -17,15 +17,30 @@ import signal
 import threading
 import queue
 
+# try:
+#     from bcc import BPF
+# except ImportError:
+#     BPF = None
+
 try:
     from bcc import BPF
-except ImportError:
+    BCC_AVAILABLE = True
+except Exception as e:
     BPF = None
+    BCC_AVAILABLE = False
+    # 필요하면 로그
 
 try:
     from typing import Literal, Tuple, List
 except ImportError:
     from typing_extensions import Literal, Tuple, List
+
+_PUBLIC_IP_CACHE_KEY = "CACHED_PUBLIC_IP"
+_DEFAULT_IP_SERVICES: List[str] = [
+    "http://checkip.amazonaws.com",
+    "https://api.ipify.org",
+    "https://ifconfig.me/ip",
+]
 
 prev_getaddrinfo = socket.getaddrinfo
 
@@ -627,44 +642,97 @@ class OverrideDNS:
         socket.getaddrinfo = self.prv_getaddrinfo
 
 
-def get_public_ip(use_cache=False):
-    """
-    The get_public_ip function returns the public IP address of the machine it is called on.
-
-    :param use_cache: Whether to use the cached public IP if available
-    :type use_cache: bool
-
-    :return: The public ip address of the server
+def _normalize_ip(text: str) -> str:
+    """공백/개행을 제거하고 깔끔한 문자열로 변환."""
+    return text.strip()
 
 
-    Example:
+def _is_valid_ip(ip: str) -> bool:
+    """IPv4/IPv6 모두 허용 (기존 is_valid_ipv4가 있다면 대체/조합)."""
+    # 기존 is_valid_ipv4 를 재사용하고 싶으면:
+    # if is_valid_ipv4(ip):
+    #     return True
 
-        .. code-block:: python
+    import ipaddress
 
-            from pawnlib.resource import net
-            net.get_public_ip()
-
-            net.get_public_ip(use_cache=True)
-
-    """
     try:
-        if use_cache and pawn.get('CACHED_PUBLIC_IP'):
-            return pawn.get('CACHED_PUBLIC_IP')
+        ipaddress.ip_address(ip)
+        return True
+    except ValueError:
+        return False
 
-        public_ip = http.jequest("http://checkip.amazonaws.com", timeout=2).get('text', "").strip()
 
-        if is_valid_ipv4(public_ip):
 
-            if use_cache:
-                pawn.set(CACHED_PUBLIC_IP=public_ip)
-            return public_ip
-        else:
-            pawn.error_logger.error(f"An error occurred while fetching Public IP address. Invalid IPv4 address - '{public_ip}'")
-            pawn.console.debug(f"An error occurred while fetching Public IP address. Invalid IPv4 address - '{public_ip}'")
+def get_public_ip(
+    use_cache: bool = False,
+    *,
+    services: Optional[List[str]] = None,
+    timeout: float = 2.0,
+    connect_timeout: Optional[float] = None,
+    raise_on_error: bool = False,
+) -> str:
+    """
+    Returns the public IP address of the current machine.
 
-    except Exception as e:
-        pawn.error_logger.error(f"An error occurred while fetching Public IP address - {e}")
-        pawn.console.debug(f"An error occurred while fetching Public IP address - {e}")
+    :param use_cache: Whether to use and update the cached public IP
+    :param services: List of public IP services to query in order
+    :param timeout: Response timeout (seconds)
+    :param connect_timeout: Connection timeout (seconds). If None, use `timeout`.
+    :param raise_on_error: If True, re-raise the last exception instead of returning an empty string
+    :return: The public IP address, or empty string on failure (if raise_on_error=False)
+
+    Example::
+
+        from pawnlib.resource import net
+
+        net.get_public_ip()
+        net.get_public_ip(use_cache=True)
+    """
+
+    services = services or _DEFAULT_IP_SERVICES
+    connect_timeout = connect_timeout if connect_timeout is not None else timeout
+
+    # 캐시 사용
+    if use_cache:
+        cached_ip = pawn.get(_PUBLIC_IP_CACHE_KEY)
+        if cached_ip and _is_valid_ip(cached_ip):
+            return cached_ip
+
+    last_exception: Optional[Exception] = None
+
+    for service in services:
+        try:
+            response = http.jequest(
+                service,
+                timeout=timeout,
+                connect_timeout=connect_timeout,
+            )
+
+            raw_text = response.get("text", "")
+            public_ip = _normalize_ip(raw_text)
+
+            if _is_valid_ip(public_ip):
+                if use_cache:
+                    pawn.set(**{_PUBLIC_IP_CACHE_KEY: public_ip})
+                return public_ip
+
+            msg = (
+                f"Invalid IP address received from '{service}' - '{public_ip}'"
+            )
+            pawn.error_logger.error(msg)
+            pawn.console.debug(msg)
+
+        except Exception as e:
+            last_exception = e
+            pawn.error_logger.error(
+                f"An error occurred while fetching Public IP address from '{service}' - {e}"
+            )
+            pawn.console.debug(
+                f"An error occurred while fetching Public IP address from '{service}' - {e}"
+            )
+
+    if raise_on_error and last_exception is not None:
+        raise last_exception
 
     return ""
 
