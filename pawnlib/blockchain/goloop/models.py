@@ -5,14 +5,27 @@ from typing import Dict, Optional
 @dataclass
 class PeerEndpoint:
     """
-    Additional information about a single IP address.
+    단일 IP 주소에 대한 추가 정보를 담는 클래스입니다.
     """
     count: int = 0
-    """The number of times this IP address has been encountered."""
+    """이 IP 주소가 발견된 횟수입니다."""
     peer_type: str = ""
-    """The type of peer, e.g., 'friends', 'children'."""
+    """피어의 타입입니다. 예: 'friends', 'children'."""
     rtt: Optional[float] = None
-    """Round Trip Time (RTT) to this endpoint."""
+    """이 엔드포인트까지의 왕복 시간(Round Trip Time)입니다."""
+
+    def to_dict(self):
+        """
+        데이터클래스를 딕셔너리로 변환합니다.
+        
+        Returns:
+            dict: PeerEndpoint 객체를 딕셔너리로 변환한 결과
+        """
+        return {
+            'count': self.count,
+            'peer_type': self.peer_type,
+            'rtt': self.rtt,
+        }
 
 
 @dataclass
@@ -80,3 +93,21 @@ class PeerInfo:
                 self.ip_addresses[ip].peer_type = peer_type
             if rtt is not None:
                 self.ip_addresses[ip].rtt = rtt
+
+    def to_dict(self):
+        """
+        데이터클래스를 딕셔너리로 변환합니다.
+        중첩된 PeerEndpoint 객체도 함께 변환됩니다.
+        
+        Returns:
+            dict: PeerInfo 객체를 딕셔너리로 변환한 결과
+        """
+        return {
+            'hx': self.hx,
+            'name': self.name,
+            'ip_addresses': {
+                ip: endpoint.to_dict() if hasattr(endpoint, 'to_dict') else endpoint.__dict__
+                for ip, endpoint in self.ip_addresses.items()
+            },
+            'ip_count': self.ip_count,
+        }

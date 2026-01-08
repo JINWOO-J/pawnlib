@@ -6,6 +6,35 @@ import time
 from pawnlib.config import pawn, LoggerMixinVerbose
 from pawnlib.utils.http import NetworkInfo, AsyncIconRpcHelper, append_http
 from pawnlib.blockchain.goloop.models import PeerEndpoint, PeerInfo
+from pawnlib.output import print_var
+
+
+def convert_peer_info_to_dict(peer_info_dict: dict) -> dict:
+    """
+    PeerInfo 객체들을 포함한 딕셔너리를 완전히 dict로 변환합니다.
+    중첩된 PeerEndpoint 객체도 함께 변환됩니다.
+    원본 딕셔너리는 수정하지 않습니다.
+    
+    Args:
+        peer_info_dict (dict): hx를 키로 하고 PeerInfo 객체를 값으로 하는 딕셔너리
+        
+    Returns:
+        dict: 모든 객체가 dict로 변환된 결과
+        
+    Example:
+        >>> result = convert_peer_info_to_dict(self.hx_to_ip)
+        >>> # 결과는 완전히 JSON 직렬화 가능한 dict
+    """
+    result = {}
+    for hx, peer_info in peer_info_dict.items():
+        # PeerInfo 객체인 경우 to_dict() 호출, 이미 dict인 경우 그대로 사용
+        if hasattr(peer_info, 'to_dict'):
+            result[hx] = peer_info.to_dict()
+        elif isinstance(peer_info, dict):
+            result[hx] = peer_info
+        else:
+            result[hx] = peer_info.__dict__ if hasattr(peer_info, '__dict__') else peer_info
+    return result
 
 
 class P2PNetworkParser(LoggerMixinVerbose):
@@ -24,6 +53,7 @@ class P2PNetworkParser(LoggerMixinVerbose):
             verbose: int = 0,
             logger=None,
             nid=None,
+            platform="icon"
     ):
         """
         Initializes the P2PNetworkParser.
@@ -42,6 +72,9 @@ class P2PNetworkParser(LoggerMixinVerbose):
         :type logger: Any, optional
         :param nid: Optional NID (Network ID) to specify for RPC calls. If None, it will be automatically discovered.
         :type nid: Optional[Any]
+        :param platform: The blockchain platform type. Defaults to "icon".
+        :type platform: str
+
 
         Example:
 
@@ -101,6 +134,8 @@ class P2PNetworkParser(LoggerMixinVerbose):
         """Number of errors encountered during parsing."""
         self.timeout_count = 0
         """Number of timeout errors encountered."""
+        self.platform = platform
+        """The blockchain platform type, e.g., "icon"."""
 
         self.logger.info(f"***** P2PNetworkParser Initialized with max_concurrent={max_concurrent}")
 
@@ -169,6 +204,30 @@ class P2PNetworkParser(LoggerMixinVerbose):
             self.hx_to_ip[hx] = PeerInfo(hx=hx, name=node_name)
 
         peer_info = self.hx_to_ip[hx]
+        
+        # peer_info가 dict로 변환되어 있는 경우 PeerInfo 객체로 복원
+        if isinstance(peer_info, dict):
+            # dict에서 PeerInfo 객체로 복원
+            restored_peer_info = PeerInfo(
+                hx=peer_info.get('hx', hx),
+                name=peer_info.get('name', ''),
+                ip_count=peer_info.get('ip_count', 0)
+            )
+            # ip_addresses 복원
+            if 'ip_addresses' in peer_info:
+                for ip_addr, endpoint_data in peer_info['ip_addresses'].items():
+                    if isinstance(endpoint_data, dict):
+                        restored_peer_info.ip_addresses[ip_addr] = PeerEndpoint(
+                            count=endpoint_data.get('count', 0),
+                            peer_type=endpoint_data.get('peer_type', ''),
+                            rtt=endpoint_data.get('rtt')
+                        )
+                    else:
+                        restored_peer_info.ip_addresses[ip_addr] = endpoint_data
+            
+            # 복원된 객체로 교체
+            self.hx_to_ip[hx] = restored_peer_info
+            peer_info = restored_peer_info
 
         if ip not in peer_info.ip_addresses:
             peer_info.ip_count += 1  # 새로운 IP 등록
@@ -256,9 +315,16 @@ class P2PNetworkParser(LoggerMixinVerbose):
                 if not self.preps_info:
                     self.logger.info(f"[PREPS FETCH] Fetching P-Reps info from {query_url}")
                     try:
-                        # AsyncIconRpcHelper가 자체 timeout을 가지고 있으므로 wait_for 제거
-                        self.preps_info = await self.rpc_helper.get_preps(url=query_url, return_dict_key="nodeAddress")
+                        if self.platform == "icon":
+                            # AsyncIconRpcHelper가 자체 timeout을 가지고 있으므로 wait_for 제거
+                            self.preps_info = await self.rpc_helper.get_preps(url=query_url, return_dict_key="nodeAddress")
+                        elif self.platform == "havah":
+                            self.preps_info = await self.rpc_helper.get_validator_info(url=query_url, return_dict_key="node")
+                        else:
+                            self.logger.info(f"Unsupported platform: {self.platform}")
+                            
                         self.logger.info(f"[PREPS FETCHED] Total P-Reps: {len(self.preps_info)}")
+                        
                     except asyncio.TimeoutError:
                         self.timeout_count += 1
                         self.logger.warning(f"[PREPS TIMEOUT] {query_url}")
@@ -534,11 +600,17 @@ class P2PNetworkParser(LoggerMixinVerbose):
         # 상세 통계 계산
         total_ip_hx_relations = sum(len(hx_list) for hx_list in self.ip_to_hx.values())
         
-        # HX별 IP 개수 계산
-        total_hx_ip_relations = sum(peer_info.ip_count for peer_info in self.hx_to_ip.values())
+        # HX별 IP 개수 계산 (PeerInfo 객체 또는 dict 모두 처리)
+        total_hx_ip_relations = sum(
+            peer_info.get('ip_count', 0) if isinstance(peer_info, dict) else peer_info.ip_count 
+            for peer_info in self.hx_to_ip.values()
+        )
         
-        # 여러 IP를 가진 HX 개수
-        multi_ip_hx_count = sum(1 for peer_info in self.hx_to_ip.values() if peer_info.ip_count > 1)
+        # 여러 IP를 가진 HX 개수 (PeerInfo 객체 또는 dict 모두 처리)
+        multi_ip_hx_count = sum(
+            1 for peer_info in self.hx_to_ip.values() 
+            if (peer_info.get('ip_count', 0) if isinstance(peer_info, dict) else peer_info.ip_count) > 1
+        )
         
         # 여러 HX를 가진 IP 개수
         multi_hx_ip_count = sum(1 for hx_list in self.ip_to_hx.values() if len(hx_list) > 1)
@@ -593,7 +665,7 @@ class P2PNetworkParser(LoggerMixinVerbose):
         # 결과 데이터 구성
         result = {
             "ip_to_hx": self.ip_to_hx,
-            "hx_to_ip": self.hx_to_ip,
+            "hx_to_ip": convert_peer_info_to_dict(self.hx_to_ip),
             "statistics": {
                 "total_ips": len(self.ip_set),
                 "total_hx": len(self.hx_to_ip),
@@ -606,5 +678,5 @@ class P2PNetworkParser(LoggerMixinVerbose):
                 "missing_preps_count": len(missing_preps),
             }
         }
-        
+        pawn.console.log(result)
         return result

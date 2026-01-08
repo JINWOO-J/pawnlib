@@ -5461,15 +5461,20 @@ class AsyncIconRpcHelper(LoggerMixinVerbose):
         result = {address: info['name'] for address, info in preps_info.items()}
         return result
 
-    async def get_validator_info(self, url: Optional[str] = None):
+    async def get_validator_info(self, url: Optional[str] = None, return_dict_key=""):
         target_url = url or self.url
-        return await self.execute_rpc_call(
+        result = await self.execute_rpc_call(
             url=target_url,
             governance_address=const.CHAIN_SCORE_ADDRESS,
             method='getValidatorsInfo',
             params={"dataType": "all"},
             return_key="result.validators"
         )
+
+        if return_dict_key:
+            return list_to_dict_by_key(result, return_dict_key)
+        
+        return result
 
     async def _get_tx_result(self, tx_hash, url: Optional[str] = None):
         target_url = url or self.url

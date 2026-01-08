@@ -153,6 +153,7 @@ def get_arguments(parser):
     parser.add_argument('--max-concurrent', type=int, help='Maximum concurrent connections for P2P analysis (default: %(default)s)', default=5)
     parser.add_argument('--timeout', type=int, help='timeout  (default: %(default)s)', default=5)
     parser.add_argument('--max-depth', type=int, help='depth  (default: %(default)s)', default=3)
+    parser.add_argument('--platform', type=str, help='platform  (default: %(default)s)', default="icon")
 
     return parser
 
@@ -301,11 +302,13 @@ async def main():
         await monitor.run()
 
     elif args.command == "p2p":
+        import traceback
         try:
             parser = P2PNetworkParser(
                 args.url,
                 max_concurrent=args.max_concurrent,
-                timeout=args.timeout, logger=logger, max_depth=args.max_depth, verbose=args.verbose
+                timeout=args.timeout, logger=logger, max_depth=args.max_depth, verbose=args.verbose,
+                platform=args.platform
             )
             ip_to_hx_map = await parser.run()
 
@@ -322,7 +325,15 @@ async def main():
             # 여러 IP를 가진 노드만 출력
             multi_ip_nodes = []
             for hx_address, peer_info in hx_to_ip.items():
-                if peer_info.ip_count > 1 and peer_info.hx:
+                # peer_info가 dict인지 PeerInfo 객체인지 확인
+                if isinstance(peer_info, dict):
+                    ip_count = peer_info.get('ip_count', 0)
+                    hx = peer_info.get('hx', '')
+                else:
+                    ip_count = getattr(peer_info, 'ip_count', 0)
+                    hx = getattr(peer_info, 'hx', '')
+                
+                if ip_count > 1 and hx:
                     multi_ip_nodes.append(peer_info)
             
             if multi_ip_nodes:
@@ -334,6 +345,8 @@ async def main():
                 pawn.console.log("[dim]No nodes with multiple IPs found.[/dim]")
         except Exception as e:
             pawn.console.log(f"[red]Error during P2P analysis:[/red] {e}")
+            pawn.console.log(f"[red]Full traceback:[/red]")
+            pawn.console.log(traceback.format_exc())
 
 
 def guess_network(network_info):
