@@ -35,7 +35,7 @@ Pygments>=2.14.0
 inquirerpy==0.3.4
 eth_keyfile>=0.6.1
 coincurve~=18.0.0
-httpx~=0.24.0
+httpx~=0.25.0
 websocket-client~=0.59.0
 hatchling
 hatch-fancy-pypi-readme
